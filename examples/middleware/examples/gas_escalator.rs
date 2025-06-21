@@ -83,7 +83,7 @@ async fn main() -> eyre::Result<()> {
 struct LinearGasStrategy {
 	base_gas_limit: u64,
 	increase_amount: u64,
-	check_interval: Duration,
+	_check_interval: Duration,
 	max_gas_limit: Option<u64>,
 }
 
@@ -94,7 +94,7 @@ impl LinearGasStrategy {
 		check_interval: Duration,
 		max_gas_limit: Option<u64>,
 	) -> Self {
-		Self { base_gas_limit, increase_amount, check_interval, max_gas_limit }
+		Self { base_gas_limit, increase_amount, _check_interval: check_interval, max_gas_limit }
 	}
 
 	fn calculate_gas_limit(&self, attempt: u32) -> u64 {
@@ -113,7 +113,7 @@ impl LinearGasStrategy {
 struct ExponentialGasStrategy {
 	base_gas_limit: u64,
 	multiplier: f64,
-	check_interval: Duration,
+	_check_interval: Duration,
 	max_gas_limit: Option<u64>,
 }
 
@@ -124,7 +124,7 @@ impl ExponentialGasStrategy {
 		check_interval: Duration,
 		max_gas_limit: Option<u64>,
 	) -> Self {
-		Self { base_gas_limit, multiplier, check_interval, max_gas_limit }
+		Self { base_gas_limit, multiplier, _check_interval: check_interval, max_gas_limit }
 	}
 
 	fn calculate_gas_limit(&self, attempt: u32) -> u64 {
@@ -141,8 +141,8 @@ impl ExponentialGasStrategy {
 /// Adaptive gas strategy based on network conditions
 struct AdaptiveGasStrategy {
 	network_congestion_factor: f64,
-	recent_gas_usage: Vec<u64>,
-	base_gas_limit: u64,
+	_recent_gas_usage: Vec<u64>,
+	_base_gas_limit: u64,
 }
 
 impl AdaptiveGasStrategy {
@@ -171,12 +171,12 @@ impl AdaptiveGasStrategy {
 		};
 
 		// Calculate congestion factor (simplified)
-		let congestion_factor = (avg_gas_per_block as f64 / 5_000_000.0).min(2.0).max(0.5);
+		let congestion_factor = (avg_gas_per_block as f64 / 5_000_000.0).clamp(0.5, 2.0);
 
 		Ok(Self {
 			network_congestion_factor: congestion_factor,
-			recent_gas_usage: vec![avg_gas_per_block],
-			base_gas_limit: 1_000_000,
+			_recent_gas_usage: vec![avg_gas_per_block],
+			_base_gas_limit: 1_000_000,
 		})
 	}
 
@@ -204,7 +204,7 @@ async fn test_gas_strategy(
 	strategy: &dyn GasStrategy,
 	strategy_name: &str,
 ) -> eyre::Result<()> {
-	println!("     Strategy: {}", strategy_name);
+	println!("     Strategy: {strategy_name}");
 
 	for attempt in 0..5 {
 		let gas_limit = strategy.calculate_gas_for_attempt(attempt);
@@ -242,8 +242,7 @@ async fn test_adaptive_strategy(
 		let estimated_cost = gas_limit as f64 * 0.00000001;
 
 		println!(
-			"     {:?} transaction: Gas Limit = {}, Est. Cost = {:.8} GAS",
-			complexity, gas_limit, estimated_cost
+			"     {complexity:?} transaction: Gas Limit = {gas_limit}, Est. Cost = {estimated_cost:.8} GAS"
 		);
 	}
 
@@ -261,13 +260,13 @@ async fn simulate_network_conditions(_client: &RpcClient<HttpProvider>) -> eyre:
 	];
 
 	for (condition, multiplier, expected_delay) in scenarios {
-		println!("     📊 {} ({}x base cost, ~{:?} delay)", condition, multiplier, expected_delay);
+		println!("     📊 {condition} ({multiplier}x base cost, ~{expected_delay:?} delay)");
 
 		let base_gas = 1_000_000u64;
 		let adjusted_gas = (base_gas as f64 * multiplier) as u64;
 		let estimated_cost = adjusted_gas as f64 * 0.00000001;
 
-		println!("       Recommended gas: {}, Est. cost: {:.8} GAS", adjusted_gas, estimated_cost);
+		println!("       Recommended gas: {adjusted_gas}, Est. cost: {estimated_cost:.8} GAS");
 	}
 
 	Ok(())
