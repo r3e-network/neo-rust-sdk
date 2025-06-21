@@ -4,15 +4,6 @@
 /// Neo uses witness-based transactions and doesn't require explicit nonce management.
 /// This example demonstrates transaction concepts in Neo N3.
 
-#[derive(Debug, Clone)]
-struct PreparedTransaction {
-	scenario: String,
-	from: String,
-	to: String,
-	amount: u64,
-	asset: String,
-}
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("🔐 Neo N3 Transaction Management Example");

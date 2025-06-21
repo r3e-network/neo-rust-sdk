@@ -48,7 +48,7 @@ async fn main() -> eyre::Result<()> {
 						}
 					},
 				Err(e) => {
-					println!("   ⚠️  Error checking for blocks: {}", e);
+					println!("   ⚠️  Error checking for blocks: {e}");
 				},
 			}
 		}
@@ -221,7 +221,7 @@ impl<'a> BlockMonitor<'a> {
 /// Print detailed block information
 fn print_block_info(block: &BlockInfo) {
 	let datetime = chrono::DateTime::from_timestamp(block.timestamp as i64 / 1000, 0)
-		.unwrap_or_else(|| chrono::Utc::now());
+		.unwrap_or_else(chrono::Utc::now);
 
 	println!("\n   📦 New Block Received:");
 	println!("     Block Index: {}", block.index);
