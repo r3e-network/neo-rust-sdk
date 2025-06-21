@@ -38,27 +38,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("   6. Send actual transaction if test succeeds");
 
 	println!("\n⚡ Example Test Invoke Response:");
-	println!("   {");
+	println!("   {{");
 	println!("     \"state\": \"HALT\",");
 	println!("     \"gasconsumed\": \"2011320\",");
 	println!("     \"exception\": null,");
 	println!("     \"stack\": [");
-	println!("       {");
+	println!("       {{");
 	println!("         \"type\": \"Boolean\",");
 	println!("         \"value\": true");
-	println!("       }");
+	println!("       }}");
 	println!("     ],");
 	println!("     \"notifications\": [");
-	println!("       {");
+	println!("       {{");
 	println!("         \"contract\": \"0xd2a4cff31913016155e38e474a2c06d08be276cf\",");
 	println!("         \"eventname\": \"Transfer\",");
-	println!("         \"state\": {");
+	println!("         \"state\": {{");
 	println!("           \"type\": \"Array\",");
 	println!("           \"value\": [...]");
-	println!("         }");
-	println!("       }");
+	println!("         }}");
+	println!("       }}");
 	println!("     ]");
-	println!("   }");
+	println!("   }}");
 
 	println!("\n🔐 Security Benefits:");
 	println!("   • No risk of losing funds during testing");

@@ -119,7 +119,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 			println!("   📊 Mempool size: {} transactions", total_tx);
 			if !mempool.verified.is_empty() || !mempool.unverified.is_empty() {
 				println!("   📋 Sample pending transactions:");
-				for (idx, tx_hash) in mempool.verified.iter().chain(mempool.unverified.iter()).take(3).enumerate() {
+				for (idx, tx_hash) in
+					mempool.verified.iter().chain(mempool.unverified.iter()).take(3).enumerate()
+				{
 					println!("      {}. 0x{}", idx + 1, tx_hash);
 				}
 			}

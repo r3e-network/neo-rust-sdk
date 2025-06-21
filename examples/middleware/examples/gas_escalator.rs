@@ -154,9 +154,9 @@ impl AdaptiveGasStrategy {
 
 		// Sample recent blocks to understand gas usage patterns
 		for i in 0..5 {
-			if let Ok(block_index) = block_count.checked_sub(i + 1) {
-				if let Ok(block) = client.get_block(serde_json::json!(block_index)).await {
-					if let Some(transactions) = block.get("tx").and_then(|tx| tx.as_array()) {
+			if let Some(block_index) = block_count.checked_sub(i + 1) {
+				if let Ok(block) = client.get_block_by_index(block_index, true).await {
+					if let Some(transactions) = &block.transactions {
 						total_gas_used += transactions.len() as u64 * 1_000_000; // Estimate
 						block_samples += 1;
 					}

@@ -345,9 +345,18 @@ fn display_production_checklist() {
 fn encode_transfer(recipient: &str, amount: U256) -> Vec<u8> {
 	let mut data = Vec::new();
 	// Function selector for transfer(address,uint256)
-	data.extend_from_slice(&hex::decode("a9059cbb").unwrap());
-	// Recipient address (padded to 32 bytes)
-	let recipient_bytes = hex::decode(&recipient[2..]).unwrap();
+	data.extend_from_slice(&[0xa9, 0x05, 0x9c, 0xbb]); // transfer(address,uint256) selector
+													// Recipient address (padded to 32 bytes)
+	let recipient_hex = &recipient[2..]; // Remove 0x prefix
+	let mut recipient_bytes = Vec::new();
+	for chunk in recipient_hex.as_bytes().chunks(2) {
+		if chunk.len() == 2 {
+			let hex_str = std::str::from_utf8(chunk).unwrap_or("00");
+			if let Ok(byte) = u8::from_str_radix(hex_str, 16) {
+				recipient_bytes.push(byte);
+			}
+		}
+	}
 	data.extend_from_slice(&[0u8; 12]);
 	data.extend_from_slice(&recipient_bytes);
 	// Amount (32 bytes)

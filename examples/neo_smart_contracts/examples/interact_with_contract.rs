@@ -1,7 +1,11 @@
 use neo3::{
-	neo_clients::{HttpProvider, RpcClient},
+	neo_builder,
+	neo_clients::{APITrait, HttpProvider, RpcClient},
+	neo_crypto::KeyPair,
+	neo_protocol::{Account, AccountTrait},
+	neo_types,
+	neo_types::ScriptHash,
 	prelude::*,
-	Account, ScriptHash,
 };
 use std::str::FromStr;
 
@@ -23,8 +27,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("\n👤 2. Setting up account for interaction...");
 
 	// Create a demo account (for production deployments, load from secure storage)
-	let account = Account::create()?;
-	println!("   Demo account address: {}", account.address_or_scripthash().address());
+	let key_pair = KeyPair::new_random();
+	let account = Account::from_key_pair(key_pair, None, None)?;
+	println!("   Demo account address: {}", account.get_address());
 	println!("   💡 For production deployments: Load account from secure WIF or hardware wallet");
 
 	// 3. Contract References - Native Neo N3 Contracts
@@ -93,7 +98,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 			neo_types::ContractParameter::h160(&demo_script_hash),
 			neo_types::ContractParameter::h160(&recipient),
 			neo_types::ContractParameter::integer(transfer_amount as i64),
-			neo_types::ContractParameter::any(None),
+			neo_types::ContractParameter::any(),
 		],
 		None,
 	)?;
@@ -191,7 +196,7 @@ async fn query_token_info(
 	let script = builder.to_bytes();
 
 	// Execute read-only call via invoke_function
-	match client.invoke_function(token_hash, "symbol", None, None, None).await {
+	match client.invoke_function(token_hash, "symbol".to_string(), vec![], None).await {
 		Ok(symbol_result) => {
 			if let Some(symbol) = symbol_result.stack.first().and_then(|s| s.as_string()) {
 				println!("     {} Token Properties:", token_name);
@@ -201,7 +206,7 @@ async fn query_token_info(
 		Err(e) => println!("     Failed to get symbol: {}", e),
 	}
 
-	match client.invoke_function(token_hash, "decimals", None, None, None).await {
+	match client.invoke_function(token_hash, "decimals".to_string(), vec![], None).await {
 		Ok(decimals_result) => {
 			if let Some(decimals) = decimals_result.stack.first().and_then(|s| s.as_int()) {
 				println!("       Decimals: {}", decimals);
@@ -210,7 +215,10 @@ async fn query_token_info(
 		Err(e) => println!("     Failed to get decimals: {}", e),
 	}
 
-	match client.invoke_function(token_hash, "totalSupply", None, None, None).await {
+	match client
+		.invoke_function(token_hash, "totalSupply".to_string(), vec![], None)
+		.await
+	{
 		Ok(supply_result) => {
 			if let Some(supply) = supply_result.stack.first().and_then(|s| s.as_int()) {
 				println!("       Total Supply: {}", supply);
@@ -240,15 +248,20 @@ async fn query_account_balance(
 		None,
 	)?;
 
-	let script = builder.to_bytes();
-	let result = client.invoke_function(hex::encode(&script), vec![], vec![]).await?;
+	let _script = builder.to_bytes();
+	let result = client
+		.invoke_function(
+			token_hash,
+			"balanceOf".to_string(),
+			vec![neo_types::ContractParameter::h160(account_hash)],
+			None,
+		)
+		.await?;
 
-	if let Some(stack) = result.stack {
-		if let Some(first) = stack.first() {
-			if let Some(balance) = first.as_int() {
-				let formatted_balance = balance as f64 / 10f64.powi(decimals as i32);
-				return Ok(formatted_balance);
-			}
+	if let Some(first) = result.stack.first() {
+		if let Some(balance) = first.as_int() {
+			let formatted_balance = balance as f64 / 10f64.powi(decimals as i32);
+			return Ok(formatted_balance);
 		}
 	}
 
