@@ -50,7 +50,7 @@ pub enum NetworkCommands {
 	#[command(about = "Add a new network configuration")]
 	Add {
 		/// Network name
-		#[arg(short, long, help = "Name for the network")]
+		#[arg(long, help = "Name for the network")]
 		name: String,
 
 		/// RPC URL
@@ -196,7 +196,7 @@ async fn handle_connect_network(
 				Cell::new(format!("{} Connected", status_indicator("success"))).fg(Color::Green),
 			]);
 
-			println!("{}", table);
+			println!("{table}");
 			print_success("🌐 Successfully connected to network!");
 		},
 		Err(e) => {
@@ -262,7 +262,7 @@ async fn handle_network_status(state: &CliState) -> Result<(), CliError> {
 		Cell::new(format!("{} Active", status_indicator("success"))).fg(Color::Green),
 	]);
 
-	println!("{}", table);
+	println!("{table}");
 
 	Ok(())
 }
@@ -303,7 +303,7 @@ async fn handle_list_networks(state: &CliState) -> Result<(), CliError> {
 		]);
 	}
 
-	println!("{}", table);
+	println!("{table}");
 	print_info(&format!("Total networks: {}", state.networks.len()));
 
 	Ok(())
@@ -368,7 +368,7 @@ async fn handle_add_network(
 		Cell::new(format!("{} Added Successfully", status_indicator("success"))).fg(Color::Green),
 	]);
 
-	println!("{}", table);
+	println!("{table}");
 	print_success("✅ Network added successfully!");
 
 	Ok(())

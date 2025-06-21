@@ -235,7 +235,7 @@ async fn handle_config_command(show_path: bool) -> Result<(), CliError> {
 		let config_content = std::fs::read_to_string(&config_path).map_err(|e| CliError::Io(e))?;
 
 		println!("\n{}", "Current Configuration:".bright_green().bold());
-		println!("{}", config_content);
+		println!("{config_content}");
 	} else {
 		print_warning("No configuration file found. Run 'neo-cli init' to create one.");
 	}

@@ -239,7 +239,7 @@ async fn handle_encode(
 		Cell::new(&encoded).fg(Color::Blue),
 	]);
 
-	println!("{}", table);
+	println!("{table}");
 	print_success("✅ Data encoded successfully!");
 
 	Ok(())
@@ -300,7 +300,7 @@ async fn handle_decode(
 		Cell::new(&output).fg(Color::Blue),
 	]);
 
-	println!("{}", table);
+	println!("{table}");
 	print_success("✅ Data decoded successfully!");
 
 	Ok(())
@@ -360,7 +360,7 @@ async fn handle_hash(
 	]);
 	table.add_row(vec![Cell::new("Hash").fg(Color::Cyan), Cell::new(&hash_output).fg(Color::Blue)]);
 
-	println!("{}", table);
+	println!("{table}");
 	print_success("✅ Hash generated successfully!");
 
 	Ok(())
@@ -396,7 +396,7 @@ async fn handle_random_generation(bytes: usize, format: String) -> Result<(), Cl
 		Cell::new(&output).fg(Color::Blue),
 	]);
 
-	println!("{}", table);
+	println!("{table}");
 	print_success("🎲 Random data generated successfully!");
 
 	Ok(())
@@ -435,7 +435,7 @@ async fn handle_calculate_fee(
 		Cell::new(format!("{} GAS", total_fee)).fg(Color::Blue),
 	]);
 
-	println!("{}", table);
+	println!("{table}");
 	print_success("💰 Transaction fee calculated successfully!");
 
 	Ok(())
@@ -464,9 +464,9 @@ async fn handle_format_json(input: String, compact: bool) -> Result<(), CliError
 		Cell::new(format!("{} Yes", status_indicator("success"))).fg(Color::Green),
 	]);
 
-	println!("{}", table);
+	println!("{table}");
 	println!("\n{}", "Formatted JSON:".bright_green().bold());
-	println!("{}", formatted);
+	println!("{formatted}");
 
 	print_success("✅ JSON formatted successfully!");
 

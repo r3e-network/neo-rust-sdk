@@ -500,7 +500,7 @@ pub async fn handle_flamingo_swap(
 
 	// Professional transaction completion with comprehensive status reporting
 	println!("Swap transaction sent successfully!");
-	println!("Transaction ID: {}", tx_id);
+	println!("Transaction ID: {tx_id}");
 	println!("From: {} {}", amount, from_token);
 	println!("To: {} (minimum: {})", to_token, min_return.unwrap_or("10% of input"));
 
@@ -543,7 +543,7 @@ pub async fn handle_flamingo_add_liquidity(
 		.map_err(|e| CliError::Contract(format!("Failed to add liquidity: {}", e)))?;
 
 	println!("Added liquidity successfully!");
-	println!("Transaction ID: {}", tx_id);
+	println!("Transaction ID: {tx_id}");
 	println!("Token A: {} {}", amount_a, token_a);
 	println!("Token B: {} {}", amount_b, token_b);
 
@@ -584,8 +584,8 @@ pub async fn handle_flamingo_remove_liquidity(
 		.map_err(|e| CliError::Contract(format!("Failed to remove liquidity: {}", e)))?;
 
 	println!("Removed liquidity successfully!");
-	println!("Transaction ID: {}", tx_id);
-	println!("Liquidity amount: {}", liquidity);
+	println!("Transaction ID: {tx_id}");
+	println!("Liquidity amount: {liquidity}");
 	println!("Tokens: {} and {}", token_a, token_b);
 
 	Ok(())
@@ -622,7 +622,7 @@ pub async fn handle_flamingo_stake(
 		.map_err(|e| CliError::Contract(format!("Failed to stake tokens: {}", e)))?;
 
 	println!("Staked tokens successfully!");
-	println!("Transaction ID: {}", tx_id);
+	println!("Transaction ID: {tx_id}");
 	println!("Amount: {} {}", amount, token);
 
 	Ok(())
@@ -647,7 +647,7 @@ pub async fn handle_flamingo_claim_rewards(state: &mut CliState) -> Result<(), C
 		.map_err(|e| CliError::Contract(format!("Failed to claim rewards: {}", e)))?;
 
 	println!("Claimed rewards successfully!");
-	println!("Transaction ID: {}", tx_id);
+	println!("Transaction ID: {tx_id}");
 
 	Ok(())
 }
@@ -680,8 +680,8 @@ pub async fn handle_neoburger_wrap(amount: &str, state: &mut CliState) -> Result
 		.map_err(|e| CliError::Contract(format!("Failed to wrap NEO: {}", e)))?;
 
 	println!("Wrapped NEO to bNEO successfully!");
-	println!("Transaction ID: {}", tx_id);
-	println!("Amount: {} NEO", amount);
+	println!("Transaction ID: {tx_id}");
+	println!("Amount: {amount} NEO");
 
 	Ok(())
 }
@@ -712,8 +712,8 @@ pub async fn handle_neoburger_unwrap(amount: &str, state: &mut CliState) -> Resu
 		.map_err(|e| CliError::Contract(format!("Failed to unwrap bNEO: {}", e)))?;
 
 	println!("Unwrapped bNEO to NEO successfully!");
-	println!("Transaction ID: {}", tx_id);
-	println!("Amount: {} bNEO", amount);
+	println!("Transaction ID: {tx_id}");
+	println!("Amount: {amount} bNEO");
 
 	Ok(())
 }
@@ -737,7 +737,7 @@ pub async fn handle_neoburger_claim_gas(state: &mut CliState) -> Result<(), CliE
 		.map_err(|e| CliError::Contract(format!("Failed to claim GAS: {}", e)))?;
 
 	println!("Claimed GAS successfully!");
-	println!("Transaction ID: {}", tx_id);
+	println!("Transaction ID: {tx_id}");
 
 	Ok(())
 }
@@ -793,7 +793,7 @@ pub async fn handle_neocompound_deposit(
 		.map_err(|e| CliError::Contract(format!("Failed to deposit tokens: {}", e)))?;
 
 	println!("Deposited tokens successfully!");
-	println!("Transaction ID: {}", tx_id);
+	println!("Transaction ID: {tx_id}");
 	println!("Amount: {} {}", amount, token);
 
 	Ok(())
@@ -830,7 +830,7 @@ pub async fn handle_neocompound_withdraw(
 		.map_err(|e| CliError::Contract(format!("Failed to withdraw tokens: {}", e)))?;
 
 	println!("Withdrew tokens successfully!");
-	println!("Transaction ID: {}", tx_id);
+	println!("Transaction ID: {tx_id}");
 	println!("Amount: {} {}", amount, token);
 
 	Ok(())
@@ -863,8 +863,8 @@ pub async fn handle_neocompound_compound(
 		.map_err(|e| CliError::Contract(format!("Failed to compound tokens: {}", e)))?;
 
 	println!("Compounded tokens successfully!");
-	println!("Transaction ID: {}", tx_id);
-	println!("Token: {}", token);
+	println!("Transaction ID: {tx_id}");
+	println!("Token: {token}");
 
 	Ok(())
 }
@@ -924,9 +924,9 @@ pub async fn handle_grandshare_submit_proposal(
 		.map_err(|e| CliError::Contract(format!("Failed to submit proposal: {}", e)))?;
 
 	println!("Submitted proposal successfully!");
-	println!("Transaction ID: {}", tx_id);
-	println!("Title: {}", title);
-	println!("Requested amount: {}", amount);
+	println!("Transaction ID: {tx_id}");
+	println!("Title: {title}");
+	println!("Requested amount: {amount}");
 
 	Ok(())
 }
@@ -954,8 +954,8 @@ pub async fn handle_grandshare_vote(
 		.map_err(|e| CliError::Contract(format!("Failed to vote on proposal: {}", e)))?;
 
 	println!("Vote submitted successfully!");
-	println!("Transaction ID: {}", tx_id);
-	println!("Proposal ID: {}", proposal_id);
+	println!("Transaction ID: {tx_id}");
+	println!("Proposal ID: {proposal_id}");
 	println!("Vote: {}", if approve { "Approve" } else { "Reject" });
 
 	Ok(())
@@ -991,9 +991,9 @@ pub async fn handle_grandshare_fund_project(
 		.map_err(|e| CliError::Contract(format!("Failed to fund project: {}", e)))?;
 
 	println!("Project funded successfully!");
-	println!("Transaction ID: {}", tx_id);
-	println!("Project ID: {}", project_id);
-	println!("Amount: {}", amount);
+	println!("Transaction ID: {tx_id}");
+	println!("Project ID: {project_id}");
+	println!("Amount: {amount}");
 
 	Ok(())
 }
@@ -1020,8 +1020,8 @@ pub async fn handle_grandshare_claim_funds(
 		.map_err(|e| CliError::Contract(format!("Failed to claim funds: {}", e)))?;
 
 	println!("Funds claimed successfully!");
-	println!("Transaction ID: {}", tx_id);
-	println!("Project ID: {}", project_id);
+	println!("Transaction ID: {tx_id}");
+	println!("Project ID: {project_id}");
 
 	Ok(())
 }

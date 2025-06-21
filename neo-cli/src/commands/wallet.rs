@@ -382,7 +382,7 @@ async fn handle_create_wallet(
 		Cell::new("Created Successfully").fg(Color::Green),
 	]);
 
-	println!("{}", table);
+	println!("{table}");
 	print_info("💡 Use 'neo-cli wallet create-address' to create your first address");
 
 	Ok(())
@@ -465,7 +465,7 @@ async fn handle_list_addresses(state: &CliState) -> Result<(), CliError> {
 		]);
 	}
 
-	println!("{}", table);
+	println!("{table}");
 	print_info(&format!("Total addresses: {}", wallet.accounts.len()));
 
 	Ok(())
@@ -505,7 +505,7 @@ async fn handle_wallet_info(state: &CliState) -> Result<(), CliError> {
 		Cell::new(format!("{} Open", status_indicator("success"))).fg(Color::Green),
 	]);
 
-	println!("{}", table);
+	println!("{table}");
 
 	Ok(())
 }

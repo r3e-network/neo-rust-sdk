@@ -587,7 +587,7 @@ async fn handle_container_command(
 					Ok(())
 				},
 				Err(e) => {
-					eprintln!("Failed to list containers: {}", e);
+					eprintln!("Failed to list containers: {e}");
 					Err(e)
 				},
 			}
@@ -606,7 +606,7 @@ async fn handle_container_command(
 					Ok(())
 				},
 				Err(e) => {
-					eprintln!("Failed to get container: {}", e);
+					eprintln!("Failed to get container: {e}");
 					Err(e)
 				},
 			}
@@ -658,7 +658,7 @@ async fn handle_object_command(
 					Ok(())
 				},
 				Err(e) => {
-					eprintln!("Failed to upload object: {}", e);
+					eprintln!("Failed to upload object: {e}");
 					Err(e)
 				},
 			}
@@ -679,7 +679,7 @@ async fn handle_object_command(
 					Ok(())
 				},
 				Err(e) => {
-					eprintln!("Failed to download object: {}", e);
+					eprintln!("Failed to download object: {e}");
 					Err(e)
 				},
 			}
@@ -714,7 +714,7 @@ async fn handle_object_command(
 					Ok(())
 				},
 				Err(e) => {
-					eprintln!("Failed to list objects: {}", e);
+					eprintln!("Failed to list objects: {e}");
 					Err(e)
 				},
 			}
@@ -770,10 +770,10 @@ async fn handle_config_command(command: ConfigCommands) -> Result<(), CliError> 
 		},
 		ConfigCommands::Get => {
 			print_info("Current NeoFS configuration:");
-			println!("Mainnet Endpoint: {}", DEFAULT_MAINNET_ENDPOINT);
-			println!("Testnet Endpoint: {}", DEFAULT_TESTNET_ENDPOINT);
-			println!("Mainnet HTTP Gateway: {}", DEFAULT_MAINNET_HTTP_GATEWAY);
-			println!("Testnet HTTP Gateway: {}", DEFAULT_TESTNET_HTTP_GATEWAY);
+			println!("Mainnet Endpoint: {DEFAULT_MAINNET_ENDPOINT}");
+			println!("Testnet Endpoint: {DEFAULT_TESTNET_ENDPOINT}");
+			println!("Mainnet HTTP Gateway: {DEFAULT_MAINNET_HTTP_GATEWAY}");
+			println!("Testnet HTTP Gateway: {DEFAULT_TESTNET_HTTP_GATEWAY}");
 			Ok(())
 		},
 	}

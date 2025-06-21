@@ -73,7 +73,12 @@ fn test_wallet_list_address() {
 	// The command will fail because no wallet is open
 	// This is expected behavior for a CLI where each invocation is stateless
 	assert!(!output.status.success());
-	assert_output_contains(&output, "No wallet open");
+	// Check stderr for error message
+	let stderr = String::from_utf8_lossy(&output.stderr);
+	assert!(
+		stderr.contains("No wallet open"),
+		"Expected error message 'No wallet open', got: {stderr}"
+	);
 }
 
 #[test]

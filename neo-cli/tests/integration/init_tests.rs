@@ -7,8 +7,8 @@ mod tests {
 	fn test_init_default() {
 		let cli = CliTest::new();
 
-		// Run the init command with default parameters
-		let output = cli.run_command(&["init"]);
+		// Run the init command with default parameters (use --force in case config exists)
+		let output = cli.run_command(&["init", "--force"]);
 
 		// Check that the command executed successfully
 		assert_output_contains(&output, "Configuration initialized");

@@ -604,7 +604,7 @@ pub async fn handle_endpoint_command(command: EndpointCommands) -> Result<(), Cl
 						"✅ Successfully connected to {} endpoint: {}",
 						type_, test_endpoint
 					));
-					println!("   Network: {}", network);
+					println!("   Network: {network}");
 					println!("   Response time: < 1s");
 					Ok(())
 				},
@@ -613,7 +613,7 @@ pub async fn handle_endpoint_command(command: EndpointCommands) -> Result<(), Cl
 						"❌ Failed to connect to {} endpoint: {}",
 						type_, test_endpoint
 					));
-					println!("   Error: {}", e);
+					println!("   Error: {e}");
 					Err(CliError::Network(format!("Connection test failed: {}", e)))
 				},
 			}
@@ -758,7 +758,7 @@ async fn handle_container_command(
 				Ok(created_id) => {
 					print_success(&format!("✅ Container created successfully!"));
 					println!("   Container ID: {}", created_id.0);
-					println!("   Name: {}", name);
+					println!("   Name: {name}");
 					println!("   Owner: {}", account.get_address());
 				},
 				Err(e) => {
