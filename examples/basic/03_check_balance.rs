@@ -55,7 +55,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 	// Check balances for each address
 	for address_str in test_addresses {
-		println!("\n{}", format!("💳 Checking balances for: {}", address_str).green().bold());
+		println!("\n{}", format!("💳 Checking balances for: {address_str}").green().bold());
 		check_address_balances(&client, address_str).await;
 	}
 
@@ -99,7 +99,7 @@ async fn check_address_balances(client: &RpcClient<HttpProvider>, address_str: &
 						let amount = balance.amount.parse::<u64>().unwrap_or(0);
 						print!("  🔶 NEO Balance: ");
 						if amount > 0 {
-							println!("{}", format!("{} NEO", amount).green());
+							println!("{}", format!("{amount} NEO").green());
 						} else {
 							println!("{}", "0 NEO".dimmed());
 						}

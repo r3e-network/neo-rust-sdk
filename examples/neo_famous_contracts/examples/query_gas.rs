@@ -17,13 +17,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// Connect to Neo N3 TestNet
 	println!("\n📡 Connecting to Neo N3 TestNet...");
 	let provider = HttpProvider::new("https://testnet1.neo.org:443/")
-		.map_err(|e| format!("Failed to create provider: {}", e))?;
+		.map_err(|e| format!("Failed to create provider: {e}"))?;
 	let client = RpcClient::new(provider);
 	println!("   ✅ Connected successfully");
 
 	// GAS token contract hash on Neo N3
 	let gas_hash = ScriptHash::from_str("d2a4cff31913016155e38e474a2c06d08be276cf")?;
-	println!("\n📝 GAS Contract Hash: 0x{}", hex::encode(&gas_hash.0));
+	println!("\n📝 GAS Contract Hash: 0x{}", hex::encode(gas_hash.0));
 
 	// 1. Query GAS token information
 	println!("\n1️⃣ Querying GAS Token Information...");
@@ -50,11 +50,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	for (name, address) in known_addresses {
 		match ScriptHash::from_address(address) {
 			Ok(script_hash) => {
-				println!("\n   🏗️ {} ({})", name, address);
+				println!("\n   🏗️ {name} ({address})");
 				check_balance_by_script_hash(&client, &gas_hash, &script_hash).await?;
 			},
 			Err(e) => {
-				println!("   ⚠️ Failed to parse address {}: {}", address, e);
+				println!("   ⚠️ Failed to parse address {address}: {e}");
 			},
 		}
 	}
@@ -89,10 +89,10 @@ async fn query_gas_info(
 		Ok(result) =>
 			if let Some(stack_item) = result.stack.first() {
 				if let Some(symbol) = stack_item.as_string() {
-					println!("   🏷️ Symbol: {}", symbol);
+					println!("   🏷️ Symbol: {symbol}");
 				}
 			},
-		Err(e) => println!("   ⚠️ Failed to get symbol: {}", e),
+		Err(e) => println!("   ⚠️ Failed to get symbol: {e}"),
 	}
 
 	// Get token decimals
@@ -100,10 +100,10 @@ async fn query_gas_info(
 		Ok(result) =>
 			if let Some(stack_item) = result.stack.first() {
 				if let Some(decimals) = stack_item.as_int() {
-					println!("   🔢 Decimals: {}", decimals);
+					println!("   🔢 Decimals: {decimals}");
 				}
 			},
-		Err(e) => println!("   ⚠️ Failed to get decimals: {}", e),
+		Err(e) => println!("   ⚠️ Failed to get decimals: {e}"),
 	}
 
 	// Get total supply
@@ -112,12 +112,12 @@ async fn query_gas_info(
 			if let Some(stack_item) = result.stack.first() {
 				if let Some(supply) = stack_item.as_int() {
 					let gas_decimal = supply as f64 / 100_000_000.0; // GAS has 8 decimals
-					println!("   📊 Total Supply: {:.8} GAS", gas_decimal);
-					println!("   🔍 Raw Value: {} (in smallest unit)", supply);
+					println!("   📊 Total Supply: {gas_decimal:.8} GAS");
+					println!("   🔍 Raw Value: {supply} (in smallest unit)");
 				}
 			}
 		},
-		Err(e) => println!("   ⚠️ Failed to get total supply: {}", e),
+		Err(e) => println!("   ⚠️ Failed to get total supply: {e}"),
 	}
 
 	Ok(())
@@ -144,8 +144,8 @@ async fn check_gas_balance(
 			if let Some(balance_item) = result.stack.first() {
 				let balance = balance_item.as_int().unwrap_or(0);
 				let gas_balance = balance as f64 / 100_000_000.0;
-				println!("   💰 GAS Balance: {} GAS", gas_balance);
-				println!("   🔍 Raw Balance: {} (in smallest unit)", balance);
+				println!("   💰 GAS Balance: {gas_balance} GAS");
+				println!("   🔍 Raw Balance: {balance} (in smallest unit)");
 
 				if balance == 0 {
 					println!("   💭 This is a new account with no GAS");
@@ -153,7 +153,7 @@ async fn check_gas_balance(
 				}
 			},
 		Err(e) => {
-			println!("   ⚠️ Unable to fetch balance: {}", e);
+			println!("   ⚠️ Unable to fetch balance: {e}");
 			println!("   💭 This might be a new account with no transaction history");
 		},
 	}
@@ -180,7 +180,7 @@ async fn check_balance_by_script_hash(
 			if let Some(balance_item) = result.stack.first() {
 				let balance = balance_item.as_int().unwrap_or(0);
 				let gas_balance = balance as f64 / 100_000_000.0;
-				println!("      💰 Balance: {} GAS", gas_balance);
+				println!("      💰 Balance: {gas_balance} GAS");
 			},
 		Err(_) => {
 			println!("      💰 Balance: 0 GAS (or unable to fetch)");
