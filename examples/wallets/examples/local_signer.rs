@@ -68,8 +68,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 		)
 		.await?;
 
-	println!("   💰 NEO Balance: {:?}", neo_balance.stack.get(0));
-	println!("   ⛽ GAS Balance: {:?}", gas_balance.stack.get(0));
+	println!("   💰 NEO Balance: {:?}", neo_balance.stack.first());
+	println!("   ⛽ GAS Balance: {:?}", gas_balance.stack.first());
 
 	// 5. Create and sign a transaction
 	println!("\n5. Creating and signing a transaction:");
@@ -106,7 +106,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 	if let Some(key_pair) = account.key_pair() {
 		let signature = key_pair.private_key().sign_tx(message_bytes)?;
 		println!("   ✅ Message signed");
-		println!("   📝 Message: {}", message);
+		println!("   📝 Message: {message}");
 		println!("   🔏 Signature length: {} bytes", signature.to_bytes().len());
 
 		// Note: Signature verification would be done by the network when the transaction is submitted
@@ -138,7 +138,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 		.await?;
 
 	println!("   ✅ Contract invoked successfully");
-	println!("   📊 Total NEO supply: {:?}", invoke_result.stack.get(0));
+	println!("   📊 Total NEO supply: {:?}", invoke_result.stack.first());
 	println!("   ⛽ Gas consumed: {}", invoke_result.gas_consumed);
 
 	println!("\n🎉 Local signer example completed successfully!");

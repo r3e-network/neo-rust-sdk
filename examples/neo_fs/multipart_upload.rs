@@ -35,7 +35,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	];
 
 	for (file_size, strategy, reasoning) in part_strategies {
-		println!("   📊 {}: {} ({})", file_size, strategy, reasoning);
+		println!("   📊 {file_size}: {strategy} ({reasoning})");
 	}
 
 	// 4. Implementation concepts
@@ -48,7 +48,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("       object_name,");
 	println!("       metadata");
 	println!("   ).await?;");
-	println!("");
+	println!();
 	println!("   // 2. Upload parts");
 	println!("   let mut upload_parts = Vec::new();");
 	println!("   for (part_num, chunk) in file_chunks.enumerate() {{");
@@ -59,7 +59,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("       ).await?;");
 	println!("       upload_parts.push(part);");
 	println!("   }}");
-	println!("");
+	println!();
 	println!("   // 3. Complete upload");
 	println!("   let object = client.complete_multipart_upload(");
 	println!("       upload_id,");
@@ -83,7 +83,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	];
 
 	for (error_type, strategy, recovery) in error_scenarios {
-		println!("   ⚠️ {}: {} ({})", error_type, strategy, recovery);
+		println!("   ⚠️ {error_type}: {strategy} ({recovery})");
 	}
 
 	// 6. Parallel upload patterns
@@ -92,21 +92,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("   🚀 Concurrent Upload Strategy:");
 	println!("   ```rust");
 	println!("   use tokio::task::JoinSet;");
-	println!("");
+	println!();
 	println!("   let mut join_set = JoinSet::new();");
 	println!("   let max_concurrent = 5; // Limit concurrent uploads");
-	println!("");
+	println!();
 	println!("   for chunk in file_chunks.chunks(max_concurrent) {{");
 	println!("       for (part_num, data) in chunk.iter().enumerate() {{");
 	println!("           let client = client.clone();");
 	println!("           let upload_id = upload_id.clone();");
 	println!("           let part_data = data.clone();");
-	println!("");
+	println!();
 	println!("           join_set.spawn(async move {{");
 	println!("               upload_part_with_retry(client, upload_id, part_num, part_data).await");
 	println!("           }});");
 	println!("       }}");
-	println!("");
+	println!();
 	println!("       // Wait for this batch to complete");
 	println!("       while let Some(result) = join_set.join_next().await {{");
 	println!("           match result? {{");
@@ -129,12 +129,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("       uploaded_bytes: u64,");
 	println!("       start_time: SystemTime,");
 	println!("   }}");
-	println!("");
+	println!();
 	println!("   impl UploadProgress {{");
 	println!("       fn percentage(&self) -> f64 {{");
 	println!("           (self.completed_parts as f64 / self.total_parts as f64) * 100.0");
 	println!("       }}");
-	println!("");
+	println!();
 	println!("       fn upload_speed(&self) -> f64 {{");
 	println!("           let elapsed = self.start_time.elapsed().unwrap().as_secs_f64();");
 	println!("           self.uploaded_bytes as f64 / elapsed");
@@ -178,7 +178,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	];
 
 	for (category, technique, benefit) in optimization_tips {
-		println!("   ⚡ {}: {} ({})", category, technique, benefit);
+		println!("   ⚡ {category}: {technique} ({benefit})");
 	}
 
 	// 10. Real-world considerations

@@ -272,7 +272,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 	for i in 1..=6 {
 		if let Some(endpoint) = load_balancer.get_next_endpoint() {
-			println!("     Request {}: {}", i, endpoint);
+			println!("     Request {i}: {endpoint}");
 		}
 	}
 
@@ -283,7 +283,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("   🔄 Endpoint selection after failure:");
 	for i in 1..=4 {
 		if let Some(endpoint) = load_balancer.get_next_endpoint() {
-			println!("     Request {}: {}", i, endpoint);
+			println!("     Request {i}: {endpoint}");
 		}
 	}
 
@@ -301,7 +301,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	cache_provider.set_cache(cache_key.clone(), response_value.clone());
 
 	if let Some(cached) = cache_provider.get_cached(&cache_key) {
-		println!("   ✅ Cache hit: {}", cached);
+		println!("   ✅ Cache hit: {cached}");
 	}
 
 	// Test cache miss
@@ -314,7 +314,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	for method in methods {
 		let cacheable = cache_provider.is_cacheable_method(method);
 		let icon = if cacheable { "✅" } else { "❌" };
-		println!("   {} {} is cacheable: {}", icon, method, cacheable);
+		println!("   {icon} {method} is cacheable: {cacheable}");
 	}
 
 	// 3. Monitoring Provider
@@ -336,7 +336,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	for (i, (duration, success)) in requests.iter().enumerate() {
 		monitor.record_request(*duration, *success);
 		let status = if *success { "✅" } else { "❌" };
-		println!("     Request {}: {}ms {}", i + 1, duration.as_millis(), status);
+		let request_num = i + 1;
+		let duration_ms = duration.as_millis();
+		println!("     Request {request_num}: {duration_ms}ms {status}");
 	}
 
 	let metrics = monitor.get_metrics();
@@ -407,7 +409,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	];
 
 	for (env, config) in configs {
-		println!("   🌍 {} Environment:", env);
+		println!("   🌍 {env} Environment:");
 		println!("     Timeout: {}ms", config.timeout_ms);
 		println!("     Max retries: {}", config.max_retries);
 		println!("     Caching: {}", config.enable_caching);
@@ -429,7 +431,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	];
 
 	for (practice, description) in best_practices {
-		println!("   ✅ {}: {}", practice, description);
+		println!("   ✅ {practice}: {description}");
 	}
 
 	// 7. Integration examples
@@ -443,7 +445,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("       .with_monitoring()");
 	println!("       .with_circuit_breaker()");
 	println!("       .build();");
-	println!("");
+	println!();
 	println!("   // Use with Neo3 client");
 	println!("   let client = NeoClient::with_provider(provider);");
 	println!("   let result = client.get_block_count().await?;");

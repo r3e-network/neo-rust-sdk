@@ -137,24 +137,25 @@ async fn main() -> eyre::Result<()> {
 	match mock.mock_call("getblockcount") {
 		Ok(response) => {
 			let block_count = response.as_u64().unwrap_or(0);
-			println!("   📊 Block count: {}", block_count);
+			println!("   📊 Block count: {block_count}");
 		},
-		Err(e) => println!("   ❌ Error: {}", e),
+		Err(e) => println!("   ❌ Error: {e}"),
 	}
 
 	// Test version
 	match mock.mock_call("getversion") {
 		Ok(response) => {
 			if let Some(useragent) = response.get("useragent") {
-				println!("   🔧 Node version: {}", useragent.as_str().unwrap_or("unknown"));
+				let version = useragent.as_str().unwrap_or("unknown");
+				println!("   🔧 Node version: {version}");
 			}
 			if let Some(protocol) = response.get("protocol") {
 				if let Some(network) = protocol.get("network") {
-					println!("   🌐 Network: {}", network);
+					println!("   🌐 Network: {network}");
 				}
 			}
 		},
-		Err(e) => println!("   ❌ Error: {}", e),
+		Err(e) => println!("   ❌ Error: {e}"),
 	}
 
 	// Test empty balance
@@ -163,9 +164,10 @@ async fn main() -> eyre::Result<()> {
 			if let Some(balance) = response.get("balance") {
 				let empty_vec = vec![];
 				let balance_array = balance.as_array().unwrap_or(&empty_vec);
-				println!("   💰 Empty account balance: {} tokens", balance_array.len());
+				let token_count = balance_array.len();
+				println!("   💰 Empty account balance: {token_count} tokens");
 			},
-		Err(e) => println!("   ❌ Error: {}", e),
+		Err(e) => println!("   ❌ Error: {e}"),
 	}
 
 	// Test account with tokens
@@ -174,7 +176,8 @@ async fn main() -> eyre::Result<()> {
 			if let Some(balance) = response.get("balance") {
 				let empty_vec = vec![];
 				let balance_array = balance.as_array().unwrap_or(&empty_vec);
-				println!("   💰 Account with tokens: {} tokens", balance_array.len());
+				let token_count = balance_array.len();
+				println!("   💰 Account with tokens: {token_count} tokens");
 
 				for token in balance_array {
 					if let (Some(hash), Some(amount)) =
@@ -190,12 +193,12 @@ async fn main() -> eyre::Result<()> {
 							_ => "Unknown Token",
 						};
 
-						println!("     • {}: {}", token_name, amount_str);
+						println!("     • {token_name}: {amount_str}");
 					}
 				}
 			}
 		},
-		Err(e) => println!("   ❌ Error: {}", e),
+		Err(e) => println!("   ❌ Error: {e}"),
 	}
 
 	// 4. Simulate error conditions
@@ -204,7 +207,7 @@ async fn main() -> eyre::Result<()> {
 	// Test non-existent method
 	match mock.mock_call("nonexistent_method") {
 		Ok(_) => println!("   ❌ Unexpected success"),
-		Err(e) => println!("   ✅ Expected error: {}", e),
+		Err(e) => println!("   ✅ Expected error: {e}"),
 	}
 
 	// 5. Mock transaction scenarios
@@ -221,9 +224,10 @@ async fn main() -> eyre::Result<()> {
 	match mock.mock_call("sendrawtransaction") {
 		Ok(response) =>
 			if let Some(hash) = response.get("hash") {
-				println!("   ✅ Transaction sent: {}", hash.as_str().unwrap_or("unknown"));
+				let hash_str = hash.as_str().unwrap_or("unknown");
+				println!("   ✅ Transaction sent: {hash_str}");
 			},
-		Err(e) => println!("   ❌ Error: {}", e),
+		Err(e) => println!("   ❌ Error: {e}"),
 	}
 
 	// Mock transaction failure
@@ -247,7 +251,7 @@ async fn main() -> eyre::Result<()> {
 					);
 				}
 			},
-		Err(e) => println!("   ❌ Error: {}", e),
+		Err(e) => println!("   ❌ Error: {e}"),
 	}
 
 	// 6. Test contract invocation mocks
@@ -273,19 +277,23 @@ async fn main() -> eyre::Result<()> {
 	match mock.mock_call("invokefunction") {
 		Ok(response) => {
 			if let Some(state) = response.get("state") {
-				println!("   🔗 Contract call state: {}", state.as_str().unwrap_or("unknown"));
+				let state_str = state.as_str().unwrap_or("unknown");
+				println!("   🔗 Contract call state: {state_str}");
 			}
 			if let Some(gas) = response.get("gasconsumed") {
-				println!("   ⛽ Gas consumed: {}", gas.as_str().unwrap_or("0"));
+				let gas_str = gas.as_str().unwrap_or("0");
+				println!("   ⛽ Gas consumed: {gas_str}");
 			}
 		},
-		Err(e) => println!("   ❌ Error: {}", e),
+		Err(e) => println!("   ❌ Error: {e}"),
 	}
 
 	// 7. Performance and call tracking
 	println!("\n7. Call tracking and statistics...");
-	println!("   📊 Total mock calls made: {}", mock.call_count());
-	println!("   📋 Available mock responses: {}", mock.responses.len());
+	let call_count = mock.call_count();
+	println!("   📊 Total mock calls made: {call_count}");
+	let response_count = mock.responses.len();
+	println!("   📋 Available mock responses: {response_count}");
 
 	// 8. Best practices demonstration
 	println!("\n8. 💡 Mock provider best practices:");

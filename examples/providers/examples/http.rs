@@ -20,11 +20,11 @@ async fn create_instance() -> eyre::Result<()> {
 
 	// The client can be used to make RPC calls
 	let block_count = client.get_block_count().await?;
-	println!("Current block count: {}", block_count);
+	println!("Current block count: {block_count}");
 
 	// Get the latest block hash
 	let latest_block_hash = client.get_block_hash(block_count - 1).await?;
-	println!("Latest block hash: {:?}", latest_block_hash);
+	println!("Latest block hash: {latest_block_hash:?}");
 
 	Ok(())
 }
@@ -44,8 +44,8 @@ async fn share_providers_across_tasks() -> eyre::Result<()> {
 	let block1: u32 = handle1.await?;
 	let block2: u32 = handle2.await?;
 
-	println!("Block count from client 1: {}", block1);
-	println!("Block count from client 2: {}", block2);
+	println!("Block count from client 1: {block1}");
+	println!("Block count from client 2: {block2}");
 
 	Ok(())
 }

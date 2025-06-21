@@ -1120,7 +1120,7 @@ mod test {
 		let _copy = v.clone();
 		let test_struct = TestStruct { value: v };
 		let json_string = serde_json::to_string_pretty(&test_struct).unwrap();
-		println!("{}", json_string);
+		println!("{json_string}");
 		let v_copy: TestStruct = serde_json::from_str(&json_string).unwrap();
 		assert_eq!(test_struct.value, v_copy.value);
 	}
@@ -1134,7 +1134,7 @@ mod test {
 		v.insert(20.into(), v2);
 		let test_struct = TestStruct2 { value2: v };
 		let json_string = serde_json::to_string_pretty(&test_struct).unwrap();
-		println!("{}", json_string);
+		println!("{json_string}");
 	}
 
 	#[test]
@@ -1148,7 +1148,7 @@ mod test {
 
 		let v = TestStruct { value: vec![23, 253, 255, 255, 0, 123] };
 		let json_string = serde_json::to_string_pretty(&v).unwrap();
-		println!("{}", json_string);
+		println!("{json_string}");
 		let v_copy: TestStruct = serde_json::from_str(&json_string).unwrap();
 		assert_eq!(v.value, v_copy.value);
 	}
@@ -1164,7 +1164,7 @@ mod test {
 
 		let v = TestStruct { value: 20 };
 		let json_string = serde_json::to_string_pretty(&v).unwrap();
-		println!("{}", json_string);
+		println!("{json_string}");
 		let v_copy: TestStruct = serde_json::from_str(&json_string).unwrap();
 		assert_eq!(v.value, v_copy.value);
 	}
@@ -1185,7 +1185,7 @@ mod test {
 			.expect("Failed to parse H256 string")],
 		};
 		let json_string = serde_json::to_string_pretty(&v).unwrap();
-		println!("{}", json_string);
+		println!("{json_string}");
 		let v_copy: TestStruct = serde_json::from_str(&json_string).unwrap();
 		assert_eq!(v.value, v_copy.value);
 	}

@@ -97,7 +97,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 async fn check_balance(client: &RpcClient<HttpProvider>, address: &str) {
 	print!("  🔶 NEO: ");
 	match get_balance_with_timeout(client, address, "NEO").await {
-		Ok(balance) => println!("{}", format!("{} NEO", balance).cyan()),
+		Ok(balance) => println!("{}", format!("{balance} NEO").cyan()),
 		Err(_) => println!("{}", "Unable to fetch".dimmed()),
 	}
 
