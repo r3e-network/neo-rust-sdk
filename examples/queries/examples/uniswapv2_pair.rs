@@ -30,7 +30,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	];
 
 	for (name, description, features) in protocols {
-		println!("   🔗 {}: {} ({})", name, description, features);
+		println!("   🔗 {name}: {description} ({features})");
 	}
 
 	// 3. Common pair query patterns
@@ -100,19 +100,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	];
 
 	for (pair_name, token0_hash, token1_hash, reserve0, reserve1) in mock_pairs {
-		println!("\n   📈 {} Pair:", pair_name);
-		println!("     Token 0: {}", token0_hash);
-		println!("     Token 1: {}", token1_hash);
+		println!("\n   📈 {pair_name} Pair:");
+		println!("     Token 0: {token0_hash}");
+		println!("     Token 1: {token1_hash}");
 		println!("     Reserve 0: {}", format_number(reserve0));
 		println!("     Reserve 1: {}", format_number(reserve1));
 
 		// Calculate mock price
 		let price = reserve1 as f64 / reserve0 as f64;
-		println!("     Price: {:.6} Token1/Token0", price);
+		println!("     Price: {price:.6} Token1/Token0");
 
 		// Calculate market cap equivalent
 		let liquidity_value = (reserve0 as f64 * 2.0 + reserve1 as f64 * 2.0) / 1_000_000.0;
-		println!("     Est. Liquidity: ${:.2}K", liquidity_value);
+		println!("     Est. Liquidity: ${liquidity_value:.2}K");
 	}
 
 	// 6. Advanced query patterns

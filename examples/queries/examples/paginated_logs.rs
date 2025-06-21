@@ -23,13 +23,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// 2. Get current block information
 	println!("\n2. Getting current block information...");
 	let latest_block_count = client.get_block_count().await?;
-	println!("   📦 Latest block: {}", latest_block_count);
+	println!("   📦 Latest block: {latest_block_count}");
 
 	// Start from a recent block range for demonstration
 	let start_block = if latest_block_count > 1000 { latest_block_count - 1000 } else { 1 };
 	let end_block = latest_block_count;
 
-	println!("   🔍 Scanning blocks {} to {} for events", start_block, end_block);
+	println!("   🔍 Scanning blocks {start_block} to {end_block} for events");
 
 	// 3. Query NEP-17 token transfer events
 	println!("\n3. Querying NEP-17 token transfer events...");
@@ -44,7 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	for page_start in (start_block..end_block).step_by(page_size) {
 		let page_end = std::cmp::min(page_start + page_size as u32, end_block);
 
-		println!("   📄 Processing page: blocks {} to {}", page_start, page_end);
+		println!("   📄 Processing page: blocks {page_start} to {page_end}");
 
 		let page_events =
 			scan_blocks_for_events(&client, page_start, page_end, &[gas_token, neo_token]).await?;
@@ -62,16 +62,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let management_events =
 		query_contract_events(&client, &management_contract, start_block, end_block).await?;
 
-	println!("   🏛️ Management contract events found: {}", management_events);
+	println!("   🏛️ Management contract events found: {management_events}");
 
 	// 5. Summary
 	println!("\n5. Event scanning summary:");
 	println!("   📊 Total blocks scanned: {}", end_block - start_block);
-	println!("   🎯 Total events found: {}", total_events);
-	println!(
-		"   📄 Pages processed: {}",
-		(end_block - start_block + page_size as u32 - 1) / page_size as u32
-	);
+	println!("   🎯 Total events found: {total_events}");
+	println!("   📄 Pages processed: {}", (end_block - start_block).div_ceil(page_size as u32));
 
 	println!("\n✅ Neo N3 paginated event logs example completed!");
 	println!("💡 Key features demonstrated:");
@@ -101,8 +98,7 @@ async fn scan_blocks_for_events(
 						// Check if this transaction involves our tokens of interest
 						if transaction_involves_tokens(&transaction.script, token_contracts) {
 							println!(
-								"      🔍 Found potential token transaction in block {}, tx {}",
-								block_index, tx_index
+								"      🔍 Found potential token transaction in block {block_index}, tx {tx_index}"
 							);
 							event_count += 1;
 
@@ -129,7 +125,7 @@ fn transaction_involves_tokens(script: &str, token_contracts: &[ScriptHash]) -> 
 	// Simplified check - in reality you'd parse the script properly
 	// This is a basic heuristic to detect token-related transactions
 	for contract in token_contracts {
-		let contract_hex = format!("{:x}", contract);
+		let contract_hex = format!("{contract:x}");
 		if script.contains(&contract_hex) {
 			return true;
 		}
@@ -144,7 +140,7 @@ async fn query_contract_events(
 	start_block: u32,
 	end_block: u32,
 ) -> Result<usize, Box<dyn std::error::Error>> {
-	println!("   🔍 Querying events for contract: {:x}", contract_hash);
+	println!("   🔍 Querying events for contract: {contract_hash:x}");
 
 	let mut event_count = 0;
 	let sample_size = std::cmp::min(50, end_block - start_block); // Sample up to 50 blocks
@@ -156,10 +152,7 @@ async fn query_contract_events(
 					for transaction in transactions {
 						if transaction_involves_contract(&transaction.script, contract_hash) {
 							event_count += 1;
-							println!(
-								"      📝 Contract interaction found in block {}",
-								block_index
-							);
+							println!("      📝 Contract interaction found in block {block_index}");
 						}
 					}
 				},
@@ -172,6 +165,6 @@ async fn query_contract_events(
 
 /// Check if a transaction involves a specific contract
 fn transaction_involves_contract(script: &str, contract_hash: &ScriptHash) -> bool {
-	let contract_hex = format!("{:x}", contract_hash);
+	let contract_hex = format!("{contract_hash:x}");
 	script.contains(&contract_hex)
 }
