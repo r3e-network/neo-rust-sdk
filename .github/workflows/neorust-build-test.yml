@@ -146,7 +146,7 @@ jobs:
     - name: Generate Rust coverage
       run: |
         export NEORUST_SKIP_NETWORK_TESTS=1
-        cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info --exclude neo-cli
+        cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info --exclude neo-cli --exclude neo-gui
       
     - name: Setup Node.js
       uses: actions/setup-node@v4
