@@ -22,8 +22,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, windows-latest, macos-latest]
-        rust-version: [stable, beta]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        rust-version: [stable]
         
     steps:
     - name: Checkout code
@@ -72,7 +72,6 @@ jobs:
         cargo test --verbose --all-features
       
     - name: Run Rust benchmarks
-      if: matrix.rust-version == 'stable'
       run: |
         # Run benchmarks for neo3 package only
         cargo bench --manifest-path Cargo.toml --package neo3 --verbose
@@ -113,7 +112,7 @@ jobs:
         cache-dependency-path: neo-gui/package-lock.json
         
     - name: Install system dependencies (Ubuntu)
-      if: matrix.os == 'ubuntu-24.04'
+      if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential pkg-config libssl-dev
@@ -149,7 +148,7 @@ jobs:
         
   coverage:
     name: Code Coverage
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     
     steps:
     - name: Checkout code
@@ -204,7 +203,7 @@ jobs:
         
   security-audit:
     name: Security Audit
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     
     steps:
     - name: Checkout code
@@ -241,7 +240,7 @@ jobs:
       
   release-check:
     name: Release Check
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     
     steps:
