@@ -1,7 +1,6 @@
 /// Neo N3 Transaction Decoding Example
 ///
 /// This example demonstrates how to decode and analyze transaction data on Neo N3.
-
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("🔍 Neo N3 Transaction Decoding Example");
 	println!("=====================================");

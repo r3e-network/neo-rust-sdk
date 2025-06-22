@@ -77,9 +77,7 @@ impl WalletSigner<YubiSigner<NistP256>> {
 
 		let id = client
 			.put_asymmetric_key(id, label, domain, Capability::SIGN_ECDSA, EcP256, key)
-			.map_err(|e| {
-				WalletError::YubiHsmError(format!("Failed to put asymmetric key: {e}"))
-			})?;
+			.map_err(|e| WalletError::YubiHsmError(format!("Failed to put asymmetric key: {e}")))?;
 
 		let signer = YubiSigner::create(client, id).map_err(|e| {
 			WalletError::YubiHsmError(format!("Failed to create YubiHSM signer: {e}"))

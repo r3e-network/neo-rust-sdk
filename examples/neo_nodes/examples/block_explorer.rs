@@ -15,11 +15,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// Get the current block height
 	println!("\n2. Getting block information...");
 	let block_count = client.get_block_count().await?;
-	println!("Current block count: {}", block_count);
+	println!("Current block count: {block_count}");
 
 	// Get the latest block
 	let latest_block_index = block_count - 1;
-	println!("\n3. Retrieving latest block (index {})...", latest_block_index);
+	println!("\n3. Retrieving latest block (index {latest_block_index})...");
 	let latest_block = client.get_block_by_index(latest_block_index, true).await?;
 
 	println!("Block hash: {}", latest_block.hash);

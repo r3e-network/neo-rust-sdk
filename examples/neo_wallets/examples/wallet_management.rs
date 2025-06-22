@@ -36,7 +36,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// Add a watch-only account (no private key)
 	let watch_only_address = "NbTiM6h8r99kpRtb428XcsUk1TzKed2gTc";
 	let _watch_only_script_hash = ScriptHash::from_address(watch_only_address)?;
-	println!("   👁️  Added watch-only account: {}", watch_only_address);
+	println!("   👁️  Added watch-only account: {watch_only_address}");
 
 	// 3. Account operations
 	println!("\n3. Account operations...");
@@ -73,10 +73,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	match client.get_block_count().await {
 		Ok(height) => {
 			println!("   ✅ Connected to Neo N3 TestNet");
-			println!("   📦 Current block height: {}", height);
+			println!("   📦 Current block height: {height}");
 		},
 		Err(e) => {
-			println!("   ⚠️  Connection failed: {}", e);
+			println!("   ⚠️  Connection failed: {e}");
 		},
 	}
 

@@ -2,7 +2,6 @@
 ///
 /// This example demonstrates DeFi concepts on Neo N3, including
 /// liquidity pools, automated market makers (AMM), and token swaps.
-
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("💧 Neo N3 DeFi Liquidity Concepts");
 	println!("===================================");

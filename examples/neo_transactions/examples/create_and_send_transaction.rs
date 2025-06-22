@@ -18,7 +18,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// Connect to Neo N3 TestNet
 	println!("\n1. Connecting to Neo N3 TestNet...");
 	let provider = HttpProvider::new("https://testnet1.neo.org:443/")
-		.map_err(|e| format!("Failed to create provider: {}", e))?;
+		.map_err(|e| format!("Failed to create provider: {e}"))?;
 	let client = RpcClient::new(provider);
 
 	println!("   ✅ Connected to TestNet");
@@ -36,18 +36,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// Define recipient
 	let recipient_address = "NbTiM6h8r99kpRtb428XcsUk1TzKed2gTc";
 	let recipient = ScriptHash::from_address(recipient_address)?;
-	println!("   Recipient address: {}", recipient_address);
+	println!("   Recipient address: {recipient_address}");
 
 	// 3. Get Token Contract References
 	println!("\n3. Setting up token contracts...");
 
 	// GAS token contract
 	let gas_hash = ScriptHash::from_str("d2a4cff31913016155e38e474a2c06d08be276cf")?;
-	println!("   GAS token hash: {}", gas_hash);
+	println!("   GAS token hash: {gas_hash}");
 
 	// NEO token contract
 	let neo_hash = ScriptHash::from_str("ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5")?;
-	println!("   NEO token hash: {}", neo_hash);
+	println!("   NEO token hash: {neo_hash}");
 
 	// 4. Create a GAS Transfer Transaction
 	println!("\n4. Creating GAS transfer transaction...");
@@ -79,7 +79,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let current_block = client
 		.get_block_count()
 		.await
-		.map_err(|e| format!("Failed to get block count: {}", e))?;
+		.map_err(|e| format!("Failed to get block count: {e}"))?;
 
 	// Configure transaction
 	tx_builder.set_script(Some(script.clone()));
@@ -87,13 +87,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 	println!("   Transaction configured:");
 	println!("     Valid until block: {}", current_block + 5760);
-	println!("     Current block: {}", current_block);
+	println!("     Current block: {current_block}");
 
 	// 5. Create a NEO Transfer Transaction
 	println!("\n5. Creating NEO transfer transaction...");
 
 	let neo_amount = 1u64; // 1 NEO (NEO is indivisible)
-	println!("   Transfer amount: {} NEO", neo_amount);
+	println!("   Transfer amount: {neo_amount} NEO");
 
 	// Build NEO transfer script
 	let mut neo_script_builder = ScriptBuilder::new();

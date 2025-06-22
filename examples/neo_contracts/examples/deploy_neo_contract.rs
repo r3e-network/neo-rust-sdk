@@ -32,8 +32,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 				// Test connection with a simple call
 				match test_client.get_block_count().await {
 					Ok(count) => {
-						println!("   ✅ Connected to: {}", endpoint);
-						println!("   📦 Current block height: {}", count);
+						println!("   ✅ Connected to: {endpoint}");
+						println!("   📦 Current block height: {count}");
 						client = Some(test_client);
 						break;
 					},
@@ -52,7 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let deployer_wif = "KxDgvEKzgSBPPfuVfw67oPQBSjidEiqTHURKSDL1R7yGaGYAeYnr"; // Example WIF
 	let deployer_account = Account::from_wif(deployer_wif)?;
 	let deployer_address = deployer_account.get_address();
-	println!("   📍 Deployer address: {}", deployer_address);
+	println!("   📍 Deployer address: {deployer_address}");
 
 	// Check deployer GAS balance (needed for deployment fees)
 	let gas_token = ScriptHash::from_str("d2a4cff31913016155e38e474a2c06d08be276cf")?;
@@ -73,7 +73,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 				println!("   💰 Deployer GAS balance: {} GAS", balance as f64 / 100_000_000.0);
 			},
 		Err(e) => {
-			println!("   ⚠️  Could not fetch GAS balance: {}", e);
+			println!("   ⚠️  Could not fetch GAS balance: {e}");
 			println!("   💡 Make sure the account has GAS for deployment");
 		},
 	}
@@ -96,7 +96,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// 5. Calculate deployment costs
 	println!("\n💰 5. Calculating deployment costs...");
 	let deployment_cost = calculate_deployment_cost(&nef_file, &manifest);
-	println!("   💵 Estimated deployment cost: {} GAS", deployment_cost);
+	println!("   💵 Estimated deployment cost: {deployment_cost} GAS");
 	println!("   📏 NEF size: estimated {} bytes", create_sample_contract_bytecode().len());
 	println!("   📜 Manifest size: estimated {} bytes", 500); // Approximate manifest size
 
@@ -105,7 +105,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 	// Get contract management hash (well-known)
 	let mgmt_hash = ScriptHash::from_str("fffdc93764dbaddd97c48f252a53ea4643faa3fd")?;
-	println!("   📋 ContractManagement: 0x{}", mgmt_hash);
+	println!("   📋 ContractManagement: 0x{mgmt_hash}");
 
 	// Build deployment script
 	let _script_builder = neo3::neo_builder::ScriptBuilder::new();
@@ -117,7 +117,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// Push parameters for deploy method (conceptual)
 	println!("   📄 Preparing NEF and manifest data for deployment");
 	println!("   📦 NEF size: {} bytes", nef_bytes.len());
-	println!("   📜 Manifest: {}", manifest_json);
+	println!("   📜 Manifest: {manifest_json}");
 
 	// Call deploy method (conceptual)
 	println!("   🔧 Building contract call to ContractManagement.deploy()");
@@ -141,12 +141,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// Get current block for valid_until_block
 	match client.get_block_count().await {
 		Ok(height) => {
-			tx_builder.valid_until_block(height + 1000); // Valid for ~250 minutes
+			let _ = tx_builder.valid_until_block(height + 1000); // Valid for ~250 minutes
 			println!("   ⏰ Transaction valid until block: {}", height + 1000);
 		},
 		Err(e) => {
-			println!("   ⚠️  Could not get block height: {}", e);
-			tx_builder.valid_until_block(1000000); // Use a far future block
+			println!("   ⚠️  Could not get block height: {e}");
+			let _ = tx_builder.valid_until_block(1000000); // Use a far future block
 		},
 	}
 
@@ -156,8 +156,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let size_fee = deployment_script.len() as f64 * 0.00001; // Fee per byte
 	let network_fee = base_fee + size_fee + deployment_cost;
 	// Network fee calculation (conceptual - actual API may differ)
-	println!("   💡 Network fee would be set: {} GAS", network_fee);
-	println!("   💵 Network fee: {} GAS", network_fee);
+	println!("   💡 Network fee would be set: {network_fee} GAS");
+	println!("   💵 Network fee: {network_fee} GAS");
 	println!("   💵 Total cost: {} GAS", network_fee + deployment_cost);
 
 	// 9. Sign transaction (would be done with real key)
@@ -187,7 +187,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// Calculate expected contract hash
 	let expected_hash =
 		calculate_contract_hash(&deployer_account.get_script_hash(), &nef_file, &manifest)?;
-	println!("      🔑 Expected contract hash: 0x{}", expected_hash);
+	println!("      🔑 Expected contract hash: 0x{expected_hash}");
 
 	println!("   5. Contract would be immediately available for invocation");
 
@@ -301,7 +301,7 @@ fn calculate_contract_hash(
 ) -> Result<neo3::neo_types::ScriptHash, Box<dyn std::error::Error>> {
 	// Contract hash = SHA256(sender + nef_checksum + manifest_name)
 	let mut data = Vec::new();
-	data.extend_from_slice(&sender.as_bytes());
+	data.extend_from_slice(sender.as_bytes());
 	data.extend_from_slice(&nef.checksum.to_le_bytes());
 	data.extend_from_slice(manifest.name.as_bytes());
 

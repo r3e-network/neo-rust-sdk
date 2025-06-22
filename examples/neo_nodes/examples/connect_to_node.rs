@@ -45,11 +45,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 	// Get block count
 	let block_count = client.get_block_count().await?;
-	println!("   📦 Current block height: {}", block_count);
+	println!("   📦 Current block height: {block_count}");
 
 	// Get best block hash
 	let best_hash = client.get_best_block_hash().await?;
-	println!("   🔝 Best block hash: 0x{}", best_hash);
+	println!("   🔝 Best block hash: 0x{best_hash}");
 
 	// Get state height
 	match client.get_state_height().await {
@@ -116,7 +116,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	match client.get_raw_mempool().await {
 		Ok(mempool) => {
 			let total_tx = mempool.verified.len() + mempool.unverified.len();
-			println!("   📊 Mempool size: {} transactions", total_tx);
+			println!("   📊 Mempool size: {total_tx} transactions");
 			if !mempool.verified.is_empty() || !mempool.unverified.is_empty() {
 				println!("   📋 Sample pending transactions:");
 				for (idx, tx_hash) in
@@ -126,7 +126,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 				}
 			}
 		},
-		Err(e) => println!("   ⚠️  Mempool unavailable: {}", e),
+		Err(e) => println!("   ⚠️  Mempool unavailable: {e}"),
 	}
 
 	// 7. Native contract states
@@ -156,7 +156,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 						.unwrap_or("unknown")
 				);
 			},
-			Err(_) => println!("   ❌ {} not found", name),
+			Err(_) => println!("   ❌ {name} not found"),
 		}
 	}
 
@@ -172,7 +172,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		total_time += elapsed;
 
 		if i == 0 {
-			println!("   🏃 Running {} iterations...", iterations);
+			println!("   🏃 Running {iterations} iterations...");
 		}
 	}
 
@@ -186,18 +186,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// Test MainNet
 	print!("   🔷 MainNet: ");
 	match test_network("https://mainnet1.neo.org:443/").await {
-		Ok((height, time)) => println!("✅ Height: {}, Response: {}ms", height, time),
-		Err(e) => println!("❌ Failed: {}", e),
+		Ok((height, time)) => println!("✅ Height: {height}, Response: {time}ms"),
+		Err(e) => println!("❌ Failed: {e}"),
 	}
 
 	// Test TestNet (already connected)
 	print!("   🔶 TestNet: ");
-	println!("✅ Height: {}, Connected", block_count);
+	println!("✅ Height: {block_count}, Connected");
 
 	// Test local node (if available)
 	print!("   💻 Local node: ");
 	match test_network("http://localhost:10332").await {
-		Ok((height, time)) => println!("✅ Height: {}, Response: {}ms", height, time),
+		Ok((height, time)) => println!("✅ Height: {height}, Response: {time}ms"),
 		Err(_) => println!("❌ Not available"),
 	}
 

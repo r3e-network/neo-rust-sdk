@@ -5,7 +5,6 @@
 use neo3::{
 	neo_clients::{HttpProvider, RpcClient},
 	neo_types::ScriptHash,
-	prelude::*,
 };
 use std::str::FromStr;
 
@@ -17,7 +16,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// 1. Connect to Neo N3 TestNet
 	println!("\n1. Connecting to Neo N3 TestNet...");
 	let provider = HttpProvider::new("https://testnet1.neo.coz.io:443/")?;
-	let client = RpcClient::new(provider);
+	let _client = RpcClient::new(provider);
 	println!("   ✅ Connected successfully");
 
 	// 2. Set up transfer parameters
@@ -28,14 +27,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let to_address = "NfNkevdh2MZ7uutXM6W8s5uD7XhP4AkrFs"; // Another test address
 	let transfer_amount = 50_000_000u64; // 0.5 GAS (8 decimals)
 
-	println!("   📤 From: {}", from_address);
-	println!("   📥 To: {}", to_address);
+	println!("   📤 From: {from_address}");
+	println!("   📥 To: {to_address}");
 	println!("   💰 Amount: {} GAS", transfer_amount as f64 / 100_000_000.0);
 
 	// 3. Understanding GAS token
 	println!("\n3. Understanding GAS Token:");
 
-	let gas_token = ScriptHash::from_str("0xd2a4cff31913016155e38e474a2c06d08be276cf")?;
+	let _gas_token = ScriptHash::from_str("0xd2a4cff31913016155e38e474a2c06d08be276cf")?;
 	println!("   🪙 GAS Token Hash: 0xd2a4cff31913016155e38e474a2c06d08be276cf");
 	println!("   📊 Decimals: 8");
 	println!("   🎯 Purpose: Network utility token for fees and operations");

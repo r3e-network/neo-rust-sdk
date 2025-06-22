@@ -165,9 +165,7 @@ impl<T: LedgerAsync> LedgerWallet<T> {
 		// Convert the public key to a Neo N3 address
 		let address =
 			Address::from_str(&format!("0x{}", H160::from_slice(&public_key[1..21]).to_hex()))
-				.map_err(|e| {
-					WalletError::LedgerError(format!("Failed to derive address: {e}"))
-				})?;
+				.map_err(|e| WalletError::LedgerError(format!("Failed to derive address: {e}")))?;
 
 		Ok(address)
 	}

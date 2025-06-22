@@ -16,7 +16,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// 1. Connect to Neo N3 TestNet
 	println!("\n📡 1. Connecting to Neo N3 TestNet...");
 	let provider = HttpProvider::new("https://testnet1.neo.org:443/")
-		.map_err(|e| format!("Failed to create provider: {}", e))?;
+		.map_err(|e| format!("Failed to create provider: {e}"))?;
 	let client = RpcClient::new(provider);
 	println!("   ✅ Connected successfully");
 
@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 			println!("     Decimals: {}", info.decimals);
 			println!("     Total Supply: {} GAS", info.total_supply_formatted);
 		},
-		Err(e) => println!("   ❌ Failed to get GAS info: {}", e),
+		Err(e) => println!("   ❌ Failed to get GAS info: {e}"),
 	}
 
 	// Query NEO token properties
@@ -53,7 +53,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 			println!("     Decimals: {}", info.decimals);
 			println!("     Total Supply: {} NEO", info.total_supply_formatted);
 		},
-		Err(e) => println!("   ❌ Failed to get NEO info: {}", e),
+		Err(e) => println!("   ❌ Failed to get NEO info: {e}"),
 	}
 
 	// 4. Balance Queries for Sample Addresses
@@ -65,18 +65,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	];
 
 	for address in &sample_addresses {
-		println!("   📍 Address: {}", address);
+		println!("   📍 Address: {address}");
 
 		if let Ok(script_hash) = ScriptHash::from_address(address) {
 			// Check GAS balance
 			match get_token_balance(&client, &gas_hash, &script_hash, 8).await {
-				Ok(balance) => println!("     ⛽ GAS Balance: {} GAS", balance),
+				Ok(balance) => println!("     ⛽ GAS Balance: {balance} GAS"),
 				Err(_) => println!("     ⛽ GAS Balance: Unable to query"),
 			}
 
 			// Check NEO balance
 			match get_token_balance(&client, &neo_hash, &script_hash, 0).await {
-				Ok(balance) => println!("     🔷 NEO Balance: {} NEO", balance),
+				Ok(balance) => println!("     🔷 NEO Balance: {balance} NEO"),
 				Err(_) => println!("     🔷 NEO Balance: Unable to query"),
 			}
 		}
@@ -136,8 +136,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let neo_script = neo_script_builder.to_bytes();
 	println!("   ✅ NEO transfer script built ({} bytes)", neo_script.len());
 	println!(
-		"   📝 Transfer: {} NEO from {} to {}",
-		neo_transfer_amount, sender_address, recipient_address
+		"   📝 Transfer: {neo_transfer_amount} NEO from {sender_address} to {recipient_address}"
 	);
 
 	// 6. Multi-Token Transfer Example

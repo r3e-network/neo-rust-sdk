@@ -19,7 +19,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// 1. Connect to Neo N3 TestNet
 	println!("\n📡 1. Connecting to Neo N3 TestNet...");
 	let provider = HttpProvider::new("https://testnet1.neo.org:443/")
-		.map_err(|e| format!("Failed to create provider: {}", e))?;
+		.map_err(|e| format!("Failed to create provider: {e}"))?;
 	let client = RpcClient::new(provider);
 	println!("   ✅ Connected successfully");
 
@@ -55,7 +55,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 	match query_token_info(&client, &gas_hash, "GAS").await {
 		Ok(_) => println!("   ✅ GAS token info retrieved"),
-		Err(e) => println!("   ❌ GAS query failed: {}", e),
+		Err(e) => println!("   ❌ GAS query failed: {e}"),
 	}
 
 	// Query NEO token information
@@ -63,7 +63,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 	match query_token_info(&client, &neo_hash, "NEO").await {
 		Ok(_) => println!("   ✅ NEO token info retrieved"),
-		Err(e) => println!("   ❌ NEO query failed: {}", e),
+		Err(e) => println!("   ❌ NEO query failed: {e}"),
 	}
 
 	// 5. Balance Queries
@@ -73,13 +73,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let demo_script_hash = ScriptHash::from_address(demo_address)?;
 
 	match query_account_balance(&client, &gas_hash, &demo_script_hash, "GAS", 8).await {
-		Ok(balance) => println!("   💎 Demo account GAS balance: {} GAS", balance),
-		Err(e) => println!("   ⚠️ Could not get GAS balance: {}", e),
+		Ok(balance) => println!("   💎 Demo account GAS balance: {balance} GAS"),
+		Err(e) => println!("   ⚠️ Could not get GAS balance: {e}"),
 	}
 
 	match query_account_balance(&client, &neo_hash, &demo_script_hash, "NEO", 0).await {
-		Ok(balance) => println!("   💎 Demo account NEO balance: {} NEO", balance),
-		Err(e) => println!("   ⚠️ Could not get NEO balance: {}", e),
+		Ok(balance) => println!("   💎 Demo account NEO balance: {balance} NEO"),
+		Err(e) => println!("   ⚠️ Could not get NEO balance: {e}"),
 	}
 
 	// 6. Transaction Script Building
@@ -181,8 +181,6 @@ async fn query_token_info(
 	token_hash: &ScriptHash,
 	token_name: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
-	use neo3::neo_clients::APITrait;
-
 	// Build script to query token info
 	let mut builder = neo_builder::ScriptBuilder::new();
 
@@ -193,26 +191,26 @@ async fn query_token_info(
 	// Query total supply
 	builder.contract_call(token_hash, "totalSupply", &[], None)?;
 
-	let script = builder.to_bytes();
+	let _script = builder.to_bytes();
 
 	// Execute read-only call via invoke_function
 	match client.invoke_function(token_hash, "symbol".to_string(), vec![], None).await {
 		Ok(symbol_result) => {
 			if let Some(symbol) = symbol_result.stack.first().and_then(|s| s.as_string()) {
-				println!("     {} Token Properties:", token_name);
-				println!("       Symbol: {}", symbol);
+				println!("     {token_name} Token Properties:");
+				println!("       Symbol: {symbol}");
 			}
 		},
-		Err(e) => println!("     Failed to get symbol: {}", e),
+		Err(e) => println!("     Failed to get symbol: {e}"),
 	}
 
 	match client.invoke_function(token_hash, "decimals".to_string(), vec![], None).await {
 		Ok(decimals_result) => {
 			if let Some(decimals) = decimals_result.stack.first().and_then(|s| s.as_int()) {
-				println!("       Decimals: {}", decimals);
+				println!("       Decimals: {decimals}");
 			}
 		},
-		Err(e) => println!("     Failed to get decimals: {}", e),
+		Err(e) => println!("     Failed to get decimals: {e}"),
 	}
 
 	match client
@@ -221,10 +219,10 @@ async fn query_token_info(
 	{
 		Ok(supply_result) => {
 			if let Some(supply) = supply_result.stack.first().and_then(|s| s.as_int()) {
-				println!("       Total Supply: {}", supply);
+				println!("       Total Supply: {supply}");
 			}
 		},
-		Err(e) => println!("     Failed to get total supply: {}", e),
+		Err(e) => println!("     Failed to get total supply: {e}"),
 	}
 
 	Ok(())
@@ -235,11 +233,9 @@ async fn query_account_balance(
 	client: &RpcClient<HttpProvider>,
 	token_hash: &ScriptHash,
 	account_hash: &ScriptHash,
-	token_name: &str,
+	_token_name: &str,
 	decimals: u32,
 ) -> Result<f64, Box<dyn std::error::Error>> {
-	use neo3::neo_clients::APITrait;
-
 	let mut builder = neo_builder::ScriptBuilder::new();
 	builder.contract_call(
 		token_hash,

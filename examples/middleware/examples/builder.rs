@@ -101,6 +101,7 @@ impl FeeOptimizer {
 
 /// Security validation middleware
 struct SecurityValidator {
+	#[allow(dead_code)]
 	enabled: bool,
 }
 
@@ -143,6 +144,7 @@ impl MiddlewareChain {
 
 /// Generic middleware trait
 trait Middleware: Send + Sync {
+	#[allow(dead_code)]
 	fn name(&self) -> &str;
 }
 

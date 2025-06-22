@@ -14,7 +14,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// Connect to Neo N3 TestNet
 	println!("\n📡 Connecting to Neo N3 TestNet...");
 	let provider = HttpProvider::new("https://testnet1.neo.org:443/")
-		.map_err(|e| format!("Failed to create provider: {}", e))?;
+		.map_err(|e| format!("Failed to create provider: {e}"))?;
 	let client = RpcClient::new(provider);
 	println!("   ✅ Connected successfully");
 
@@ -23,8 +23,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let block_count = client
 		.get_block_count()
 		.await
-		.map_err(|e| format!("Failed to get block count: {}", e))?;
-	println!("   📈 Current block height: {}", block_count);
+		.map_err(|e| format!("Failed to get block count: {e}"))?;
+	println!("   📈 Current block height: {block_count}");
 
 	// Set up NNS contract reference
 	println!("\n🏷️ Setting up NNS contract reference...");
@@ -32,37 +32,37 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// Note: In the current NeoRust SDK, direct NeoNameService contract interaction
 	// may require specific contract hash and manual contract calls
 	let nns_contract_hash = "0x50ac1c37690cc2cfc594472833cf57505d5f46de"; // NNS contract on Neo N3
-	println!("   📋 NNS Contract: {}", nns_contract_hash);
+	println!("   📋 NNS Contract: {nns_contract_hash}");
 
 	// Demonstrate domain name resolution concepts
 	println!("\n🔍 NNS Domain Operations Concepts:");
 	let domain_name = "example.neo";
-	println!("   🏷️ Domain: {}", domain_name);
+	println!("   🏷️ Domain: {domain_name}");
 
 	// Domain availability check simulation
 	println!("\n📝 Domain Availability Check:");
-	match check_domain_availability(&client, &domain_name).await {
+	match check_domain_availability(&client, domain_name).await {
 		Ok(is_available) => {
 			if is_available {
-				println!("   ✅ Domain '{}' appears to be available", domain_name);
+				println!("   ✅ Domain '{domain_name}' appears to be available");
 
 				// Demonstrate registration concepts
 				println!("\n📝 Domain Registration Concepts:");
-				demonstrate_registration_process(&domain_name).await?;
+				demonstrate_registration_process(domain_name).await?;
 			} else {
-				println!("   ⚠️ Domain '{}' appears to be registered", domain_name);
+				println!("   ⚠️ Domain '{domain_name}' appears to be registered");
 
 				// Demonstrate renewal concepts
 				println!("\n📝 Domain Renewal Concepts:");
-				demonstrate_renewal_process(&domain_name).await?;
+				demonstrate_renewal_process(domain_name).await?;
 			}
 		},
-		Err(e) => println!("   ❌ Failed to check domain availability: {}", e),
+		Err(e) => println!("   ❌ Failed to check domain availability: {e}"),
 	}
 
 	// Demonstrate record management concepts
 	println!("\n📝 Record Management Concepts:");
-	demonstrate_record_management(&domain_name).await?;
+	demonstrate_record_management(domain_name).await?;
 
 	// NNS best practices
 	println!("\n💡 NNS Best Practices:");
@@ -83,7 +83,7 @@ async fn check_domain_availability(
 	client: &RpcClient<HttpProvider>,
 	domain: &str,
 ) -> Result<bool, Box<dyn std::error::Error>> {
-	println!("   🔍 Checking availability for: {}", domain);
+	println!("   🔍 Checking availability for: {domain}");
 
 	// NNS contract hash on Neo N3
 	let nns_contract_hash = ScriptHash::from_str("50ac1c37690cc2cfc594472833cf57505d5f46de")?;
@@ -120,16 +120,16 @@ async fn check_domain_availability(
 			}
 		},
 		Err(e) => {
-			println!("   ❌ Failed to query contract: {}", e);
+			println!("   ❌ Failed to query contract: {e}");
 			// Return error instead of fallback for transparency
-			Err(format!("NNS contract query failed: {}", e).into())
+			Err(format!("NNS contract query failed: {e}").into())
 		},
 	}
 }
 
 /// Demonstrate domain registration process
 async fn demonstrate_registration_process(domain: &str) -> Result<(), Box<dyn std::error::Error>> {
-	println!("   📝 Registration Process for: {}", domain);
+	println!("   📝 Registration Process for: {domain}");
 	println!("   1. 🔍 Verify domain availability");
 	println!("   2. 💰 Calculate registration fees");
 	println!("   3. 🔐 Prepare owner wallet");
@@ -143,7 +143,7 @@ async fn demonstrate_registration_process(domain: &str) -> Result<(), Box<dyn st
 
 /// Demonstrate domain renewal process
 async fn demonstrate_renewal_process(domain: &str) -> Result<(), Box<dyn std::error::Error>> {
-	println!("   🔄 Renewal Process for: {}", domain);
+	println!("   🔄 Renewal Process for: {domain}");
 	println!("   1. 📅 Check current expiration date");
 	println!("   2. 💰 Calculate renewal fees");
 	println!("   3. 🔐 Access domain owner wallet");
@@ -157,7 +157,7 @@ async fn demonstrate_renewal_process(domain: &str) -> Result<(), Box<dyn std::er
 
 /// Demonstrate record management concepts
 async fn demonstrate_record_management(domain: &str) -> Result<(), Box<dyn std::error::Error>> {
-	println!("   📋 Record Types for: {}", domain);
+	println!("   📋 Record Types for: {domain}");
 	println!("   🌐 A Record: Points to IPv4 address");
 	println!("   📝 TXT Record: Stores text information");
 	println!("   🔗 CNAME Record: Alias to another domain");

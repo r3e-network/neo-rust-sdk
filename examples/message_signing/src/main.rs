@@ -22,7 +22,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let key_pair = KeyPair::new_random();
 	let account = Account::from_key_pair(key_pair.clone(), None, None)?;
 	let address = account.get_address();
-	println!("Generated address: {}", address);
+	println!("Generated address: {address}");
 	println!("Public key: {}", hex::encode(key_pair.public_key.get_encoded(true)));
 
 	// Create a wallet and add the account
@@ -80,7 +80,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		42,        // Example nonce
 		"NbTiM6h8r99kpRtb428XcsUk1TzKed2gTc"
 	);
-	println!("Structured message:\n{}", structured_message);
+	println!("Structured message:\n{structured_message}");
 
 	let structured_hash = structured_message.as_bytes().hash256();
 	let structured_signature = key_pair.private_key.sign_prehash(&structured_hash)?;

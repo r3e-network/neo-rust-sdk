@@ -354,9 +354,8 @@ impl Wallet {
 
 	/// Imports a private key in WIF format
 	pub fn import_private_key(&mut self, wif: &str) -> Result<&Account, WalletError> {
-		let key_pair = KeyPair::from_wif(wif).map_err(|e| {
-			WalletError::AccountState(format!("Failed to import private key: {e}"))
-		})?;
+		let key_pair = KeyPair::from_wif(wif)
+			.map_err(|e| WalletError::AccountState(format!("Failed to import private key: {e}")))?;
 
 		let account = Account::from_key_pair(key_pair, None, None)
 			.map_err(|e| WalletError::ProviderError(e))?;

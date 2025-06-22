@@ -104,7 +104,7 @@ async fn main() -> eyre::Result<()> {
 	if let Err(e) =
 		process_transaction_with_middleware(&client, &middleware_chain, &invalid_tx).await
 	{
-		println!("     ✅ Expected error caught: {}", e);
+		println!("     ✅ Expected error caught: {e}");
 	}
 
 	// 6. Middleware best practices
@@ -138,6 +138,7 @@ struct TransactionRequest {
 enum TransactionType {
 	Transfer,
 	ContractCall,
+	#[allow(dead_code)]
 	ContractDeploy,
 }
 
@@ -157,6 +158,7 @@ enum MiddlewareError {
 	#[error("Transaction validation failed: {0}")]
 	ValidationFailed(String),
 	#[error("Middleware chain error: {0}")]
+	#[allow(dead_code)]
 	ChainError(String),
 }
 

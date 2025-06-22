@@ -16,7 +16,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("   • Go with neo-go");
 	println!("   • TypeScript with neo-go");
 
-	println!("\n🔧 Example contract: {}", contract_name);
+	println!("\n🔧 Example contract: {contract_name}");
 	println!("   • Compile to NEF (Neo Executable Format)");
 	println!("   • Generate manifest.json");
 	println!("   • Deploy to Neo N3 network");

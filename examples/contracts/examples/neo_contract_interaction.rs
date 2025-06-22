@@ -64,8 +64,8 @@ async fn connect_to_testnet(
 				let client = neo3::providers::RpcClient::new(provider);
 				match client.get_block_count().await {
 					Ok(count) => {
-						println!("   ✅ Connected to: {}", endpoint);
-						println!("   📦 Block height: {}", count);
+						println!("   ✅ Connected to: {endpoint}");
+						println!("   📦 Block height: {count}");
 						return Ok(client);
 					},
 					Err(_) => continue,
@@ -105,7 +105,7 @@ async fn query_native_contracts(
 					manifest.abi.as_ref().map(|abi| abi.events.len()).unwrap_or(0)
 				);
 			},
-			Err(e) => println!("   ❌ {}: {}", name, e),
+			Err(e) => println!("   ❌ {name}: {e}"),
 		}
 	}
 
@@ -133,7 +133,7 @@ async fn interact_with_nep17_token(
 				);
 			}
 		},
-		Err(e) => println!("      • Symbol query failed: {}", e),
+		Err(e) => println!("      • Symbol query failed: {e}"),
 	}
 
 	// Get decimals
@@ -144,7 +144,7 @@ async fn interact_with_nep17_token(
 				println!("      • Decimals: {}", item.as_int().unwrap_or(8));
 			}
 		},
-		Err(e) => println!("      • Decimals query failed: {}", e),
+		Err(e) => println!("      • Decimals query failed: {e}"),
 	}
 
 	// Get total supply
@@ -156,7 +156,7 @@ async fn interact_with_nep17_token(
 				println!("      • Total Supply: {} GAS", supply as f64 / 100_000_000.0);
 			}
 		},
-		Err(e) => println!("      • Total supply query failed: {}", e),
+		Err(e) => println!("      • Total supply query failed: {e}"),
 	}
 
 	// Check balance of an address
@@ -183,7 +183,7 @@ async fn interact_with_nep17_token(
 				);
 			}
 		},
-		Err(e) => println!("      • Balance query failed: {}", e),
+		Err(e) => println!("      • Balance query failed: {e}"),
 	}
 
 	Ok(())
@@ -220,17 +220,17 @@ async fn demonstrate_contract_invocation(
 		.await
 	{
 		Ok(result) => {
-			println!("\n      Example: NNS resolve(\"{}\", A)", domain);
+			println!("\n      Example: NNS resolve(\"{domain}\", A)");
 			println!(
 				"      Gas consumed: {} GAS",
 				result.gas_consumed.parse::<f64>().unwrap_or(0.0) / 100_000_000.0
 			);
 			println!("      State: {:?}", result.state);
 			if let Some(exception) = result.exception {
-				println!("      Exception: {}", exception);
+				println!("      Exception: {exception}");
 			}
 		},
-		Err(e) => println!("      NNS query failed: {}", e),
+		Err(e) => println!("      NNS query failed: {e}"),
 	}
 
 	// Transaction invocation (write)
@@ -311,11 +311,11 @@ async fn demonstrate_transaction_building(
 	let total_fee = base_fee + size_fee + system_fee;
 
 	println!("\n   📝 Transaction details:");
-	println!("      • From: {}", sender);
-	println!("      • To: {}", recipient);
+	println!("      • From: {sender}");
+	println!("      • To: {recipient}");
 	println!("      • Amount: {} GAS", amount as f64 / 100_000_000.0);
 	println!("      • Valid until: Block #{}", current_height + 1000);
-	println!("      • Estimated fees: {} GAS", total_fee);
+	println!("      • Estimated fees: {total_fee} GAS");
 
 	println!("\n   🔑 Signing process:");
 	println!("      1. Add witness with private key");

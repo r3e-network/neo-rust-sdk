@@ -542,9 +542,8 @@ impl AccountTrait for Account {
 	}
 
 	fn from_address(address: &str) -> Result<Self, Self::Error> {
-		let address = Address::from_str(address).map_err(|_| {
-			Self::Error::IllegalState(format!("Invalid address format: {address}"))
-		})?;
+		let address = Address::from_str(address)
+			.map_err(|_| Self::Error::IllegalState(format!("Invalid address format: {address}")))?;
 
 		Ok(Self {
 			address_or_scripthash: AddressOrScriptHash::Address(address.clone()),

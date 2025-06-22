@@ -14,7 +14,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// Connect to Neo N3 MainNet (Flamingo is on MainNet)
 	println!("\n📡 Connecting to Neo N3 MainNet...");
 	let provider = HttpProvider::new("https://mainnet1.neo.org:443/")
-		.map_err(|e| format!("Failed to create provider: {}", e))?;
+		.map_err(|e| format!("Failed to create provider: {e}"))?;
 	let client = RpcClient::new(provider);
 	println!("   ✅ Connected successfully");
 
@@ -25,10 +25,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let flund_token = ScriptHash::from_str("48c40d4666f93408be1bef038b6722404d9a4c2a")?;
 	let fusd_token = ScriptHash::from_str("17c76859c11bc14da5b3e9c88fa695513442c606")?;
 
-	println!("   FLM Token:     0x{}", hex::encode(&flm_token.0));
-	println!("   Swap Router:   0x{}", hex::encode(&swap_router.0));
-	println!("   FLUND Token:   0x{}", hex::encode(&flund_token.0));
-	println!("   fUSDT Token:   0x{}", hex::encode(&fusd_token.0));
+	println!("   FLM Token:     0x{}", hex::encode(flm_token.0));
+	println!("   Swap Router:   0x{}", hex::encode(swap_router.0));
+	println!("   FLUND Token:   0x{}", hex::encode(flund_token.0));
+	println!("   fUSDT Token:   0x{}", hex::encode(fusd_token.0));
 
 	// 1. Query FLM Token Information
 	println!("\n1️⃣ Querying FLM Token Information...");
@@ -71,17 +71,17 @@ async fn query_token_info(
 	token_hash: &ScriptHash,
 	token_name: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
-	println!("   📊 {} Token Information:", token_name);
+	println!("   📊 {token_name} Token Information:");
 
 	// Get token symbol
 	match client.invoke_function(token_hash, "symbol".to_string(), vec![], None).await {
 		Ok(result) =>
 			if let Some(stack_item) = result.stack.first() {
 				if let Some(symbol) = stack_item.as_string() {
-					println!("      Symbol: {}", symbol);
+					println!("      Symbol: {symbol}");
 				}
 			},
-		Err(e) => println!("      ⚠️ Failed to get symbol: {}", e),
+		Err(e) => println!("      ⚠️ Failed to get symbol: {e}"),
 	}
 
 	// Get token decimals
@@ -89,10 +89,10 @@ async fn query_token_info(
 		Ok(result) =>
 			if let Some(stack_item) = result.stack.first() {
 				if let Some(decimals) = stack_item.as_int() {
-					println!("      Decimals: {}", decimals);
+					println!("      Decimals: {decimals}");
 				}
 			},
-		Err(e) => println!("      ⚠️ Failed to get decimals: {}", e),
+		Err(e) => println!("      ⚠️ Failed to get decimals: {e}"),
 	}
 
 	// Get total supply
@@ -105,11 +105,11 @@ async fn query_token_info(
 				if let Some(supply) = stack_item.as_int() {
 					let decimals = 8; // Most Neo tokens use 8 decimals
 					let supply_decimal = supply as f64 / 10f64.powi(decimals);
-					println!("      Total Supply: {:.2} {}", supply_decimal, token_name);
+					println!("      Total Supply: {supply_decimal:.2} {token_name}");
 				}
 			}
 		},
-		Err(e) => println!("      ⚠️ Failed to get total supply: {}", e),
+		Err(e) => println!("      ⚠️ Failed to get total supply: {e}"),
 	}
 
 	Ok(())

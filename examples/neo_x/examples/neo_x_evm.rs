@@ -13,7 +13,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let neox_config = NeoXConfig {
 		rpc_url: "https://mainnet.rpc.banelabs.org",
 		chain_id: 12227332,
-		native_gas_decimals: 18,
+		_native_gas_decimals: 18,
 		block_time: 1500, // 1.5 seconds
 	};
 
@@ -59,7 +59,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 struct NeoXConfig {
 	rpc_url: &'static str,
 	chain_id: u64,
-	native_gas_decimals: u8,
+	_native_gas_decimals: u8,
 	block_time: u64,
 }
 
@@ -82,7 +82,7 @@ async fn demonstrate_web3_rpc(config: &NeoXConfig) -> Result<(), Box<dyn std::er
 	// eth_getBalance
 	let example_address = "0x742d35Cc6634C0532925a3b844Bc9e7595f89590";
 	println!("\n   eth_getBalance:");
-	println!("      Address: {}", example_address);
+	println!("      Address: {example_address}");
 	println!("      Balance: 1000000000000000000 wei (1 GAS)");
 
 	// eth_gasPrice
@@ -92,7 +92,7 @@ async fn demonstrate_web3_rpc(config: &NeoXConfig) -> Result<(), Box<dyn std::er
 
 	// eth_getTransactionCount
 	println!("\n   eth_getTransactionCount:");
-	println!("      Address: {}", example_address);
+	println!("      Address: {example_address}");
 	println!("      Nonce: 42");
 
 	// eth_sendRawTransaction
@@ -120,7 +120,7 @@ async fn demonstrate_contract_interaction(
 	println!("      }}");
 
 	let contract_address = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-	println!("\n      Deployed at: {}", contract_address);
+	println!("\n      Deployed at: {contract_address}");
 	println!("      Gas used: 1,234,567");
 	println!("      Transaction: 0x123...abc");
 
@@ -152,8 +152,8 @@ async fn demonstrate_contract_interaction(
 		"0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
 		U256::from(100) * U256::exp10(18),
 	);
-	println!("      To: {}", contract_address);
-	println!("      Data: 0x{}", tx_data.iter().map(|b| format!("{:02x}", b)).collect::<String>());
+	println!("      To: {contract_address}");
+	println!("      Data: 0x{}", tx_data.iter().map(|b| format!("{b:02x}")).collect::<String>());
 	println!("      Gas limit: 65,000");
 	println!("      Gas price: 30 gwei");
 

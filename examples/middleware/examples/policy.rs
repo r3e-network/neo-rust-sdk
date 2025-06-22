@@ -65,7 +65,7 @@ async fn main() -> eyre::Result<()> {
 	println!("\n   📋 Testing valid transaction (0.5 GAS transfer):");
 	match policy_manager.validate_transaction(&valid_transaction).await {
 		Ok(_) => println!("     ✅ Transaction approved by all policies"),
-		Err(e) => println!("     ❌ Transaction rejected: {}", e),
+		Err(e) => println!("     ❌ Transaction rejected: {e}"),
 	}
 
 	// Test transaction exceeding spending limit
@@ -79,7 +79,7 @@ async fn main() -> eyre::Result<()> {
 	println!("\n   📋 Testing high-value transaction (2 GAS transfer):");
 	match policy_manager.validate_transaction(&high_value_transaction).await {
 		Ok(_) => println!("     ✅ Transaction approved"),
-		Err(e) => println!("     ❌ Transaction rejected: {}", e),
+		Err(e) => println!("     ❌ Transaction rejected: {e}"),
 	}
 
 	// Test unauthorized contract interaction
@@ -93,7 +93,7 @@ async fn main() -> eyre::Result<()> {
 	println!("\n   📋 Testing unauthorized contract interaction:");
 	match policy_manager.validate_transaction(&unauthorized_contract).await {
 		Ok(_) => println!("     ✅ Transaction approved"),
-		Err(e) => println!("     ❌ Transaction rejected: {}", e),
+		Err(e) => println!("     ❌ Transaction rejected: {e}"),
 	}
 
 	// 5. Test reject-all policy
@@ -103,7 +103,7 @@ async fn main() -> eyre::Result<()> {
 
 	match strict_manager.validate_transaction(&valid_transaction).await {
 		Ok(_) => println!("   ❌ Unexpected approval!"),
-		Err(e) => println!("   ✅ Expected rejection: {}", e),
+		Err(e) => println!("   ✅ Expected rejection: {e}"),
 	}
 
 	// 6. Demonstrate policy composition
@@ -122,7 +122,7 @@ async fn main() -> eyre::Result<()> {
 
 	match priority_manager.validate_transaction(&test_transaction).await {
 		Ok(_) => println!("   ✅ Transaction passed all composed policies"),
-		Err(e) => println!("   ❌ Transaction failed policy check: {}", e),
+		Err(e) => println!("   ❌ Transaction failed policy check: {e}"),
 	}
 
 	// 7. Policy best practices
@@ -144,7 +144,9 @@ async fn main() -> eyre::Result<()> {
 /// Transaction request structure for policy validation
 #[derive(Debug, Clone)]
 struct TransactionRequest {
+	#[allow(dead_code)]
 	recipient: ScriptHash,
+	#[allow(dead_code)]
 	asset: ScriptHash,
 	amount: u64,
 	contract_hash: Option<ScriptHash>,
@@ -228,7 +230,7 @@ impl TransactionPolicy for WhitelistPolicy {
 		if let Some(contract_hash) = &transaction.contract_hash {
 			let hash_str = format!("0x{}", hex::encode(contract_hash.0)).to_lowercase();
 			if !self.allowed_contracts.contains(&hash_str) {
-				return Err(format!("Contract {} not in whitelist", hash_str));
+				return Err(format!("Contract {hash_str} not in whitelist"));
 			}
 		}
 		Ok(())

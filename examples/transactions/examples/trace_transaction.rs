@@ -1,5 +1,4 @@
 use eyre::Result;
-use neo3::prelude::*;
 
 /// Get transaction information from Neo blockchain
 /// This example shows how to fetch and display transaction details

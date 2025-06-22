@@ -25,7 +25,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	];
 
 	for (operation, typical_fee, description) in fee_examples {
-		println!("   💸 {}: {} ({})", operation, typical_fee, description);
+		println!("   💸 {operation}: {typical_fee} ({description})");
 	}
 
 	// 3. Fee monitoring and estimation strategies
@@ -72,7 +72,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	];
 
 	for (strategy, approach, benefit) in strategies {
-		println!("   ⚡ {} Strategy: {} ({})", strategy, approach, benefit);
+		println!("   ⚡ {strategy} Strategy: {approach} ({benefit})");
 	}
 
 	// 6. Real-world monitoring

@@ -99,8 +99,8 @@ async fn connect_to_neo_mainnet(
 				let client = RpcClient::new(provider);
 				match client.get_block_count().await {
 					Ok(count) => {
-						println!("   ✅ Connected to Neo N3: {}", endpoint);
-						println!("   📦 Block height: {}", count);
+						println!("   ✅ Connected to Neo N3: {endpoint}");
+						println!("   📦 Block height: {count}");
 						return Ok(client);
 					},
 					Err(_) => continue,
@@ -122,12 +122,11 @@ async fn check_bridge_status(
 	match client.get_contract_state(config.neo_bridge_contract).await {
 		Ok(state) => {
 			println!("   ✅ Bridge contract active");
-			if let manifest = &state.manifest {
-				println!(
-					"   📝 Contract name: {}",
-					manifest.name.as_ref().unwrap_or(&"Neo X Bridge".to_string())
-				);
-			}
+			let manifest = &state.manifest;
+			println!(
+				"   📝 Contract name: {}",
+				manifest.name.as_ref().unwrap_or(&"Neo X Bridge".to_string())
+			);
 		},
 		Err(_) => println!("   ❌ Bridge contract not found"),
 	}
@@ -137,16 +136,16 @@ async fn check_bridge_status(
 		.invoke_function(&config.neo_bridge_contract, "isPaused".to_string(), vec![], None)
 		.await
 	{
-		Ok(result) =>
-			if let stack = result.stack {
-				if let Some(item) = stack.first() {
-					let is_paused = item.as_bool().unwrap_or(false);
-					println!(
-						"   🚦 Bridge status: {}",
-						if is_paused { "PAUSED ⚠️" } else { "ACTIVE ✅" }
-					);
-				}
-			},
+		Ok(result) => {
+			let stack = result.stack;
+			if let Some(item) = stack.first() {
+				let is_paused = item.as_bool().unwrap_or(false);
+				println!(
+					"   🚦 Bridge status: {}",
+					if is_paused { "PAUSED ⚠️" } else { "ACTIVE ✅" }
+				);
+			}
+		},
 		Err(_) => println!("   ⚠️  Could not query bridge status"),
 	}
 
@@ -170,7 +169,7 @@ async fn query_supported_tokens(
 	// Check if NEO is supported
 	let neo_token =
 		neo3::neo_types::ScriptHash::from_str("ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5")?;
-	match client
+	if let Ok(result) = client
 		.invoke_function(
 			&config.neo_bridge_contract,
 			"isTokenSupported".to_string(),
@@ -179,18 +178,15 @@ async fn query_supported_tokens(
 		)
 		.await
 	{
-		Ok(result) =>
-			if let stack = result.stack {
-				if let Some(item) = stack.first() {
-					let supported = item.as_bool().unwrap_or(false);
-					if supported {
-						println!("   🪙 NEO Token:");
-						println!("      • Status: Supported ✅");
-						println!("      • Neo X: bNEO (Bridged NEO)");
-					}
-				}
-			},
-		Err(_) => {},
+		let stack = result.stack;
+		if let Some(item) = stack.first() {
+			let supported = item.as_bool().unwrap_or(false);
+			if supported {
+				println!("   🪙 NEO Token:");
+				println!("      • Status: Supported ✅");
+				println!("      • Neo X: bNEO (Bridged NEO)");
+			}
+		}
 	}
 
 	// List other supported NEP-17 tokens
@@ -212,7 +208,7 @@ async fn demonstrate_deposit_process(
 	// Step 1: Check user balance
 	println!("\n   1️⃣ Check user balance on Neo N3");
 	let user_address = "NPvKVTGZapmFWABLsyvfreuqn73jCjJtN1"; // Example address
-	println!("      📍 User: {}", user_address);
+	println!("      📍 User: {user_address}");
 
 	// Step 2: Build deposit transaction
 	println!("\n   2️⃣ Build deposit transaction");
@@ -240,7 +236,7 @@ async fn demonstrate_deposit_process(
 	let deposit_script = script_builder.to_bytes();
 	println!("      📜 Script size: {} bytes", deposit_script.len());
 	println!("      💰 Amount: {} GAS", deposit_amount as f64 / 100_000_000.0);
-	println!("      🎯 Neo X recipient: {}", neox_recipient);
+	println!("      🎯 Neo X recipient: {neox_recipient}");
 
 	// Step 3: Estimate fees
 	println!("\n   3️⃣ Estimate transaction fees");
@@ -282,7 +278,7 @@ async fn demonstrate_withdrawal_process(
 	// Step 2: Check balance on Neo X
 	println!("\n   2️⃣ Check GAS balance on Neo X");
 	let neox_user = "0x742d35Cc6634C0532925a3b844Bc9e7595f89590";
-	println!("      📍 User: {}", neox_user);
+	println!("      📍 User: {neox_user}");
 	println!("      💰 Balance: [Would query EVM for balance]");
 
 	// Step 3: Initiate withdrawal
@@ -292,7 +288,7 @@ async fn demonstrate_withdrawal_process(
 
 	println!("      📋 Call bridge contract withdraw()");
 	println!("      💰 Amount: 5 GAS");
-	println!("      🎯 Neo N3 recipient: {}", neo_recipient);
+	println!("      🎯 Neo N3 recipient: {neo_recipient}");
 	println!("      📝 EVM transaction data:");
 	println!("         • To: {}", config.neox_bridge_address);
 	println!("         • Method: withdraw(amount, recipient)");
@@ -325,7 +321,7 @@ async fn monitor_bridge_transactions(
 	let current_height = client.get_block_count().await?;
 	let start_height = current_height.saturating_sub(100); // Last 100 blocks
 
-	println!("   🔍 Scanning blocks {} to {}", start_height, current_height);
+	println!("   🔍 Scanning blocks {start_height} to {current_height}");
 
 	// In production, would query application logs
 	println!("   📋 Recent deposits (Neo N3 → Neo X):");

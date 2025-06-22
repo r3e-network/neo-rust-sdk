@@ -41,7 +41,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		let script_hash = account.get_script_hash();
 
 		println!("   Account {}: {}", i + 1, address);
-		println!("      Script Hash: {:x}", script_hash);
+		println!("      Script Hash: {script_hash:x}");
 
 		// Verify the account has a key pair
 		match account.key_pair() {
@@ -98,8 +98,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		let participant_count = accounts.len();
 
 		println!("   ⚙️  Multi-sig setup (conceptual):");
-		println!("      • Threshold: {} of {}", threshold, participant_count);
-		println!("      • Participants: {} accounts", participant_count);
+		println!("      • Threshold: {threshold} of {participant_count}");
+		println!("      • Participants: {participant_count} accounts");
 
 		for (i, account) in accounts.iter().enumerate() {
 			println!("      • Participant {}: {}...", i + 1, &account.get_address()[..10]);
@@ -137,7 +137,10 @@ impl SecureWalletStorage {
 
 /// Account information for secure storage
 struct AccountInfo {
+	#[allow(dead_code)]
 	address: String,
+	#[allow(dead_code)]
 	script_hash: ScriptHash,
+	#[allow(dead_code)]
 	has_private_key: bool,
 }
