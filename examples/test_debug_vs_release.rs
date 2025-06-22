@@ -27,7 +27,8 @@ fn main() {
 
 	println!("\nResults:");
 	println!("Total time: {duration:?}");
-	println!("Average per account: {:?}", duration / 50);
+	let avg_time = duration / 50;
+	println!("Average per account: {avg_time:?}");
 
 	if duration.as_secs() > 15 {
 		println!(
