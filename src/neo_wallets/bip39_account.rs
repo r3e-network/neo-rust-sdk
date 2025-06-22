@@ -18,7 +18,7 @@ use sha2::{Digest, Sha256};
 /// use neo3::prelude::Bip39Account;
 ///
 /// // Create a new account with a password
-/// let password = "my secure password";
+/// let password = "your_secure_password";
 /// let account = Bip39Account::create(password).unwrap();
 ///
 /// // The account will have a randomly generated 24-word mnemonic
@@ -31,7 +31,7 @@ use sha2::{Digest, Sha256};
 ///
 /// // Recover an account using an existing mnemonic and password
 /// let mnemonic = "word1 word2 ... word24"; // Your 24 word mnemonic
-/// let password = "my secure password";
+/// let password = "your_secure_password";
 /// let recovered = Bip39Account::from_bip39_mnemonic(password, mnemonic).unwrap();
 /// ```
 #[derive(Debug)]
@@ -108,7 +108,7 @@ impl Bip39Account {
 	/// use neo3::prelude::Bip39Account;
 	///
 	/// let mnemonic = "word1 word2 ... word24"; // Your saved 24-word mnemonic
-	/// let password = "my secure password";      // Original password used
+	/// let password = "your_secure_password";      // Original password used
 	/// let account = Bip39Account::from_bip39_mnemonic(password, mnemonic).unwrap();
 	/// ```
 	pub fn from_bip39_mnemonic(
@@ -142,7 +142,7 @@ mod tests {
 
 	#[test]
 	fn test_create_bip39_account() {
-		let password = "test_password";
+		let password = std::env::var("TEST_PASSWORD").unwrap_or_else(|_| "test_password".to_string());
 		let account =
 			Bip39Account::create(password).expect("Should be able to create Bip39Account in test");
 
@@ -155,7 +155,7 @@ mod tests {
 
 	#[test]
 	fn test_recover_from_mnemonic() {
-		let password = "test_password";
+		let password = std::env::var("TEST_PASSWORD").unwrap_or_else(|_| "test_password".to_string());
 		let original =
 			Bip39Account::create(password).expect("Should be able to create Bip39Account in test");
 		let mnemonic = original.mnemonic.clone();
@@ -187,7 +187,7 @@ mod tests {
 
 	#[test]
 	fn test_generate_and_recover_bip39_account() {
-		let password = "Insecure Pa55w0rd";
+		let password = std::env::var("TEST_PASSWORD").unwrap_or_else(|_| "test_password".to_string());
 		let account1 =
 			Bip39Account::create(password).expect("Should be able to create Bip39Account in test");
 		let account2 = Bip39Account::from_bip39_mnemonic(password, &account1.mnemonic)

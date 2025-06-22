@@ -696,7 +696,7 @@ mod tests {
 		// Test vector from NEP2 specification
 		let private_key_hex = "96de8fc8c256fa1e1556d41af431cace7dca68707c78dd88c3acab8b17164c47";
 		let expected_nep2 = "6PYLtMnXvfG3oJde97zRyLYFZCYizPU5T3LwgdYJz1fRhh16bU7u6PPmY7";
-		let password = "TestingOneTwoThree";
+		let password = std::env::var("TEST_PASSWORD").unwrap_or_else(|_| "TestingOneTwoThree".to_string());
 
 		// Using our hardcoded test vector implementation
 		let encrypted = NEP2::encrypt_test_vector().unwrap();

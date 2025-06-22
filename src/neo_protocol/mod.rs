@@ -48,12 +48,12 @@
 //!
 //! // Encrypt a private key with a password (NEP-2 format)
 //! let private_key = PrivateKey::from_slice(&[/* 32 bytes */]).unwrap();
-//! let password = "mySecurePassword";
+//! let password = "your_secure_password_here";
 //! let nep2_string = encrypt_to_nep2(&private_key, password).unwrap();
 //!
 //! // Decrypt a NEP-2 string back to a private key
 //! let nep2_string = "6PYVPVe1fQznphjbUxXP9KZJqPMVnVwCx5s5pr5axRJ8uHkMtZg97eT5kL";
-//! let password = "mySecurePassword";
+//! let password = "your_secure_password_here";
 //! let private_key = decrypt_from_nep2(nep2_string, password).unwrap();
 //! ```
 
