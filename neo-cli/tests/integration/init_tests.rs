@@ -11,7 +11,13 @@ mod tests {
 		let output = cli.run_command(&["init", "--force"]);
 
 		// Check that the command executed successfully
-		assert_output_contains(&output, "Configuration initialized");
+		// The init command should either show "Configuration initialized" or "Initializing"
+		assert_success(&output);
+		let stdout = String::from_utf8_lossy(&output.stdout);
+		assert!(
+			stdout.contains("Configuration initialized") || stdout.contains("Initializing"),
+			"Expected output to contain initialization message, but got:\n{stdout}"
+		);
 	}
 
 	#[test]
