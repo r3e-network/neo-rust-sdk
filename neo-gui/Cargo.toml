@@ -28,30 +28,30 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1.35", features = ["full"] }
 anyhow = "1.0"
-thiserror = "1.0"
+thiserror = "2.0"
 uuid = { version = "1.6", features = ["v4"] }
 chrono = { version = "0.4", features = ["serde"] }
-base64 = "0.21"
+base64 = "0.22"
 hex = "0.4"
 sha2 = "0.10"
 ripemd = "0.1"
-reqwest = { version = "0.11", features = ["json"] }
+reqwest = { version = "0.12", features = ["json"] }
 futures = "0.3"
 async-trait = "0.1"
 log = "0.4"
-env_logger = "=0.11.6"
-rand = "0.8"
+env_logger = "=0.11.8"
+rand = "0.9"
 
 [dev-dependencies]
 tokio-test = "0.4"
 mockall = "0.12"
 tempfile = "3.8"
 serial_test = "3.0"
-proptest = "1.4"
-criterion = { version = "0.5", features = ["html_reports"] }
+proptest = "1.7"
+criterion = { version = "0.6", features = ["html_reports"] }
 wiremock = "0.5"
 test-case = "3.3"
-rand = "0.8"
+rand = "0.9"
 
 [[bench]]
 name = "performance_benchmarks"
