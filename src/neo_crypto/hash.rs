@@ -204,6 +204,6 @@ mod tests {
 	// Helper function to convert bytes to hex string
 	// Define this or replace it with your actual hex string conversion function
 	fn to_hex_string(bytes: &[u8]) -> String {
-		bytes.iter().map(|byte| format!("{:02x}", byte)).collect()
+		bytes.iter().map(|byte| format!("{byte:02x}")).collect()
 	}
 }

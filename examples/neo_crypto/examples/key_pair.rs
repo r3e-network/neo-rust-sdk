@@ -54,7 +54,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 /// Display comprehensive information about a key pair and account
 fn display_key_pair_info(label: &str, key_pair: &KeyPair, account: &Account) {
-	println!("\n   📋 {label}:");
+	println!("\n   📋 {}:", label);
 	println!("      🔑 Public Key:    {}", hex::encode(key_pair.public_key.get_encoded(true)));
 	println!(
 		"      🗝️  Private Key:   {}...{} (truncated for security)",
@@ -159,7 +159,7 @@ fn multisig_example(key_pairs: &[&KeyPair]) -> Result<(), Box<dyn std::error::Er
 	let threshold = 2; // Require 2 out of 3 signatures
 	let total_signers = key_pairs.len();
 
-	println!("   🔗 Setup:          {threshold}-of-{total_signers} multi-signature configuration");
+	println!("   🔗 Setup:          {}-of-{} multi-signature configuration", threshold, total_signers);
 
 	// Create accounts for each key pair
 	let accounts: Result<Vec<Account>, _> = key_pairs

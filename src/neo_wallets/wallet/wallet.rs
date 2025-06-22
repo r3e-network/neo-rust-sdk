@@ -269,14 +269,14 @@ impl Wallet {
 
 		// Encode as JSON
 		let json = serde_json::to_string(&nep6).map_err(|e| {
-			WalletError::AccountState(format!("Failed to serialize wallet to JSON: {}", e))
+			WalletError::AccountState(format!("Failed to serialize wallet to JSON: {e}"))
 		})?;
 
 		// Write to file at path
 		let mut file = File::create(path)
-			.map_err(|e| WalletError::FileError(format!("Failed to create wallet file: {}", e)))?;
+			.map_err(|e| WalletError::FileError(format!("Failed to create wallet file: {e}")))?;
 		file.write_all(json.as_bytes())
-			.map_err(|e| WalletError::FileError(format!("Failed to write wallet file: {}", e)))?;
+			.map_err(|e| WalletError::FileError(format!("Failed to write wallet file: {e}")))?;
 
 		Ok(())
 	}
@@ -355,7 +355,7 @@ impl Wallet {
 	/// Imports a private key in WIF format
 	pub fn import_private_key(&mut self, wif: &str) -> Result<&Account, WalletError> {
 		let key_pair = KeyPair::from_wif(wif).map_err(|e| {
-			WalletError::AccountState(format!("Failed to import private key: {}", e))
+			WalletError::AccountState(format!("Failed to import private key: {e}"))
 		})?;
 
 		let account = Account::from_key_pair(key_pair, None, None)
@@ -565,10 +565,10 @@ impl Wallet {
 	{
 		// Get the account from the wallet
 		let script_hash = H160::from_address(account_address)
-			.map_err(|e| WalletError::AccountState(format!("Invalid address: {}", e)))?;
+			.map_err(|e| WalletError::AccountState(format!("Invalid address: {e}")))?;
 
 		let account = self.get_account(&script_hash).ok_or_else(|| {
-			WalletError::AccountState(format!("Account not found: {}", account_address))
+			WalletError::AccountState(format!("Account not found: {account_address}"))
 		})?;
 
 		// Ensure the account has a key pair or can be decrypted
@@ -578,7 +578,7 @@ impl Wallet {
 				// Try to decrypt the account with the provided password
 				let mut account_clone = account.clone();
 				account_clone.decrypt_private_key(password).map_err(|e| {
-					WalletError::DecryptionError(format!("Failed to decrypt account: {}", e))
+					WalletError::DecryptionError(format!("Failed to decrypt account: {e}"))
 				})?;
 
 				match account_clone.key_pair() {
@@ -593,7 +593,7 @@ impl Wallet {
 
 		// Create a witness for the transaction
 		let witness = Witness::create(tx.get_hash_data().await?, &key_pair)
-			.map_err(|e| WalletError::SigningError(format!("Failed to create witness: {}", e)))?;
+			.map_err(|e| WalletError::SigningError(format!("Failed to create witness: {e}")))?;
 
 		// Add the witness to the transaction
 		tx.add_witness(witness);
@@ -659,11 +659,11 @@ impl Wallet {
 	pub fn open_wallet(path: &PathBuf, password: &str) -> Result<Self, WalletError> {
 		// Read the wallet file
 		let wallet_json = std::fs::read_to_string(path)
-			.map_err(|e| WalletError::FileError(format!("Failed to read wallet file: {}", e)))?;
+			.map_err(|e| WalletError::FileError(format!("Failed to read wallet file: {e}")))?;
 
 		// Parse the wallet JSON
 		let nep6_wallet: Nep6Wallet = serde_json::from_str(&wallet_json).map_err(|e| {
-			WalletError::DeserializationError(format!("Failed to parse wallet JSON: {}", e))
+			WalletError::DeserializationError(format!("Failed to parse wallet JSON: {e}"))
 		})?;
 
 		// Convert to Wallet
@@ -718,7 +718,7 @@ impl Wallet {
 
 		// Create an account from the key pair
 		let account = Account::from_key_pair(key_pair, None, None)
-			.map_err(|e| WalletError::AccountState(format!("Failed to create account: {}", e)))?;
+			.map_err(|e| WalletError::AccountState(format!("Failed to create account: {e}")))?;
 		let script_hash = account.address_or_scripthash.script_hash();
 
 		// Add the account to the wallet

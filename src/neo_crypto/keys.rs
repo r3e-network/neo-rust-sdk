@@ -696,7 +696,7 @@ mod tests {
 
 	#[test]
 	fn test_new_public_key_from_point_with_hex_prefix() {
-		let prefixed = format!("0x{}", ENCODED_POINT);
+		let prefixed = format!("0x{ENCODED_POINT}");
 		let a = Secp256r1PublicKey::from_encoded(&prefixed).unwrap();
 		assert_eq!(a.get_encoded_compressed_hex(), ENCODED_POINT);
 	}

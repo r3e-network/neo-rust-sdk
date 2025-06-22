@@ -21,7 +21,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	});
 
 	println!("   📦 Block Subscription Request:");
-	println!("   {}", serde_json::to_string_pretty(&block_subscription)?);
+	let block_json = serde_json::to_string_pretty(&block_subscription)?;
+	println!("   {block_json}");
 
 	// Transaction subscription
 	let tx_subscription = json!({
@@ -32,7 +33,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	});
 
 	println!("\n   📝 Transaction Subscription Request:");
-	println!("   {}", serde_json::to_string_pretty(&tx_subscription)?);
+	let tx_json = serde_json::to_string_pretty(&tx_subscription)?;
+	println!("   {tx_json}");
 
 	// Contract event subscription
 	let contract_subscription = json!({
@@ -46,7 +48,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	});
 
 	println!("\n   🔗 Contract Event Subscription Request:");
-	println!("   {}", serde_json::to_string_pretty(&contract_subscription)?);
+	let contract_json = serde_json::to_string_pretty(&contract_subscription)?;
+	println!("   {contract_json}");
 
 	// 2. Mock event processing
 	println!("\n2. Event Processing Examples:");

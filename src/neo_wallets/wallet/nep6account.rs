@@ -125,7 +125,7 @@ impl NEP6Account {
 			if verification_script.is_multi_sig() {
 				for i in 0..verification_script.get_nr_of_accounts()? {
 					parameters.push(NEP6Parameter {
-						param_name: format!("signature{}", i),
+						param_name: format!("signature{i}"),
 						param_type: ContractParameterType::Signature,
 					});
 				}

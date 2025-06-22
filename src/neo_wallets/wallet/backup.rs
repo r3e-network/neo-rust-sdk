@@ -35,7 +35,7 @@ impl WalletBackup {
 
 		// Encode as JSON
 		let json = serde_json::to_string_pretty(&nep6)
-			.map_err(|e| WalletError::AccountState(format!("Serialization error: {}", e)))?;
+			.map_err(|e| WalletError::AccountState(format!("Serialization error: {e}")))?;
 
 		// Write to file at path
 		let mut file = File::create(path).map_err(|e| WalletError::IoError(e))?;
@@ -72,7 +72,7 @@ impl WalletBackup {
 
 		// Parse JSON to Nep6Wallet
 		let nep6_wallet = serde_json::from_str(&file_content)
-			.map_err(|e| WalletError::AccountState(format!("Deserialization error: {}", e)))?;
+			.map_err(|e| WalletError::AccountState(format!("Deserialization error: {e}")))?;
 
 		// Convert Nep6Wallet to Wallet
 		Wallet::from_nep6(nep6_wallet)

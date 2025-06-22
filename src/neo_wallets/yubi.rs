@@ -27,11 +27,11 @@ impl WalletSigner<YubiSigner<NistP256>> {
 		id: object::Id,
 	) -> Result<Self, WalletError> {
 		let client = Client::open(connector, credentials, true).map_err(|e| {
-			WalletError::YubiHsmError(format!("Failed to open YubiHSM client: {}", e))
+			WalletError::YubiHsmError(format!("Failed to open YubiHSM client: {e}"))
 		})?;
 
 		let signer = YubiSigner::create(client, id).map_err(|e| {
-			WalletError::YubiHsmError(format!("Failed to create YubiHSM signer: {}", e))
+			WalletError::YubiHsmError(format!("Failed to create YubiHSM signer: {e}"))
 		})?;
 
 		Ok(signer.into())
@@ -46,17 +46,17 @@ impl WalletSigner<YubiSigner<NistP256>> {
 		domain: Domain,
 	) -> Result<Self, WalletError> {
 		let client = Client::open(connector, credentials, true).map_err(|e| {
-			WalletError::YubiHsmError(format!("Failed to open YubiHSM client: {}", e))
+			WalletError::YubiHsmError(format!("Failed to open YubiHSM client: {e}"))
 		})?;
 
 		let id = client
 			.generate_asymmetric_key(id, label, domain, Capability::SIGN_ECDSA, EcP256)
 			.map_err(|e| {
-				WalletError::YubiHsmError(format!("Failed to generate asymmetric key: {}", e))
+				WalletError::YubiHsmError(format!("Failed to generate asymmetric key: {e}"))
 			})?;
 
 		let signer = YubiSigner::create(client, id).map_err(|e| {
-			WalletError::YubiHsmError(format!("Failed to create YubiHSM signer: {}", e))
+			WalletError::YubiHsmError(format!("Failed to create YubiHSM signer: {e}"))
 		})?;
 
 		Ok(signer.into())
@@ -72,17 +72,17 @@ impl WalletSigner<YubiSigner<NistP256>> {
 		key: impl Into<Vec<u8>>,
 	) -> Result<Self, WalletError> {
 		let client = Client::open(connector, credentials, true).map_err(|e| {
-			WalletError::YubiHsmError(format!("Failed to open YubiHSM client: {}", e))
+			WalletError::YubiHsmError(format!("Failed to open YubiHSM client: {e}"))
 		})?;
 
 		let id = client
 			.put_asymmetric_key(id, label, domain, Capability::SIGN_ECDSA, EcP256, key)
 			.map_err(|e| {
-				WalletError::YubiHsmError(format!("Failed to put asymmetric key: {}", e))
+				WalletError::YubiHsmError(format!("Failed to put asymmetric key: {e}"))
 			})?;
 
 		let signer = YubiSigner::create(client, id).map_err(|e| {
-			WalletError::YubiHsmError(format!("Failed to create YubiHSM signer: {}", e))
+			WalletError::YubiHsmError(format!("Failed to create YubiHSM signer: {e}"))
 		})?;
 
 		Ok(signer.into())

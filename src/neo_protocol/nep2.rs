@@ -561,7 +561,7 @@ pub fn get_nep2_from_private_key(
 		})?)?;
 
 	NEP2::encrypt(passphrase, &key_pair).map_err(|e| {
-		crate::providers::ProviderError::CustomError(format!("NEP2 encryption error: {}", e))
+		crate::providers::ProviderError::CustomError(format!("NEP2 encryption error: {e}"))
 	})
 }
 
@@ -580,7 +580,7 @@ pub fn get_private_key_from_nep2(
 	passphrase: &str,
 ) -> Result<Vec<u8>, crate::providers::ProviderError> {
 	let key_pair = NEP2::decrypt(passphrase, nep2).map_err(|e| {
-		crate::providers::ProviderError::CustomError(format!("NEP2 decryption error: {}", e))
+		crate::providers::ProviderError::CustomError(format!("NEP2 decryption error: {e}"))
 	})?;
 
 	Ok(key_pair.private_key.to_raw_bytes().to_vec())

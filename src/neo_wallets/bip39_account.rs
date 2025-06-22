@@ -70,7 +70,7 @@ impl Bip39Account {
 		let mut rng = bip39::rand::thread_rng();
 		let mnemonic =
 			Mnemonic::generate_in_with(&mut rng, Language::English, 24).map_err(|e| {
-				Box::<dyn std::error::Error>::from(format!("Failed to generate mnemonic: {}", e))
+				Box::<dyn std::error::Error>::from(format!("Failed to generate mnemonic: {e}"))
 			})?;
 		let seed = mnemonic.to_seed(password);
 
@@ -79,7 +79,7 @@ impl Bip39Account {
 		let private_key = hasher.finalize();
 
 		let key_pair = KeyPair::from_private_key(private_key.as_ref()).map_err(|e| {
-			Box::<dyn std::error::Error>::from(format!("Failed to create key pair: {}", e))
+			Box::<dyn std::error::Error>::from(format!("Failed to create key pair: {e}"))
 		})?;
 		let account = Account::from_key_pair(key_pair.clone(), None, None).map_err(|e| {
 			Box::<dyn std::error::Error>::from(format!(
@@ -123,7 +123,7 @@ impl Bip39Account {
 		let private_key = hasher.finalize();
 
 		let key_pair = KeyPair::from_private_key(private_key.as_ref()).map_err(|e| {
-			Box::<dyn std::error::Error>::from(format!("Failed to create key pair: {}", e))
+			Box::<dyn std::error::Error>::from(format!("Failed to create key pair: {e}"))
 		})?;
 		let account = Account::from_key_pair(key_pair.clone(), None, None).map_err(|e| {
 			Box::<dyn std::error::Error>::from(format!(

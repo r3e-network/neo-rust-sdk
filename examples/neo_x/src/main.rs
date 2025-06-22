@@ -22,7 +22,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 	// Get Neo N3 block count
 	let neo_block_count = neo_client.get_block_count().await?;
-	println!("   Neo N3 block count: {neo_block_count}");
+	println!("   Neo N3 block count: {}", neo_block_count);
 
 	// Get Neo X block number (professional implementation provides actual network data)
 	println!("   Neo X block number: [Connected to Neo X network]");

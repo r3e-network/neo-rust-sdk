@@ -146,7 +146,7 @@ impl<T: LedgerAsync> LedgerWallet<T> {
 			.ledger
 			.exchange(&command)
 			.await
-			.map_err(|e| WalletError::LedgerError(format!("Failed to get address: {}", e)))?;
+			.map_err(|e| WalletError::LedgerError(format!("Failed to get address: {e}")))?;
 
 		if response.retcode() != 0x9000 {
 			return Err(WalletError::LedgerError(format!("Ledger error: {:x}", response.retcode())));
@@ -166,7 +166,7 @@ impl<T: LedgerAsync> LedgerWallet<T> {
 		let address =
 			Address::from_str(&format!("0x{}", H160::from_slice(&public_key[1..21]).to_hex()))
 				.map_err(|e| {
-					WalletError::LedgerError(format!("Failed to derive address: {}", e))
+					WalletError::LedgerError(format!("Failed to derive address: {e}"))
 				})?;
 
 		Ok(address)
@@ -188,7 +188,7 @@ impl<T: LedgerAsync> LedgerWallet<T> {
 		// Send the command to the Ledger device
 		let response =
 			self.ledger.exchange(&command).await.map_err(|e| {
-				WalletError::LedgerError(format!("Failed to sign transaction: {}", e))
+				WalletError::LedgerError(format!("Failed to sign transaction: {e}"))
 			})?;
 
 		if response.retcode() != 0x9000 {
@@ -211,7 +211,7 @@ impl<T: LedgerAsync> LedgerWallet<T> {
 		let r_bytes: [u8; 32] = r.into();
 		let s_bytes: [u8; 32] = s.into();
 		let signature = k256::ecdsa::Signature::from_scalars(r_bytes, s_bytes)
-			.map_err(|e| WalletError::LedgerError(format!("Failed to create signature: {}", e)))?;
+			.map_err(|e| WalletError::LedgerError(format!("Failed to create signature: {e}")))?;
 
 		Ok(signature)
 	}
@@ -234,7 +234,7 @@ impl<T: LedgerAsync> LedgerWallet<T> {
 			.ledger
 			.exchange(&command)
 			.await
-			.map_err(|e| WalletError::LedgerError(format!("Failed to sign message: {}", e)))?;
+			.map_err(|e| WalletError::LedgerError(format!("Failed to sign message: {e}")))?;
 
 		if response.retcode() != 0x9000 {
 			return Err(WalletError::LedgerError(format!("Ledger error: {:x}", response.retcode())));
@@ -256,7 +256,7 @@ impl<T: LedgerAsync> LedgerWallet<T> {
 		let r_bytes: [u8; 32] = r.into();
 		let s_bytes: [u8; 32] = s.into();
 		let signature = k256::ecdsa::Signature::from_scalars(r_bytes, s_bytes)
-			.map_err(|e| WalletError::LedgerError(format!("Failed to create signature: {}", e)))?;
+			.map_err(|e| WalletError::LedgerError(format!("Failed to create signature: {e}")))?;
 
 		Ok(signature)
 	}

@@ -22,7 +22,8 @@ async fn main() -> eyre::Result<()> {
 	println!("\n2. Initializing block monitor...");
 	let mut block_monitor = BlockMonitor::new(&client).await?;
 	println!("   ✅ Block monitor initialized");
-	println!("   📊 Starting from block: {}", block_monitor.get_current_block());
+	let current_block = block_monitor.get_current_block();
+	println!("   📊 Starting from block: {current_block}");
 
 	// 3. Subscribe to new blocks (simulate real-time monitoring)
 	println!("\n3. Starting block subscription (monitoring for 30 seconds)...");
@@ -63,10 +64,14 @@ async fn main() -> eyre::Result<()> {
 	// 4. Display subscription statistics
 	println!("\n4. Subscription Statistics:");
 	let stats = block_monitor.get_statistics();
-	println!("   📊 Blocks monitored: {}", stats.blocks_processed);
-	println!("   🔄 Polling cycles: {}", stats.poll_cycles);
-	println!("   📈 Average block time: {:.1}s", stats.average_block_time_seconds());
-	println!("   💹 Transactions monitored: {}", stats.total_transactions);
+	let blocks_processed = stats.blocks_processed;
+	let poll_cycles = stats.poll_cycles;
+	let avg_time = stats.average_block_time_seconds();
+	let total_transactions = stats.total_transactions;
+	println!("   📊 Blocks monitored: {blocks_processed}");
+	println!("   🔄 Polling cycles: {poll_cycles}");
+	println!("   📈 Average block time: {avg_time:.1}s");
+	println!("   💹 Transactions monitored: {total_transactions}");
 
 	// 5. Demonstrate block filtering and notifications
 	println!("\n5. Advanced block monitoring features:");
@@ -224,13 +229,20 @@ fn print_block_info(block: &BlockInfo) {
 		.unwrap_or_else(chrono::Utc::now);
 
 	println!("\n   📦 New Block Received:");
-	println!("     Block Index: {}", block.index);
-	println!("     Block Hash: {}", block.hash);
-	println!("     Timestamp: {} ({})", datetime.format("%Y-%m-%d %H:%M:%S UTC"), block.timestamp);
-	println!("     Transactions: {}", block.transaction_count);
-	println!("     Size: {} bytes", block.size);
+	let index = block.index;
+	let hash = &block.hash;
+	let formatted_time = datetime.format("%Y-%m-%d %H:%M:%S UTC");
+	let timestamp = block.timestamp;
+	let tx_count = block.transaction_count;
+	let size = block.size;
+	println!("     Block Index: {index}");
+	println!("     Block Hash: {hash}");
+	println!("     Timestamp: {formatted_time} ({timestamp})");
+	println!("     Transactions: {tx_count}");
+	println!("     Size: {size} bytes");
 
 	if !block.merkle_root.is_empty() {
-		println!("     Merkle Root: {}...", &block.merkle_root[..20]);
+		let merkle_preview = &block.merkle_root[..20];
+		println!("     Merkle Root: {merkle_preview}...");
 	}
 }
