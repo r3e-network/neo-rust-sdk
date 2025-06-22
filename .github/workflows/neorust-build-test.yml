@@ -91,17 +91,76 @@ jobs:
         cd ..
         Move-Item Cargo.toml.original Cargo.toml -Force
       
-    - name: Run Rust benchmarks
+    - name: Run Rust benchmarks (Unix)
+      if: runner.os != 'Windows'
       run: |
+        # Create a clean workspace without neo-gui to prevent any dependency resolution
+        cp Cargo.toml Cargo.toml.bench-backup
+        sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml || true
+        rm -rf neo-gui || true
+        
         # Run benchmarks for neo3 package only
         cargo bench --manifest-path Cargo.toml --package neo3 --verbose
-      
-    - name: Check documentation
+        
+        # Restore workspace
+        mv Cargo.toml.bench-backup Cargo.toml
+        git checkout -- neo-gui || true
+        
+    - name: Run Rust benchmarks (Windows)
+      if: runner.os == 'Windows'
       run: |
+        # Create a clean workspace without neo-gui to prevent any dependency resolution
+        Copy-Item Cargo.toml Cargo.toml.bench-backup
+        (Get-Content Cargo.toml) -replace '"neo-gui",', '' | Set-Content Cargo.toml
+        (Get-Content Cargo.toml) -replace ', "neo-gui"', '' | Set-Content Cargo.toml
+        (Get-Content Cargo.toml) -replace '"neo-gui"', '' | Set-Content Cargo.toml
+        Remove-Item -Recurse -Force neo-gui -ErrorAction SilentlyContinue
+        
+        # Run benchmarks for neo3 package only
+        cargo bench --manifest-path Cargo.toml --package neo3 --verbose
+        
+        # Restore workspace
+        Move-Item Cargo.toml.bench-backup Cargo.toml -Force
+        git checkout -- neo-gui
+      
+    - name: Check documentation (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        # Create a clean workspace without neo-gui to prevent any dependency resolution
+        cp Cargo.toml Cargo.toml.doc-backup
+        sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml || true
+        rm -rf neo-gui || true
+        
         # Build documentation for neo3 package
         cargo doc --manifest-path Cargo.toml --package neo3 --no-deps --document-private-items
         # Build documentation for neo-cli package
         cd neo-cli && cargo doc --no-deps --document-private-items
+        
+        # Restore workspace
+        cd ${{ github.workspace }}
+        mv Cargo.toml.doc-backup Cargo.toml
+        git checkout -- neo-gui || true
+        
+    - name: Check documentation (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        # Create a clean workspace without neo-gui to prevent any dependency resolution
+        Copy-Item Cargo.toml Cargo.toml.doc-backup
+        (Get-Content Cargo.toml) -replace '"neo-gui",', '' | Set-Content Cargo.toml
+        (Get-Content Cargo.toml) -replace ', "neo-gui"', '' | Set-Content Cargo.toml
+        (Get-Content Cargo.toml) -replace '"neo-gui"', '' | Set-Content Cargo.toml
+        Remove-Item -Recurse -Force neo-gui -ErrorAction SilentlyContinue
+        
+        # Build documentation for neo3 package
+        cargo doc --manifest-path Cargo.toml --package neo3 --no-deps --document-private-items
+        # Build documentation for neo-cli package
+        cd neo-cli
+        cargo doc --no-deps --document-private-items
+        
+        # Restore workspace
+        cd ..
+        Move-Item Cargo.toml.doc-backup Cargo.toml -Force
+        git checkout -- neo-gui
       
   tauri-build:
     name: Tauri Build
