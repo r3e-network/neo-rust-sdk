@@ -1,0 +1,91 @@
+version: 2
+updates:
+  # Rust dependencies
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "r3e-network/maintainers"
+    labels:
+      - "dependencies"
+      - "rust"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      rust-dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "neo*"  # Don't group internal dependencies
+    
+  # NPM dependencies for neo-gui
+  - package-ecosystem: "npm"
+    directory: "/neo-gui"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "r3e-network/maintainers"
+    labels:
+      - "dependencies"
+      - "javascript"
+      - "gui"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      tauri-dependencies:
+        patterns:
+          - "@tauri-apps/*"
+      react-dependencies:
+        patterns:
+          - "react*"
+          - "@types/react*"
+      dev-dependencies:
+        dependency-type: "development"
+    
+  # NPM dependencies for website
+  - package-ecosystem: "npm"
+    directory: "/website"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "r3e-network/maintainers"
+    labels:
+      - "dependencies"
+      - "javascript"
+      - "documentation"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      docusaurus-dependencies:
+        patterns:
+          - "@docusaurus/*"
+    
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "r3e-network/maintainers"
+    labels:
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "ci"
+      include: "scope"

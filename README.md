@@ -1,10 +1,22 @@
 # NeoRust
 
-[![Rust CI](https://github.com/R3E-Network/NeoRust/workflows/Rust%20CI/badge.svg)](https://github.com/R3E-Network/NeoRust/actions)
+[![Rust CI](https://github.com/r3e-network/NeoRust/actions/workflows/rust.yml/badge.svg)](https://github.com/r3e-network/NeoRust/actions/workflows/rust.yml)
+[![Build & Test](https://github.com/r3e-network/NeoRust/actions/workflows/neorust-build-test.yml/badge.svg)](https://github.com/r3e-network/NeoRust/actions/workflows/neorust-build-test.yml)
+[![Security](https://github.com/r3e-network/NeoRust/actions/workflows/security.yml/badge.svg)](https://github.com/r3e-network/NeoRust/actions/workflows/security.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Crates.io](https://img.shields.io/crates/v/neo3.svg)](https://crates.io/crates/neo3)
+[![Documentation](https://docs.rs/neo3/badge.svg)](https://docs.rs/neo3)
+[![MSRV](https://img.shields.io/badge/MSRV-1.70.0-blue)](https://blog.rust-lang.org/2023/06/01/Rust-1.70.0.html)
 
 A comprehensive Rust SDK for the Neo N3 blockchain platform, providing a complete toolkit for interacting with Neo N3 networks.
+
+## 📊 Project Status
+
+- **Version**: 0.4.1 (Production Ready)
+- **Rust Version**: 1.70.0+
+- **Platform Support**: Windows, macOS, Linux
+- **Security**: All dependencies audited, 0 known vulnerabilities
+- **Coverage**: Core functionality tested with integration tests
 
 ## Features
 
@@ -81,11 +93,61 @@ cd neo-gui && npm install && cargo build
 - [Getting Started Guide](docs/guides/getting-started.md)
 - [API Documentation](https://docs.rs/neo3)
 - [Examples](examples/)
+- [CLI Documentation](neo-cli/README.md)
+- [GUI Documentation](neo-gui/README.md)
+
+## Examples
+
+Explore our comprehensive examples:
+
+- **Basic Operations**: Wallet creation, token transfers, balance queries
+- **Smart Contracts**: Deploy and interact with Neo N3 contracts
+- **Advanced Features**: Multi-sig wallets, hardware wallet integration
+- **DeFi Integration**: Interact with popular Neo DeFi protocols
+- **Neo X**: Cross-chain bridge operations
+
+See the [examples directory](examples/) for full code samples.
 
 ## License
 
 Licensed under MIT license ([LICENSE](LICENSE) or http://opensource.org/licenses/MIT)
 
+## Testing
+
+```bash
+# Run all tests
+cargo test --workspace
+
+# Run specific component tests
+cargo test -p neo3
+cargo test -p neo-cli
+
+# Run integration tests
+cargo test --test integration_tests
+```
+
 ## Contributing
 
-Contributions are welcome! Please read our contributing guidelines and submit pull requests to our repository.
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+Please ensure:
+- All tests pass (`cargo test --workspace`)
+- Code is formatted (`cargo fmt`)
+- No clippy warnings (`cargo clippy -- -D warnings`)
+- Documentation is updated
+
+## Security
+
+For security issues, please email security@r3e.network instead of using the issue tracker.
+
+## Acknowledgments
+
+- Neo Foundation for the Neo N3 blockchain
+- Rust community for excellent tooling
+- All contributors who have helped shape this project

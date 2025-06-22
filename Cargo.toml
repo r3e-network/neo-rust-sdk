@@ -220,7 +220,7 @@ name = "crypto_benchmarks"
 harness = false
 
 [[bench]]
-name = "wallet_benchmarks"
+name = "script_builder_benchmarks"
 harness = false
 
 [features]
