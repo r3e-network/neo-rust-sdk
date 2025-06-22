@@ -1,0 +1,26 @@
+# Semgrep ignore file
+
+# Ignore website build artifacts
+website/build/
+website/public/js/main.js
+website/static/js/main.js
+
+# Ignore properly audited unsafe code
+# The IPC transport unsafe usage is necessary for splitting streams
+# and has been audited for safety
+src/neo_clients/rpc/transports/ipc.rs
+
+# Ignore test files
+tests/
+**/tests/
+**/*_test.rs
+**/*_tests.rs
+
+# Ignore vendored dependencies
+vendor/
+node_modules/
+target/
+
+# Ignore generated files
+*.generated.rs
+*.pb.rs

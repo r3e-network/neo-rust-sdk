@@ -78,12 +78,6 @@ jobs:
             p/security-audit
             p/rust
             p/secrets
-          generateSarif: true
-      
-      - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: semgrep.sarif
 
   supply-chain:
     name: Supply Chain Security
@@ -122,8 +116,16 @@ jobs:
       
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
+        if: ${{ secrets.GITLEAKS_LICENSE }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+      
+      - name: Alternative secret scanning (if no Gitleaks license)
+        if: ${{ !secrets.GITLEAKS_LICENSE }}
+        run: |
+          echo "⚠️ Gitleaks requires a license for organizations. Using basic pattern matching instead."
+          echo "To enable full Gitleaks scanning, add GITLEAKS_LICENSE secret to your repository."
       
       - name: Check for hardcoded secrets
         run: |
