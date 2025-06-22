@@ -97,7 +97,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+        sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
         
     - name: Install frontend dependencies
       working-directory: neo-gui
@@ -222,6 +222,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
       
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@v1
@@ -230,9 +232,13 @@ jobs:
         
     - name: Check if release is needed
       run: |
-        if ! git diff --quiet HEAD~1 HEAD -- Cargo.toml; then
-          echo "Cargo.toml changed, checking version bump"
-          git diff HEAD~1 HEAD -- Cargo.toml
+        if [ "$(git rev-list --count HEAD)" -gt 1 ]; then
+          if ! git diff --quiet HEAD~1 HEAD -- Cargo.toml; then
+            echo "Cargo.toml changed, checking version bump"
+            git diff HEAD~1 HEAD -- Cargo.toml
+          fi
+        else
+          echo "Not enough commits to check for changes"
         fi
         
     - name: Dry run cargo publish
