@@ -17,12 +17,12 @@ fn main() {
 			wallet.add_account(account);
 		}
 
-		println!("\nEncrypting {} accounts...", account_count);
+		println!("\nEncrypting {account_count} accounts...");
 		let start = Instant::now();
 		wallet.encrypt_accounts("test_password");
 		let duration = start.elapsed();
 
-		println!("Time taken: {:?}", duration);
+		println!("Time taken: {duration:?}");
 		println!("Average per account: {:?}", duration / account_count as u32);
 	}
 }

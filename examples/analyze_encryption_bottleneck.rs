@@ -15,13 +15,13 @@ fn main() {
 	let start = Instant::now();
 	let account = Account::create().expect("Should create account");
 	let create_time = start.elapsed();
-	println!("   Account creation: {:?}", create_time);
+	println!("   Account creation: {create_time:?}");
 
 	// Time key pair generation
 	let start = Instant::now();
 	let _key_pair = KeyPair::new_random();
 	let key_gen_time = start.elapsed();
-	println!("   Key pair generation: {:?}", key_gen_time);
+	println!("   Key pair generation: {key_gen_time:?}");
 
 	// Time single account encryption
 	let mut single_wallet = Wallet::new();
@@ -29,7 +29,7 @@ fn main() {
 	let start = Instant::now();
 	single_wallet.encrypt_accounts("test_password");
 	let single_encrypt_time = start.elapsed();
-	println!("   Single account encryption: {:?}", single_encrypt_time);
+	println!("   Single account encryption: {single_encrypt_time:?}");
 
 	println!("\n2. Testing parallel vs sequential encryption:");
 
@@ -48,7 +48,7 @@ fn main() {
 	let start = Instant::now();
 	seq_wallet.encrypt_accounts("test_password");
 	let seq_time = start.elapsed();
-	println!("   Sequential encryption (10 accounts): {:?}", seq_time);
+	println!("   Sequential encryption (10 accounts): {seq_time:?}");
 	println!("   Average per account: {:?}", seq_time / 10);
 
 	// Analyze memory usage pattern
@@ -63,11 +63,11 @@ fn main() {
 	// Test with reduced parameters for comparison
 	println!("\n4. Performance extrapolation:");
 	let accounts_50_time = seq_time / 10 * 50;
-	println!("   Estimated time for 50 accounts: {:?}", accounts_50_time);
+	println!("   Estimated time for 50 accounts: {accounts_50_time:?}");
 
 	if accounts_50_time.as_secs() > 15 {
 		println!("\n⚠️  Performance issue detected!");
-		println!("   Current implementation would take {:?} for 50 accounts", accounts_50_time);
+		println!("   Current implementation would take {accounts_50_time:?} for 50 accounts");
 		println!("   This exceeds the 15-second requirement.");
 
 		println!("\n5. Possible optimizations:");

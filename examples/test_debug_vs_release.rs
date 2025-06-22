@@ -26,7 +26,7 @@ fn main() {
 	let duration = start.elapsed();
 
 	println!("\nResults:");
-	println!("Total time: {:?}", duration);
+	println!("Total time: {duration:?}");
 	println!("Average per account: {:?}", duration / 50);
 
 	if duration.as_secs() > 15 {
@@ -37,7 +37,7 @@ fn main() {
 
 		// Calculate the factor by which we're off
 		let factor = duration.as_secs_f64() / 15.0;
-		println!("Performance is {:.1}x slower than required", factor);
+		println!("Performance is {factor:.1}x slower than required");
 	} else {
 		println!("\n✅ PASSED: Encryption completed within 15 seconds");
 	}
