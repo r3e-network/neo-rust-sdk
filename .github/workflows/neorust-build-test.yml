@@ -53,7 +53,11 @@ jobs:
       run: |
         # Temporarily modify workspace to exclude neo-gui for CI
         cp Cargo.toml Cargo.toml.bak
-        sed -i 's/"neo-gui"/# "neo-gui"/' Cargo.toml
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+          sed -i '' 's/"neo-gui"/# "neo-gui"/' Cargo.toml
+        else
+          sed -i 's/"neo-gui"/# "neo-gui"/' Cargo.toml
+        fi
         NEORUST_SKIP_NETWORK_TESTS=1 cargo test --verbose --all-features --package neo3 --package neo-cli
         # Restore original Cargo.toml
         mv Cargo.toml.bak Cargo.toml
