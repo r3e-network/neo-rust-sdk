@@ -51,33 +51,38 @@ jobs:
     - name: Run Rust tests (Unix)
       if: runner.os != 'Windows'
       run: |
-        # Completely remove neo-gui directory to prevent any dependency resolution
-        rm -rf neo-gui
-        # Remove neo-gui from workspace
-        sed -i.bak 's/"neo-gui"/# "neo-gui"/' Cargo.toml
-        NEORUST_SKIP_NETWORK_TESTS=1 cargo test --verbose --all-features --package neo3 --package neo-cli
-        # Restore workspace (git will restore neo-gui in subsequent jobs)
-        mv Cargo.toml.bak Cargo.toml
+        # Test neo3 package independently
+        cd ${{ github.workspace }}
+        NEORUST_SKIP_NETWORK_TESTS=1 cargo test --manifest-path Cargo.toml --package neo3 --verbose --all-features
+        
+        # Test neo-cli package independently  
+        cd neo-cli
+        NEORUST_SKIP_NETWORK_TESTS=1 cargo test --verbose --all-features
       
     - name: Run Rust tests (Windows)
       if: runner.os == 'Windows'
       run: |
-        # Completely remove neo-gui directory to prevent any dependency resolution
-        Remove-Item -Recurse -Force neo-gui -ErrorAction SilentlyContinue
-        # Remove neo-gui from workspace
-        Copy-Item Cargo.toml Cargo.toml.bak
-        (Get-Content Cargo.toml) -replace '"neo-gui"', '# "neo-gui"' | Set-Content Cargo.toml
+        # Test neo3 package independently
         $env:NEORUST_SKIP_NETWORK_TESTS = "1"
-        cargo test --verbose --all-features --package neo3 --package neo-cli
-        # Restore workspace
-        Move-Item Cargo.toml.bak Cargo.toml -Force
+        cargo test --manifest-path Cargo.toml --package neo3 --verbose --all-features
+        
+        # Test neo-cli package independently
+        cd neo-cli
+        $env:NEORUST_SKIP_NETWORK_TESTS = "1"
+        cargo test --verbose --all-features
       
     - name: Run Rust benchmarks
-      run: cargo bench --package neo3 --package neo-cli --verbose
       if: matrix.rust-version == 'stable'
+      run: |
+        # Run benchmarks for neo3 package only
+        cargo bench --manifest-path Cargo.toml --package neo3 --verbose
       
     - name: Check documentation
-      run: cargo doc --package neo3 --package neo-cli --no-deps --document-private-items
+      run: |
+        # Build documentation for neo3 package
+        cargo doc --manifest-path Cargo.toml --package neo3 --no-deps --document-private-items
+        # Build documentation for neo-cli package
+        cd neo-cli && cargo doc --no-deps --document-private-items
       
   tauri-build:
     name: Tauri Build
@@ -165,13 +170,8 @@ jobs:
     - name: Generate Rust coverage
       run: |
         export NEORUST_SKIP_NETWORK_TESTS=1
-        # Completely remove neo-gui directory to prevent any dependency resolution
-        rm -rf neo-gui
-        # Remove neo-gui from workspace
-        sed -i.bak 's/"neo-gui"/# "neo-gui"/' Cargo.toml
-        cargo llvm-cov --all-features --package neo3 --lcov --output-path lcov.info
-        # Restore workspace
-        mv Cargo.toml.bak Cargo.toml
+        # Generate coverage for neo3 package only, avoiding workspace resolution
+        cargo llvm-cov --manifest-path Cargo.toml --package neo3 --all-features --lcov --output-path lcov.info
       
     - name: Setup Node.js
       uses: actions/setup-node@v4
