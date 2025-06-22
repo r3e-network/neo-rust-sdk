@@ -235,7 +235,7 @@ jobs:
           path: public
       
       - name: Deploy to Pages
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
 
   check-links:
     name: Check Documentation Links
