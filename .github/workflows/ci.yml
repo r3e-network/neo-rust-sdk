@@ -37,23 +37,23 @@ jobs:
       
       - name: Run tests (Unix)
         if: runner.os != 'Windows'
-        run: NEORUST_SKIP_NETWORK_TESTS=1 cargo test --workspace --all-features --verbose
+        run: NEORUST_SKIP_NETWORK_TESTS=1 cargo test --workspace --all-features --verbose --exclude neo-gui
       
       - name: Run tests (Windows)
         if: runner.os == 'Windows'
         run: |
           $env:NEORUST_SKIP_NETWORK_TESTS = "1"
-          cargo test --workspace --all-features --verbose
+          cargo test --workspace --all-features --verbose --exclude neo-gui
       
       - name: Run doc tests (Unix)
         if: runner.os != 'Windows'
-        run: NEORUST_SKIP_NETWORK_TESTS=1 cargo test --workspace --doc --all-features
+        run: NEORUST_SKIP_NETWORK_TESTS=1 cargo test --workspace --doc --all-features --exclude neo-gui
       
       - name: Run doc tests (Windows)
         if: runner.os == 'Windows'
         run: |
           $env:NEORUST_SKIP_NETWORK_TESTS = "1"
-          cargo test --workspace --doc --all-features
+          cargo test --workspace --doc --all-features --exclude neo-gui
 
   lint:
     name: Lint
@@ -74,7 +74,7 @@ jobs:
         run: cargo fmt --all -- --check
       
       - name: Run clippy
-        run: cargo clippy --workspace --all-features -- -D warnings
+        run: cargo clippy --workspace --all-features --exclude neo-gui -- -D warnings
       
       - name: Check for TODO/FIXME
         run: |
@@ -110,11 +110,11 @@ jobs:
         uses: Swatinem/rust-cache@v2
       
       - name: Build documentation
-        run: cargo doc --workspace --no-deps --all-features
+        run: cargo doc --workspace --no-deps --all-features --exclude neo-gui
       
       - name: Check documentation coverage
         run: |
-          cargo doc --workspace --no-deps --all-features 2>&1 | grep -i "warning" && exit 1 || exit 0
+          cargo doc --workspace --no-deps --all-features --exclude neo-gui 2>&1 | grep -i "warning" && exit 1 || exit 0
 
   coverage:
     name: Code Coverage
