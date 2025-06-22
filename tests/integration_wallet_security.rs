@@ -118,13 +118,13 @@ async fn test_large_wallet_performance() {
 	let encryption_time = start.elapsed();
 
 	println!("Encrypted {account_count} accounts in {encryption_time:?}");
-	
+
 	// In debug mode, encryption is much slower due to lack of optimizations
 	#[cfg(debug_assertions)]
 	let time_limit = 60; // 60 seconds for debug mode
 	#[cfg(not(debug_assertions))]
 	let time_limit = 15; // 15 seconds for release mode
-	
+
 	assert!(
 		encryption_time.as_secs() < time_limit,
 		"Encryption should complete within {time_limit} seconds"

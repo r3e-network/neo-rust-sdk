@@ -306,7 +306,7 @@ impl Wallet {
 	}
 
 	/// Encrypts all accounts in the wallet using parallel processing.
-	/// 
+	///
 	/// This method provides significant performance improvements when dealing with
 	/// wallets containing many accounts by leveraging Rayon's parallel iteration.
 	/// The encryption of each account is independent and CPU-intensive (due to
@@ -333,7 +333,8 @@ impl Wallet {
 	/// ```
 	pub fn encrypt_accounts_parallel(&mut self, password: &str) {
 		// Collect errors in a thread-safe manner
-		let errors: Vec<(String, String)> = self.accounts
+		let errors: Vec<(String, String)> = self
+			.accounts
 			.par_iter_mut()
 			.filter_map(|(_, account)| {
 				// Only encrypt accounts that have a key pair
@@ -350,11 +351,7 @@ impl Wallet {
 
 		// Log any errors that occurred
 		for (address, error) in errors {
-			eprintln!(
-				"Warning: Failed to encrypt private key for account {}: {}",
-				address,
-				error
-			);
+			eprintln!("Warning: Failed to encrypt private key for account {}: {}", address, error);
 		}
 	}
 
@@ -379,10 +376,7 @@ impl Wallet {
 	/// ```
 	pub fn encrypt_accounts_parallel_with_threads(&mut self, password: &str, num_threads: usize) {
 		// Create a custom thread pool with the specified number of threads
-		let pool = rayon::ThreadPoolBuilder::new()
-			.num_threads(num_threads)
-			.build()
-			.unwrap();
+		let pool = rayon::ThreadPoolBuilder::new().num_threads(num_threads).build().unwrap();
 
 		pool.install(|| {
 			self.encrypt_accounts_parallel(password);
@@ -411,33 +405,33 @@ impl Wallet {
 	/// ```
 	pub fn encrypt_accounts_batch_parallel(&mut self, password: &str, batch_size: usize) {
 		use std::sync::{Arc, Mutex};
-		
+
 		// Collect accounts that need encryption along with their script hashes
-		let accounts_to_encrypt: Vec<(H160, Account)> = self.accounts
+		let accounts_to_encrypt: Vec<(H160, Account)> = self
+			.accounts
 			.iter()
 			.filter(|(_, account)| account.key_pair().is_some())
 			.map(|(hash, account)| (*hash, account.clone()))
 			.collect();
 
 		// Process in parallel batches and collect results
-		let results: Arc<Mutex<Vec<(H160, Result<Account, String>)>>> = Arc::new(Mutex::new(Vec::new()));
-		
-		accounts_to_encrypt
-			.par_chunks(batch_size)
-			.for_each(|batch| {
-				let batch_results: Vec<(H160, Result<Account, String>)> = batch
-					.iter()
-					.map(|(hash, account)| {
-						let mut account_clone = account.clone();
-						match account_clone.encrypt_private_key(password) {
-							Ok(_) => (*hash, Ok(account_clone)),
-							Err(e) => (*hash, Err(format!("{}: {}", account.get_address(), e))),
-						}
-					})
-					.collect();
-				
-				results.lock().unwrap().extend(batch_results);
-			});
+		let results: Arc<Mutex<Vec<(H160, Result<Account, String>)>>> =
+			Arc::new(Mutex::new(Vec::new()));
+
+		accounts_to_encrypt.par_chunks(batch_size).for_each(|batch| {
+			let batch_results: Vec<(H160, Result<Account, String>)> = batch
+				.iter()
+				.map(|(hash, account)| {
+					let mut account_clone = account.clone();
+					match account_clone.encrypt_private_key(password) {
+						Ok(_) => (*hash, Ok(account_clone)),
+						Err(e) => (*hash, Err(format!("{}: {}", account.get_address(), e))),
+					}
+				})
+				.collect();
+
+			results.lock().unwrap().extend(batch_results);
+		});
 
 		// Apply successful encryptions and collect errors
 		let results = Arc::try_unwrap(results).unwrap().into_inner().unwrap();
@@ -445,10 +439,10 @@ impl Wallet {
 			match result {
 				Ok(encrypted_account) => {
 					self.accounts.insert(hash, encrypted_account);
-				}
+				},
 				Err(error_msg) => {
 					eprintln!("Warning: Failed to encrypt private key for account {}", error_msg);
-				}
+				},
 			}
 		}
 	}
@@ -609,9 +603,12 @@ impl Wallet {
 		}
 
 		// Collect accounts that need decryption
-		let accounts_to_decrypt: Vec<(H160, Account)> = self.accounts
+		let accounts_to_decrypt: Vec<(H160, Account)> = self
+			.accounts
 			.iter()
-			.filter(|(_, account)| account.encrypted_private_key().is_some() && account.key_pair().is_none())
+			.filter(|(_, account)| {
+				account.encrypted_private_key().is_some() && account.key_pair().is_none()
+			})
 			.map(|(hash, account)| (*hash, account.clone()))
 			.collect();
 
@@ -1138,7 +1135,8 @@ mod tests {
 		let mut wallet: Wallet = Wallet::new();
 		// Add multiple accounts to test parallel processing
 		for _ in 0..5 {
-			wallet.add_account(Account::create().expect("Should be able to create account in test"));
+			wallet
+				.add_account(Account::create().expect("Should be able to create account in test"));
 		}
 
 		// Verify all accounts have key pairs
@@ -1161,7 +1159,8 @@ mod tests {
 		let mut wallet: Wallet = Wallet::new();
 		// Add many accounts to test batch processing
 		for _ in 0..10 {
-			wallet.add_account(Account::create().expect("Should be able to create account in test"));
+			wallet
+				.add_account(Account::create().expect("Should be able to create account in test"));
 		}
 
 		// Verify all accounts have key pairs
@@ -1184,7 +1183,8 @@ mod tests {
 		let mut wallet = Wallet::new();
 		// Add multiple accounts
 		for _ in 0..5 {
-			wallet.add_account(Account::create().expect("Should be able to create account in test"));
+			wallet
+				.add_account(Account::create().expect("Should be able to create account in test"));
 		}
 
 		let old_password = "old_password";
@@ -1198,7 +1198,8 @@ mod tests {
 		assert!(!wallet.verify_password(new_password));
 
 		// Change password using parallel method
-		wallet.change_password_parallel(old_password, new_password)
+		wallet
+			.change_password_parallel(old_password, new_password)
 			.expect("Password change should succeed");
 
 		// Verify new password works
