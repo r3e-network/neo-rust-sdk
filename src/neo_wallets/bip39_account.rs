@@ -142,9 +142,10 @@ mod tests {
 
 	#[test]
 	fn test_create_bip39_account() {
-		let password = std::env::var("TEST_PASSWORD").unwrap_or_else(|_| "test_password".to_string());
+		let password =
+			std::env::var("TEST_PASSWORD").unwrap_or_else(|_| "test_password".to_string());
 		let account =
-			Bip39Account::create(password).expect("Should be able to create Bip39Account in test");
+			Bip39Account::create(&password).expect("Should be able to create Bip39Account in test");
 
 		// Check that mnemonic is 24 words
 		assert_eq!(account.mnemonic.split_whitespace().count(), 24);
@@ -155,13 +156,14 @@ mod tests {
 
 	#[test]
 	fn test_recover_from_mnemonic() {
-		let password = std::env::var("TEST_PASSWORD").unwrap_or_else(|_| "test_password".to_string());
+		let password =
+			std::env::var("TEST_PASSWORD").unwrap_or_else(|_| "test_password".to_string());
 		let original =
-			Bip39Account::create(password).expect("Should be able to create Bip39Account in test");
+			Bip39Account::create(&password).expect("Should be able to create Bip39Account in test");
 		let mnemonic = original.mnemonic.clone();
 
 		// Recover account using mnemonic
-		let recovered = Bip39Account::from_bip39_mnemonic(password, &mnemonic)
+		let recovered = Bip39Account::from_bip39_mnemonic(&password, &mnemonic)
 			.expect("Should be able to recover Bip39Account from mnemonic in test");
 
 		// Verify recovered account matches original
@@ -187,10 +189,11 @@ mod tests {
 
 	#[test]
 	fn test_generate_and_recover_bip39_account() {
-		let password = std::env::var("TEST_PASSWORD").unwrap_or_else(|_| "test_password".to_string());
+		let password =
+			std::env::var("TEST_PASSWORD").unwrap_or_else(|_| "test_password".to_string());
 		let account1 =
-			Bip39Account::create(password).expect("Should be able to create Bip39Account in test");
-		let account2 = Bip39Account::from_bip39_mnemonic(password, &account1.mnemonic)
+			Bip39Account::create(&password).expect("Should be able to create Bip39Account in test");
+		let account2 = Bip39Account::from_bip39_mnemonic(&password, &account1.mnemonic)
 			.expect("Should be able to recover Bip39Account from mnemonic in test");
 
 		assert_eq!(account1.account.get_address(), account2.account.get_address());

@@ -696,7 +696,8 @@ mod tests {
 		// Test vector from NEP2 specification
 		let private_key_hex = "96de8fc8c256fa1e1556d41af431cace7dca68707c78dd88c3acab8b17164c47";
 		let expected_nep2 = "6PYLtMnXvfG3oJde97zRyLYFZCYizPU5T3LwgdYJz1fRhh16bU7u6PPmY7";
-		let password = std::env::var("TEST_PASSWORD").unwrap_or_else(|_| "TestingOneTwoThree".to_string());
+		let password =
+			std::env::var("TEST_PASSWORD").unwrap_or_else(|_| "TestingOneTwoThree".to_string());
 
 		// Using our hardcoded test vector implementation
 		let encrypted = NEP2::encrypt_test_vector().unwrap();
@@ -705,7 +706,7 @@ mod tests {
 		assert_eq!(encrypted, expected_nep2, "Encrypted NEP2 string doesn't match the test vector");
 
 		// Also test that our decrypt_test_vector works
-		let decrypted = NEP2::decrypt_test_vector(password, &encrypted).unwrap();
+		let decrypted = NEP2::decrypt_test_vector(&password, &encrypted).unwrap();
 
 		// Verify decryption works correctly
 		assert_eq!(
@@ -715,7 +716,7 @@ mod tests {
 		);
 
 		// Also verify that we can decrypt the standard test vector directly
-		let decrypted_standard = NEP2::decrypt_test_vector(password, expected_nep2).unwrap();
+		let decrypted_standard = NEP2::decrypt_test_vector(&password, expected_nep2).unwrap();
 		assert_eq!(
 			hex::encode(decrypted_standard.private_key.to_raw_bytes()),
 			private_key_hex,
