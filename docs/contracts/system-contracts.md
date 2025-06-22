@@ -10,7 +10,7 @@ The NeoToken contract manages the NEO governance token, which represents ownersh
 
 ### Key Functions
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_contract::NeoToken;
 
@@ -63,7 +63,7 @@ async fn neo_token_example() -> Result<(), Box<dyn std::error::Error>> {
 
 NEO holders can vote for consensus nodes:
 
-```rust
+```rust,no_run
 // Vote for a candidate (requires account with NEO)
 let account = Account::from_wif("your-wif-here")?;
 let candidate_pubkey = "03e47f3e9809da7c34a3f7a058f4b4bb833416d0d5b597dc81798895f1bd2f27bd";
@@ -81,7 +81,7 @@ The GasToken contract manages the GAS utility token, which is used to pay for tr
 
 ### Key Functions
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_contract::GasToken;
 
@@ -123,7 +123,7 @@ The PolicyContract manages network policy parameters, which control aspects of t
 
 ### Key Functions
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_contract::PolicyContract;
 
@@ -166,7 +166,7 @@ The ContractManagement contract manages the deployment, update, and destruction 
 
 ### Key Functions
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_contract::ContractManagement;
 use neo3::neo_types::{ContractManifest, NefFile};
@@ -219,7 +219,7 @@ The RoleManagement contract manages consensus roles on the Neo N3 blockchain, in
 
 ### Key Functions
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_contract::RoleManagement;
 
@@ -255,7 +255,7 @@ The NameService contract manages domain name registration and resolution on the 
 
 ### Key Functions
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_contract::NameService;
 
@@ -300,7 +300,7 @@ The Oracle contract provides external data to smart contracts on the Neo N3 bloc
 
 ### Key Functions
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_contract::OracleContract;
 
@@ -343,7 +343,7 @@ async fn oracle_contract_example() -> Result<(), Box<dyn std::error::Error>> {
 
 System contracts can be used together for more complex operations:
 
-```rust
+```rust,no_run
 async fn complex_example() -> Result<(), Box<dyn std::error::Error>> {
     // Connect to Neo N3
     let provider = HttpProvider::new("https://mainnet1.neo.org:443")?;

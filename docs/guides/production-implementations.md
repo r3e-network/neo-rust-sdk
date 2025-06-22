@@ -33,7 +33,7 @@ The following components have been upgraded from placeholder implementations to 
 - **Error Handling**: Comprehensive error handling for all signing operations
 
 ### Key Features
-```rust
+```rust,no_run
 // Decrypt the account's private key
 let mut account_clone = account.clone();
 account_clone.decrypt_private_key(&password)?;
@@ -63,7 +63,7 @@ tx.add_witness(witness);
 - **Error Handling**: Comprehensive error handling with proper error types
 
 ### Key Features
-```rust
+```rust,no_run
 async fn create_container(&self, container: &Container) -> NeoFSResult<ContainerId> {
     let request_body = json!({
         "container": {
@@ -98,7 +98,7 @@ async fn create_container(&self, container: &Container) -> NeoFSResult<Container
 - **Wallet Integration**: Proper wallet integration for authenticated operations
 
 ### Key Features
-```rust
+```rust,no_run
 async fn test_neofs_connection(endpoint: &str, endpoint_type: &str) -> Result<(), String> {
     match endpoint_type {
         "http" | "rest" => {
@@ -132,7 +132,7 @@ async fn test_neofs_connection(endpoint: &str, endpoint_type: &str) -> Result<()
 - **Error Handling**: Comprehensive error handling for all transaction operations
 
 ### Key Features
-```rust
+```rust,no_run
 // Build a proper transaction
 let mut tx_builder = neo3::builder::TransactionBuilder::with_client(rpc_client);
 tx_builder.version(0);
@@ -173,7 +173,7 @@ match rpc_client.send_raw_transaction(tx_hex).await {
 - **Network Integration**: Connection to real Neo N3 networks
 
 ### Key Features
-```rust
+```rust,no_run
 // Create accounts from different sources
 let account_from_wif = Account::from_wif(wif)?;
 let random_account = Account::create()?;
@@ -203,7 +203,7 @@ let tx_builder = TransactionBuilder::new()
 - **Address Verification**: Ensures signatures match the expected account addresses
 
 ### Key Features
-```rust
+```rust,no_run
 // Sign a message
 let message_hash = neo3::neo_crypto::hash::hash256(message_bytes);
 let signature = key_pair.sign(&message_hash)?;
@@ -348,7 +348,7 @@ const child = spawn(command, args, {
 - **Realistic Test Environment**: Test utilities that mirror production behavior
 
 ### Key Features
-```rust
+```rust,no_run
 /// Helper to create a script hash from a string
 pub fn script_hash_from_string(s: &str) -> String {
     // Use SHA256 for proper hashing

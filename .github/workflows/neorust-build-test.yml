@@ -97,7 +97,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+        sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libglib2.0-dev libgobject-2.0-0 pkg-config
         
     - name: Install frontend dependencies
       working-directory: neo-gui
@@ -139,6 +139,11 @@ jobs:
         
     - name: Cache Rust dependencies
       uses: Swatinem/rust-cache@v2
+      
+    - name: Install system dependencies (Ubuntu)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libglib2.0-dev libgobject-2.0-0 pkg-config
       
     - name: Install cargo-llvm-cov
       uses: taiki-e/install-action@cargo-llvm-cov

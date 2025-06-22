@@ -81,7 +81,7 @@ cargo build --release
 neo3 = "0.4.1"
 ```
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 async fn example() -> Result<(), Box<dyn std::error::Error>> {
@@ -237,7 +237,7 @@ neo-cli wallet balance --detailed
 ```
 
 #### SDK Method:
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 async fn create_wallet() -> Result<(), Box<dyn std::error::Error>> {
@@ -275,7 +275,7 @@ neo-cli network list
 ```
 
 #### SDK:
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 async fn connect_to_network() -> Result<(), Box<dyn std::error::Error>> {
@@ -294,7 +294,7 @@ async fn connect_to_network() -> Result<(), Box<dyn std::error::Error>> {
 ### 🏢 Enterprise Applications
 
 #### DeFi Platform Development
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 async fn defi_operations() -> Result<(), Box<dyn std::error::Error>> {
@@ -312,7 +312,7 @@ async fn defi_operations() -> Result<(), Box<dyn std::error::Error>> {
 ```
 
 #### Asset Tokenization
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 async fn tokenize_assets() -> Result<(), Box<dyn std::error::Error>> {
@@ -346,7 +346,7 @@ neo-cli nft transfer --contract "0x..." --token-id "sword_001" --from "player1" 
 ```
 
 #### NFT Marketplace Integration
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 async fn nft_marketplace() -> Result<(), Box<dyn std::error::Error>> {
@@ -380,7 +380,7 @@ async fn nft_marketplace() -> Result<(), Box<dyn std::error::Error>> {
 ### 🔧 Developer Tools & Automation
 
 #### Automated Testing Framework
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 #[tokio::test]

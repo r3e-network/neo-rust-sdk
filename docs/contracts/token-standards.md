@@ -20,7 +20,7 @@ NEP-17 is the standard for fungible tokens on Neo N3, similar to Ethereum's ERC-
 
 ### Usage with NeoRust
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_contract::FungibleTokenContract;
 use std::str::FromStr;
@@ -66,7 +66,7 @@ Neo N3 includes two native NEP-17 tokens:
 
 The NEO token represents ownership in the Neo network and grants voting rights:
 
-```rust
+```rust,no_run
 let neo_token = NeoToken::new(&client);
 let balance = neo_token.balance_of(&account_hash).await?;
 let voting_power = neo_token.get_unclaimed_gas(&account_hash, block_height).await?;
@@ -76,7 +76,7 @@ let voting_power = neo_token.get_unclaimed_gas(&account_hash, block_height).awai
 
 The GAS token is used to pay for transaction fees and smart contract execution:
 
-```rust
+```rust,no_run
 let gas_token = GasToken::new(&client);
 let balance = gas_token.balance_of(&account_hash).await?;
 ```
@@ -100,7 +100,7 @@ NEP-11 is the standard for non-fungible tokens on Neo N3, similar to Ethereum's 
 
 ### Usage with NeoRust
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_contract::NftContract;
 use std::str::FromStr;
@@ -189,7 +189,7 @@ To implement a custom token contract, you'll need to develop a Neo N3 smart cont
 
 ### Sending Tokens
 
-```rust
+```rust,no_run
 // For NEP-17
 let tx_hash = token.transfer(&account, &recipient, amount, None).await?;
 
@@ -199,7 +199,7 @@ let tx_hash = nft.transfer(&account, &recipient, &token_id, None).await?;
 
 ### Checking Token Balances
 
-```rust
+```rust,no_run
 // For NEP-17
 let balance = token.balance_of(&account_hash).await?;
 
@@ -212,7 +212,7 @@ let balance = nft.balance_of_token(&account_hash, &token_id).await?;
 
 ### Finding Token Information
 
-```rust
+```rust,no_run
 // For both NEP-17 and NEP-11
 let symbol = token.symbol().await?;
 let total_supply = token.total_supply().await?;

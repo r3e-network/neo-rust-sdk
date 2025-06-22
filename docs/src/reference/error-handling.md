@@ -6,35 +6,40 @@ This reference provides information about error handling in the NeoRust SDK, inc
 
 The NeoRust SDK uses a comprehensive error handling system based on Rust's `Result` type. The main error types in the SDK include:
 
-### NeoError
+### Neo3Error
 
-The `NeoError` is the primary error type used throughout the SDK. It encompasses various error categories:
+The `Neo3Error` is the primary error type used throughout the SDK. It encompasses various error categories:
 
-```rust
-pub enum NeoError {
-    // RPC errors
-    RpcError(RpcError),
+```rust,no_run
+use neo3::neo_error::Neo3Error;
+
+pub enum Neo3Error {
+    // Cryptographic operation errors
+    Crypto(CryptoError),
     
-    // Wallet errors
-    WalletError(WalletError),
+    // Wallet operation errors
+    Wallet(WalletError),
     
-    // Cryptographic errors
-    CryptoError(CryptoError),
+    // Network/RPC communication errors
+    Network(NetworkError),
     
-    // Transaction errors
-    TransactionError(TransactionError),
+    // Transaction building/validation errors
+    Transaction(TransactionError),
     
-    // Contract errors
-    ContractError(ContractError),
+    // Smart contract interaction errors
+    Contract(ContractError),
     
-    // Serialization errors
-    SerializationError(SerializationError),
+    // Serialization/deserialization errors
+    Serialization(SerializationError),
     
-    // IO errors
-    IoError(std::io::Error),
+    // Configuration errors
+    Config(String),
     
-    // Other errors
-    Other(String),
+    // Generic errors with context
+    Generic { message: String },
+    
+    // Unsupported operation error
+    UnsupportedOperation(String),
 }
 ```
 
@@ -42,7 +47,7 @@ pub enum NeoError {
 
 The `RpcError` represents errors that occur during RPC communication with Neo nodes:
 
-```rust
+```rust,no_run
 pub enum RpcError {
     // HTTP errors
     HttpError(reqwest::Error),
@@ -69,7 +74,7 @@ pub enum RpcError {
 
 The `WalletError` represents errors related to wallet operations:
 
-```rust
+```rust,no_run
 pub enum WalletError {
     // Password errors
     InvalidPassword,
@@ -94,7 +99,7 @@ pub enum WalletError {
 
 The `CryptoError` represents errors related to cryptographic operations:
 
-```rust
+```rust,no_run
 pub enum CryptoError {
     // Signature errors
     SignatureError,
@@ -115,7 +120,7 @@ pub enum CryptoError {
 
 The `TransactionError` represents errors related to transaction operations:
 
-```rust
+```rust,no_run
 pub enum TransactionError {
     // Validation errors
     InvalidTransaction,
@@ -136,7 +141,7 @@ pub enum TransactionError {
 
 The `ContractError` represents errors related to smart contract operations:
 
-```rust
+```rust,no_run
 pub enum ContractError {
     // Invocation errors
     InvocationError,
@@ -156,7 +161,7 @@ pub enum ContractError {
 
 The NeoRust SDK uses Rust's `?` operator for error propagation. This allows for concise error handling code:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use std::path::Path;
 
@@ -188,7 +193,7 @@ In this example, if any of the operations fail, the error is propagated up the c
 
 Sometimes it's useful to add context to errors to make them more informative:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use std::path::Path;
 
@@ -221,7 +226,7 @@ fn load_wallet_and_get_balance(
 
 The NeoRust SDK provides utility functions for converting `Option` to `Result`:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 fn get_value_from_option<T>(option: Option<T>, error_message: &str) -> Result<T, NeoError> {
@@ -245,7 +250,7 @@ fn example() -> Result<(), NeoError> {
 
 The NeoRust SDK provides comprehensive `From` implementations for converting between different error types:
 
-```rust
+```rust,no_run
 // From implementations for domain-specific errors
 impl From<BuilderError> for NeoError {
     fn from(err: BuilderError) -> Self {
@@ -297,7 +302,7 @@ This allows for easy conversion between error types using the `?` operator. When
 
 When working with RPC calls, you may need to handle specific error codes:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 #[tokio::main]
@@ -329,7 +334,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 When working with wallets, you may need to handle specific wallet errors:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use std::path::Path;
 
@@ -359,7 +364,7 @@ fn open_wallet(wallet_path: &Path, password: &str) -> Result<Wallet, NeoError> {
 
 When sending transactions, you may need to handle specific transaction errors:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use std::path::Path;
 
@@ -423,7 +428,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 You can create custom error types for your application that wrap the NeoRust SDK errors:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use thiserror::Error;
 
@@ -457,7 +462,7 @@ fn app_function() -> Result<(), AppError> {
 
 The NeoRust SDK uses the `tracing` crate for logging errors. You can configure the logging level to see more detailed error information:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use tracing_subscriber::{fmt, EnvFilter};
 
@@ -477,7 +482,7 @@ fn main() {
 
 If you're using the Neo X features, there are additional error types for Neo X-specific operations:
 
-```rust
+```rust,no_run
 pub enum NeoXError {
     // EVM errors
     EvmError(String),
@@ -492,7 +497,7 @@ pub enum NeoXError {
 
 Handling Neo X errors:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_x::evm::*;
 

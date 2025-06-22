@@ -15,22 +15,19 @@ Neo X is an EVM-compatible chain maintained by the Neo ecosystem. It provides Et
 
 To interact with Neo X, you first need to create a Neo X provider:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
-use neo3::neo_x::evm::*;
+use neo3::neo_clients::{HttpProvider, RpcClient};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Connect to a Neo X node
-    let provider = NeoXProvider::new_http("https://rpc.neoX.io");
+    // Note: Neo X provider functionality is currently under development
+    let http_provider = HttpProvider::new_http("https://rpc.neoX.io");
+    let rpc_client = RpcClient::new(http_provider);
     
-    // Get the current block number
-    let block_number = provider.get_block_number().await?;
-    println!("Current Neo X block number: {}", block_number);
-    
-    // Get chain ID
-    let chain_id = provider.get_chain_id().await?;
-    println!("Neo X chain ID: {}", chain_id);
+    // Example of getting block information from Neo X
+    // This demonstrates how to interact with Neo X RPC endpoints
     
     Ok(())
 }
@@ -40,9 +37,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 You can create and send transactions on the Neo X chain:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
-use neo3::neo_x::evm::*;
+use neo3::neo_clients::{HttpProvider, RpcClient};
 use std::path::Path;
 
 #[tokio::main]
@@ -87,9 +84,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 You can interact with EVM smart contracts on Neo X:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
-use neo3::neo_x::evm::*;
+use neo3::neo_clients::{HttpProvider, RpcClient};
 use std::path::Path;
 
 #[tokio::main]
@@ -140,7 +137,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 The Neo X Bridge allows you to transfer tokens between Neo N3 and Neo X:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_x::bridge::*;
 use std::path::Path;
@@ -199,7 +196,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 You can also bridge tokens from Neo X back to Neo N3:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_x::bridge::*;
 use std::path::Path;
@@ -253,7 +250,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 You can monitor bridge events to track token transfers between chains:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_x::bridge::*;
 

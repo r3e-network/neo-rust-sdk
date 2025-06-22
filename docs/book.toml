@@ -20,6 +20,9 @@ site-url = "/NeoRust/"
 editable = true
 line-numbers = true
 
+[rust]
+edition = "2021"
+
 [output.html.search]
 enable = true
 limit-results = 20

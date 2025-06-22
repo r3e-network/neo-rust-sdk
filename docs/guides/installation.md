@@ -18,7 +18,7 @@ neo3 = "0.4.1"
 
 Note: The crate is published as `neo3` but is imported as `neo` in code:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 ```
 
@@ -69,7 +69,7 @@ If you encounter build issues, especially related to hardware security modules, 
 
 To verify that the SDK is installed correctly, create a simple test program:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 fn main() {

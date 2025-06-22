@@ -18,7 +18,7 @@ Neo X is an EVM-compatible chain maintained by Neo, enabling developers to lever
 
 The Neo X Provider serves as the primary interface for connecting to Neo X nodes:
 
-```rust
+```rust,no_run
 let provider = NeoXProvider::new_http("https://rpc.neoX.io");
 let block_number = provider.get_block_number().await?;
 ```
@@ -27,7 +27,7 @@ let block_number = provider.get_block_number().await?;
 
 Create, sign, and send transactions on Neo X:
 
-```rust
+```rust,no_run
 let transaction = NeoXTransaction::new()
     .to("0x1234567890123456789012345678901234567890")
     .value(1_000_000_000_000_000_000u128) // 1 ETH in wei
@@ -45,7 +45,7 @@ let txid = provider.send_raw_transaction(&signed_tx).await?;
 
 Interact with EVM smart contracts deployed on Neo X:
 
-```rust
+```rust,no_run
 let contract = NeoXContract::new(contract_address, provider.clone());
 
 // Read-only call
@@ -64,7 +64,7 @@ let tx = contract.call_write(
 
 The bridge facilitates token transfers between Neo N3 and Neo X:
 
-```rust
+```rust,no_run
 let bridge = NeoXBridgeContract::new(neo_provider.clone(), neox_provider.clone());
 
 // Bridge from Neo N3 to Neo X

@@ -28,7 +28,7 @@ neo3 = "0.1.0"
 
 Here's a simple example of connecting to a Neo N3 node and getting the current block height:
 
-```rust
+```rust,edition2021
 use neo3::prelude::*;
 
 #[tokio::main]

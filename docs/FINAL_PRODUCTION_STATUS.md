@@ -30,7 +30,7 @@ The project demonstrates **high-quality implementation** in core components with
 - ✅ **Security Practices**: Removed vulnerable dependencies, proper async/await usage
 
 **Evidence of Quality**:
-```rust
+```rust,no_run
 // Example from ProductionRpcClient
 pub async fn call(&self, method: &str, params: Vec<Value>) -> Neo3Result<Value> {
     // Circuit breaker, caching, metrics, proper error handling
@@ -64,7 +64,7 @@ pub fn new_random() -> Self {
 - ✅ Good documentation and clear explanations
 
 **Evidence**:
-```rust
+```rust,no_run
 // From connect_to_node.rs
 let provider = HttpProvider::new("https://testnet1.neo.org:443/")?;
 let client = RpcClient::new(provider);
@@ -82,7 +82,7 @@ let block_count = client.get_block_count().await?; // Real network call
 - ✅ Honest communication about unimplemented features
 
 **Evidence of Improvement**:
-```rust
+```rust,no_run
 // Current DeFi command response (HONEST)
 Err(CliError::Contract(
     "Flamingo Finance contract interaction not yet implemented for current network. This would require:\n\
@@ -106,7 +106,7 @@ Err(CliError::Contract(
 - 🔶 DeFi and NFT features use demo data
 
 **Evidence**:
-```rust
+```rust,no_run
 // Transaction service creates demo IDs for demonstration
 let tx_id = format!("0x{}", hex::encode(&uuid::Uuid::new_v4().as_bytes()));
 // But includes proper warnings and simulation indicators

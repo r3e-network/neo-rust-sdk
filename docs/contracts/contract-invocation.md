@@ -10,7 +10,7 @@ Invoking smart contracts is a fundamental operation when interacting with the Ne
 
 For common contracts like NEP-17 tokens or system contracts, the SDK provides dedicated interfaces:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_contract::{FungibleTokenContract, GasToken, NeoToken};
 use std::str::FromStr;
@@ -42,7 +42,7 @@ async fn token_interaction() -> Result<(), Box<dyn std::error::Error>> {
 
 For contracts without specific interfaces, you can build and invoke scripts directly:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_builder::ScriptBuilder;
 use std::str::FromStr;
@@ -84,7 +84,7 @@ async fn direct_invocation() -> Result<(), Box<dyn std::error::Error>> {
 
 You can also use the RPC client's convenience methods:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use std::str::FromStr;
 
@@ -121,7 +121,7 @@ async fn rpc_invocation() -> Result<(), Box<dyn std::error::Error>> {
 
 Read-only invocations don't modify blockchain state and don't require transaction fees:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_contract::NeoToken;
 
@@ -148,7 +148,7 @@ async fn read_only_example() -> Result<(), Box<dyn std::error::Error>> {
 
 State-changing invocations modify blockchain state, require transaction fees, and must be signed:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_contract::GasToken;
 use std::str::FromStr;
@@ -197,7 +197,7 @@ async fn state_changing_example() -> Result<(), Box<dyn std::error::Error>> {
 
 You can combine multiple contract calls in a single transaction:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_builder::{ScriptBuilder, TransactionBuilder};
 use std::str::FromStr;
@@ -271,7 +271,7 @@ async fn multi_invocation() -> Result<(), Box<dyn std::error::Error>> {
 
 Different witness scopes control how a signature can be used:
 
-```rust
+```rust,no_run
 // Called By Entry scope - signature applies only for contract called directly
 let signer = Signer::called_by_entry(account.get_script_hash());
 
@@ -295,7 +295,7 @@ let signer = Signer::with_contracts(
 
 Test invocation lets you see what would happen if a contract were called, without sending a transaction:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_builder::ScriptBuilder;
 use std::str::FromStr;
@@ -355,7 +355,7 @@ async fn test_invocation() -> Result<(), Box<dyn std::error::Error>> {
 
 You can subscribe to contract events (requires a WebSocket connection):
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use std::str::FromStr;
 
@@ -404,7 +404,7 @@ async fn event_subscription() -> Result<(), Box<dyn std::error::Error>> {
 
 Contract invocations can return different types of values:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use std::str::FromStr;
 

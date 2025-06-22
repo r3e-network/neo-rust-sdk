@@ -32,7 +32,7 @@ The Neo N3 blockchain includes several native system contracts that manage core 
 
 NEP-17 is Neo's standard for fungible tokens, similar to Ethereum's ERC-20. The SDK provides the `FungibleTokenContract` to interact with NEP-17 tokens:
 
-```rust
+```rust,no_run
 // Create a token instance
 let token = FungibleTokenContract::new(token_hash, client.clone());
 
@@ -57,7 +57,7 @@ let tx_hash = token.transfer(
 
 NEP-11 is Neo's standard for non-fungible tokens, similar to Ethereum's ERC-721. The SDK provides the `NftContract` to interact with NEP-11 tokens:
 
-```rust
+```rust,no_run
 // Create an NFT instance
 let nft = NftContract::new(contract_hash, client.clone());
 
@@ -81,7 +81,7 @@ let tx_hash = nft.transfer(
 
 The `ContractManagement` interface allows you to deploy and manage smart contracts:
 
-```rust
+```rust,no_run
 // Create contract management instance
 let contract_mgmt = ContractManagement::new(client.clone());
 
@@ -110,7 +110,7 @@ let update_result = contract_mgmt.update(
 
 The `NameService` interface provides access to Neo's domain name system:
 
-```rust
+```rust,no_run
 // Create name service instance
 let nns = NameService::new(client.clone());
 
@@ -128,7 +128,7 @@ let tx_hash = nns.register("subdomain.example.neo", &recipient_hash, &account).a
 
 For contracts without specific SDK interfaces, you can use raw invocation:
 
-```rust
+```rust,no_run
 // Build a script to call the contract
 let script = ScriptBuilder::build_contract_call(
     &contract_hash,
@@ -155,7 +155,7 @@ let tx_hash = client.send_raw_transaction(&signed_tx).await?;
 
 You can test a contract call without sending a transaction:
 
-```rust
+```rust,no_run
 // Test invoke a method
 let result = client.invoke_function(
     &contract_hash,
@@ -182,7 +182,7 @@ if let Some(stack) = result.stack.first() {
 
 Smart contracts can emit events that applications can listen for:
 
-```rust
+```rust,no_run
 // Subscribe to contract events (requires WebSocket provider)
 let mut events = client.subscribe_contract_event(&contract_hash).await?;
 

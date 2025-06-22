@@ -10,7 +10,7 @@ The NeoRust SDK is organized into several core modules, each responsible for a s
 
 The `neo_wallets` module provides functionality for creating, loading, and managing Neo wallets and accounts.
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 // Create a new wallet
@@ -32,7 +32,7 @@ Key components:
 
 The `neo_clients` module provides clients for interacting with Neo nodes via RPC.
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 // Create a provider connected to a Neo node
@@ -51,7 +51,7 @@ Key components:
 
 The `neo_types` module provides fundamental Neo blockchain types.
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 // Create a script hash from a string
@@ -74,7 +74,7 @@ Key components:
 
 The `neo_crypto` module provides cryptographic functionality.
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 // Generate a new key pair
@@ -98,7 +98,7 @@ Key components:
 
 The `neo_builder` module provides builders for creating transactions and scripts.
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 // Create a transaction
@@ -133,7 +133,7 @@ Key components:
 
 The `neo_contract` module provides interfaces for interacting with Neo smart contracts.
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 // Create a NEP-17 token instance
@@ -158,7 +158,7 @@ Key components:
 
 The `neo_x` module provides support for Neo X, an EVM-compatible chain maintained by Neo.
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_x::evm::*;
 
@@ -183,7 +183,7 @@ Key components:
 
 The `neo_sgx` module provides support for Intel SGX (Software Guard Extensions) for secure operations.
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 // Initialize the SGX enclave
@@ -205,7 +205,7 @@ Key components:
 
 The `prelude` module re-exports commonly used types and functions for convenience:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 ```
 
@@ -230,7 +230,7 @@ neo3 = { git = "https://github.com/R3E-Network/NeoRust", features = ["ledger", "
 
 The NeoRust SDK uses Rust's `Result` type for error handling. Most functions return a `Result<T, Error>` where `Error` is a custom error type that can represent various error conditions.
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 fn example() -> Result<(), Box<dyn std::error::Error>> {

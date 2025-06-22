@@ -22,7 +22,7 @@ The message signing process in Neo N3 follows these steps:
 
 NeoRust provides comprehensive support for message signing through the `WalletSigner` struct:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_wallets::WalletSigner;
 
@@ -53,7 +53,7 @@ async fn sign_and_verify_message() -> Result<(), Box<dyn std::error::Error>> {
 
 The `WalletSigner` struct is designed to work with any implementation of the `PrehashSigner` trait, making it flexible for various key management solutions:
 
-```rust
+```rust,no_run
 // Using a hardware wallet (when 'ledger' feature is enabled)
 let ledger_wallet = LedgerWallet::new(hdpath, address).await?;
 let signer = WalletSigner::new_with_signer(ledger_wallet, address);
@@ -75,7 +75,7 @@ When implementing message signing in your applications:
 
 When building dApps that require authentication:
 
-```rust
+```rust,no_run
 async fn authenticate_user(message: &[u8], signature: Signature, claimed_address: &Address) -> bool {
     // Implement verification logic
     // This would typically involve recovering the public key from the signature
@@ -90,7 +90,7 @@ async fn authenticate_user(message: &[u8], signature: Signature, claimed_address
 
 ### Authentication
 
-```rust
+```rust,no_run
 // Generate a challenge for the user to sign
 let challenge = format!("Login to ExampleDApp at {}", chrono::Utc::now());
 
@@ -102,7 +102,7 @@ let signature = wallet.sign_message(challenge.as_bytes()).await?;
 
 ### Document Signing
 
-```rust
+```rust,no_run
 // Hash a document
 let document_hash = document.hash256();
 
@@ -114,7 +114,7 @@ let signature = wallet.sign_message(&document_hash).await?;
 
 ### Authorization
 
-```rust
+```rust,no_run
 // Create a specific permission request
 let permission = format!("Allow ExampleDApp to trade up to 100 GAS until {}", expiry_time);
 

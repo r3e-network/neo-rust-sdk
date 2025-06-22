@@ -29,7 +29,7 @@ The bridge supports the following token types:
 
 When bridging assets from Neo N3 to Neo X:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_x::bridge::*;
 
@@ -65,7 +65,7 @@ async fn bridge_to_neox() -> Result<(), Box<dyn std::error::Error>> {
 
 When bridging assets from Neo X to Neo N3:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_x::bridge::*;
 
@@ -101,7 +101,7 @@ async fn bridge_to_neo() -> Result<(), Box<dyn std::error::Error>> {
 
 You can monitor the status of your bridge transactions:
 
-```rust
+```rust,no_run
 async fn check_bridge_status(txid: &str) -> Result<(), Box<dyn std::error::Error>> {
     let neo_provider = Provider::new_http("https://mainnet1.neo.coz.io:443");
     let neox_provider = NeoXProvider::new_http("https://rpc.neoX.io");
@@ -151,7 +151,7 @@ If you encounter issues with your bridge transaction:
 
 For projects wanting to bridge custom tokens between Neo N3 and Neo X:
 
-```rust
+```rust,no_run
 async fn register_custom_token() -> Result<(), Box<dyn std::error::Error>> {
     let neo_provider = Provider::new_http("https://mainnet1.neo.coz.io:443");
     let neox_provider = NeoXProvider::new_http("https://rpc.neoX.io");
@@ -179,7 +179,7 @@ async fn register_custom_token() -> Result<(), Box<dyn std::error::Error>> {
 
 Bridge operations may include fees:
 
-```rust
+```rust,no_run
 async fn check_bridge_fees() -> Result<(), Box<dyn std::error::Error>> {
     let neo_provider = Provider::new_http("https://mainnet1.neo.coz.io:443");
     let neox_provider = NeoXProvider::new_http("https://rpc.neoX.io");

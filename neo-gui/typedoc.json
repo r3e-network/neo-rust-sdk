@@ -1,0 +1,14 @@
+{
+  "entryPoints": ["./src"],
+  "entryPointStrategy": "expand",
+  "out": "./docs",
+  "tsconfig": "./tsconfig.json",
+  "exclude": ["**/node_modules/**", "**/dist/**", "**/coverage/**", "**/e2e/**"],
+  "includeVersion": true,
+  "readme": "./README.md",
+  "name": "NeoRust GUI Documentation",
+  "navigationLinks": {
+    "GitHub": "https://github.com/R3E-Network/NeoRust",
+    "API Docs": "../api/neo3/index.html"
+  }
+}

@@ -10,7 +10,7 @@ The NeoRust SDK supports connecting to different Neo networks, including MainNet
 
 The SDK includes predefined configurations for common Neo networks:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 // Connect to Neo N3 MainNet
@@ -27,7 +27,7 @@ let local_provider = Provider::new_http("http://localhost:10332");
 
 You can also connect to custom Neo networks by providing the RPC URL:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 // Connect to a custom Neo N3 node
@@ -38,7 +38,7 @@ let custom_provider = Provider::new_http("https://my-custom-neo-node.example.com
 
 For applications that need real-time updates, you can use WebSocket connections:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 #[tokio::main]
@@ -64,7 +64,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 The NeoRust SDK can be configured using the `Config` struct:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 // Create a custom configuration
@@ -105,7 +105,7 @@ The NeoRust SDK respects the following environment variables:
 
 You can set these environment variables in your shell or use a `.env` file with the `dotenv` crate:
 
-```rust
+```rust,no_run
 use dotenv::dotenv;
 use neo3::prelude::*;
 
@@ -124,7 +124,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 The NeoRust SDK uses the `tracing` crate for logging. You can configure the logging level and output:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use tracing_subscriber::{fmt, EnvFilter};
 
@@ -154,7 +154,7 @@ cargo run
 
 You can configure gas settings for transactions:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use std::path::Path;
 
@@ -207,7 +207,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 If you're using the SGX features, you can configure the SGX environment:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 #[tokio::main]

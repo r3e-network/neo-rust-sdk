@@ -4,7 +4,7 @@ This tutorial covers wallet management with the NeoRust SDK, including creating,
 
 ## Creating a New Wallet
 
-```rust
+```rust,edition2021
 use neo3::prelude::*;
 
 #[tokio::main]
@@ -26,7 +26,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Loading an Existing Wallet
 
-```rust
+```rust,edition2021
 use neo3::prelude::*;
 use std::path::Path;
 
@@ -47,7 +47,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Importing a Private Key
 
-```rust
+```rust,edition2021
 use neo3::prelude::*;
 
 #[tokio::main]
@@ -70,7 +70,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Signing a Message
 
-```rust
+```rust,edition2021
 use neo3::prelude::*;
 use neo3::neo_wallets::WalletSigner;
 
@@ -96,7 +96,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Wallet Backup and Recovery
 
-```rust
+```rust,edition2021
 use neo3::prelude::*;
 use neo3::neo_wallets::bip39_account::create_account_from_mnemonic;
 
@@ -123,7 +123,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 If you have enabled the `ledger` feature, you can use hardware wallets for enhanced security:
 
-```rust
+```rust,edition2021
 use neo3::prelude::*;
 use neo3::neo_wallets::{HDPath, LedgerWallet, WalletSigner};
 

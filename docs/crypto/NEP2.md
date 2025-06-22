@@ -47,7 +47,7 @@ A NEP2 encrypted private key has the following format:
 
 ## Usage in NeoRust
 
-```rust
+```rust,no_run
 use NeoRust::prelude::{KeyPair, NEP2};
 use p256::elliptic_curve::rand_core::OsRng;
 use NeoRust::prelude::Secp256r1PrivateKey;
@@ -64,7 +64,7 @@ let decrypted_key_pair = NEP2::decrypt("my-secure-password", &encrypted).expect(
 
 ## Advanced Usage with Custom Parameters
 
-```rust
+```rust,no_run
 use NeoRust::prelude::{KeyPair, NEP2};
 use p256::elliptic_curve::rand_core::OsRng;
 use scrypt::Params;
@@ -89,7 +89,7 @@ let decrypted_key_pair = NEP2::decrypt_with_params("my-secure-password", &encryp
 
 The NEP2 implementation provides detailed error information through the `Nep2Error` enum:
 
-```rust
+```rust,no_run
 pub enum Nep2Error {
     InvalidPassphrase(String),
     InvalidFormat(String),

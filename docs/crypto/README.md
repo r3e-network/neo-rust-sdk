@@ -30,7 +30,7 @@ The cryptography system in NeoRust includes several key components:
 
 ## Example Usage
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 // Create a new random key pair

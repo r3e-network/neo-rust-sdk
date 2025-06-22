@@ -30,7 +30,7 @@
 ### **1. SDK Integration Deployment**
 *For applications integrating the NeoRust SDK as a library*
 
-```rust
+```rust,no_run
 // Production configuration example
 use neo3::prelude::*;
 
@@ -122,7 +122,7 @@ npm run tauri build
 ### **1. Network Security**
 
 #### **RPC Endpoint Configuration**
-```rust
+```rust,no_run
 // Production endpoint configuration
 let endpoints = vec![
     "https://mainnet1.neo.org:443",
@@ -151,7 +151,7 @@ deny out all
 ### **2. Wallet Security**
 
 #### **Production Wallet Management**
-```rust
+```rust,no_run
 // Secure wallet creation
 let wallet = Wallet::create_with_entropy(
     &password,
@@ -205,7 +205,7 @@ NEO_REQUEST_TIMEOUT=60
 ### **1. Health Checks**
 
 #### **SDK Health Check**
-```rust
+```rust,no_run
 use neo3::neo_clients::ProductionRpcClient;
 
 async fn health_check(client: &ProductionRpcClient) -> Result<(), HealthCheckError> {
@@ -232,7 +232,7 @@ async fn health_check(client: &ProductionRpcClient) -> Result<(), HealthCheckErr
 ```
 
 #### **HTTP Health Endpoint**
-```rust
+```rust,no_run
 // For web services integrating NeoRust
 use warp::Filter;
 
@@ -251,7 +251,7 @@ let health = warp::path("health")
 ### **2. Metrics Collection**
 
 #### **Key Metrics to Monitor**
-```rust
+```rust,no_run
 // Performance metrics
 struct NeoMetrics {
     total_requests: Counter,
@@ -300,7 +300,7 @@ groups:
 ### **3. Logging Configuration**
 
 #### **Production Logging**
-```rust
+```rust,no_run
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 // Initialize structured logging
@@ -343,7 +343,7 @@ tracing::info!(
 ### **1. Wallet Backup Strategy**
 
 #### **Automated Backup**
-```rust
+```rust,no_run
 use chrono::Utc;
 use std::path::Path;
 
@@ -568,7 +568,7 @@ echo "All validation checks passed"
 ### **1. Resource Optimization**
 
 #### **Memory Optimization**
-```rust
+```rust,no_run
 // Connection pool tuning
 let config = ProductionClientConfig {
     pool_config: PoolConfig {
@@ -586,7 +586,7 @@ let config = ProductionClientConfig {
 ```
 
 #### **CPU Optimization**
-```rust
+```rust,no_run
 // Async runtime tuning
 let rt = tokio::runtime::Builder::new_multi_thread()
     .worker_threads(4)                // Match CPU cores
@@ -598,7 +598,7 @@ let rt = tokio::runtime::Builder::new_multi_thread()
 ### **2. Network Optimization**
 
 #### **Connection Management**
-```rust
+```rust,no_run
 // HTTP client optimization
 let client = reqwest::Client::builder()
     .pool_max_idle_per_host(10)

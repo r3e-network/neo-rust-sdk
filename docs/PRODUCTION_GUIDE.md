@@ -18,7 +18,7 @@ This guide provides comprehensive instructions for deploying NeoRust SDK applica
 ### Wallet Security
 
 #### Private Key Management
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_wallets::{Wallet, WalletTrait};
 
@@ -39,7 +39,7 @@ export NEO_NETWORK_MAGIC="860833102"  # MainNet
 ```
 
 #### Backup Strategy
-```rust
+```rust,no_run
 use neo3::neo_wallets::WalletBackup;
 use std::path::PathBuf;
 
@@ -64,7 +64,7 @@ async fn secure_backup_strategy(wallet: &Wallet) -> Result<(), Box<dyn std::erro
 ### Network Security
 
 #### TLS Configuration
-```rust
+```rust,no_run
 use neo3::neo_clients::{HttpProvider, RpcClient};
 
 // ✅ Always use HTTPS in production
@@ -78,7 +78,7 @@ let client = client
 ```
 
 #### Rate Limiting
-```rust
+```rust,no_run
 use std::time::{Duration, Instant};
 use tokio::time::sleep;
 
@@ -108,7 +108,7 @@ impl RateLimiter {
 ## Performance Optimization
 
 ### Connection Pooling
-```rust
+```rust,no_run
 use std::sync::Arc;
 use tokio::sync::Semaphore;
 
@@ -145,7 +145,7 @@ impl ConnectionPool {
 ```
 
 ### Caching Strategy
-```rust
+```rust,no_run
 use std::collections::HashMap;
 use std::sync::RwLock;
 use std::time::{Duration, Instant};
@@ -185,7 +185,7 @@ impl<T: Clone> ResponseCache<T> {
 ## Monitoring & Logging
 
 ### Structured Logging
-```rust
+```rust,no_run
 use tracing::{info, warn, error, instrument};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -227,7 +227,7 @@ async fn monitored_rpc_call(
 ```
 
 ### Health Checks
-```rust
+```rust,no_run
 use serde_json::json;
 
 pub struct HealthChecker {
@@ -343,7 +343,7 @@ spec:
 ## Error Handling
 
 ### Production Error Handling
-```rust
+```rust,no_run
 use neo3::neo_error::{Neo3Error, Neo3Result};
 use tracing::error;
 
@@ -391,7 +391,7 @@ pub async fn robust_transaction_send(
 ## Testing in Production
 
 ### Canary Deployments
-```rust
+```rust,no_run
 pub struct CanaryDeployment {
     primary_client: RpcClient<HttpProvider>,
     canary_client: RpcClient<HttpProvider>,
@@ -410,7 +410,7 @@ impl CanaryDeployment {
 ```
 
 ### Circuit Breaker Pattern
-```rust
+```rust,no_run
 use std::sync::atomic::{AtomicU32, AtomicBool, Ordering};
 
 pub struct CircuitBreaker {

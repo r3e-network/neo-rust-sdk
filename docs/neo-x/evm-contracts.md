@@ -10,7 +10,7 @@ Neo X supports Ethereum Virtual Machine (EVM) compatible smart contracts, allowi
 
 To deploy a new EVM contract on Neo X:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_x::evm::*;
 
@@ -57,7 +57,7 @@ async fn deploy_contract() -> Result<(), Box<dyn std::error::Error>> {
 
 If your contract requires constructor arguments:
 
-```rust
+```rust,no_run
 // Prepare constructor arguments (example for a token contract)
 let name = "MyToken";
 let symbol = "MTK";
@@ -84,7 +84,7 @@ let deploy_data = format!("{}{}", bytecode, encoded_args);
 
 To call read-only (view/pure) functions:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_x::evm::*;
 
@@ -127,7 +127,7 @@ async fn read_contract() -> Result<(), Box<dyn std::error::Error>> {
 
 To call state-changing functions:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_x::evm::*;
 
@@ -177,7 +177,7 @@ async fn write_contract() -> Result<(), Box<dyn std::error::Error>> {
 
 To query events emitted by contracts:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_x::evm::*;
 
@@ -217,7 +217,7 @@ async fn query_events() -> Result<(), Box<dyn std::error::Error>> {
 
 For more robust contract interaction, you can use contract ABIs:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_x::evm::*;
 
@@ -276,7 +276,7 @@ async fn use_contract_abi() -> Result<(), Box<dyn std::error::Error>> {
 
 For upgradeable proxy contracts:
 
-```rust
+```rust,no_run
 async fn proxy_contract_interaction() -> Result<(), Box<dyn std::error::Error>> {
     // Connect to Neo X
     let provider = NeoXProvider::new_http("https://rpc.neoX.io");
@@ -310,7 +310,7 @@ async fn proxy_contract_interaction() -> Result<(), Box<dyn std::error::Error>> 
 
 For testing before deploying to Neo X mainnet:
 
-```rust
+```rust,no_run
 async fn test_with_local_node() -> Result<(), Box<dyn std::error::Error>> {
     // Connect to local development node
     let provider = NeoXProvider::new_http("http://localhost:8545");

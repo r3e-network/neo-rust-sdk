@@ -27,7 +27,7 @@ The NeoRust SDK demonstrates **strong security practices** with proper cryptogra
 - ✅ **WIF Encoding**: Secure Wallet Import Format implementation
 
 **Evidence**:
-```rust
+```rust,no_run
 // Secure random key generation
 pub fn new_random() -> Self {
     let mut rng = OsRng; // Cryptographically secure RNG

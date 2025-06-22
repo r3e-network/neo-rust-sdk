@@ -10,7 +10,7 @@ Neo N3 smart contracts are written in a variety of languages including C#, Pytho
 
 To deploy a smart contract, you need the contract's NEF (Neo Executable Format) file and its manifest:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use std::path::Path;
 use std::fs;
@@ -57,7 +57,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 Once a contract is deployed, you can invoke its methods:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use std::path::Path;
 
@@ -115,7 +115,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 You can read the state of a contract without sending a transaction:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 
 #[tokio::main]
@@ -152,7 +152,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 NEP-17 is Neo's token standard, similar to Ethereum's ERC-20. The NeoRust SDK provides a convenient way to work with NEP-17 tokens:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use std::path::Path;
 
@@ -202,7 +202,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 Neo smart contracts can emit events that you can listen for:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use std::time::Duration;
 

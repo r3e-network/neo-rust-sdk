@@ -17,7 +17,7 @@ When adding new files to the NeoRust project, please include the appropriate cop
 
 ### For Rust files:
 
-```rust
+```rust,no_run
 // Copyright (c) 2023-2025 R3E Network
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

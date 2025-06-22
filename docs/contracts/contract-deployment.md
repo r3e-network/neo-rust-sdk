@@ -24,7 +24,7 @@ Before deploying a contract, you need:
 
 First, load your contract files:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_types::{ContractManifest, NefFile};
 use std::fs;
@@ -42,7 +42,7 @@ let manifest = ContractManifest::from_json(&manifest_json)?;
 
 Next, set up your connection to Neo N3 and prepare your account:
 
-```rust
+```rust,no_run
 // Connect to Neo N3 TestNet
 let provider = HttpProvider::new("https://testnet1.neo.org:443")?;
 let client = RpcClient::new(provider);
@@ -60,7 +60,7 @@ println!("GAS Balance: {}", gas_balance);
 
 Use the ContractManagement system contract to deploy your contract:
 
-```rust
+```rust,no_run
 use neo3::neo_contract::ContractManagement;
 
 // Create contract management instance
@@ -85,7 +85,7 @@ println!("Contract hash: {}", contract_hash);
 
 After deployment, verify that your contract is available on the blockchain:
 
-```rust
+```rust,no_run
 // Get contract details
 let contract_state = contract_mgmt.get_contract(&contract_hash).await?;
 
@@ -99,7 +99,7 @@ println!("Contract Author: {}", contract_state.manifest.author);
 
 Here's a complete example of contract deployment:
 
-```rust
+```rust,no_run
 use neo3::prelude::*;
 use neo3::neo_contract::ContractManagement;
 use neo3::neo_types::{ContractManifest, NefFile};
@@ -190,7 +190,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 Neo N3 allows you to update existing contracts while preserving their state:
 
-```rust
+```rust,no_run
 // Update an existing contract
 let update_result = contract_mgmt.update(
     &contract_hash,
@@ -208,7 +208,7 @@ println!("Transaction ID: {}", update_result.tx_id);
 
 You can also permanently destroy a contract:
 
-```rust
+```rust,no_run
 // Destroy an existing contract
 let destroy_result = contract_mgmt.destroy(
     &contract_hash,

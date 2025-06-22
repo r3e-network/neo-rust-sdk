@@ -268,7 +268,7 @@ Different build environments require different feature sets:
 
 Use Rust's conditional compilation features to handle environment-specific code:
 
-```rust
+```rust,no_run
 #[cfg(debug_assertions)]
 use yubihsm::MockHsm;
 
@@ -339,7 +339,7 @@ mock-testing = ["mockall"]
 
 Use build scripts to detect the build environment:
 
-```rust
+```rust,no_run
 // build.rs
 fn main() {
     // Detect if we're in a CI environment
@@ -362,7 +362,7 @@ fn main() {
 
 ### Using Build Configuration in Code
 
-```rust
+```rust,no_run
 #[cfg(ci_build)]
 const DEFAULT_TIMEOUT: u64 = 60; // Longer timeout for CI
 
