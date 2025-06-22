@@ -51,6 +51,11 @@ jobs:
     - name: Run Rust tests (Unix)
       if: runner.os != 'Windows'
       run: |
+        # Create a clean workspace without neo-gui to prevent any dependency resolution
+        cp Cargo.toml Cargo.toml.original
+        sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml
+        rm -rf neo-gui || true
+        
         # Test neo3 package independently
         cd ${{ github.workspace }}
         NEORUST_SKIP_NETWORK_TESTS=1 cargo test --manifest-path Cargo.toml --package neo3 --verbose --all-features
@@ -58,10 +63,21 @@ jobs:
         # Test neo-cli package independently  
         cd neo-cli
         NEORUST_SKIP_NETWORK_TESTS=1 cargo test --verbose --all-features
+        
+        # Restore for subsequent jobs
+        cd ${{ github.workspace }}
+        mv Cargo.toml.original Cargo.toml
       
     - name: Run Rust tests (Windows)
       if: runner.os == 'Windows'
       run: |
+        # Create a clean workspace without neo-gui to prevent any dependency resolution
+        Copy-Item Cargo.toml Cargo.toml.original
+        (Get-Content Cargo.toml) -replace '"neo-gui",', '' | Set-Content Cargo.toml
+        (Get-Content Cargo.toml) -replace ', "neo-gui"', '' | Set-Content Cargo.toml
+        (Get-Content Cargo.toml) -replace '"neo-gui"', '' | Set-Content Cargo.toml
+        Remove-Item -Recurse -Force neo-gui -ErrorAction SilentlyContinue
+        
         # Test neo3 package independently
         $env:NEORUST_SKIP_NETWORK_TESTS = "1"
         cargo test --manifest-path Cargo.toml --package neo3 --verbose --all-features
@@ -70,6 +86,10 @@ jobs:
         cd neo-cli
         $env:NEORUST_SKIP_NETWORK_TESTS = "1"
         cargo test --verbose --all-features
+        
+        # Restore for subsequent jobs
+        cd ..
+        Move-Item Cargo.toml.original Cargo.toml -Force
       
     - name: Run Rust benchmarks
       run: |
