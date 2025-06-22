@@ -16,6 +16,7 @@ concurrency:
 permissions:
   contents: read
   security-events: write
+  actions: read
 
 jobs:
   audit:
@@ -72,7 +73,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Run Semgrep
-        uses: returntocorp/semgrep-action@v1
+        uses: returntocorp/semgrep-action@v2
         with:
           config: >-
             p/security-audit
@@ -115,7 +116,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@v2.3.6
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -227,15 +227,15 @@ jobs:
           path: public
       
       - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v4
       
       - name: Upload to Pages
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: public
       
       - name: Deploy to Pages
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
 
   check-links:
     name: Check Documentation Links
