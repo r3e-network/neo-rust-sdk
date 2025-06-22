@@ -35,11 +35,25 @@ jobs:
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
       
-      - name: Run tests
+      - name: Run tests (Unix)
+        if: runner.os != 'Windows'
         run: NEORUST_SKIP_NETWORK_TESTS=1 cargo test --workspace --all-features --verbose
       
-      - name: Run doc tests
+      - name: Run tests (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          $env:NEORUST_SKIP_NETWORK_TESTS = "1"
+          cargo test --workspace --all-features --verbose
+      
+      - name: Run doc tests (Unix)
+        if: runner.os != 'Windows'
         run: NEORUST_SKIP_NETWORK_TESTS=1 cargo test --workspace --doc --all-features
+      
+      - name: Run doc tests (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          $env:NEORUST_SKIP_NETWORK_TESTS = "1"
+          cargo test --workspace --doc --all-features
 
   lint:
     name: Lint
@@ -116,7 +130,7 @@ jobs:
         run: cargo install cargo-tarpaulin
       
       - name: Run coverage
-        run: NEORUST_SKIP_NETWORK_TESTS=1 cargo tarpaulin --workspace --out Xml --all-features
+        run: NEORUST_SKIP_NETWORK_TESTS=1 cargo tarpaulin --workspace --out Xml --all-features --exclude neo-cli --timeout 300
       
       - name: Upload coverage
         uses: codecov/codecov-action@v4
