@@ -42,17 +42,6 @@ jobs:
           . -> target
           neo-gui -> target
     
-    - name: Install system dependencies (Ubuntu)
-      if: matrix.os == 'ubuntu-24.04'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential pkg-config libssl-dev
-        sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
-        sudo apt-get install -y libglib2.0-dev libglib2.0-dev-bin
-        # Verify glib version
-        pkg-config --modversion glib-2.0 || echo "glib-2.0 not found"
-        pkg-config --modversion gobject-2.0 || echo "gobject-2.0 not found"
-          
     - name: Check Rust formatting
       run: cargo fmt --all -- --check
       
@@ -61,20 +50,20 @@ jobs:
       
     - name: Run Rust tests (Unix)
       if: runner.os != 'Windows'
-      run: NEORUST_SKIP_NETWORK_TESTS=1 cargo test --verbose --all-features --workspace --exclude neo-gui
+      run: NEORUST_SKIP_NETWORK_TESTS=1 cargo test --verbose --all-features --package neo3 --package neo-cli
       
     - name: Run Rust tests (Windows)
       if: runner.os == 'Windows'
       run: |
         $env:NEORUST_SKIP_NETWORK_TESTS = "1"
-        cargo test --verbose --all-features --workspace --exclude neo-gui
+        cargo test --verbose --all-features --package neo3 --package neo-cli
       
     - name: Run Rust benchmarks
-      run: cargo bench --workspace --verbose --exclude neo-gui
+      run: cargo bench --package neo3 --package neo-cli --verbose
       if: matrix.rust-version == 'stable'
       
     - name: Check documentation
-      run: cargo doc --workspace --no-deps --document-private-items --exclude neo-gui
+      run: cargo doc --package neo3 --package neo-cli --no-deps --document-private-items
       
   tauri-build:
     name: Tauri Build
@@ -172,7 +161,7 @@ jobs:
     - name: Generate Rust coverage
       run: |
         export NEORUST_SKIP_NETWORK_TESTS=1
-        cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info --exclude neo-cli --exclude neo-gui
+        cargo llvm-cov --all-features --package neo3 --lcov --output-path lcov.info
       
     - name: Setup Node.js
       uses: actions/setup-node@v4
