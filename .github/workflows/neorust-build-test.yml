@@ -346,4 +346,15 @@ jobs:
         fi
         
     - name: Dry run cargo publish
-      run: cargo publish --dry-run --all-features 
+      run: |
+        # Create a clean workspace without neo-gui to prevent any dependency resolution
+        cp Cargo.toml Cargo.toml.release-backup
+        sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml || true
+        rm -rf neo-gui || true
+        
+        # Dry run cargo publish with --allow-dirty flag to handle Cargo.lock changes
+        cargo publish --dry-run --all-features --allow-dirty
+        
+        # Restore workspace
+        mv Cargo.toml.release-backup Cargo.toml
+        git checkout -- neo-gui || true 
