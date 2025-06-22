@@ -24,18 +24,15 @@ impl CliTest {
 	/// Run a CLI command with the given arguments
 	pub fn run(&self, args: &[&str]) -> Output {
 		let mut cmd = Command::new("cargo");
-		cmd.arg("run")
-			.arg("--")
-			.args(args)
-			.current_dir(&self.binary_path);
-		
+		cmd.arg("run").arg("--").args(args).current_dir(&self.binary_path);
+
 		// Set HOME environment variable for Windows compatibility
 		if cfg!(target_os = "windows") {
 			if let Ok(userprofile) = std::env::var("USERPROFILE") {
 				cmd.env("HOME", userprofile);
 			}
 		}
-		
+
 		cmd.output().expect("Failed to execute command")
 	}
 
