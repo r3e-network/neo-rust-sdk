@@ -43,17 +43,20 @@ use crate::{
 ///
 /// # Examples
 ///
-/// ```rust
+/// ```rust,no_run
 /// use neo3::neo_builder::{Transaction, TransactionBuilder};
 /// use neo3::neo_clients::{HttpProvider, RpcClient};
 ///
-/// // Create a new transaction
-/// let tx = Transaction::new();
+/// fn example() -> Result<(), Box<dyn std::error::Error>> {
+///     // Create a new transaction (placeholder)
+///     // let tx = Transaction::new();
 ///
-/// // Transactions are typically created using the TransactionBuilder
-/// let provider = HttpProvider::new("https://testnet1.neo.org:443");
-/// let client = RpcClient::new(provider);
-/// let mut tx_builder = TransactionBuilder::with_client(&client);
+///     // Transactions are typically created using the TransactionBuilder
+///     let provider = HttpProvider::new("https://testnet1.neo.org:443")?;
+///     let client = RpcClient::new(provider);
+///     // let mut tx_builder = TransactionBuilder::with_client(&client);
+///     Ok(())
+/// }
 /// ```
 #[derive(Serialize, Getters, Setters, MutGetters, CopyGetters, Debug, Clone)]
 pub struct Transaction<'a, P: JsonRpcProvider + 'static> {

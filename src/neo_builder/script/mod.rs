@@ -23,7 +23,7 @@
 //! To use the functionality provided by this module, you can import the necessary components:
 //!
 //! ```rust
-//! use neo3::neo_builder::script::{InteropService, ScriptBuilder, ScriptReader};
+//! use neo3::neo_builder::{InteropService, ScriptBuilder, ScriptReader};
 //! ```
 //!
 //! [`InteropService`]: interop_service::InteropService

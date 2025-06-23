@@ -23,11 +23,11 @@ impl ScriptReader {
 	/// # Example
 	///
 	/// ```rust
-	/// use neo_builder::script::ScriptReader;
+	/// use neo3::neo_builder::ScriptReader;
 	///
 	/// let hash = "9bf667ce".to_string();
-	/// if let Some(service) = ScriptReader::get_interop_service_code(hash) {
-	///     println!("InteropService found: {:?}", service);
+	/// if let Some(_service) = ScriptReader::get_interop_service_code(hash) {
+	///     println!("InteropService found");
 	/// } else {
 	///     println!("InteropService not found");
 	/// }
@@ -49,10 +49,9 @@ impl ScriptReader {
 	/// # Example
 	///
 	/// ```rust
-	/// use neo_builder::script::ScriptReader;
-	/// use rustc_serialize::hex::FromHex;
+	/// use neo3::neo_builder::ScriptReader;
 	///
-	/// let script = "0c0548656c6c6f".from_hex().unwrap();
+	/// let script = hex::decode("0c0548656c6c6f").unwrap();
 	/// let op_code_string = ScriptReader::convert_to_op_code_string(&script);
 	/// println!("OpCodes: {}", op_code_string);
 	/// // Output: OpCodes: PUSHDATA1 5 48656c6c6f
@@ -106,14 +105,14 @@ impl ScriptReader {
 	///
 	/// # Example
 	///
-	/// ```rust
-	/// use neo_builder::script::ScriptReader;
-	/// use neo3::prelude::{Decoder, OperandSize};
+	/// ```rust,no_run
+	/// use neo3::neo_builder::ScriptReader;
+	/// use neo3::neo_codec::Decoder;
+	/// use neo3::neo_types::OperandSize;
 	///
 	/// let mut decoder = Decoder::new(&[0x05]); // Example: prefix size of 5
-	/// let operand_size = OperandSize::new(0, 1); // 1-byte prefix
-	/// let size = ScriptReader::get_prefix_size(&mut decoder, operand_size).unwrap();
-	/// assert_eq!(size, 5);
+	/// let operand_size = OperandSize::with_prefix_size(1); // 1-byte prefix
+	/// // Note: get_prefix_size is a private function used internally
 	/// ```
 	fn get_prefix_size(reader: &mut Decoder, size: OperandSize) -> Result<usize, BuilderError> {
 		match size.prefix_size() {

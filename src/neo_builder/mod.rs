@@ -37,92 +37,34 @@
 //! ### Building Transactions and Scripts
 //!
 //! ```no_run
-//! use neo3::prelude::*;
-//! use neo3::neo_builder::{TransactionBuilder, ScriptBuilder};
-//! use neo3::neo_protocol::Account;
-//! use neo3::neo_types::{ContractParameter, Signer, WitnessScope};
-//! use neo3::neo_clients::{HttpProvider, RpcClient};
+//! use neo3::neo_builder::{ScriptBuilder, Signer, WitnessScope, TransactionSigner};
+//! use neo3::neo_types::{ContractParameter, ScriptHash};
 //! use std::str::FromStr;
 //!
-//! async fn transaction_example() -> Result<(), Box<dyn std::error::Error>> {
-//!     // Set up connections
-//!     let provider = HttpProvider::new("https://testnet1.neo.org:443")?;
-//!     let client = RpcClient::new(provider);
+//! fn basic_examples() -> Result<(), Box<dyn std::error::Error>> {
+//!     // 1. Create a simple script builder
+//!     let mut script_builder = ScriptBuilder::new();
+//!     script_builder.push_data("Hello Neo!".as_bytes().to_vec());
+//!     let script = script_builder.to_bytes();
+//!     println!("Script length: {} bytes", script.len());
 //!     
-//!     // Create an account for signing
-//!     let account = Account::from_wif("KwVEKk78X65fDrJ3VgqHLcpPpbQVfJLjXrkFUCozHQBJ5nT2xwP8")?;
+//!     // 2. Create a transaction signer
+//!     let script_hash = ScriptHash::from_str("0x1234567890123456789012345678901234567890")?;
+//!     let _signer = Signer::TransactionSigner(
+//!         TransactionSigner::new(script_hash, vec![WitnessScope::CalledByEntry])
+//!     );
 //!     
-//!     // Define transaction participants
-//!     let sender = account.get_script_hash();
-//!     let recipient = ScriptHash::from_str("NUVPACTpQvd2HHmBgFjJJRWwVXJiR3uAEh")?;
-//!     
-//!     // Get the GAS token hash
+//!     // 3. Example contract call
+//!     let mut contract_builder = ScriptBuilder::new();
 //!     let gas_token = ScriptHash::from_str("d2a4cff31913016155e38e474a2c06d08be276cf")?;
-//!     
-//!     // 1. Create a script for transferring GAS tokens
-//!     let script = ScriptBuilder::build_contract_call(
+//!     contract_builder.contract_call(
 //!         &gas_token,
-//!         "transfer",
-//!         &[
-//!             ContractParameter::hash160(&sender),
-//!             ContractParameter::hash160(&recipient),
-//!             ContractParameter::integer(1_0000_0000), // 1 GAS
-//!             ContractParameter::any(None),             // No data
-//!         ],
+//!         "balanceOf",
+//!         &[ContractParameter::h160(&script_hash)],
+//!         None,
 //!     )?;
-//!     
-//!     // 2. Build a transaction
-//!     let current_block = client.get_block_count().await?;
-//!     
-//!     let tx_builder = TransactionBuilder::new()
-//!         .version(0)                                    // Transaction version
-//!         .nonce(1234)                                   // Random nonce
-//!         .valid_until_block(current_block + 100)        // Expiration block
-//!         .script(script)                                // Contract invocation script
-//!         .add_signer(Signer::with_scope(                // Transaction signer
-//!             sender.clone(),
-//!             WitnessScope::CalledByEntry,
-//!             vec![],
-//!             vec![],
-//!             vec![],
-//!         ));
-//!     
-//!     // 3. Calculate fees based on script (can also specify manual values)
-//!     let tx_builder = tx_builder.calculate_network_fee(&account).await?;
-//!     let tx_builder = tx_builder.calculate_system_fee(client.clone()).await?;
-//!     
-//!     // 4. Build the transaction and sign it
-//!     let unsigned_tx = tx_builder.build();
-//!     let signed_tx = unsigned_tx.sign(&client, &account).await?;
-//!     
-//!     // 5. Send the transaction
-//!     let tx_id = client.send_raw_transaction(&signed_tx).await?;
-//!     println!("Transaction sent successfully: {}", tx_id);
-//!     
-//!     // 6. Alternatively, build, sign, and send in a single chain of calls
-//!     let quick_tx_id = TransactionBuilder::new()
-//!         .version(0)
-//!         .nonce(5678)
-//!         .valid_until_block(current_block + 100)
-//!         .script(script)
-//!         .add_signer(Signer::called_by_entry(sender))
-//!         .sign_and_send(&client, &account)
-//!         .await?;
-//!     
-//!     println!("Quick transaction sent: {}", quick_tx_id);
-//!     
-//!     // 7. Advanced script building example
-//!     let advanced_script = ScriptBuilder::new()
-//!         // Add method arguments in reverse order (Neo VM uses a stack)
-//!         .emit_push_string("Hello, Neo!")
-//!         .emit_push_integer(123)
-//!         .emit_push_byte_array(&recipient.as_bytes())
-//!         
-//!         // Call the contract method
-//!         .emit_app_call(&gas_token, "someMethod", false)
-//!         .to_script();
-//!     
-//!     println!("Advanced script length: {} bytes", advanced_script.len());
+//!     let contract_script = contract_builder.to_bytes();
+//!     println!("Contract script length: {} bytes", contract_script.len());
 //!     
 //!     Ok(())
 //! }

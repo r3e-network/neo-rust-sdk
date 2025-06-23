@@ -27,8 +27,8 @@
 //!
 //! ### Connecting to a Neo N3 node using HTTP
 //!
-//! ```rust
-//! use neo3::neo_clients::{HttpProvider, RpcClient};
+//! ```rust,no_run
+//! use neo3::neo_clients::{HttpProvider, RpcClient, APITrait};
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -52,9 +52,9 @@
 //!
 //! ### Using WebSocket for real-time updates
 //!
-//! ```rust
+//! ```rust,no_run
 //! # #[cfg(feature = "ws")]
-//! use neo3::neo_clients::{Ws, RpcClient};
+//! use neo3::neo_clients::{Ws, RpcClient, APITrait};
 //!
 //! # #[cfg(feature = "ws")]
 //! #[tokio::main]
