@@ -1,4 +1,4 @@
-# NeoRust Build Scripts v0.4.1
+# NeoRust Build Scripts v0.4.2
 
 This directory contains build and test scripts for the NeoRust SDK.
 
@@ -74,14 +74,14 @@ REM Show help
 - **futures**: Enables async/futures support for asynchronous blockchain operations
 - **ledger**: Enables Ledger hardware wallet support for enhanced security
 
-### Removed Features (v0.4.1)
-- **aws**: ⚠️ **DISABLED** in v0.4.1 due to security vulnerabilities in rusoto dependencies
+### Removed Features (v0.4.2)
+- **aws**: ⚠️ **DISABLED** in v0.4.2 due to security vulnerabilities in rusoto dependencies
   - Will be re-enabled in v0.5.0 with modern AWS SDK
   - Use v0.3.0 if AWS KMS integration is required
 
 ## Security Notes
 
-### v0.4.1 Security Improvements
+### v0.4.2 Security Improvements
 - **Zero vulnerabilities**: All security issues have been resolved
 - **AWS feature disabled**: Temporarily removed to eliminate vulnerable dependencies
 - **Updated dependencies**: All dependencies updated to secure versions
@@ -139,7 +139,7 @@ cargo audit
 ```
 error: Package `neo3` does not have feature `aws`
 ```
-**Solution**: Remove `aws` from your feature list in v0.4.1
+**Solution**: Remove `aws` from your feature list in v0.4.2
 
 #### Build Failures
 ```bash
@@ -166,8 +166,8 @@ cargo test --lib --features futures,ledger
 # Before (v0.3.0)
 neo3 = { version = "0.3.0", features = ["futures", "ledger", "aws"] }
 
-# After (v0.4.1)
-neo3 = { version = "0.4.1", features = ["futures", "ledger"] }
+# After (v0.4.2)
+neo3 = { version = "0.4.2", features = ["futures", "ledger"] }
 ```
 
 ### Update Build Scripts
@@ -181,4 +181,4 @@ neo3 = { version = "0.4.1", features = ["futures", "ledger"] }
 
 ---
 
-**NeoRust v0.4.1 - Secure, Tested, Production-Ready** 🔒✅ 
+**NeoRust v0.4.2 - Secure, Tested, Production-Ready** 🔒✅ 

@@ -29,7 +29,7 @@ Add NeoRust to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-neo3 = "0.4.1"
+neo3 = "0.4.2"
 tokio = { version = "1.0", features = ["full"] }
 ```
 
@@ -39,7 +39,7 @@ NeoRust provides several optional features:
 
 ```toml
 [dependencies]
-neo3 = { version = "0.4.1", features = ["futures", "ledger", "websocket"] }
+neo3 = { version = "0.4.2", features = ["futures", "ledger", "websocket"] }
 ```
 
 ### Available Features

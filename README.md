@@ -13,7 +13,7 @@ A comprehensive Rust SDK for the Neo N3 blockchain platform, providing a complet
 
 ## 📊 Project Status
 
-- **Version**: 0.4.1 (Production Ready)
+- **Version**: 0.4.2 (Production Ready)
 - **Rust Version**: 1.70.0+
 - **Platform Support**: Windows, macOS, Linux
 - **Security**: All dependencies audited, 0 known vulnerabilities
@@ -36,7 +36,7 @@ Add NeoRust to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-neo3 = "0.4.1"
+neo3 = "0.4.2"
 ```
 
 ## Basic Usage

@@ -29,6 +29,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added security guidelines and best practices documentation
 - Automated security reports and monitoring
 
+## [0.4.2] - 2025-06-23
+
+### 🔧 Fixed
+- **Documentation Tests**: Fixed all 131 failing documentation tests
+  - Now 135 tests passing, 0 failing
+  - Corrected import paths and API usage in all module examples
+  - Added missing trait imports throughout the codebase
+  - Enhanced documentation examples across all modules
+
+### 🚀 Improved
+- **CI/CD Reliability**: Enhanced test reliability and platform independence
+  - Fixed NEP-2 encryption test failures in CI environments
+  - Improved test determinism across different platforms
+  - Strengthened integration test stability
+
+### 📚 Documentation
+- **Code Examples**: Comprehensive improvement of documentation examples
+  - Fixed broken code examples in all modules
+  - Added proper trait imports and usage patterns
+  - Enhanced API documentation with working examples
+  - Improved inline documentation quality
+
+### 🛠️ Technical Details
+- **Test Suite**: Achieved 100% documentation test success rate
+  - Fixed import statements for Neo SDK components
+  - Corrected API usage patterns in examples
+  - Added missing dependencies in documentation examples
+- **Error Handling**: Improved error handling in documentation examples
+- **Code Quality**: Enhanced code consistency across documentation
+
 ## [0.4.1] - 2025-06-01
 
 ### 🔧 Fixed

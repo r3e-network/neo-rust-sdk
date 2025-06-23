@@ -34,7 +34,7 @@ Add NeoRust to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-neo3 = "0.4.1"
+neo3 = "0.4.2"
 ```
 
 ### Basic Usage
@@ -69,7 +69,7 @@ Customize your installation with feature flags:
 
 ```toml
 [dependencies]
-neo3 = { version = "0.4.1", features = ["futures", "ledger", "aws"] }
+neo3 = { version = "0.4.2", features = ["futures", "ledger", "aws"] }
 ```
 
 **Available Features:**
