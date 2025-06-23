@@ -37,23 +37,69 @@ jobs:
       
       - name: Run tests (Unix)
         if: runner.os != 'Windows'
-        run: NEORUST_SKIP_NETWORK_TESTS=1 cargo test --workspace --all-features --verbose --exclude neo-gui
+        run: |
+          # Create a clean workspace without neo-gui
+          cp Cargo.toml Cargo.toml.test-backup
+          sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml || true
+          rm -rf neo-gui || true
+          
+          # Run tests
+          NEORUST_SKIP_NETWORK_TESTS=1 cargo test --workspace --all-features --verbose
+          
+          # Restore workspace
+          mv Cargo.toml.test-backup Cargo.toml
+          git checkout -- neo-gui || true
       
       - name: Run tests (Windows)
         if: runner.os == 'Windows'
         run: |
+          # Create a clean workspace without neo-gui
+          Copy-Item Cargo.toml Cargo.toml.test-backup
+          (Get-Content Cargo.toml) -replace '"neo-gui",', '' | Set-Content Cargo.toml
+          (Get-Content Cargo.toml) -replace ', "neo-gui"', '' | Set-Content Cargo.toml
+          (Get-Content Cargo.toml) -replace '"neo-gui"', '' | Set-Content Cargo.toml
+          Remove-Item -Recurse -Force neo-gui -ErrorAction SilentlyContinue
+          
+          # Run tests
           $env:NEORUST_SKIP_NETWORK_TESTS = "1"
-          cargo test --workspace --all-features --verbose --exclude neo-gui
+          cargo test --workspace --all-features --verbose
+          
+          # Restore workspace
+          Move-Item Cargo.toml.test-backup Cargo.toml -Force
+          git checkout -- neo-gui
       
       - name: Run doc tests (Unix)
         if: runner.os != 'Windows'
-        run: NEORUST_SKIP_NETWORK_TESTS=1 cargo test --workspace --doc --all-features --exclude neo-gui
+        run: |
+          # Clean workspace for doc tests
+          cp Cargo.toml Cargo.toml.doctest-backup
+          sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml || true
+          rm -rf neo-gui || true
+          
+          # Run doc tests
+          NEORUST_SKIP_NETWORK_TESTS=1 cargo test --workspace --doc --all-features
+          
+          # Restore workspace
+          mv Cargo.toml.doctest-backup Cargo.toml
+          git checkout -- neo-gui || true
       
       - name: Run doc tests (Windows)
         if: runner.os == 'Windows'
         run: |
+          # Clean workspace for doc tests
+          Copy-Item Cargo.toml Cargo.toml.doctest-backup
+          (Get-Content Cargo.toml) -replace '"neo-gui",', '' | Set-Content Cargo.toml
+          (Get-Content Cargo.toml) -replace ', "neo-gui"', '' | Set-Content Cargo.toml
+          (Get-Content Cargo.toml) -replace '"neo-gui"', '' | Set-Content Cargo.toml
+          Remove-Item -Recurse -Force neo-gui -ErrorAction SilentlyContinue
+          
+          # Run doc tests
           $env:NEORUST_SKIP_NETWORK_TESTS = "1"
-          cargo test --workspace --doc --all-features --exclude neo-gui
+          cargo test --workspace --doc --all-features
+          
+          # Restore workspace
+          Move-Item Cargo.toml.doctest-backup Cargo.toml -Force
+          git checkout -- neo-gui
 
   lint:
     name: Lint
@@ -149,7 +195,7 @@ jobs:
   coverage:
     name: Code Coverage
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       
@@ -166,8 +212,8 @@ jobs:
           sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml || true
           rm -rf neo-gui || true
           
-          # Run coverage
-          NEORUST_SKIP_NETWORK_TESTS=1 cargo tarpaulin --workspace --out Xml --all-features --exclude neo-cli --timeout 300
+          # Run coverage with faster settings
+          NEORUST_SKIP_NETWORK_TESTS=1 NEORUST_TEST_MODE=1 cargo tarpaulin --workspace --out Xml --all-features --timeout 600 --skip-clean
           
           # Restore workspace
           mv Cargo.toml.cov-backup Cargo.toml

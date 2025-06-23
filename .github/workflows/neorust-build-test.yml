@@ -42,7 +42,8 @@ jobs:
           . -> target
           neo-gui -> target
     
-    - name: Check Rust formatting
+    - name: Check Rust formatting (Unix)
+      if: runner.os != 'Windows'
       run: |
         # Create a clean workspace without neo-gui to prevent dependency resolution issues
         cp Cargo.toml Cargo.toml.fmt-backup
@@ -55,8 +56,26 @@ jobs:
         # Restore workspace for subsequent steps
         mv Cargo.toml.fmt-backup Cargo.toml
         git checkout -- neo-gui || true
+        
+    - name: Check Rust formatting (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        # Create a clean workspace without neo-gui to prevent dependency resolution issues
+        Copy-Item Cargo.toml Cargo.toml.fmt-backup
+        (Get-Content Cargo.toml) -replace '"neo-gui",', '' | Set-Content Cargo.toml
+        (Get-Content Cargo.toml) -replace ', "neo-gui"', '' | Set-Content Cargo.toml
+        (Get-Content Cargo.toml) -replace '"neo-gui"', '' | Set-Content Cargo.toml
+        Remove-Item -Recurse -Force neo-gui -ErrorAction SilentlyContinue
+        
+        # Run format check on the cleaned workspace
+        cargo fmt --all -- --check
+        
+        # Restore workspace for subsequent steps
+        Move-Item Cargo.toml.fmt-backup Cargo.toml -Force
+        git checkout -- neo-gui
       
-    - name: Run Clippy
+    - name: Run Clippy (Unix)
+      if: runner.os != 'Windows'
       run: |
         # Create a clean workspace without neo-gui to prevent dependency resolution issues
         cp Cargo.toml Cargo.toml.clippy-backup
@@ -69,6 +88,23 @@ jobs:
         # Restore workspace for subsequent steps
         mv Cargo.toml.clippy-backup Cargo.toml
         git checkout -- neo-gui || true
+        
+    - name: Run Clippy (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        # Create a clean workspace without neo-gui to prevent dependency resolution issues
+        Copy-Item Cargo.toml Cargo.toml.clippy-backup
+        (Get-Content Cargo.toml) -replace '"neo-gui",', '' | Set-Content Cargo.toml
+        (Get-Content Cargo.toml) -replace ', "neo-gui"', '' | Set-Content Cargo.toml
+        (Get-Content Cargo.toml) -replace '"neo-gui"', '' | Set-Content Cargo.toml
+        Remove-Item -Recurse -Force neo-gui -ErrorAction SilentlyContinue
+        
+        # Run clippy on the cleaned workspace
+        cargo clippy --workspace --all-targets --all-features -- -D warnings
+        
+        # Restore workspace for subsequent steps
+        Move-Item Cargo.toml.clippy-backup Cargo.toml -Force
+        git checkout -- neo-gui
       
     - name: Run Rust tests (Unix)
       if: runner.os != 'Windows'
