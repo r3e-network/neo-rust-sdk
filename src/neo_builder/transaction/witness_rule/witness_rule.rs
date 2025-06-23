@@ -54,7 +54,7 @@ mod tests {
 		crypto::Secp256r1PublicKey,
 		neo_types::ScriptHashExtension,
 	};
-	
+
 	#[test]
 	fn test_decode_boolean_condition() {
 		let json = r#"{"action": "Allow","condition": {"type": "Boolean","expression": "false"}}"#;
