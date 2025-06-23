@@ -56,7 +56,7 @@
 //! ### Working with stack items
 //!
 //! ```rust
-//! use neo3::prelude::*;
+//! use neo3::neo_types::StackItem;
 //! use serde_json::json;
 //!
 //! // Create stack items of various types

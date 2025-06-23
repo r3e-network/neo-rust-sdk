@@ -28,12 +28,12 @@
 //! ### Connecting to a Neo N3 node using HTTP
 //!
 //! ```rust
-//! use neo3::prelude::*;
+//! use neo3::neo_clients::{HttpProvider, RpcClient};
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     // Create an HTTP provider connected to a Neo N3 TestNet node
-//!     let provider = HttpProvider::new("https://testnet1.neo.org:443");
+//!     let provider = HttpProvider::new("https://testnet1.neo.org:443")?;
 //!     
 //!     // Create an RPC client with the provider
 //!     let client = RpcClient::new(provider);
@@ -53,23 +53,22 @@
 //! ### Using WebSocket for real-time updates
 //!
 //! ```rust
-//! use neo3::prelude::*;
+//! # #[cfg(feature = "ws")]
+//! use neo3::neo_clients::{Ws, RpcClient};
 //!
+//! # #[cfg(feature = "ws")]
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     // Connect to a Neo N3 node using WebSocket
-//!     let ws = WebSocketProvider::connect("wss://testnet1.neo.org:4443/ws").await?;
+//!     let ws = Ws::connect("wss://testnet1.neo.org:4443/ws").await?;
 //!     let client = RpcClient::new(ws);
 //!     
-//!     // Subscribe to new blocks
-//!     let mut block_subscription = client.subscribe_to_new_blocks().await?;
+//!     // Get basic blockchain information over WebSocket
+//!     let block_count = client.get_block_count().await?;
+//!     println!("Current block count: {}", block_count);
 //!     
-//!     // Process the first 5 new blocks
-//!     for _ in 0..5 {
-//!         if let Some(block) = block_subscription.next().await {
-//!             println!("New block: {}", block.hash);
-//!         }
-//!     }
+//!     let version = client.get_version().await?;
+//!     println!("Node version: {}", version.user_agent);
 //!     
 //!     Ok(())
 //! }

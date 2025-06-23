@@ -35,18 +35,18 @@ pub trait RetryPolicy<E>: Send + Sync + Debug {
 /// # Example
 ///
 /// ```
-/// #  use neo_rs::prelude::{Http, HttpRateLimitRetryPolicy, RetryClientBuilder};
-///  async fn demo() {
+/// use neo3::neo_clients::{HttpProvider, HttpRateLimitRetryPolicy, RetryClientBuilder};
 /// use std::time::Duration;
 /// use url::Url;
 ///
-/// let http = Http::new(Url::parse("http://localhost:8545").unwrap());
-/// let client = RetryClientBuilder::default()
-///     .rate_limit_retries(10)
-///     .timeout_retries(3)
-///     .initial_backoff(Duration::from_millis(500))
-///     .build(http, Box::new(HttpRateLimitRetryPolicy::default()));
-/// # }
+/// async fn demo() {
+///     let http = HttpProvider::new(Url::parse("http://localhost:8545").unwrap()).unwrap();
+///     let client = RetryClientBuilder::default()
+///         .rate_limit_retries(10)
+///         .timeout_retries(3)
+///         .initial_backoff(Duration::from_millis(500))
+///         .build(http, Box::new(HttpRateLimitRetryPolicy::default()));
+/// }
 /// ```
 #[derive(Debug)]
 pub struct RetryClient<T>
@@ -78,18 +78,16 @@ where
 	/// # Example
 	///
 	/// ```
-	///
-	/// # use NeoRust::prelude::{Http, HttpRateLimitRetryPolicy, RetryClient};
-	///  async fn demo() {
+	/// use neo3::neo_clients::{HttpProvider, HttpRateLimitRetryPolicy, RetryClient};
 	/// use std::time::Duration;
 	/// use url::Url;
 	///
-	/// let http = Http::new(Url::parse("http://localhost:8545").unwrap());
-	/// let backoff_timeout = 3000; // in ms
-	/// let max_retries = 10;
-	/// let client = RetryClient::new(http, Box::new(HttpRateLimitRetryPolicy::default()), max_retries, backoff_timeout);
-	///
-	/// # }
+	/// async fn demo() {
+	///     let http = HttpProvider::new(Url::parse("http://localhost:8545").unwrap()).unwrap();
+	///     let backoff_timeout = 3000; // in ms
+	///     let max_retries = 10;
+	///     let client = RetryClient::new(http, Box::new(HttpRateLimitRetryPolicy::default()), max_retries, backoff_timeout);
+	/// }
 	/// ```
 	pub fn new(
 		inner: T,

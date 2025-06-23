@@ -4,7 +4,6 @@ use crate::{
 	builder::{TransactionError, WitnessAction, WitnessCondition},
 	codec::{Decoder, Encoder, NeoSerializable},
 };
-use neo3::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Clone)]
 pub struct WitnessRule {
@@ -53,9 +52,9 @@ mod tests {
 		codec::{Encoder, NeoSerializable},
 		config::TestConstants,
 		crypto::Secp256r1PublicKey,
+		neo_types::ScriptHashExtension,
 	};
-	use neo3::prelude::*;
-
+	
 	#[test]
 	fn test_decode_boolean_condition() {
 		let json = r#"{"action": "Allow","condition": {"type": "Boolean","expression": "false"}}"#;
@@ -161,7 +160,7 @@ mod tests {
 	fn test_called_by_group_condition_serialize_deserialize() {
 		let key: &str = TestConstants::DEFAULT_ACCOUNT_PUBLIC_KEY;
 		let condition =
-			WitnessCondition::CalledByGroup(Secp256r1PublicKey::from_encoded(&key).unwrap());
+			WitnessCondition::CalledByGroup(Secp256r1PublicKey::from_encoded(key).unwrap());
 
 		let bytes = hex::decode(format!("29{}", key)).unwrap();
 

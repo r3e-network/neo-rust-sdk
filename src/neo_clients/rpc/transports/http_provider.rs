@@ -22,15 +22,14 @@ use neo3::config::NeoConstants;
 /// # Example
 ///
 /// ```no_run
-/// use std::str::FromStr;
+/// use neo3::neo_clients::{HttpProvider, RpcClient, APITrait};
+/// use neo3::neo_config::NeoConstants;
 /// use primitive_types::H256;
-/// use NeoRust::prelude::{Http, JsonRpcClient, Middleware, NeoConstants, Provider};
 ///
 /// # async fn foo() -> Result<(), Box<dyn std::error::Error>> {
-/// let provider = Provider::<Http>::try_from(
-///     NeoConstants::SEED_1
-/// ).expect("could not instantiate HTTP Provider");
-/// let block_number = provider.get_block(H256::zero(), false).await?;
+/// let provider = HttpProvider::new(NeoConstants::SEED_1)?;
+/// let client = RpcClient::new(provider);
+/// let block = client.get_block(H256::zero(), false).await?;
 /// # Ok(())
 /// # }
 /// ```
@@ -128,7 +127,8 @@ impl HttpProvider {
 	/// # Example
 	///
 	/// ```
-	/// use NeoRust::prelude::Http;
+	/// use neo3::neo_clients::HttpProvider;
+	/// use url::Url;
 	///
 	/// // Using a string
 	/// let provider = HttpProvider::new("http://localhost:8545")?;
@@ -137,9 +137,9 @@ impl HttpProvider {
 	/// let provider = HttpProvider::new("http://localhost:8545")?;
 	///
 	/// // Using a Url
-	/// use url::Url;
 	/// let url = Url::parse("http://localhost:8545").unwrap();
 	/// let provider = HttpProvider::new(url)?;
+	/// # Ok::<(), Box<dyn std::error::Error>>(())
 	/// ```
 	pub fn new<T: TryInto<Url>>(url: T) -> Result<Self, T::Error> {
 		let url = url.try_into()?;
@@ -161,11 +161,12 @@ impl HttpProvider {
 	/// # Example
 	///
 	/// ```
+	/// use neo3::neo_clients::{HttpProvider, Authorization};
 	/// use url::Url;
-	/// use NeoRust::prelude::Http;
 	///
 	/// let url = Url::parse("http://localhost:8545").unwrap();
-	/// let provider = Http::new_with_auth(url, Authorization::basic("admin", "good_password"));
+	/// let provider = HttpProvider::new_with_auth(url, Authorization::basic("admin", "good_password"))?;
+	/// # Ok::<(), Box<dyn std::error::Error>>(())
 	/// ```
 	pub fn new_with_auth(
 		url: impl Into<Url>,
@@ -187,12 +188,12 @@ impl HttpProvider {
 	/// # Example
 	///
 	/// ```
+	/// use neo3::neo_clients::HttpProvider;
 	/// use url::Url;
-	/// use NeoRust::prelude::Http;
 	///
 	/// let url = Url::parse("http://localhost:8545").unwrap();
 	/// let client = reqwest::Client::builder().build().unwrap();
-	/// let provider = Http::new_with_client(url, client);
+	/// let provider = HttpProvider::new_with_client(url, client);
 	/// ```
 	pub fn new_with_client(url: impl Into<Url>, client: reqwest::Client) -> Self {
 		Self { id: AtomicU64::new(1), client, url: url.into() }

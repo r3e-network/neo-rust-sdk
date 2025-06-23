@@ -15,17 +15,22 @@
 //!
 //! 1. Import the necessary types:
 //!    ```rust
-//!    use NeoRust::neo_builder::transaction::signers::{AccountSigner, ContractSigner, TransactionSigner, Signer};
+//!    use neo3::neo_builder::{AccountSigner, ContractSigner, TransactionSigner, Signer};
 //!    ```
 //!
 //! 2. Create a signer based on your needs:
 //!    ```rust
+//!    use neo3::neo_protocol::{Account, AccountTrait};
+//!    use neo3::neo_builder::{AccountSigner, ContractSigner, TransactionSigner, WitnessScope};
+//!    use neo3::prelude::H160;
+//!    use std::str::FromStr;
+//!
 //!    // For an account-based signer
-//!    let account = Account::from_wif("your_wif_here").unwrap();
+//!    let account = Account::from_wif("KxDgvEKzgSBPPfuVfw67oPQBSjidEiqTHURKSDL1R7yGaGYAeYnr").unwrap();
 //!    let account_signer = AccountSigner::called_by_entry(&account).unwrap();
 //!
 //!    // For a contract-based signer
-//!    let contract_hash = H160::from_str("your_contract_hash_here").unwrap();
+//!    let contract_hash = H160::from_str("0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5").unwrap();
 //!    let contract_signer = ContractSigner::called_by_entry(contract_hash, &[]);
 //!
 //!    // For a transaction-specific signer
@@ -34,14 +39,25 @@
 //!
 //! 3. Use the signer in your transaction:
 //!    ```rust
-//!    let mut tx_builder = TransactionBuilder::new();
-//!    tx_builder.add_signer(account_signer);
+//!    # use neo3::neo_builder::{TransactionBuilder, AccountSigner};
+//!    # use neo3::neo_protocol::{Account, AccountTrait};
+//!    # let account = Account::from_wif("KxDgvEKzgSBPPfuVfw67oPQBSjidEiqTHURKSDL1R7yGaGYAeYnr").unwrap();
+//!    # let account_signer = AccountSigner::called_by_entry(&account).unwrap();
+//!    # use neo3::neo_clients::HttpProvider;
+//!    let mut tx_builder: TransactionBuilder<'_, HttpProvider> = TransactionBuilder::default();
+//!    tx_builder.set_signers(vec![account_signer.into()]);
 //!    // ... add other transaction details ...
-//!    let tx = tx_builder.build().unwrap();
+//!    # async {
+//!    let tx = tx_builder.build().await.unwrap();
+//!    # };
 //!    ```
 //!
 //! 4. You can also convert between signer types using the `Signer` enum:
 //!    ```rust
+//!    # use neo3::neo_builder::{Signer, AccountSigner};
+//!    # use neo3::neo_protocol::{Account, AccountTrait};
+//!    # let account = Account::from_wif("KxDgvEKzgSBPPfuVfw67oPQBSjidEiqTHURKSDL1R7yGaGYAeYnr").unwrap();
+//!    # let account_signer = AccountSigner::called_by_entry(&account).unwrap();
 //!    let generic_signer: Signer = account_signer.into();
 //!    ```
 //!

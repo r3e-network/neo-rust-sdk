@@ -45,9 +45,9 @@
 //! ### Working with Standard Contracts
 //!
 //! ```no_run
-//! use neo3::prelude::*;
 //! use neo3::neo_contract::{NeoToken, GasToken, PolicyContract};
-//! use neo3::neo_protocol::account::Account;
+//! use neo3::neo_protocol::Account;
+//! use neo3::neo_clients::{HttpProvider, RpcClient};
 //! use std::str::FromStr;
 //!
 //! async fn contract_examples() -> Result<(), Box<dyn std::error::Error>> {
@@ -131,10 +131,10 @@
 //! ### Deploying a Smart Contract
 //!
 //! ```no_run
-//! use neo3::prelude::*;
 //! use neo3::neo_contract::{ContractManagement, ContractState};
-//! use neo3::neo_protocol::account::Account;
+//! use neo3::neo_protocol::Account;
 //! use neo3::neo_types::{ContractManifest, NefFile};
+//! use neo3::neo_clients::{HttpProvider, RpcClient};
 //! use std::fs;
 //!
 //! async fn deploy_contract_example() -> Result<(), Box<dyn std::error::Error>> {

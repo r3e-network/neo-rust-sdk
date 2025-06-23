@@ -17,11 +17,12 @@
 //! ## Examples
 //!
 //! ```rust
-//! use neo3::prelude::*;
+//! use neo3::neo_error::NeoError;
 //!
 //! // Error handling with specific error types
 //! fn example() -> Result<(), NeoError> {
 //!     // Create and return a specific error
+//!     let some_condition = true;
 //!     if some_condition {
 //!         return Err(NeoError::InvalidFormat);
 //!     }

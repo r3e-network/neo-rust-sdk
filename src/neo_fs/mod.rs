@@ -29,11 +29,10 @@
 //! ## Example
 //!
 //! ```no_run
-//! use neo3::prelude::*;
 //! use neo3::neo_fs::{NeoFSClient, NeoFSConfig};
 //! use neo3::neo_fs::container::{Container, ContainerId};
 //! use neo3::neo_fs::object::{Object, ObjectId};
-//! use neo3::neo_protocol::account::Account;
+//! use neo3::neo_protocol::Account;
 //! use std::path::Path;
 //!
 //! async fn example() -> Result<(), Box<dyn std::error::Error>> {

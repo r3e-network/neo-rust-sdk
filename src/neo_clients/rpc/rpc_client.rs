@@ -72,18 +72,17 @@ impl FromStr for NeoClient {
 /// # Example
 ///
 /// ```no_run
-///  use neo_rs::prelude::{Http, Middleware, NeoConstants, Provider};
-///  async fn foo() -> Result<(), Box<dyn std::error::Error>> {
-/// use std::convert::TryFrom;
+/// use neo3::neo_clients::{HttpProvider, RpcClient, APITrait};
+/// use neo3::neo_config::NeoConstants;
 ///
-/// let provider = Provider::<Http>::try_from(
-///     NeoConstants::SEED_1
-/// ).expect("could not instantiate HTTP Provider");
+/// async fn foo() -> Result<(), Box<dyn std::error::Error>> {
+///     let provider = HttpProvider::new(NeoConstants::SEED_1)?;
+///     let client = RpcClient::new(provider);
 ///
-/// let block = provider.get_block_by_index(100u32, false).await?;
-/// println!("Got block: {}", serde_json::to_string(&block)?);
-/// # Ok(())
-/// # }
+///     let block = client.get_block_by_index(100u32, false).await?;
+///     println!("Got block: {}", serde_json::to_string(&block)?);
+///     Ok(())
+/// }
 /// ```
 #[derive(Clone, Debug, Getters)]
 pub struct RpcClient<P> {

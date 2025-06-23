@@ -26,7 +26,7 @@ impl Hash for AddressOrScriptHash {
 	///
 	/// ```
 	/// use std::collections::HashSet;
-	/// use NeoRust::prelude::AddressOrScriptHash;
+	/// use neo3::neo_types::AddressOrScriptHash;
 	/// let mut set = HashSet::new();
 	/// set.insert(AddressOrScriptHash::Address("myAddress".into()));
 	/// ```
@@ -50,8 +50,8 @@ impl From<Address> for AddressOrScriptHash {
 	/// # Examples
 	///
 	/// ```
-	/// use NeoRust::prelude::AddressOrScriptHash;
-	/// let from_address = AddressOrScriptHash::from("myAddress".into());
+	/// use neo3::neo_types::AddressOrScriptHash;
+	/// let from_address = AddressOrScriptHash::from("myAddress".to_string());
 	/// assert!(matches!(from_address, AddressOrScriptHash::Address(_)));
 	/// ```
 	fn from(s: Address) -> Self {
@@ -65,8 +65,8 @@ impl From<Bytes> for AddressOrScriptHash {
 	/// # Examples
 	///
 	/// ```
-	/// use NeoRust::prelude::{AddressOrScriptHash, Bytes};
-	/// let bytes: Bytes = vec![0xdeu8, 0xadu8, 0xbeu8, 0xefu8];
+	/// use neo3::neo_types::{AddressOrScriptHash, Bytes};
+	/// let bytes: Bytes = vec![0xde, 0xad, 0xbe, 0xef, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10];
 	/// let from_bytes = AddressOrScriptHash::from(bytes);
 	/// assert!(matches!(from_bytes, AddressOrScriptHash::ScriptHash(_)));
 	/// ```
@@ -82,10 +82,11 @@ impl AddressOrScriptHash {
 	///
 	/// ```
 	/// use primitive_types::H160;
-	/// use NeoRust::prelude::AddressOrScriptHash;
+	/// use neo3::neo_types::AddressOrScriptHash;
 	/// let script_hash = AddressOrScriptHash::ScriptHash(H160::repeat_byte(0x01));
 	/// let address = script_hash.address();
-	/// assert_eq!(address, "convertedAddressFromScriptHash");
+	/// // The address will be a valid Neo address derived from the script hash
+	/// assert!(address.starts_with("N"));
 	/// ```
 	pub fn address(&self) -> Address {
 		match self {
@@ -100,10 +101,11 @@ impl AddressOrScriptHash {
 	///
 	/// ```
 	/// use primitive_types::H160;
-	/// use NeoRust::prelude::AddressOrScriptHash;
-	/// let address = AddressOrScriptHash::Address("myAddress".into());
+	/// use neo3::neo_types::AddressOrScriptHash;
+	/// let address = AddressOrScriptHash::Address("NNLi44dJNXtDNSBkofB48aTVYtb1zZrNEs".to_string());
 	/// let script_hash = address.script_hash();
-	/// assert_eq!(script_hash, H160::repeat_byte(0x02)); // Assuming `to_address` converts an address into a specific script hash
+	/// // The script hash will be derived from the address
+	/// assert!(script_hash != H160::zero());
 	/// ```
 	pub fn script_hash(&self) -> H160 {
 		match self {

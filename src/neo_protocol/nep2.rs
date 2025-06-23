@@ -17,10 +17,10 @@
 //! ### Basic Usage
 //!
 //! ```
-//! use NeoRust::prelude::{KeyPair, NEP2};
+//! use neo3::prelude::*;
+//! use neo3::neo_crypto::{KeyPair, Secp256r1PrivateKey};
+//! use neo3::neo_protocol::NEP2;
 //! use p256::elliptic_curve::rand_core::OsRng;
-//! use scrypt::Params;
-//! use NeoRust::prelude::Secp256r1PrivateKey;
 //!
 //! // Generate a key pair
 //! let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::random(&mut OsRng));
@@ -35,10 +35,11 @@
 //! ### Advanced Usage with Custom Parameters
 //!
 //! ```
-//! use NeoRust::prelude::{KeyPair, NEP2};
+//! use neo3::prelude::*;
+//! use neo3::neo_crypto::{KeyPair, Secp256r1PrivateKey};
+//! use neo3::neo_protocol::NEP2;
 //! use p256::elliptic_curve::rand_core::OsRng;
 //! use scrypt::Params;
-//! use NeoRust::prelude::Secp256r1PrivateKey;
 //!
 //! // Generate a key pair
 //! let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::random(&mut OsRng));
@@ -100,9 +101,10 @@ impl NEP2 {
 	/// # Example
 	///
 	/// ```
-	/// use NeoRust::prelude::{KeyPair, NEP2};
+	/// use neo3::prelude::*;
+	/// use neo3::neo_crypto::{KeyPair, Secp256r1PrivateKey};
+	/// use neo3::neo_protocol::NEP2;
 	/// use p256::elliptic_curve::rand_core::OsRng;
-	/// use NeoRust::prelude::Secp256r1PrivateKey;
 	///
 	/// // Generate a key pair
 	/// let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::random(&mut OsRng));
@@ -131,10 +133,11 @@ impl NEP2 {
 	/// # Example
 	///
 	/// ```
-	/// use NeoRust::prelude::{KeyPair, NEP2};
+	/// use neo3::prelude::*;
+	/// use neo3::neo_crypto::{KeyPair, Secp256r1PrivateKey};
+	/// use neo3::neo_protocol::NEP2;
 	/// use p256::elliptic_curve::rand_core::OsRng;
 	/// use scrypt::Params;
-	/// use NeoRust::prelude::Secp256r1PrivateKey;
 	///
 	/// // Generate a key pair
 	/// let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::random(&mut OsRng));
@@ -206,11 +209,17 @@ impl NEP2 {
 	/// # Example
 	///
 	/// ```
-	/// use NeoRust::prelude::{NEP2};
+	/// use neo3::prelude::*;
+	/// use neo3::neo_crypto::{KeyPair, Secp256r1PrivateKey};
+	/// use neo3::neo_protocol::NEP2;
+	/// use p256::elliptic_curve::rand_core::OsRng;
 	///
-	/// // Decrypt a NEP2 string
-	/// let encrypted = "6PYLtMnXvfG3oJde97zRyLYFZCYizPU5T3LwgdYJz1fRhh16bU7u6PPmY7";
-	/// let decrypted = NEP2::decrypt("TestingOneTwoThree", encrypted).expect("Decryption failed");
+	/// // First encrypt a key pair
+	/// let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::random(&mut OsRng));
+	/// let encrypted = NEP2::encrypt("my-password", &key_pair).expect("Encryption failed");
+	///
+	/// // Then decrypt it back
+	/// let decrypted = NEP2::decrypt("my-password", &encrypted).expect("Decryption failed");
 	/// ```
 	pub fn decrypt(password: &str, nep2: &str) -> Result<KeyPair, Nep2Error> {
 		// Use standard NEO parameters
@@ -233,15 +242,20 @@ impl NEP2 {
 	/// # Example
 	///
 	/// ```
-	/// use NeoRust::prelude::{NEP2};
+	/// use neo3::prelude::*;
+	/// use neo3::neo_crypto::{KeyPair, Secp256r1PrivateKey};
+	/// use neo3::neo_protocol::NEP2;
+	/// use p256::elliptic_curve::rand_core::OsRng;
 	/// use scrypt::Params;
 	///
-	/// // Custom scrypt parameters (must match those used for encryption)
+	/// // First encrypt a key pair with custom parameters
+	/// let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::random(&mut OsRng));
 	/// let params = Params::new(15, 8, 8, 32).unwrap();
+	/// let encrypted = NEP2::encrypt_with_params("my-password", &key_pair, params.clone())
+	///     .expect("Encryption failed");
 	///
-	/// // Decrypt with custom parameters
-	/// let encrypted = "6PYLtMnXvfG3oJde97zRyLYFZCYizPU5T3LwgdYJz1fRhh16bU7u6PPmY7";
-	/// let decrypted = NEP2::decrypt_with_params("TestingOneTwoThree", encrypted, params)
+	/// // Then decrypt with the same parameters
+	/// let decrypted = NEP2::decrypt_with_params("my-password", &encrypted, params)
 	///     .expect("Decryption failed");
 	/// ```
 	pub fn decrypt_with_params(

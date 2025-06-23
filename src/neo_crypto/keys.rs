@@ -33,7 +33,7 @@
 //!
 //! ```
 //! use rand_core::OsRng;
-//! use NeoRust::prelude::Secp256r1PrivateKey;
+//! use neo3::neo_crypto::Secp256r1PrivateKey;
 //!
 //! // Generate a new private key
 //! let private_key = Secp256r1PrivateKey::random(&mut OsRng);

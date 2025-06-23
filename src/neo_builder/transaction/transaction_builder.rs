@@ -22,7 +22,7 @@ use ethereum_types::H256;
 /// # Example
 ///
 /// ```rust
-/// use NeoRust::prelude::TransactionBuilder;
+/// use neo3::neo_builder::TransactionBuilder;
 ///
 /// let mut tx_builder = TransactionBuilder::new();
 /// tx_builder.version(0)
@@ -197,9 +197,10 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	/// # Examples
 	///
 	/// ```rust
-	/// use neo3::prelude::*;
+	/// use neo3::neo_builder::TransactionBuilder;
+	/// use neo3::neo_clients::HttpProvider;
 	///
-	/// let tx_builder = TransactionBuilder::new();
+	/// let tx_builder: TransactionBuilder<'_, HttpProvider> = TransactionBuilder::default();
 	/// ```
 	pub fn new() -> Self {
 		Self {
@@ -230,7 +231,8 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	/// # Examples
 	///
 	/// ```rust
-	/// use neo3::prelude::*;
+	/// use neo3::neo_builder::TransactionBuilder;
+	/// use neo3::neo_clients::{HttpProvider, RpcClient};
 	///
 	/// let provider = HttpProvider::new("https://testnet1.neo.org:443");
 	/// let client = RpcClient::new(provider);
@@ -265,7 +267,7 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	/// # Examples
 	///
 	/// ```rust
-	/// use neo3::prelude::*;
+	/// use neo3::neo_builder::TransactionBuilder;
 	///
 	/// let mut tx_builder = TransactionBuilder::new();
 	/// tx_builder.version(0);
@@ -291,7 +293,7 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	/// # Examples
 	///
 	/// ```rust
-	/// use neo3::prelude::*;
+	/// use neo3::neo_builder::TransactionBuilder;
 	///
 	/// let mut tx_builder = TransactionBuilder::new();
 	/// tx_builder.nonce(1234567890).unwrap();
@@ -320,7 +322,8 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	/// # Examples
 	///
 	/// ```rust
-	/// use neo3::prelude::*;
+	/// use neo3::neo_builder::TransactionBuilder;
+	/// use neo3::neo_clients::{HttpProvider, RpcClient};
 	///
 	/// #[tokio::main]
 	/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -399,7 +402,8 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	/// # Examples
 	///
 	/// ```rust
-	/// use neo3::prelude::*;
+	/// use neo3::neo_builder::TransactionBuilder;
+	/// use neo3::neo_clients::{HttpProvider, RpcClient};
 	///
 	/// #[tokio::main]
 	/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -759,7 +763,10 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	/// # Examples
 	///
 	/// ```rust
-	/// use neo3::prelude::*;
+	/// use neo3::neo_builder::{TransactionBuilder, ScriptBuilder};
+	/// use neo3::neo_clients::{HttpProvider, RpcClient};
+	/// use neo3::neo_protocol::Account;
+	/// use neo3::neo_types::ContractParameter;
 	/// use std::str::FromStr;
 	///
 	/// #[tokio::main]
@@ -882,12 +889,15 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	/// # Examples
 	///
 	/// ```rust
-	/// use neo3::prelude::*;
+	/// use neo3::neo_builder::{TransactionBuilder, Signer, AccountSigner};
+	/// use neo3::neo_protocol::{Account, AccountTrait};
 	///
 	/// let account = Account::create().unwrap();
-	/// let signer: Signer = account.into();
+	/// let account_signer = AccountSigner::called_by_entry(&account).unwrap();
+	/// let signer: Signer = account_signer.into();
 	///
-	/// let mut tx_builder = TransactionBuilder::new();
+	/// # use neo3::neo_clients::HttpProvider;
+	/// let mut tx_builder: TransactionBuilder<'_, HttpProvider> = TransactionBuilder::default();
 	/// tx_builder.set_signers(vec![signer]).unwrap();
 	/// ```
 	pub fn set_signers(&mut self, signers: Vec<Signer>) -> Result<&mut Self, TransactionError> {
@@ -922,7 +932,7 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	/// # Examples
 	///
 	/// ```rust
-	/// use neo3::prelude::*;
+	/// use neo3::neo_builder::{TransactionBuilder, TransactionAttribute};
 	///
 	/// let mut tx_builder = TransactionBuilder::new();
 	///
@@ -1128,7 +1138,8 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	/// # Examples
 	///
 	/// ```rust
-	/// use neo3::prelude::*;
+	/// use neo3::neo_builder::TransactionBuilder;
+	/// use neo3::neo_clients::{HttpProvider, RpcClient};
 	///
 	/// #[tokio::main]
 	/// async fn main() -> Result<(), Box<dyn std::error::Error>> {

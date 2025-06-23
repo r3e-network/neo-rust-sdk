@@ -44,7 +44,8 @@ use crate::{
 /// # Examples
 ///
 /// ```rust
-/// use neo3::prelude::*;
+/// use neo3::neo_builder::{Transaction, TransactionBuilder};
+/// use neo3::neo_clients::{HttpProvider, RpcClient};
 ///
 /// // Create a new transaction
 /// let tx = Transaction::new();
@@ -281,7 +282,10 @@ impl<'a, T: JsonRpcProvider + 'static> Transaction<'a, T> {
 	/// # Examples
 	///
 	/// ```rust
-	/// use neo3::prelude::*;
+	/// use neo3::neo_builder::{ScriptBuilder, Signer, TransactionBuilder};
+	/// use neo3::neo_clients::{HttpProvider, RpcClient};
+	/// use neo3::neo_protocol::Account;
+	/// use neo3::neo_types::{Address, ContractParameter, ScriptHash};
 	/// use std::str::FromStr;
 	///
 	/// #[tokio::main]
@@ -381,7 +385,10 @@ impl<'a, T: JsonRpcProvider + 'static> Transaction<'a, T> {
 	/// # Examples
 	///
 	/// ```rust
-	/// use neo3::prelude::*;
+	/// use neo3::neo_builder::{ScriptBuilder, Signer, TransactionBuilder};
+	/// use neo3::neo_clients::{HttpProvider, RpcClient};
+	/// use neo3::neo_protocol::Account;
+	/// use neo3::neo_types::{ContractParameter, ScriptHash};
 	/// use std::str::FromStr;
 	///
 	/// #[tokio::main]
@@ -501,7 +508,10 @@ impl<'a, T: JsonRpcProvider + 'static> Transaction<'a, T> {
 	/// # Examples
 	///
 	/// ```rust
-	/// use neo3::prelude::*;
+	/// use neo3::neo_builder::{ScriptBuilder, Signer, TransactionBuilder};
+	/// use neo3::neo_clients::{HttpProvider, RpcClient};
+	/// use neo3::neo_protocol::Account;
+	/// use neo3::neo_types::{ContractParameter, ScriptHash};
 	/// use std::str::FromStr;
 	///
 	/// #[tokio::main]

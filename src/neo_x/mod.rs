@@ -20,12 +20,13 @@
 //! ### Connecting to Neo X and getting chain information
 //!
 //! ```rust
-//! use neo3::prelude::*;
+//! use neo3::neo_clients::{HttpProvider, RpcClient};
+//! use neo3::neo_x::NeoXProvider;
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     // Connect to Neo N3
-//!     let neo_provider = HttpProvider::new("https://mainnet1.neo.org:443");
+//!     let neo_provider = HttpProvider::new("https://mainnet1.neo.org:443")?;
 //!     let neo_client = RpcClient::new(neo_provider);
 //!     
 //!     // Initialize the Neo X EVM provider
@@ -46,13 +47,14 @@
 //! ### Using the bridge to transfer tokens between Neo N3 and Neo X
 //!
 //! ```rust
-//! use neo3::prelude::*;
+//! use neo3::neo_clients::{HttpProvider, RpcClient};
+//! use neo3::neo_protocol::Account;
 //! use std::str::FromStr;
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     // Connect to Neo N3
-//!     let neo_provider = HttpProvider::new("https://mainnet1.neo.org:443");
+//!     let neo_provider = HttpProvider::new("https://mainnet1.neo.org:443")?;
 //!     let neo_client = RpcClient::new(neo_provider);
 //!     
 //!     // Create an account

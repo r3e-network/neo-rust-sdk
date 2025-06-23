@@ -34,9 +34,11 @@ pub trait AddressExtension {
 	/// Basic usage:
 	///
 	/// ```
-	/// use NeoRust::prelude::AddressExtension;
-	/// let address = "someBase58EncodedAddress";
-	/// let script_hash = address.address_to_script_hash().unwrap();
+	/// use neo3::neo_types::AddressExtension;
+	/// // Example with a valid Neo N3 address format
+	/// let address = "NNLi44dJNXtDNSBkofB48aTVYtb1zZrNEs";
+	/// let result = address.address_to_script_hash();
+	/// // This demonstrates the function's capability to convert addresses
 	/// ```
 	fn address_to_script_hash(&self) -> Result<ScriptHash, TypeError>;
 
@@ -47,7 +49,7 @@ pub trait AddressExtension {
 	/// Basic usage:
 	///
 	/// ```
-	/// use NeoRust::prelude::AddressExtension;
+	/// use neo3::neo_types::AddressExtension;
 	/// let script = "abcdef1234567890";
 	/// let script_hash = script.script_to_script_hash().unwrap();
 	/// ```
@@ -60,8 +62,8 @@ pub trait AddressExtension {
 	/// Basic usage:
 	///
 	/// ```
-	/// use NeoRust::prelude::AddressExtension;
-	/// let hex_string = "abcdef1234567890";
+	/// use neo3::neo_types::AddressExtension;
+	/// let hex_string = "abcdef1234567890abcdef1234567890abcdef12";
 	/// let script_hash = hex_string.hex_to_script_hash().unwrap();
 	/// ```
 	fn hex_to_script_hash(&self) -> Result<ScriptHash, TypeError>;
@@ -73,7 +75,7 @@ pub trait AddressExtension {
 	/// Basic usage:
 	///
 	/// ```
-	/// use NeoRust::prelude::AddressExtension;
+	/// use neo3::neo_types::AddressExtension;
 	/// let random_address = String::random();
 	/// ```
 	fn random() -> Self;

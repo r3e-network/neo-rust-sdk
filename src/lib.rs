@@ -354,7 +354,7 @@
 //!
 //! ## Project Structure
 //!
-//! ```
+//! ```text
 //! NeoRust
 //! ├── examples
 //! │   ├── neo_nodes          - Examples for connecting to Neo nodes

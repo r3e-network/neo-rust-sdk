@@ -9,8 +9,7 @@ use sha2::{Digest, Sha256};
 /// # Example
 ///
 /// ```
-///
-/// use NeoRust::prelude::base58check_encode;
+/// use neo3::neo_crypto::base58check_encode;
 /// let bytes = [0x01, 0x02, 0x03];
 /// let encoded = base58check_encode(&bytes);
 /// ```
@@ -33,8 +32,7 @@ pub fn base58check_encode(bytes: &[u8]) -> String {
 /// # Example
 ///
 /// ```
-///
-/// use NeoRust::prelude::base58check_decode;
+/// use neo3::neo_crypto::base58check_decode;
 /// let input = "Abc123";
 /// let decoded = base58check_decode(input);
 /// ```
@@ -67,8 +65,7 @@ pub fn base58check_decode(input: &str) -> Option<Vec<u8>> {
 /// # Example
 ///
 /// ```
-///
-/// use NeoRust::prelude::calculate_checksum;
+/// use neo3::neo_crypto::calculate_checksum;
 /// let bytes = [0x01, 0x02, 0x03];
 /// let checksum = calculate_checksum(&bytes);
 /// ```

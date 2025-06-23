@@ -14,17 +14,19 @@
 //!
 //! 1. Import the necessary types:
 //!    ```rust
-//!    use neo_builder::transaction::witness_rule::{WitnessAction, WitnessCondition, WitnessRule};
+//!    use neo3::neo_builder::{WitnessAction, WitnessCondition, WitnessRule};
 //!    ```
 //!
 //! 2. Create a witness rule:
 //!    ```rust
+//!    use neo3::neo_builder::{WitnessAction, WitnessCondition, WitnessRule};
+//!    
 //!    let condition = WitnessCondition::CalledByEntry;
 //!    let rule = WitnessRule::new(WitnessAction::Allow, condition);
 //!    ```
 //!
 //! 3. Use the rule in your transaction or smart contract:
-//!    ```
+//!    ```rust,ignore
 //!    let mut tx_builder = TransactionBuilder::new();
 //!    tx_builder.add_witness_rule(rule);
 //!    // ... add other transaction details ...
@@ -33,8 +35,15 @@
 //!
 //! 4. Serialize or deserialize witness rules as needed:
 //!    ```rust
+//!    use neo3::neo_builder::{WitnessAction, WitnessCondition, WitnessRule};
+//!    use neo3::neo_codec::{Decoder, NeoSerializable};
+//!    
+//!    let condition = WitnessCondition::CalledByEntry;
+//!    let rule = WitnessRule::new(WitnessAction::Allow, condition);
+//!    
 //!    let serialized = rule.to_array();
-//!    let deserialized = WitnessRule::from_bytes(&serialized).unwrap();
+//!    let mut decoder = Decoder::new(&serialized);
+//!    let deserialized = WitnessRule::decode(&mut decoder).unwrap();
 //!    ```
 //!
 //! Remember to handle errors and consider the implications of different witness conditions

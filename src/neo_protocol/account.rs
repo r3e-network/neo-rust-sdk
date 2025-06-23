@@ -18,8 +18,7 @@
 //! ```rust
 //! use neo3::prelude::*;
 //! use neo3::neo_protocol::{Account, AccountTrait};
-//! use neo3::neo_crypto::keys::{Secp256r1PrivateKey, Secp256r1PublicKey};
-//! use std::str::FromStr;
+//! use neo3::neo_crypto::Secp256r1PublicKey;
 //!
 //! // Create a new random account
 //! fn create_account_example() -> Result<(), Box<dyn std::error::Error>> {
@@ -37,17 +36,17 @@
 //!     
 //!     // Create an account from a public key (watch-only)
 //!     let public_key_hex = "02f9ec1fd0a98796cf75b586772a4ddd41a0af07a1dbdf86a7238f74fb72503575";
-//!     let public_key = Secp256r1PublicKey::from_hex(public_key_hex)?;
+//!     let public_key = Secp256r1PublicKey::from_encoded(public_key_hex).unwrap();
 //!     let watch_only_account = Account::from_public_key(&public_key)?;
 //!     println!("Watch-only account address: {}", watch_only_account.get_address());
 //!     
 //!     // Create a multi-signature account (2 of 3)
-//!     let pub_key1 = Secp256r1PublicKey::from_hex(
-//!         "02f9ec1fd0a98796cf75b586772a4ddd41a0af07a1dbdf86a7238f74fb72503575")?;
-//!     let pub_key2 = Secp256r1PublicKey::from_hex(
-//!         "03c6aa6e12638b36e88adc1ccdceac4db9929575c3e03576c617c49cce7114a050")?;
-//!     let pub_key3 = Secp256r1PublicKey::from_hex(
-//!         "03b209fd4f53a7170ea4444e0cb0a6bb6a53c2bd016926989cf85f9b0fba17a70c")?;
+//!     let pub_key1 = Secp256r1PublicKey::from_encoded(
+//!         "02f9ec1fd0a98796cf75b586772a4ddd41a0af07a1dbdf86a7238f74fb72503575").unwrap();
+//!     let pub_key2 = Secp256r1PublicKey::from_encoded(
+//!         "03c6aa6e12638b36e88adc1ccdceac4db9929575c3e03576c617c49cce7114a050").unwrap();
+//!     let pub_key3 = Secp256r1PublicKey::from_encoded(
+//!         "03b209fd4f53a7170ea4444e0cb0a6bb6a53c2bd016926989cf85f9b0fba17a70c").unwrap();
 //!     
 //!     let mut pub_keys = vec![pub_key1, pub_key2, pub_key3];
 //!     let multi_sig_account = Account::multi_sig_from_public_keys(&mut pub_keys, 2)?;

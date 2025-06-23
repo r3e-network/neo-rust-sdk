@@ -29,13 +29,18 @@ impl<Read, Write> RwClient<Read, Write> {
 	/// # Example
 	///
 	/// ```no_run
+	/// use neo3::neo_clients::{HttpProvider, RwClient};
 	/// use url::Url;
-	/// use NeoRust::prelude::Http;
-	/// async fn t(){
-	/// let http = Http::new(Url::parse("http://localhost:8545").unwrap());
-	/// let ws = Ws::connect("ws://localhost:8545").await.unwrap();
-	/// let rw = RwClient::new(http, ws);
-	/// # }
+	///
+	/// # #[cfg(feature = "ws")]
+	/// async fn t() -> Result<(), Box<dyn std::error::Error>> {
+	///     let http = HttpProvider::new(Url::parse("http://localhost:8545").unwrap())?;
+	///     # #[cfg(feature = "ws")]
+	///     let ws = neo3::neo_clients::Ws::connect("ws://localhost:8545").await?;
+	///     # #[cfg(feature = "ws")]
+	///     let rw = RwClient::new(http, ws);
+	///     Ok(())
+	/// }
 	/// ```
 	pub fn new(r: Read, w: Write) -> RwClient<Read, Write> {
 		Self { r, w }

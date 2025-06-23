@@ -21,7 +21,7 @@
 //! ### Working with Neo N3 accounts
 //!
 //! ```rust
-//! use neo3::prelude::*;
+//! use neo3::neo_protocol::Account;
 //!
 //! // Create a new account
 //! let account = Account::create().unwrap();
@@ -44,7 +44,8 @@
 //! ### Using NEP-2 password-protected keys
 //!
 //! ```rust
-//! use neo3::prelude::*;
+//! use neo3::neo_crypto::PrivateKey;
+//! use neo3::neo_protocol::nep2::{encrypt_to_nep2, decrypt_from_nep2};
 //!
 //! // Encrypt a private key with a password (NEP-2 format)
 //! let private_key = PrivateKey::from_slice(&[/* 32 bytes */]).unwrap();
