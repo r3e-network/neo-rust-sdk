@@ -11,7 +11,7 @@ use tempfile::TempDir;
 async fn test_complete_wallet_lifecycle() {
 	// Set faster scrypt parameters for testing BEFORE any wallet operations
 	env::set_var("NEORUST_TEST_MODE", "1");
-	
+
 	// Small delay to ensure environment variable is set
 	std::thread::sleep(std::time::Duration::from_millis(10));
 
@@ -79,7 +79,7 @@ async fn test_complete_wallet_lifecycle() {
 
 	assert!(test_wallet.verify_password(new_password), "New password should verify");
 	assert!(!test_wallet.verify_password(password), "Old password should not verify");
-	
+
 	// Clean up test environment variable
 	env::remove_var("NEORUST_TEST_MODE");
 }
@@ -89,7 +89,7 @@ async fn test_complete_wallet_lifecycle() {
 async fn test_wallet_security_edge_cases() {
 	// Set faster scrypt parameters for testing BEFORE any wallet operations
 	env::set_var("NEORUST_TEST_MODE", "1");
-	
+
 	// Small delay to ensure environment variable is set
 	std::thread::sleep(std::time::Duration::from_millis(10));
 
@@ -116,7 +116,7 @@ async fn test_wallet_security_edge_cases() {
 		test_wallet3.verify_password(special_password),
 		"Special character password should work"
 	);
-	
+
 	// Clean up test environment variable
 	env::remove_var("NEORUST_TEST_MODE");
 }
@@ -126,7 +126,7 @@ async fn test_wallet_security_edge_cases() {
 async fn test_large_wallet_performance() {
 	// Set environment variable to enable faster scrypt parameters for testing BEFORE any wallet operations
 	env::set_var("NEORUST_TEST_MODE", "1");
-	
+
 	// Small delay to ensure environment variable is set
 	std::thread::sleep(std::time::Duration::from_millis(10));
 
