@@ -284,17 +284,17 @@ impl<'a, T: JsonRpcProvider + 'static> Transaction<'a, T> {
 	///
 	/// # Examples
 	///
-	/// ```rust
-	/// use neo3::neo_builder::{ScriptBuilder, Signer, TransactionBuilder};
-	/// use neo3::neo_clients::{HttpProvider, RpcClient};
-	/// use neo3::neo_protocol::Account;
-	/// use neo3::neo_types::{Address, ContractParameter, ScriptHash};
+	/// ```rust,no_run
+	/// use neo3::neo_builder::{ScriptBuilder, AccountSigner, TransactionBuilder, CallFlags};
+	/// use neo3::neo_clients::{HttpProvider, RpcClient, APITrait};
+	/// use neo3::neo_protocol::{Account, AccountTrait};
+	/// use neo3::neo_types::{Address, ContractParameter, ScriptHash, AddressExtension};
 	/// use std::str::FromStr;
 	///
 	/// #[tokio::main]
 	/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	///     // Connect to Neo N3 TestNet
-	///     let provider = HttpProvider::new("https://testnet1.neo.org:443");
+	///     let provider = HttpProvider::new("https://testnet1.neo.org:443").unwrap();
 	///     let client = RpcClient::new(provider);
 	///     
 	///     // Load your account from WIF or keystore
@@ -310,27 +310,27 @@ impl<'a, T: JsonRpcProvider + 'static> Transaction<'a, T> {
 	///     let script = script_builder.contract_call(
 	///         &ScriptHash::from_str("d2a4cff31913016155e38e474a2c06d08be276cf")?, // GAS token
 	///         "transfer",
-	///         vec![
-	///             ContractParameter::Hash160(from_address.to_script_hash()),
-	///             ContractParameter::Hash160(Address::from_str(to_address)?.to_script_hash()),
-	///             ContractParameter::Integer(amount),
-	///             ContractParameter::Any(None)
-	///         ]
+	///         &[
+	///             ContractParameter::from(account.get_script_hash()),
+	///             ContractParameter::from(Address::from_str(to_address)?.address_to_script_hash()?),
+	///             ContractParameter::integer(amount),
+	///             ContractParameter::any()
+	///         ],
+	///         Some(CallFlags::All)
 	///     )?;
 	///     
 	///     // Build the transaction with proper fee calculation
-	///     let mut tx_builder = TransactionBuilder::new()
-	///         .script(script)
-	///         .signers(vec![Signer::global(account.get_script_hash())])
-	///         .valid_until_block(client.get_block_count().await? + 2400) // ~1 hour validity
-	///         .with_client(&client);
+	///     let mut tx_builder = TransactionBuilder::with_client(&client);
+	///     tx_builder.extend_script(script.to_bytes());
+	///     let account_signer = AccountSigner::called_by_entry(&account)?;
+	///     tx_builder.set_signers(vec![account_signer.into()])?;
+	///     tx_builder.valid_until_block(client.get_block_count().await? + 2400)?; // ~1 hour validity
 	///     
-	///     let mut transaction = tx_builder.build().await?;
-	///     
-	///     // Sign the transaction
-	///     transaction.sign(&account).await?;
+	///     // Sign the transaction and get signed transaction
+	///     let signed_transaction = tx_builder.sign().await?;
 	///     
 	///     // Send the transaction to the network
+	///     let mut transaction = signed_transaction;
 	///     let response = transaction.send_tx().await?;
 	///     println!("✅ Transaction sent successfully!");
 	///     println!("Transaction ID: {}", response.hash);
@@ -387,17 +387,17 @@ impl<'a, T: JsonRpcProvider + 'static> Transaction<'a, T> {
 	///
 	/// # Examples
 	///
-	/// ```rust
-	/// use neo3::neo_builder::{ScriptBuilder, Signer, TransactionBuilder};
-	/// use neo3::neo_clients::{HttpProvider, RpcClient};
-	/// use neo3::neo_protocol::Account;
+	/// ```rust,no_run
+	/// use neo3::neo_builder::{ScriptBuilder, AccountSigner, TransactionBuilder, CallFlags};
+	/// use neo3::neo_clients::{HttpProvider, RpcClient, APITrait};
+	/// use neo3::neo_protocol::{Account, AccountTrait};
 	/// use neo3::neo_types::{ContractParameter, ScriptHash};
 	/// use std::str::FromStr;
 	///
 	/// #[tokio::main]
 	/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	///     // Initialize provider and client
-	///     let provider = HttpProvider::new("https://testnet1.neo.org:443");
+	///     let provider = HttpProvider::new("https://testnet1.neo.org:443").unwrap();
 	///     let client = RpcClient::new(provider);
 	///     
 	///     // Load account and create smart contract deployment transaction
@@ -411,24 +411,26 @@ impl<'a, T: JsonRpcProvider + 'static> Transaction<'a, T> {
 	///     let deploy_script = script_builder.contract_call(
 	///         &ScriptHash::from_str("0xfffdc93764dbaddd97c48f252a53ea4643faa3fd")?, // ContractManagement
 	///         "deploy",
-	///         vec![
-	///             ContractParameter::ByteArray(nef_bytes),
-	///             ContractParameter::ByteArray(manifest_bytes),
-	///             ContractParameter::Any(None) // Optional data parameter
-	///         ]
+	///         &[
+	///             ContractParameter::byte_array(nef_bytes),
+	///             ContractParameter::byte_array(manifest_bytes),
+	///             ContractParameter::any() // Optional data parameter
+	///         ],
+	///         Some(CallFlags::All)
 	///     )?;
 	///     
 	///     // Build transaction with appropriate settings for contract deployment
-	///     let mut tx_builder = TransactionBuilder::new()
-	///         .script(deploy_script)
-	///         .signers(vec![Signer::called_by_entry(account.get_script_hash())])
-	///         .valid_until_block(client.get_block_count().await? + 2400)
-	///         .with_client(&client);
+	///     let mut tx_builder = TransactionBuilder::with_client(&client);
+	///     tx_builder.extend_script(deploy_script.to_bytes());
+	///     let account_signer = AccountSigner::called_by_entry(&account)?;
+	///     tx_builder.set_signers(vec![account_signer.into()])?;
+	///     tx_builder.valid_until_block(client.get_block_count().await? + 2400)?;
 	///     
-	///     let mut transaction = tx_builder.build().await?;
-	///     transaction.sign(&account).await?;
+	///     // Sign the transaction and get signed transaction
+	///     let signed_transaction = tx_builder.sign().await?;
 	///     
 	///     // Send the transaction
+	///     let mut transaction = signed_transaction;
 	///     let response = transaction.send_tx().await?;
 	///     println!("✅ Contract deployment transaction sent!");
 	///     println!("Transaction ID: {}", response.hash);
@@ -510,17 +512,17 @@ impl<'a, T: JsonRpcProvider + 'static> Transaction<'a, T> {
 	///
 	/// # Examples
 	///
-	/// ```rust
-	/// use neo3::neo_builder::{ScriptBuilder, Signer, TransactionBuilder};
-	/// use neo3::neo_clients::{HttpProvider, RpcClient};
-	/// use neo3::neo_protocol::Account;
+	/// ```rust,no_run
+	/// use neo3::neo_builder::{ScriptBuilder, AccountSigner, TransactionBuilder, CallFlags};
+	/// use neo3::neo_clients::{HttpProvider, RpcClient, APITrait};
+	/// use neo3::neo_protocol::{Account, AccountTrait};
 	/// use neo3::neo_types::{ContractParameter, ScriptHash};
 	/// use std::str::FromStr;
 	///
 	/// #[tokio::main]
 	/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	///     // Setup client connection
-	///     let provider = HttpProvider::new("https://testnet1.neo.org:443");
+	///     let provider = HttpProvider::new("https://testnet1.neo.org:443").unwrap();
 	///     let client = RpcClient::new(provider);
 	///     
 	///     // Load account for contract interaction
@@ -532,24 +534,26 @@ impl<'a, T: JsonRpcProvider + 'static> Transaction<'a, T> {
 	///     let invoke_script = script_builder.contract_call(
 	///         &contract_hash,
 	///         "setValue", // Contract method name
-	///         vec![
-	///             ContractParameter::String("myKey".to_string()),
-	///             ContractParameter::String("myValue".to_string()),
-	///             ContractParameter::Integer(42)
-	///         ]
+	///         &[
+	///             ContractParameter::string("myKey".to_string()),
+	///             ContractParameter::string("myValue".to_string()),
+	///             ContractParameter::integer(42)
+	///         ],
+	///         Some(CallFlags::All)
 	///     )?;
 	///     
 	///     // Build and configure the transaction
-	///     let mut tx_builder = TransactionBuilder::new()
-	///         .script(invoke_script)
-	///         .signers(vec![Signer::called_by_entry(account.get_script_hash())])
-	///         .valid_until_block(client.get_block_count().await? + 1200) // 20 minutes validity
-	///         .with_client(&client);
+	///     let mut tx_builder = TransactionBuilder::with_client(&client);
+	///     tx_builder.extend_script(invoke_script.to_bytes());
+	///     let account_signer = AccountSigner::called_by_entry(&account)?;
+	///     tx_builder.set_signers(vec![account_signer.into()])?;
+	///     tx_builder.valid_until_block(client.get_block_count().await? + 1200)?; // 20 minutes validity
 	///     
-	///     let mut transaction = tx_builder.build().await?;
-	///     transaction.sign(&account).await?;
+	///     // Sign the transaction and get signed transaction
+	///     let signed_transaction = tx_builder.sign().await?;
 	///     
 	///     // Send the transaction
+	///     let mut transaction = signed_transaction;
 	///     let response = transaction.send_tx().await?;
 	///     println!("📤 Smart contract invocation sent!");
 	///     println!("Transaction ID: {}", response.hash);
@@ -562,32 +566,32 @@ impl<'a, T: JsonRpcProvider + 'static> Transaction<'a, T> {
 	///     // Analyze the execution results
 	///     let app_log = transaction.get_application_log(&client).await?;
 	///     println!("🔍 Transaction execution analysis:");
-	///     println!("  Execution state: {}", app_log.execution_state);
-	///     println!("  GAS consumed: {}", app_log.gas_consumed);
-	///     
-	///     // Process contract notifications and events
-	///     if !app_log.notifications.is_empty() {
-	///         println!("📋 Contract notifications:");
-	///         for (i, notification) in app_log.notifications.iter().enumerate() {
-	///             println!("  {}. Event: {} from contract {}",
-	///                 i + 1, notification.event_name, notification.contract);
-	///             if let Some(state) = &notification.state {
-	///                 println!("     State: {:?}", state);
+	///     if let Ok(execution) = app_log.get_first_execution() {
+	///         println!("  Execution state: {:?}", execution.state);
+	///         println!("  GAS consumed: {}", execution.gas_consumed);
+	///         
+	///         // Process contract notifications and events
+	///         if !execution.notifications.is_empty() {
+	///             println!("📋 Contract notifications:");
+	///             for (i, notification) in execution.notifications.iter().enumerate() {
+	///                 println!("  {}. Event: {} from contract {}",
+	///                     i + 1, notification.event_name, notification.contract);
+	///                 println!("     State: {:?}", notification.state);
 	///             }
 	///         }
-	///     }
-	///     
-	///     // Check execution stack for return values
-	///     if let Some(stack) = &app_log.stack {
-	///         println!("📊 Return values: {:?}", stack);
-	///     }
-	///     
-	///     if app_log.execution_state == "HALT" {
-	///         println!("🎉 Smart contract executed successfully!");
-	///     } else {
-	///         println!("❌ Smart contract execution failed");
-	///         if let Some(exception) = &app_log.exception {
-	///             println!("   Exception: {}", exception);
+	///         
+	///         // Check execution stack for return values
+	///         if !execution.stack.is_empty() {
+	///             println!("📊 Return values: {:?}", execution.stack);
+	///         }
+	///         
+	///         if execution.state.to_string() == "HALT" {
+	///             println!("🎉 Smart contract executed successfully!");
+	///         } else {
+	///             println!("❌ Smart contract execution failed");
+	///             if let Some(exception) = &execution.exception {
+	///                 println!("   Exception: {}", exception);
+	///             }
 	///         }
 	///     }
 	///     

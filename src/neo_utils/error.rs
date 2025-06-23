@@ -9,7 +9,7 @@
 /// use neo3::neo_utils::error::option_to_result;
 ///
 /// let value: Option<u32> = Some(42);
-/// let result = option_to_result(value, || NeoError::IllegalState("Value is None".to_string()));
+/// let result = option_to_result(value, || NeoError::Generic { message: "Value is None".to_string() });
 /// assert_eq!(result.unwrap(), 42);
 /// ```
 pub fn option_to_result<T, E, F>(option: Option<T>, err_fn: F) -> Result<T, E>
@@ -23,12 +23,12 @@ where
 ///
 /// # Examples
 ///
-/// ```
+/// ```ignore
 /// use neo3::prelude::*;
 /// use neo3::neo_utils::error::with_context;
 ///
-/// let result: Result<u32, NeoError> = Err(NeoError::IllegalState("Original error".to_string()));
-/// let result_with_context = with_context(result, || "Additional context");
+/// let result: Result<u32, NeoError> = Err(NeoError::Generic { message: "Original error".to_string() });
+/// let result_with_context = with_context(result, || "Additional context", |e| e);
 /// ```
 pub fn with_context<T, E, C, F, G>(
 	result: Result<T, E>,

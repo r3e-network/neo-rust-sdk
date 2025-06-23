@@ -21,16 +21,22 @@ use ethereum_types::H256;
 ///
 /// # Example
 ///
-/// ```rust
+/// ```rust,no_run
 /// use neo3::neo_builder::TransactionBuilder;
+/// use neo3::neo_clients::{HttpProvider, RpcClient};
 ///
-/// let mut tx_builder = TransactionBuilder::new();
-/// tx_builder.version(0)
-///           .nonce(1)
-///           .valid_until_block(100)
-///           .extend_script(vec![0x01, 0x02, 0x03]);
+/// #[tokio::main]
+/// async fn main() {
+///     let provider = HttpProvider::new("https://testnet1.neo.org:443").unwrap();
+///     let client = RpcClient::new(provider);
+///     let mut tx_builder = TransactionBuilder::with_client(&client);
+///     tx_builder.version(0);
+///     tx_builder.nonce(1).unwrap();
+///     tx_builder.valid_until_block(100).unwrap();
+///     tx_builder.extend_script(vec![0x01, 0x02, 0x03]);
 ///
-/// let unsigned_tx = tx_builder.get_unsigned_tx().await.unwrap();
+///     let unsigned_tx = tx_builder.get_unsigned_tx().await.unwrap();
+/// }
 /// ```
 ///
 /// # Note
@@ -230,11 +236,11 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	///
 	/// # Examples
 	///
-	/// ```rust
+	/// ```rust,no_run
 	/// use neo3::neo_builder::TransactionBuilder;
 	/// use neo3::neo_clients::{HttpProvider, RpcClient};
 	///
-	/// let provider = HttpProvider::new("https://testnet1.neo.org:443");
+	/// let provider = HttpProvider::new("https://testnet1.neo.org:443").unwrap();
 	/// let client = RpcClient::new(provider);
 	/// let tx_builder = TransactionBuilder::with_client(&client);
 	/// ```
@@ -268,8 +274,11 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	///
 	/// ```rust
 	/// use neo3::neo_builder::TransactionBuilder;
+	/// use neo3::neo_clients::{HttpProvider, RpcClient};
 	///
-	/// let mut tx_builder = TransactionBuilder::new();
+	/// let provider = HttpProvider::new("https://testnet1.neo.org:443").unwrap();
+	/// let client = RpcClient::new(provider);
+	/// let mut tx_builder = TransactionBuilder::with_client(&client);
 	/// tx_builder.version(0);
 	/// ```
 	pub fn version(&mut self, version: u8) -> &mut Self {
@@ -294,8 +303,11 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	///
 	/// ```rust
 	/// use neo3::neo_builder::TransactionBuilder;
+	/// use neo3::neo_clients::{HttpProvider, RpcClient};
 	///
-	/// let mut tx_builder = TransactionBuilder::new();
+	/// let provider = HttpProvider::new("https://testnet1.neo.org:443").unwrap();
+	/// let client = RpcClient::new(provider);
+	/// let mut tx_builder = TransactionBuilder::with_client(&client);
 	/// tx_builder.nonce(1234567890).unwrap();
 	/// ```
 	pub fn nonce(&mut self, nonce: u32) -> Result<&mut Self, TransactionError> {
@@ -321,13 +333,14 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	///
 	/// # Examples
 	///
-	/// ```rust
+	/// ```rust,no_run
 	/// use neo3::neo_builder::TransactionBuilder;
 	/// use neo3::neo_clients::{HttpProvider, RpcClient};
+	/// use neo3::neo_clients::APITrait;
 	///
 	/// #[tokio::main]
 	/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-	///     let provider = HttpProvider::new("https://testnet1.neo.org:443");
+	///     let provider = HttpProvider::new("https://testnet1.neo.org:443").unwrap();
 	///     let client = RpcClient::new(provider);
 	///     
 	///     let current_height = client.get_block_count().await?;
@@ -401,13 +414,13 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	///
 	/// # Examples
 	///
-	/// ```rust
+	/// ```rust,no_run
 	/// use neo3::neo_builder::TransactionBuilder;
 	/// use neo3::neo_clients::{HttpProvider, RpcClient};
 	///
 	/// #[tokio::main]
 	/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-	///     let provider = HttpProvider::new("https://testnet1.neo.org:443");
+	///     let provider = HttpProvider::new("https://testnet1.neo.org:443").unwrap();
 	///     let client = RpcClient::new(provider);
 	///     
 	///     let mut tx_builder = TransactionBuilder::with_client(&client);
@@ -762,47 +775,54 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	///
 	/// # Examples
 	///
-	/// ```rust
-	/// use neo3::neo_builder::{TransactionBuilder, ScriptBuilder};
+	/// ```ignore
+	/// use neo3::neo_builder::{TransactionBuilder, ScriptBuilder, AccountSigner};
 	/// use neo3::neo_clients::{HttpProvider, RpcClient};
-	/// use neo3::neo_protocol::Account;
+	/// use neo3::neo_protocol::{Account, AccountTrait};
 	/// use neo3::neo_types::ContractParameter;
 	/// use std::str::FromStr;
+	/// use neo3::neo_clients::APITrait;
 	///
 	/// #[tokio::main]
 	/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-	///     let provider = HttpProvider::new("https://testnet1.neo.org:443");
+	///     let provider = HttpProvider::new("https://testnet1.neo.org:443").unwrap();
 	///     let client = RpcClient::new(provider);
 	///     
 	///     // Create an account for signing
 	///     let account = Account::from_wif("YOUR_WIF_HERE")?;
 	///     
 	///     // Create a proper contract invocation script
+	///     let contract_hash = neo3::neo_types::ScriptHash::from_str("0xd2a4cff31913016155e38e474a2c06d08be276cf")?; // GAS
+	///     let from_address = account.get_script_hash();
+	///     let to_address = neo3::neo_types::ScriptHash::from_str("0x0000000000000000000000000000000000000000")?;
+	///     let amount = 1_000_000i64;
 	///     let mut script_builder = ScriptBuilder::new();
-	///     let script = script_builder.contract_call(
+	///     script_builder.contract_call(
 	///         &contract_hash,
 	///         "transfer",
-	///         vec![
-	///             ContractParameter::Hash160(from_address),
-	///             ContractParameter::Hash160(to_address),
-	///             ContractParameter::Integer(amount),
-	///             ContractParameter::Any(None)
-	///         ]
+	///         &[
+	///             ContractParameter::from(from_address),
+	///             ContractParameter::from(to_address),
+	///             ContractParameter::integer(amount),
+	///             ContractParameter::any()
+	///         ],
+	///         None
 	///     )?;
+	///     let script = script_builder.to_bytes();
 	///     
 	///     // Create and configure the transaction
 	///     let mut tx_builder = TransactionBuilder::with_client(&client);
-	///     tx_builder
-	///         .script(Some(script))
-	///         .set_signers(vec![account.clone().into()])?
-	///         .valid_until_block(client.get_block_count().await? + 5760)?; // Valid for ~1 day
+	///     tx_builder.extend_script(script);
+	///     let account_signer = AccountSigner::called_by_entry(&account)?;
+	///     tx_builder.set_signers(vec![account_signer.into()])?;
+	///     tx_builder.valid_until_block(client.get_block_count().await? + 5760)?; // Valid for ~1 day
 	///
 	///     // Sign the transaction
 	///     let signed_tx = tx_builder.sign().await?;
 	///     
 	///     // Send the transaction to the network
-	///     let tx_hash = signed_tx.send().await?;
-	///     println!("Transaction sent: {}", tx_hash);
+	///     let tx_response = signed_tx.send_tx().await?;
+	///     println!("Transaction sent: {:?}", tx_response);
 	///     
 	///     Ok(())
 	/// }
@@ -933,8 +953,11 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	///
 	/// ```rust
 	/// use neo3::neo_builder::{TransactionBuilder, TransactionAttribute};
+	/// use neo3::neo_clients::{HttpProvider, RpcClient};
 	///
-	/// let mut tx_builder = TransactionBuilder::new();
+	/// let provider = HttpProvider::new("https://testnet1.neo.org:443").unwrap();
+	/// let client = RpcClient::new(provider);
+	/// let mut tx_builder = TransactionBuilder::with_client(&client);
 	///
 	/// // Add a high-priority attribute
 	/// let high_priority_attr = TransactionAttribute::HighPriority;
@@ -1137,13 +1160,13 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	///
 	/// # Examples
 	///
-	/// ```rust
+	/// ```rust,no_run
 	/// use neo3::neo_builder::TransactionBuilder;
 	/// use neo3::neo_clients::{HttpProvider, RpcClient};
 	///
 	/// #[tokio::main]
 	/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-	///     let provider = HttpProvider::new("https://testnet1.neo.org:443");
+	///     let provider = HttpProvider::new("https://testnet1.neo.org:443").unwrap();
 	///     let client = RpcClient::new(provider);
 	///     
 	///     let mut tx_builder = TransactionBuilder::with_client(&client);

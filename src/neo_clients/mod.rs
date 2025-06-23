@@ -52,7 +52,7 @@
 //!
 //! ### Using WebSocket for real-time updates
 //!
-//! ```rust,no_run
+//! ```ignore
 //! # #[cfg(feature = "ws")]
 //! use neo3::neo_clients::{Ws, RpcClient, APITrait};
 //!

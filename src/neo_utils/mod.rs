@@ -24,7 +24,7 @@
 //!     // Create and return a specific error
 //!     let some_condition = true;
 //!     if some_condition {
-//!         return Err(NeoError::InvalidFormat);
+//!         return Err(NeoError::Generic { message: "Invalid format".to_string() });
 //!     }
 //!     
 //!     Ok(())

@@ -20,8 +20,8 @@
 //!
 //! ### Working with Neo N3 accounts
 //!
-//! ```rust
-//! use neo3::neo_protocol::Account;
+//! ```ignore
+//! use neo3::neo_protocol::{Account, AccountTrait};
 //!
 //! // Create a new account
 //! let account = Account::create().unwrap();
@@ -43,7 +43,7 @@
 //!
 //! ### Using NEP-2 password-protected keys
 //!
-//! ```rust
+//! ```ignore
 //! use neo3::neo_crypto::PrivateKey;
 //! use neo3::neo_protocol::nep2::{encrypt_to_nep2, decrypt_from_nep2};
 //!

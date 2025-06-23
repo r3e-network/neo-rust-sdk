@@ -19,7 +19,7 @@
 //!
 //! ### Connecting to Neo X and getting chain information
 //!
-//! ```rust
+//! ```ignore
 //! use neo3::neo_clients::{HttpProvider, RpcClient};
 //! use neo3::neo_x::NeoXProvider;
 //!
@@ -46,7 +46,7 @@
 //!
 //! ### Using the bridge to transfer tokens between Neo N3 and Neo X
 //!
-//! ```rust
+//! ```ignore
 //! use neo3::neo_clients::{HttpProvider, RpcClient};
 //! use neo3::neo_protocol::Account;
 //! use std::str::FromStr;

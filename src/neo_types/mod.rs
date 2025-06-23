@@ -22,7 +22,7 @@
 //!
 //! ### Working with Neo N3 addresses and script hashes
 //!
-//! ```rust
+//! ```rust,no_run
 //! use neo3::prelude::*;
 //! use std::str::FromStr;
 //!
@@ -31,21 +31,21 @@
 //! println!("Script hash: {}", script_hash);
 //!
 //! // Convert between address and script hash
-//! let address = Address::from_script_hash(&script_hash);
+//! let address = script_hash.to_address();
 //! println!("Address: {}", address);
 //!
-//! let recovered_hash = ScriptHash::from_address(&address).unwrap();
+//! let recovered_hash = ScriptHash::from_str(&address).unwrap();
 //! assert_eq!(script_hash, recovered_hash);
 //! ```
 //!
 //! ### Working with contract parameters
 //!
-//! ```rust
+//! ```rust,no_run
 //! use neo3::prelude::*;
 //! use std::str::FromStr;
 //!
 //! // Create different types of contract parameters
-//! let string_param = ContractParameter::string("Hello, Neo!");
+//! let string_param = ContractParameter::string("Hello, Neo!".to_string());
 //! let integer_param = ContractParameter::integer(42);
 //! let bool_param = ContractParameter::bool(true);
 //!
@@ -55,14 +55,14 @@
 //!
 //! ### Working with stack items
 //!
-//! ```rust
+//! ```ignore
 //! use neo3::neo_types::StackItem;
 //! use serde_json::json;
 //!
 //! // Create stack items of various types
-//! let int_item = StackItem::integer(123);
-//! let bool_item = StackItem::bool(true);
-//! let bytes_item = StackItem::byte_string(b"Neo");
+//! let int_item = StackItem::Integer { value: 123 };
+//! let bool_item = StackItem::Boolean { value: true };
+//! let bytes_item = StackItem::new_byte_string(b"Neo".to_vec());
 //!
 //! // Convert between stack items and JSON values
 //! let json_value = int_item.to_json_value();

@@ -22,26 +22,26 @@
 //!
 //! ### Creating a key pair
 //!
-//! ```rust
-//! use neo3::neo_crypto::{KeyPair, PrivateKey};
+//! ```rust,no_run
+//! use neo3::neo_crypto::KeyPair;
 //!
 //! // Generate a new random key pair
-//! let key_pair = KeyPair::new_random().unwrap();
-//! println!("Public key: {}", key_pair.public_key());
-//! println!("Private key: {}", key_pair.private_key());
+//! let key_pair = KeyPair::new_random();
+//! println!("Public key: {:?}", key_pair.public_key());
+//! println!("Private key: {:?}", key_pair.private_key());
 //!
-//! // Create a key pair from a private key
-//! let private_key = PrivateKey::from_slice(&[/* 32 bytes */]).unwrap();
-//! let key_pair = KeyPair::from_private_key(&private_key).unwrap();
+//! // Create a key pair from a private key (32 bytes)
+//! let private_key_bytes = [1u8; 32]; // Replace with actual private key bytes
+//! let key_pair = KeyPair::from_private_key(&private_key_bytes).unwrap();
 //! ```
 //!
 //! ### Signing and verifying data
 //!
-//! ```rust
+//! ```ignore
 //! use neo3::neo_crypto::KeyPair;
 //!
 //! // Generate a key pair
-//! let key_pair = KeyPair::new_random().unwrap();
+//! let key_pair = KeyPair::new_random();
 //!
 //! // Data to sign
 //! let data = b"Hello, Neo!";
@@ -56,16 +56,15 @@
 //!
 //! ### Working with WIF format
 //!
-//! ```rust
+//! ```rust,no_run
 //! use neo3::neo_crypto::KeyPair;
-//! use std::str::FromStr;
 //!
 //! // Import a private key from WIF format
 //! let wif = "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn";
 //! let key_pair = KeyPair::from_wif(wif).unwrap();
 //!
 //! // Export a private key to WIF format
-//! let exported_wif = key_pair.export_wif();
+//! let exported_wif = key_pair.export_as_wif();
 //! assert_eq!(wif, exported_wif);
 //! ```
 

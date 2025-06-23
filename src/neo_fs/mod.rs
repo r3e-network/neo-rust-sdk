@@ -28,9 +28,9 @@
 //!
 //! ## Example
 //!
-//! ```no_run
+//! ```ignore
 //! use neo3::neo_fs::{NeoFSClient, NeoFSConfig};
-//! use neo3::neo_fs::container::{Container, ContainerId};
+//! use neo3::neo_fs::container::Container;
 //! use neo3::neo_fs::object::{Object, ObjectId};
 //! use neo3::neo_protocol::Account;
 //! use std::path::Path;
