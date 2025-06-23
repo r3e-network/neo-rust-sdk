@@ -2,13 +2,18 @@ use neo3::{
 	neo_protocol::{Account, AccountTrait},
 	neo_wallets::{Wallet, WalletBackup, WalletTrait},
 };
+use serial_test::serial;
 use std::env;
 use tempfile::TempDir;
 
 #[tokio::test]
+#[serial]
 async fn test_complete_wallet_lifecycle() {
-	// Set faster scrypt parameters for testing
+	// Set faster scrypt parameters for testing BEFORE any wallet operations
 	env::set_var("NEORUST_TEST_MODE", "1");
+	
+	// Small delay to ensure environment variable is set
+	std::thread::sleep(std::time::Duration::from_millis(10));
 
 	// 1. Create wallet with multiple accounts
 	let mut wallet = Wallet::new();
@@ -74,12 +79,19 @@ async fn test_complete_wallet_lifecycle() {
 
 	assert!(test_wallet.verify_password(new_password), "New password should verify");
 	assert!(!test_wallet.verify_password(password), "Old password should not verify");
+	
+	// Clean up test environment variable
+	env::remove_var("NEORUST_TEST_MODE");
 }
 
 #[tokio::test]
+#[serial]
 async fn test_wallet_security_edge_cases() {
-	// Set faster scrypt parameters for testing
+	// Set faster scrypt parameters for testing BEFORE any wallet operations
 	env::set_var("NEORUST_TEST_MODE", "1");
+	
+	// Small delay to ensure environment variable is set
+	std::thread::sleep(std::time::Duration::from_millis(10));
 
 	let mut wallet = Wallet::new();
 	let account = Account::create().expect("Should create account");
@@ -104,12 +116,19 @@ async fn test_wallet_security_edge_cases() {
 		test_wallet3.verify_password(special_password),
 		"Special character password should work"
 	);
+	
+	// Clean up test environment variable
+	env::remove_var("NEORUST_TEST_MODE");
 }
 
 #[tokio::test]
+#[serial]
 async fn test_large_wallet_performance() {
-	// Set environment variable to enable faster scrypt parameters for testing
+	// Set environment variable to enable faster scrypt parameters for testing BEFORE any wallet operations
 	env::set_var("NEORUST_TEST_MODE", "1");
+	
+	// Small delay to ensure environment variable is set
+	std::thread::sleep(std::time::Duration::from_millis(10));
 
 	let mut wallet = Wallet::new();
 
