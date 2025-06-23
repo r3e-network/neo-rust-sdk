@@ -29,7 +29,8 @@ use tokio::io::AsyncWriteExt;
 /// # Examples
 ///
 /// ```rust
-/// use NeoRust::prelude::ScriptBuilder;
+/// use neo3::neo_builder::ScriptBuilder;
+/// use neo3::neo_types::OpCode;
 /// use num_bigint::BigInt;
 ///
 /// let mut builder = ScriptBuilder::new();

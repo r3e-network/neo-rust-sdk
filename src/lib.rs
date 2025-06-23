@@ -75,9 +75,10 @@
 //!
 //! ```no_run
 //! use neo3::prelude::*;
-//! use neo3::neo_protocol::account::Account;
+//! use neo3::neo_protocol::Account;
 //! use neo3::neo_contract::{NeoToken, GasToken};
 //! use neo3::neo_builder::{TransactionBuilder, ScriptBuilder};
+//! use neo3::neo_clients::{HttpProvider, RpcClient};
 //! use std::str::FromStr;
 //!
 //! async fn neo_example() -> Result<(), Box<dyn std::error::Error>> {
@@ -178,8 +179,8 @@
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     // Connect to Neo N3 MainNet
-//!     let provider = HttpProvider::new("https://mainnet1.neo.org:443");
-//!     let client = RpcClient::new(provider);
+//!     let provider = providers::HttpProvider::new("https://mainnet1.neo.org:443")?;
+//!     let client = providers::RpcClient::new(provider);
 //!     
 //!     // Get basic blockchain information
 //!     let block_count = client.get_block_count().await?;
@@ -201,18 +202,18 @@
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     // Initialize the JSON-RPC provider
-//!     let provider = HttpProvider::new("https://testnet1.neo.org:443");
-//!     let client = RpcClient::new(provider);
+//!     let provider = providers::HttpProvider::new("https://testnet1.neo.org:443")?;
+//!     let client = providers::RpcClient::new(provider);
 //!
 //!     // Create accounts for the sender and recipient
-//!     let sender = Account::from_wif("YOUR_SENDER_WIF_HERE")?;
+//!     let sender = protocol::Account::from_wif("YOUR_SENDER_WIF_HERE")?;
 //!     let recipient = ScriptHash::from_address("NbTiM6h8r99kpRtb428XcsUk1TzKed2gTc")?;
 //!
 //!     // Get the GAS token contract
 //!     let gas_token_hash = ScriptHash::from_str("d2a4cff31913016155e38e474a2c06d08be276cf")?;
 //!     
 //!     // Build the transaction using the ScriptBuilder
-//!     let script = ScriptBuilder::new()
+//!     let script = builder::ScriptBuilder::new()
 //!         .contract_call(
 //!             &gas_token_hash,
 //!             "transfer",
@@ -227,7 +228,7 @@
 //!         .to_bytes();
 //!     
 //!     // Create and configure the transaction
-//!     let mut tx_builder = TransactionBuilder::with_client(&client);
+//!     let mut tx_builder = builder::TransactionBuilder::with_client(&client);
 //!     tx_builder
 //!         .script(Some(script))
 //!         .set_signers(vec![sender.clone().into()])
@@ -262,12 +263,12 @@
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     // Connect to Neo N3 TestNet
-//!     let provider = HttpProvider::new("https://testnet1.neo.org:443");
-//!     let client = RpcClient::new(provider);
+//!     let provider = providers::HttpProvider::new("https://testnet1.neo.org:443")?;
+//!     let client = providers::RpcClient::new(provider);
 //!     
 //!     // Define the smart contract to interact with (GAS token)
 //!     let contract_hash = ScriptHash::from_str("d2a4cff31913016155e38e474a2c06d08be276cf")?;
-//!     let contract = SmartContract::new(contract_hash, Some(&client));
+//!     let contract = neo_contract::SmartContract::new(contract_hash, Some(&client));
 //!     
 //!     // Call a read-only method
 //!     let result = contract.call_function("symbol", vec![]).await?;
@@ -293,12 +294,12 @@
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     // Connect to Neo N3 TestNet
-//!     let provider = HttpProvider::new("https://testnet1.neo.org:443");
-//!     let client = RpcClient::new(provider);
+//!     let provider = providers::HttpProvider::new("https://testnet1.neo.org:443")?;
+//!     let client = providers::RpcClient::new(provider);
 //!     
 //!     // Create a reference to the GAS token contract
 //!     let gas_hash = ScriptHash::from_str("d2a4cff31913016155e38e474a2c06d08be276cf")?;
-//!     let gas_token = FungibleTokenContract::new(gas_hash, Some(&client));
+//!     let gas_token = neo_contract::FungibleTokenContract::new(gas_hash, Some(&client));
 //!     
 //!     // Get token information
 //!     let symbol = gas_token.symbol().await?;
@@ -310,7 +311,7 @@
 //!     println!("Total Supply: {}", total_supply);
 //!     
 //!     // Check an account's balance
-//!     let account = Account::from_wif("YOUR_PRIVATE_KEY_WIF_HERE")?;
+//!     let account = protocol::Account::from_wif("YOUR_PRIVATE_KEY_WIF_HERE")?;
 //!     let balance = gas_token.balance_of(&account.get_script_hash()).await?;
 //!     
 //!     println!("Account balance: {} {}",
@@ -329,11 +330,11 @@
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     // Connect to Neo N3 TestNet
-//!     let provider = HttpProvider::new("https://testnet1.neo.org:443");
-//!     let client = RpcClient::new(provider);
+//!     let provider = providers::HttpProvider::new("https://testnet1.neo.org:443")?;
+//!     let client = providers::RpcClient::new(provider);
 //!     
 //!     // Create a reference to the NNS contract
-//!     let nns_service = NeoNameService::new(Some(&client));
+//!     let nns_service = neo_contract::NeoNameService::new(Some(&client));
 //!     
 //!     // Check domain availability
 //!     let domain_name = "example.neo";

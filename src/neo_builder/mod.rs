@@ -39,8 +39,9 @@
 //! ```no_run
 //! use neo3::prelude::*;
 //! use neo3::neo_builder::{TransactionBuilder, ScriptBuilder};
-//! use neo3::neo_protocol::account::Account;
+//! use neo3::neo_protocol::Account;
 //! use neo3::neo_types::{ContractParameter, Signer, WitnessScope};
+//! use neo3::neo_clients::{HttpProvider, RpcClient};
 //! use std::str::FromStr;
 //!
 //! async fn transaction_example() -> Result<(), Box<dyn std::error::Error>> {
