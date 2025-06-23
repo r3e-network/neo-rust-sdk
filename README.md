@@ -2,6 +2,7 @@
 
 [![Rust CI](https://github.com/r3e-network/NeoRust/actions/workflows/rust.yml/badge.svg)](https://github.com/r3e-network/NeoRust/actions/workflows/rust.yml)
 [![Build & Test](https://github.com/r3e-network/NeoRust/actions/workflows/neorust-build-test.yml/badge.svg)](https://github.com/r3e-network/NeoRust/actions/workflows/neorust-build-test.yml)
+[![Neo GUI](https://github.com/r3e-network/NeoRust/actions/workflows/neo-gui.yml/badge.svg)](https://github.com/r3e-network/NeoRust/actions/workflows/neo-gui.yml)
 [![Security](https://github.com/r3e-network/NeoRust/actions/workflows/security.yml/badge.svg)](https://github.com/r3e-network/NeoRust/actions/workflows/security.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Crates.io](https://img.shields.io/crates/v/neo3.svg)](https://crates.io/crates/neo3)
@@ -126,6 +127,38 @@ cargo test -p neo-cli
 cargo test --test integration_tests
 ```
 
+## CI/CD
+
+The project uses GitHub Actions for continuous integration:
+
+### Running CI Locally
+
+Before pushing changes, run the local CI scripts:
+
+```bash
+# Run all CI checks
+./check-ci.sh
+
+# Or run individual checks
+./scripts/ci/01-format-check.sh
+./scripts/ci/02-clippy-check.sh
+./scripts/ci/03-rust-tests.sh
+./scripts/ci/04-benchmarks.sh
+./scripts/ci/05-documentation.sh
+./scripts/ci/06-security-audit.sh
+./scripts/ci/07-release-check.sh
+./scripts/ci/08-neo-gui-tests.sh
+```
+
+### GitHub Workflows
+
+- **neorust-build-test.yml** - Main Rust build and test workflow
+- **neo-gui.yml** - Separate workflow for GUI (Tauri) builds
+- **docs.yml** - Documentation generation and deployment
+- **security.yml** - Security audits and vulnerability scanning
+- **ci.yml** - Comprehensive CI checks
+- **rust.yml** - Rust-specific checks
+
 ## Contributing
 
 Contributions are welcome! Please:
@@ -141,6 +174,7 @@ Please ensure:
 - Code is formatted (`cargo fmt`)
 - No clippy warnings (`cargo clippy -- -D warnings`)
 - Documentation is updated
+- CI checks pass locally before pushing
 
 ## Security
 

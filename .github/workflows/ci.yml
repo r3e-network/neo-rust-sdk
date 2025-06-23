@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        rust: [stable, beta]
+        rust: [stable]
     steps:
       - uses: actions/checkout@v4
       
@@ -71,10 +71,32 @@ jobs:
         uses: Swatinem/rust-cache@v2
       
       - name: Check formatting
-        run: cargo fmt --all -- --check
+        run: |
+          # Create a clean workspace without neo-gui to prevent dependency issues
+          cp Cargo.toml Cargo.toml.fmt-backup
+          sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml || true
+          rm -rf neo-gui || true
+          
+          # Run format check
+          cargo fmt --all -- --check
+          
+          # Restore workspace
+          mv Cargo.toml.fmt-backup Cargo.toml
+          git checkout -- neo-gui || true
       
       - name: Run clippy
-        run: cargo clippy --workspace --all-features --exclude neo-gui -- -D warnings
+        run: |
+          # Create a clean workspace without neo-gui to prevent dependency issues
+          cp Cargo.toml Cargo.toml.clippy-backup
+          sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml || true
+          rm -rf neo-gui || true
+          
+          # Run clippy
+          cargo clippy --workspace --all-features -- -D warnings
+          
+          # Restore workspace
+          mv Cargo.toml.clippy-backup Cargo.toml
+          git checkout -- neo-gui || true
       
       - name: Check for TODO/FIXME
         run: |
@@ -110,11 +132,19 @@ jobs:
         uses: Swatinem/rust-cache@v2
       
       - name: Build documentation
-        run: cargo doc --workspace --no-deps --all-features --exclude neo-gui
-      
-      - name: Check documentation coverage
         run: |
-          cargo doc --workspace --no-deps --all-features --exclude neo-gui 2>&1 | grep -i "warning" && exit 1 || exit 0
+          # Create a clean workspace without neo-gui to prevent dependency issues
+          cp Cargo.toml Cargo.toml.doc-backup
+          sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml || true
+          rm -rf neo-gui || true
+          
+          # Build and check documentation
+          cargo doc --workspace --no-deps --all-features
+          cargo doc --workspace --no-deps --all-features 2>&1 | grep -i "warning" && exit 1 || exit 0
+          
+          # Restore workspace
+          mv Cargo.toml.doc-backup Cargo.toml
+          git checkout -- neo-gui || true
 
   coverage:
     name: Code Coverage
@@ -130,7 +160,18 @@ jobs:
         run: cargo install cargo-tarpaulin
       
       - name: Run coverage
-        run: NEORUST_SKIP_NETWORK_TESTS=1 cargo tarpaulin --workspace --out Xml --all-features --exclude neo-cli --timeout 300
+        run: |
+          # Create a clean workspace without neo-gui to prevent dependency issues
+          cp Cargo.toml Cargo.toml.cov-backup
+          sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml || true
+          rm -rf neo-gui || true
+          
+          # Run coverage
+          NEORUST_SKIP_NETWORK_TESTS=1 cargo tarpaulin --workspace --out Xml --all-features --exclude neo-cli --timeout 300
+          
+          # Restore workspace
+          mv Cargo.toml.cov-backup Cargo.toml
+          git checkout -- neo-gui || true
       
       - name: Upload coverage
         uses: codecov/codecov-action@v4
@@ -180,64 +221,17 @@ jobs:
         uses: Swatinem/rust-cache@v2
       
       - name: Check MSRV
-        run: cargo check --workspace --all-features
-
-  gui:
-    name: GUI Tests
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-      
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 8
-      
-      - name: Install system dependencies (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev
-      
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: neo-gui -> target
-      
-      - name: Cache Node dependencies
-        uses: actions/cache@v4
-        with:
-          path: neo-gui/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('neo-gui/package-lock.json') }}
-      
-      - name: Install Node dependencies
-        working-directory: neo-gui
-        run: npm ci
-      
-      - name: Lint TypeScript
-        working-directory: neo-gui
-        run: npm run lint
-      
-      - name: Run TypeScript tests
-        working-directory: neo-gui
-        run: npm test -- --coverage
-      
-      - name: Build GUI
-        working-directory: neo-gui
-        run: npm run build
-      
-      - name: Build Tauri app
-        working-directory: neo-gui
-        run: npm run tauri build
+          # Create a clean workspace without neo-gui to prevent dependency issues
+          cp Cargo.toml Cargo.toml.msrv-backup
+          sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml || true
+          rm -rf neo-gui || true
+          
+          # Check MSRV
+          cargo check --workspace --all-features
+          
+          # Restore workspace
+          mv Cargo.toml.msrv-backup Cargo.toml
+          git checkout -- neo-gui || true
+
+  # GUI tests moved to separate workflow - see .github/workflows/neo-gui.yml

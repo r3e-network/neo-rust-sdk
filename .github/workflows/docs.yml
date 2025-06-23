@@ -44,11 +44,22 @@ jobs:
       
       - name: Build documentation
         run: |
+          # Create a clean workspace without neo-gui to prevent dependency issues
+          cp Cargo.toml Cargo.toml.backup
+          sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml || true
+          rm -rf neo-gui || true
+          
+          # Build documentation
           cargo doc --workspace --no-deps --all-features
           echo '<meta http-equiv="refresh" content="0; url=neo3">' > target/doc/index.html
+          
+          # Restore workspace
+          mv Cargo.toml.backup Cargo.toml
+          git checkout -- neo-gui || true
       
       - name: Check documentation links
         run: |
+          # Use the already cleaned workspace
           cargo doc --workspace --no-deps --all-features 2>&1 | grep -i "warning" && echo "Documentation warnings found" || echo "Documentation is clean"
       
       - name: Upload Rust docs artifact

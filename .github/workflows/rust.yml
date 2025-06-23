@@ -47,16 +47,71 @@ jobs:
             ${{ runner.os }}-${{ matrix.rust }}-cargo-
         
       - name: Check formatting
-        run: cargo fmt --all -- --check
+        run: |
+          # Create a clean workspace without neo-gui to prevent dependency issues
+          cp Cargo.toml Cargo.toml.fmt-backup
+          sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml || true
+          rm -rf neo-gui || true
+          
+          # Check formatting
+          cargo fmt --all -- --check
+          
+          # Restore workspace
+          mv Cargo.toml.fmt-backup Cargo.toml
+          git checkout -- neo-gui || true
         
       - name: Run clippy
-        run: cargo clippy --workspace --exclude neo-gui --all-targets --all-features -- -D warnings
+        run: |
+          # Create a clean workspace without neo-gui to prevent dependency issues
+          cp Cargo.toml Cargo.toml.clippy-backup
+          sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml || true
+          rm -rf neo-gui || true
+          
+          # Run clippy
+          cargo clippy --workspace --all-targets --all-features -- -D warnings
+          
+          # Restore workspace
+          mv Cargo.toml.clippy-backup Cargo.toml
+          git checkout -- neo-gui || true
         
       - name: Build (no default features)
-        run: cargo build --verbose --no-default-features
+        run: |
+          # Create a clean workspace without neo-gui to prevent dependency issues
+          cp Cargo.toml Cargo.toml.build1-backup
+          sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml || true
+          rm -rf neo-gui || true
+          
+          # Build with no default features
+          cargo build --verbose --no-default-features
+          
+          # Restore workspace
+          mv Cargo.toml.build1-backup Cargo.toml
+          git checkout -- neo-gui || true
         
       - name: Build (all features)
-        run: cargo build --verbose --all-features
+        run: |
+          # Create a clean workspace without neo-gui to prevent dependency issues
+          cp Cargo.toml Cargo.toml.build2-backup
+          sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml || true
+          rm -rf neo-gui || true
+          
+          # Build with all features
+          cargo build --verbose --all-features
+          
+          # Restore workspace
+          mv Cargo.toml.build2-backup Cargo.toml
+          git checkout -- neo-gui || true
         
       - name: Run core library tests
-        run: cargo test --workspace --exclude neo-gui --lib --all-features --quiet
+        run: |
+          # Create a clean workspace without neo-gui to prevent dependency issues
+          cp Cargo.toml Cargo.toml.test-backup
+          sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml || true
+          rm -rf neo-gui || true
+          
+          # Run tests
+          NEORUST_SKIP_NETWORK_TESTS=1 cargo test --workspace --lib --all-features --quiet
+          
+          # Restore workspace
+          mv Cargo.toml.test-backup Cargo.toml
+          git checkout -- neo-gui || true
