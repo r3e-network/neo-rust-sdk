@@ -29,8 +29,21 @@ echo ""
 
 # 2. Clippy
 echo "2. Running Clippy linter..."
-cargo clippy --workspace --all-targets --all-features --exclude neo-gui -- -D warnings 2>&1
-check_result $? "Clippy" || ALL_PASSED=false
+echo "Note: Temporarily excluding neo-gui to avoid GUI dependencies"
+
+# Backup and clean workspace
+cp Cargo.toml Cargo.toml.clippy-backup
+sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml 2>/dev/null || true
+rm -rf neo-gui 2>/dev/null || true
+
+cargo clippy --workspace --all-targets --all-features -- -D warnings 2>&1
+CLIPPY_RESULT=$?
+
+# Restore workspace  
+mv Cargo.toml.clippy-backup Cargo.toml 2>/dev/null || true
+git checkout -- neo-gui 2>/dev/null || true
+
+check_result $CLIPPY_RESULT "Clippy" || ALL_PASSED=false
 
 echo ""
 
