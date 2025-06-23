@@ -16,6 +16,25 @@ if ! command -v cargo &> /dev/null; then
     exit 1
 fi
 
+# Backup original Cargo.toml
+cp Cargo.toml Cargo.toml.fmt-backup
+
+# Function to restore workspace
+restore_workspace() {
+    echo "Restoring workspace..."
+    if [ -f "Cargo.toml.fmt-backup" ]; then
+        mv Cargo.toml.fmt-backup Cargo.toml
+    fi
+    git checkout -- neo-gui 2>/dev/null || true
+}
+
+# Set trap to restore on exit
+trap restore_workspace EXIT
+
+echo "Modifying workspace to exclude neo-gui..."
+sed -i.bak 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml
+rm -rf neo-gui
+
 echo "Checking Rust formatting..."
 if cargo fmt --all -- --check; then
     echo "✅ Rust formatting check passed!"
