@@ -235,11 +235,12 @@ impl Wallet {
 	///
 	/// ```
 	///
-	/// use NeoRust::prelude::{Account, Wallet};
-	/// let account1 = Account::default();
-	/// let account2 = Account::default();
+	/// use neo3::prelude::*;
+	/// use neo3::neo_protocol::AccountTrait;
+	/// let account1 = protocol::Account::create().unwrap();
+	/// let account2 = protocol::Account::create().unwrap();
 	///
-	/// let mut wallet = Wallet::from_accounts(vec![account1, account2]).unwrap();
+	/// let mut wallet = wallets::Wallet::from_accounts(vec![account1, account2]).unwrap();
 	/// ```
 	pub fn from_accounts(accounts: Vec<Account>) -> Result<Wallet, WalletError> {
 		// for account in &accounts {
@@ -327,7 +328,7 @@ impl Wallet {
 	///
 	/// ```no_run
 	/// # use neo3::prelude::*;
-	/// # let mut wallet = Wallet::new();
+	/// # let mut wallet = wallets::Wallet::new();
 	/// // For wallets with many accounts, use parallel encryption
 	/// wallet.encrypt_accounts_parallel("strong_password");
 	/// ```
@@ -370,7 +371,7 @@ impl Wallet {
 	///
 	/// ```no_run
 	/// # use neo3::prelude::*;
-	/// # let mut wallet = Wallet::new();
+	/// # let mut wallet = wallets::Wallet::new();
 	/// // Use 4 threads for encryption
 	/// wallet.encrypt_accounts_parallel_with_threads("strong_password", 4);
 	/// ```
@@ -399,7 +400,7 @@ impl Wallet {
 	///
 	/// ```no_run
 	/// # use neo3::prelude::*;
-	/// # let mut wallet = Wallet::new();
+	/// # let mut wallet = wallets::Wallet::new();
 	/// // Process accounts in batches of 50
 	/// wallet.encrypt_accounts_batch_parallel("strong_password", 50);
 	/// ```
@@ -590,7 +591,7 @@ impl Wallet {
 	///
 	/// ```no_run
 	/// # use neo3::prelude::*;
-	/// # let mut wallet = Wallet::new();
+	/// # let mut wallet = wallets::Wallet::new();
 	/// wallet.change_password_parallel("old_password", "new_password").unwrap();
 	/// ```
 	pub fn change_password_parallel(
@@ -689,9 +690,9 @@ impl Wallet {
 	/// # Example
 	///
 	/// ```no_run
-	/// # use NeoRust::prelude::Wallet;
+	/// # use neo3::prelude::*;
 	///  async fn example() -> Result<(), Box<dyn std::error::Error>> {
-	/// # let wallet = Wallet::new();
+	/// # let wallet = wallets::Wallet::new();
 	/// let message = "Hello, world!";
 	/// let signature = wallet.sign_message(message).await?;
 	/// println!("Signed message: {:?}", signature);
@@ -734,10 +735,13 @@ impl Wallet {
 	/// # Example
 	///
 	/// ```no_run
-	/// # use NeoRust::prelude::{Transaction, Wallet};
+	/// # use neo3::prelude::*;
 	///  async fn example() -> Result<(), Box<dyn std::error::Error>> {
-	/// # let wallet = Wallet::new();
-	/// # let tx = Transaction::new();
+	/// # let wallet = wallets::Wallet::new();
+	/// # let provider = providers::HttpProvider::new("http://localhost:10332")?;
+	/// # let client = providers::RpcClient::new(provider);
+	/// # let mut tx_builder = builder::TransactionBuilder::with_client(&client);
+	/// # let tx = tx_builder.get_unsigned_tx().await?;
 	/// let witness = wallet.get_witness(&tx).await?;
 	/// println!("Witness: {:?}", witness);
 	/// # Ok(())
@@ -1016,9 +1020,9 @@ impl Wallet {
 	/// # Example
 	///
 	/// ```no_run
-	/// # use NeoRust::prelude::{NeoConfig, NeoNetwork, Wallet};
-	/// let mut wallet = Wallet::new();
-	/// wallet = wallet.with_network(NeoNetwork::MainNet.to_magic());
+	/// # use neo3::prelude::*;
+	/// let mut wallet = wallets::Wallet::new();
+	/// wallet = wallet.with_network(0x334F454E); // MainNet magic number
 	/// ```
 	pub fn with_network(mut self, network: u32) -> Self {
 		let mut extra = self.extra.unwrap_or_default();

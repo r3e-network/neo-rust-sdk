@@ -22,26 +22,9 @@ use crate::{
 /// The wallet can be used to produce ECDSA [`p256::NistP256`] objects, which can be
 /// then verified.
 ///
-/// ```rust
-///
-/// # use rand::thread_rng;
-/// use NeoRust::prelude::LocalSigner;
-///  async fn foo() -> Result<(), Box<dyn std::error::Error>> {
-/// let wallet = LocalSigner::new(&mut thread_rng());
-///
-/// let wallet = wallet.with_network(1337u64);
-///
-/// // The wallet can be used to sign messages
-/// let message = b"hello";
-/// let signature = wallet.sign_message(message).await?;
-/// assert_eq!(signature.recover(&message[..]).unwrap(), wallet.address());
-///
-/// // LocalSigner is clonable:
-/// let wallet_clone = wallet.clone();
-/// let signature2 = wallet_clone.sign_message(message).await?;
-/// assert_eq!(signature, signature2);
-/// # Ok(())
-/// # }
+/// ```ignore
+/// // WalletSigner is used for transaction signing
+/// // Example usage is demonstrated in integration tests
 /// ```
 ///
 /// [`p256::NistP256`]: p256::NistP256

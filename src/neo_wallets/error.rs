@@ -32,8 +32,8 @@ use thiserror::Error;
 /// like this:
 ///
 /// ```
-/// use NeoRust::prelude::SignerError;
-///  async fn sign_data(data: &[u8]) -> Result<(), SignerError> {
+/// use neo3::prelude::*;
+///  async fn sign_data(data: &[u8]) -> Result<(), wallets::SignerError> {
 ///     // Example function body
 ///     Ok(())
 /// }
@@ -44,8 +44,8 @@ use thiserror::Error;
 ///     match sign_data(data).await {
 ///         Ok(_) => println!("Data signed successfully"),
 ///         Err(e) => match e {
-///             SignerError::InvalidPassphrase(_) => println!("Invalid passphrase provided"),
-///             SignerError::InvalidAddress => println!("Invalid address"),
+///             wallets::SignerError::InvalidPassphrase(_) => println!("Invalid passphrase provided"),
+///             wallets::SignerError::InvalidAddress => println!("Invalid address"),
 ///             // Handle other errors accordingly
 ///             _ => println!("An error occurred: {:?}", e),
 ///         },

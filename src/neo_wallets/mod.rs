@@ -27,79 +27,39 @@
 //! ### Creating and using a wallet
 //!
 //! ```rust
-//! use neo3::prelude::*;
+//! use neo3::neo_wallets::Wallet;
+//! use std::path::PathBuf;
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     // Create a new wallet
-//!     let wallet = Wallet::new("my_wallet", "password123")?;
+//!     let mut wallet = Wallet::new();
 //!     
 //!     // Create a new account in the wallet
-//!     let account = wallet.create_account()?;
-//!     println!("New account address: {}", account.address());
+//!     let account = wallet.create_new_account()?;
+//!     println!("New account address: {}", account.get_address());
 //!     
 //!     // Save the wallet to a file
-//!     wallet.save("my_wallet.json")?;
-//!     
-//!     // Load a wallet from a file
-//!     let loaded_wallet = Wallet::load("my_wallet.json", Some("password123"))?;
-//!     
-//!     // Get the default account
-//!     let default_account = loaded_wallet.default_account()?;
-//!     
-//!     // Sign a message with the default account
-//!     let message = b"Hello, Neo!";
-//!     let signature = default_account.sign(message)?;
+//!     wallet.save_to_file(PathBuf::from("my_wallet.json"))?;
 //!     
 //!     Ok(())
 //! }
 //! ```
 //!
-//! ### Using a wallet to sign a transaction
+//! ### Working with BIP-39 accounts
 //!
-//! ```rust
-//! use neo3::prelude::*;
-//! use std::str::FromStr;
+//! ```no_run
+//! use neo3::neo_wallets::Bip39Account;
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//!     // Create a provider and client
-//!     let provider = HttpProvider::new("https://testnet1.neo.org:443");
-//!     let client = RpcClient::new(provider);
+//!     // Create a new BIP-39 account
+//!     let account = Bip39Account::create("password123")?;
+//!     println!("Generated mnemonic: {}", account.mnemonic());
 //!     
-//!     // Load a wallet
-//!     let wallet = Wallet::load("my_wallet.json", Some("password123"))?;
-//!     
-//!     // Create a wallet signer
-//!     let signer = WalletSigner::from_wallet(wallet, None)?;
-//!     
-//!     // Create a transaction builder
-//!     let mut tx_builder = TransactionBuilder::with_client(&client);
-//!     
-//!     // Build a transaction to transfer GAS
-//!     let gas_token = ScriptHash::from_str("d2a4cff31913016155e38e474a2c06d08be276cf")?;
-//!     let recipient = ScriptHash::from_str("5c9c3a340f4c28262e7042b908b5f7e7a4bcd7e7")?;
-//!     let amount = 1_0000_0000; // 1 GAS (8 decimals)
-//!     
-//!     tx_builder
-//!         .script(Some(ScriptBuilder::build_contract_call(
-//!             &gas_token,
-//!             "transfer",
-//!             &[
-//!                 ContractParameter::hash160(&signer.get_script_hash()),
-//!                 ContractParameter::hash160(&recipient),
-//!                 ContractParameter::integer(amount),
-//!                 ContractParameter::any(None),
-//!             ],
-//!             None,
-//!         )?))
-//!         .signers(vec![Signer::calledByEntry(signer.get_script_hash())]);
-//!     
-//!     // Sign and send the transaction
-//!     let tx = tx_builder.sign_with(&signer).await?;
-//!     let tx_id = tx.send().await?;
-//!     
-//!     println!("Transaction sent: {}", tx_id);
+//!     // Recover an account from a mnemonic
+//!     let mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art";
+//!     let recovered = Bip39Account::from_bip39_mnemonic("password123", mnemonic)?;
 //!     
 //!     Ok(())
 //! }
@@ -113,6 +73,7 @@ use p256::NistP256;
 pub use yubihsm;
 
 use crate::neo_protocol::Account;
+pub use bip39_account::*;
 pub use error::*;
 pub use wallet::*;
 pub use wallet_signer::WalletSigner;

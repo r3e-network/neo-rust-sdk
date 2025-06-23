@@ -42,10 +42,10 @@ impl PartialEq for NEP6Contract {
 	/// # Example
 	///
 	/// ```
-	/// use NeoRust::prelude::NEP6Contract;
+	/// use neo3::prelude::*;
 	///
-	/// let contract1 = NEP6Contract::default();
-	/// let contract2 = NEP6Contract::default();
+	/// # let contract1 = wallets::NEP6Contract { script: None, is_deployed: false, nep6_parameters: vec![] };
+	/// # let contract2 = wallets::NEP6Contract { script: None, is_deployed: false, nep6_parameters: vec![] };
 	/// assert_eq!(contract1, contract2);
 	/// ```
 	fn eq(&self, other: &Self) -> bool {

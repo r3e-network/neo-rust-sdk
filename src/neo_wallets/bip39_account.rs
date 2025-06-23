@@ -15,22 +15,22 @@ use sha2::{Digest, Sha256};
 ///
 /// ## Creating a new account
 /// ```
-/// use neo3::prelude::Bip39Account;
+/// use neo3::neo_wallets::Bip39Account;
 ///
 /// // Create a new account with a password
 /// let password = "your_secure_password";
 /// let account = Bip39Account::create(password).unwrap();
 ///
 /// // The account will have a randomly generated 24-word mnemonic
-/// println!("Mnemonic: {}", account.mnemonic);
+/// println!("Mnemonic: {}", account.mnemonic());
 /// ```
 ///
 /// ## Recovering an existing account
 /// ```
-/// use neo3::prelude::Bip39Account;
+/// use neo3::neo_wallets::Bip39Account;
 ///
 /// // Recover an account using an existing mnemonic and password
-/// let mnemonic = "word1 word2 ... word24"; // Your 24 word mnemonic
+/// let mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art"; // Your 24 word mnemonic
 /// let password = "your_secure_password";
 /// let recovered = Bip39Account::from_bip39_mnemonic(password, mnemonic).unwrap();
 /// ```
@@ -44,6 +44,15 @@ pub struct Bip39Account {
 }
 
 impl Bip39Account {
+	/// Returns the mnemonic phrase used for this account
+	pub fn mnemonic(&self) -> &str {
+		&self.mnemonic
+	}
+
+	/// Returns a reference to the underlying Neo account
+	pub fn account(&self) -> &Account {
+		&self.account
+	}
 	/// Creates a new BIP-39 compatible neo account with a randomly generated mnemonic.
 	///
 	/// The private key for the wallet is calculated using:
@@ -60,11 +69,11 @@ impl Bip39Account {
 	///
 	/// # Example
 	/// ```
-	/// use neo3::prelude::Bip39Account;
+	/// use neo3::neo_wallets::Bip39Account;
 	///
 	/// let account = Bip39Account::create("my secure password").unwrap();
 	/// // Save the mnemonic securely
-	/// let mnemonic = account.mnemonic.clone();
+	/// let mnemonic = account.mnemonic().to_string();
 	/// ```
 	pub fn create(password: &str) -> Result<Self, Box<dyn std::error::Error>> {
 		let mut rng = bip39::rand::thread_rng();
@@ -105,9 +114,9 @@ impl Bip39Account {
 	///
 	/// # Example
 	/// ```
-	/// use neo3::prelude::Bip39Account;
+	/// use neo3::neo_wallets::Bip39Account;
 	///
-	/// let mnemonic = "word1 word2 ... word24"; // Your saved 24-word mnemonic
+	/// let mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art"; // Your saved 24-word mnemonic
 	/// let password = "your_secure_password";      // Original password used
 	/// let account = Bip39Account::from_bip39_mnemonic(password, mnemonic).unwrap();
 	/// ```

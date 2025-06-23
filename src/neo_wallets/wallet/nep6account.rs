@@ -71,17 +71,17 @@ impl NEP6Account {
 	///
 	/// ```
 	/// use std::collections::HashMap;
-	/// use NeoRust::prelude::{Address, NEP6Account, NEP6Contract};
+	/// use neo3::prelude::*;
 	///
-	/// let address = Address::from("example_address");
+	/// let address = "example_address".to_string();
 	/// let label = Some("My Account".to_string());
 	/// let is_default = true;
 	/// let lock = false;
 	/// let key = Some("example_private_key".to_string());
-	/// let contract = Some(NEP6Contract::new());
+	/// let contract = None; // NEP6Contract::new() is not directly available
 	/// let extra = Some(HashMap::new());
 	///
-	/// let account = NEP6Account::new(address, label, is_default, lock, key, contract, extra);
+	/// let account = wallets::NEP6Account::new(address, label, is_default, lock, key, contract, extra);
 	/// ```
 	pub fn new(
 		address: Address,
@@ -108,10 +108,11 @@ impl NEP6Account {
 	/// # Example
 	///
 	/// ```
-	/// use NeoRust::prelude::{Account, NEP6Account};
+	/// use neo3::prelude::*;
+	/// use neo3::neo_protocol::AccountTrait;
 	///
-	/// let account = Account::default();
-	/// let nep6_account = NEP6Account::from_account(&account);
+	/// let account = protocol::Account::create().unwrap();
+	/// let nep6_account = wallets::NEP6Account::from_account(&account);
 	/// ```
 	pub fn from_account(account: &Account) -> Result<NEP6Account, WalletError> {
 		if account.key_pair.is_some() && account.encrypted_private_key.is_none() {
@@ -170,8 +171,8 @@ impl NEP6Account {
 	/// # Example
 	///
 	/// ```
-	/// use NeoRust::prelude::NEP6Account;
-	/// let nep6_account = NEP6Account::default();
+	/// use neo3::prelude::*;
+	/// # let nep6_account = wallets::NEP6Account::new(String::new(), None, false, false, None, None, None);
 	/// let account = nep6_account.to_account();
 	/// ```
 	pub fn to_account(&self) -> Result<Account, WalletError> {
@@ -226,10 +227,10 @@ impl PartialEq for NEP6Account {
 	///
 	/// ```
 	///
-	/// use NeoRust::prelude::NEP6Account;
+	/// use neo3::prelude::*;
 	///
-	/// let account1 = NEP6Account::default();
-	/// let account2 = NEP6Account::default();
+	/// let account1 = wallets::NEP6Account::new(String::new(), None, false, false, None, None, None);
+	/// let account2 = wallets::NEP6Account::new(String::new(), None, false, false, None, None, None);
 	/// assert_eq!(account1, account2);
 	/// ```
 	fn eq(&self, other: &Self) -> bool {

@@ -41,7 +41,8 @@ impl Nep6Wallet {
 	///
 	/// ```
 	/// use std::collections::HashMap;
-	/// use NeoRust::prelude::{Nep6Wallet, ScryptParamsDef};
+	/// use neo3::prelude::*;
+	/// use neo3::ScryptParamsDef;
 	///
 	/// let name = "MyWallet".to_string();
 	/// let version = "1.0".to_string();
@@ -49,7 +50,7 @@ impl Nep6Wallet {
 	/// let accounts = vec![];
 	/// let extra = Some(HashMap::new());
 	///
-	/// let wallet = Nep6Wallet::new(name, version, scrypt, accounts, extra);
+	/// let wallet = wallets::Nep6Wallet::new(name, version, scrypt, accounts, extra);
 	/// ```
 	pub fn new(
 		name: String,

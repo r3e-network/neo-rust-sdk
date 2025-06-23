@@ -42,18 +42,18 @@ use thiserror::Error;
 /// Handling a `WalletError` might look like this:
 ///
 /// ```
-/// # use NeoRust::prelude::WalletError;
-/// # fn main() -> Result<(), WalletError> {
+/// # use neo3::prelude::*;
+/// # fn main() -> Result<(), wallets::WalletError> {
 /// let result = some_wallet_operation();
 ///     match result {
 ///         Ok(_) => println!("Operation successful"),
-///         Err(WalletError::NoKeyPair) => println!("Key pair missing"),
+///         Err(wallets::WalletError::NoKeyPair) => println!("Key pair missing"),
 ///         Err(e) => println!("An error occurred: {:?}", e),
 ///     }
 /// #    Ok(())
 /// # }
-/// # fn some_wallet_operation() -> Result<(), WalletError> {
-/// #    Err(WalletError::NoKeyPair)
+/// # fn some_wallet_operation() -> Result<(), wallets::WalletError> {
+/// #    Err(wallets::WalletError::NoKeyPair)
 /// # }
 /// ```
 ///

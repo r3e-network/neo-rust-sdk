@@ -23,11 +23,11 @@ impl WalletBackup {
 	///
 	/// ```no_run
 	/// use std::path::PathBuf;
-	/// use NeoRust::prelude::{Wallet, WalletBackup};
+	/// use neo3::prelude::*;
 	///
-	/// let wallet = Wallet::new();
+	/// let wallet = wallets::Wallet::new();
 	/// let backup_path = PathBuf::from("wallet_backup.json");
-	/// WalletBackup::backup(&wallet, backup_path).unwrap();
+	/// wallets::WalletBackup::backup(&wallet, backup_path).unwrap();
 	/// ```
 	pub fn backup(wallet: &Wallet, path: PathBuf) -> Result<(), WalletError> {
 		// Convert wallet to NEP6
@@ -61,10 +61,10 @@ impl WalletBackup {
 	///
 	/// ```no_run
 	/// use std::path::PathBuf;
-	/// use NeoRust::prelude::WalletBackup;
+	/// use neo3::prelude::*;
 	///
 	/// let backup_path = PathBuf::from("wallet_backup.json");
-	/// let recovered_wallet = WalletBackup::recover(backup_path).unwrap();
+	/// let recovered_wallet = wallets::WalletBackup::recover(backup_path).unwrap();
 	/// ```
 	pub fn recover(path: PathBuf) -> Result<Wallet, WalletError> {
 		// Read file content
