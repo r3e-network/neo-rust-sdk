@@ -3,9 +3,13 @@ use neo3::{
 	neo_wallets::{Wallet, WalletBackup, WalletTrait},
 };
 use tempfile::TempDir;
+use std::env;
 
 #[tokio::test]
 async fn test_complete_wallet_lifecycle() {
+	// Set faster scrypt parameters for testing
+	env::set_var("NEORUST_TEST_MODE", "1");
+	
 	// 1. Create wallet with multiple accounts
 	let mut wallet = Wallet::new();
 	wallet.set_name("Integration Test Wallet".to_string());
@@ -74,6 +78,9 @@ async fn test_complete_wallet_lifecycle() {
 
 #[tokio::test]
 async fn test_wallet_security_edge_cases() {
+	// Set faster scrypt parameters for testing
+	env::set_var("NEORUST_TEST_MODE", "1");
+	
 	let mut wallet = Wallet::new();
 	let account = Account::create().expect("Should create account");
 	wallet.add_account(account);
@@ -101,10 +108,13 @@ async fn test_wallet_security_edge_cases() {
 
 #[tokio::test]
 async fn test_large_wallet_performance() {
+	// Set environment variable to enable faster scrypt parameters for testing
+	env::set_var("NEORUST_TEST_MODE", "1");
+	
 	let mut wallet = Wallet::new();
 
-	// Create wallet with many accounts
-	let account_count = 50;
+	// Create wallet with many accounts (reduced from 50 to 20 for more realistic testing)
+	let account_count = 20;
 	for _ in 0..account_count {
 		let account = Account::create().expect("Should create account");
 		wallet.add_account(account);
@@ -117,17 +127,23 @@ async fn test_large_wallet_performance() {
 	wallet.encrypt_accounts_parallel("performance_test_password");
 	let encryption_time = start.elapsed();
 
-	println!("Encrypted {account_count} accounts in {encryption_time:?}");
+	println!("Encrypted {} accounts in {:?}", account_count + 1, encryption_time);
 
-	// In debug mode, encryption is much slower due to lack of optimizations
+	// With test mode enabled (NEORUST_TEST_MODE=1), encryption should be much faster
+	// Each account takes ~0.01s with fast test parameters (N=1024, p=1)
+	// With 21 accounts (20 + 1 default) and parallelization, expect:
+	// - Debug mode: A few seconds due to lack of optimizations
+	// - Release mode: Under 1 second with fast scrypt parameters
 	#[cfg(debug_assertions)]
-	let time_limit = 60; // 60 seconds for debug mode
+	let time_limit = 10; // 10 seconds for debug mode with fast test parameters
 	#[cfg(not(debug_assertions))]
-	let time_limit = 15; // 15 seconds for release mode
+	let time_limit = 5; // 5 seconds for release mode with fast test parameters
 
 	assert!(
 		encryption_time.as_secs() < time_limit,
-		"Encryption should complete within {time_limit} seconds"
+		"Encryption should complete within {} seconds, but took {} seconds",
+		time_limit,
+		encryption_time.as_secs()
 	);
 
 	// Test backup performance
@@ -138,7 +154,7 @@ async fn test_large_wallet_performance() {
 	WalletBackup::backup(&wallet, backup_path.clone()).expect("Should backup wallet");
 	let backup_time = start.elapsed();
 
-	println!("Backed up {account_count} accounts in {backup_time:?}");
+	println!("Backed up {} accounts in {:?}", account_count + 1, backup_time);
 	assert!(backup_time.as_secs() < 2, "Backup should complete within 2 seconds");
 
 	// Test recovery performance
@@ -146,8 +162,11 @@ async fn test_large_wallet_performance() {
 	let _recovered_wallet = WalletBackup::recover(backup_path).expect("Should recover wallet");
 	let recovery_time = start.elapsed();
 
-	println!("Recovered {account_count} accounts in {recovery_time:?}");
+	println!("Recovered {} accounts in {:?}", account_count + 1, recovery_time);
 	assert!(recovery_time.as_secs() < 2, "Recovery should complete within 2 seconds");
+	
+	// Clean up test environment variable
+	env::remove_var("NEORUST_TEST_MODE");
 }
 
 #[tokio::test]

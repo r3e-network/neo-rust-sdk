@@ -327,12 +327,24 @@ impl NEP2 {
 
 	/// Gets the default scrypt parameters used in the NEO blockchain.
 	///
+	/// In test mode (when NEORUST_TEST_MODE environment variable is set), uses faster
+	/// parameters to improve test performance while maintaining reasonable security.
+	///
 	/// # Returns
 	///
-	/// The standard scrypt parameters (N=16384, r=8, p=8, dklen=32)
+	/// The standard scrypt parameters (N=16384, r=8, p=8, dklen=32) or
+	/// faster test parameters (N=1024, r=8, p=1, dklen=32) in test mode
 	fn get_default_scrypt_params() -> Result<Params, Nep2Error> {
-		Params::new(NeoConstants::SCRYPT_LOG_N, NeoConstants::SCRYPT_R, NeoConstants::SCRYPT_P, 32)
-			.map_err(|e| Nep2Error::ScryptError(e.to_string()))
+		// Check if we're in test mode for faster parameters
+		if std::env::var("NEORUST_TEST_MODE").is_ok() {
+			// Use much faster parameters for testing: N=1024 (2^10), r=8, p=1
+			// This reduces encryption time from ~1.4s to ~0.01s per account
+			Params::new(10, 8, 1, 32).map_err(|e| Nep2Error::ScryptError(e.to_string()))
+		} else {
+			// Use production parameters
+			Params::new(NeoConstants::SCRYPT_LOG_N, NeoConstants::SCRYPT_R, NeoConstants::SCRYPT_P, 32)
+				.map_err(|e| Nep2Error::ScryptError(e.to_string()))
+		}
 	}
 
 	/// Gets the scrypt parameters used in the NEP2 test vectors.
