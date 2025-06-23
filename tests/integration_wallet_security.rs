@@ -2,14 +2,14 @@ use neo3::{
 	neo_protocol::{Account, AccountTrait},
 	neo_wallets::{Wallet, WalletBackup, WalletTrait},
 };
-use tempfile::TempDir;
 use std::env;
+use tempfile::TempDir;
 
 #[tokio::test]
 async fn test_complete_wallet_lifecycle() {
 	// Set faster scrypt parameters for testing
 	env::set_var("NEORUST_TEST_MODE", "1");
-	
+
 	// 1. Create wallet with multiple accounts
 	let mut wallet = Wallet::new();
 	wallet.set_name("Integration Test Wallet".to_string());
@@ -80,7 +80,7 @@ async fn test_complete_wallet_lifecycle() {
 async fn test_wallet_security_edge_cases() {
 	// Set faster scrypt parameters for testing
 	env::set_var("NEORUST_TEST_MODE", "1");
-	
+
 	let mut wallet = Wallet::new();
 	let account = Account::create().expect("Should create account");
 	wallet.add_account(account);
@@ -110,7 +110,7 @@ async fn test_wallet_security_edge_cases() {
 async fn test_large_wallet_performance() {
 	// Set environment variable to enable faster scrypt parameters for testing
 	env::set_var("NEORUST_TEST_MODE", "1");
-	
+
 	let mut wallet = Wallet::new();
 
 	// Create wallet with many accounts (reduced from 50 to 20 for more realistic testing)
@@ -164,7 +164,7 @@ async fn test_large_wallet_performance() {
 
 	println!("Recovered {} accounts in {:?}", account_count + 1, recovery_time);
 	assert!(recovery_time.as_secs() < 2, "Recovery should complete within 2 seconds");
-	
+
 	// Clean up test environment variable
 	env::remove_var("NEORUST_TEST_MODE");
 }

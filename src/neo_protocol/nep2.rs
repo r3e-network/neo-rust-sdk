@@ -342,8 +342,13 @@ impl NEP2 {
 			Params::new(10, 8, 1, 32).map_err(|e| Nep2Error::ScryptError(e.to_string()))
 		} else {
 			// Use production parameters
-			Params::new(NeoConstants::SCRYPT_LOG_N, NeoConstants::SCRYPT_R, NeoConstants::SCRYPT_P, 32)
-				.map_err(|e| Nep2Error::ScryptError(e.to_string()))
+			Params::new(
+				NeoConstants::SCRYPT_LOG_N,
+				NeoConstants::SCRYPT_R,
+				NeoConstants::SCRYPT_P,
+				32,
+			)
+			.map_err(|e| Nep2Error::ScryptError(e.to_string()))
 		}
 	}
 
