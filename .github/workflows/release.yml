@@ -157,8 +157,6 @@ jobs:
         package:
           - name: neo3
             path: .
-          - name: neo-cli
-            path: neo-cli
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
