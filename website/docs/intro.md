@@ -2,9 +2,9 @@
 
 <div className="hero hero--primary">
   <div className="container">
-    <h1 className="hero__title">🚀 NeoRust v0.4.1</h1>
+    <h1 className="hero__title">🚀 NeoRust v0.4.2</h1>
     <p className="hero__subtitle">
-      Production-Ready Neo N3 Development Suite
+      Production-Ready Neo N3 Development Suite with 135 Passing Doc Tests
     </p>
     <p>
       The most comprehensive toolkit for Neo N3 blockchain development. 
@@ -79,8 +79,8 @@
 <div className="row">
   <div className="col col--3">
     <div className="text--center">
-      <h2 className="gradient-text">378/378</h2>
-      <p><strong>Tests Passing</strong></p>
+      <h2 className="gradient-text">135/150</h2>
+      <p><strong>Doc Tests Passing</strong></p>
     </div>
   </div>
   <div className="col col--3">
@@ -134,7 +134,7 @@ cargo build --release
 
 ```toml
 [dependencies]
-neo3 = "0.4.1"
+neo3 = "0.4.2"
 ```
 
 ```rust

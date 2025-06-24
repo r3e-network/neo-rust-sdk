@@ -58,7 +58,7 @@ Create a simple test to verify everything works:
 use neo3::prelude::*;
 
 fn main() {
-    println!("NeoRust SDK v0.4.1 is ready!");
+    println!("NeoRust SDK v0.4.2 is ready!");
     
     // Create a simple account
     let account = Account::create().expect("Failed to create account");
@@ -74,7 +74,7 @@ cargo run
 
 You should see output like:
 ```
-NeoRust SDK v0.4.1 is ready!
+NeoRust SDK v0.4.2 is ready!
 Generated address: NXXXXxxxXXXxxxXXXxxxXXXxxxXXXxxx
 ```
 

@@ -15,7 +15,7 @@ neorust config init
 
 # Verify installation
 neorust --version
-# Output: neorust 0.4.1
+# Output: neorust 0.4.2
 ```
 
 ### First-time Configuration

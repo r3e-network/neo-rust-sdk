@@ -56,7 +56,7 @@ const stats = [
   { label: '100% Rust-Native', value: '100%', description: 'Pure Rust implementation' },
   { label: 'Neo N3 Support', value: 'Full', description: 'Complete Neo N3 compatibility' },
   { label: 'Neo X Ready', value: '✓', description: 'EVM compatibility layer' },
-  { label: 'Test Coverage', value: '278/278', description: 'All tests passing' },
+  { label: 'Doc Tests', value: '135/150', description: 'Documentation tests passing' },
 ];
 
 const exampleCode = `use neo3::prelude::*;
@@ -267,7 +267,7 @@ export default function Home(): JSX.Element {
   return (
     <Layout
       title={`${siteConfig.title} - ${siteConfig.tagline}`}
-      description="NeoRust v0.4.1 - A comprehensive Rust SDK for Neo N3 blockchain development. Build high-performance dApps with type-safe, modern Rust.">
+      description="NeoRust v0.4.2 - A production-ready Rust SDK for Neo N3 blockchain development. Build high-performance dApps with type-safe, modern Rust. Features 135 passing documentation tests.">
       
       {/* Hero Section */}
       <header className={clsx('hero hero--primary', styles.heroBanner)}>
@@ -283,8 +283,23 @@ export default function Home(): JSX.Element {
               <span className={styles.heroTitleSecondary}>Rust SDK</span>
             </h1>
             <p className={styles.heroSubtitle}>
-              A comprehensive Rust library for building high-performance applications on the Neo N3 blockchain ecosystem
+              A production-ready Rust library for building high-performance applications on the Neo N3 blockchain ecosystem. Now with 135 passing documentation tests ensuring code quality and reliability.
             </p>
+            
+            <div className={styles.qualityBadges}>
+              <div className={styles.badge}>
+                <span className={styles.badgeIcon}>✅</span>
+                <span className={styles.badgeText}>135/150 Doc Tests</span>
+              </div>
+              <div className={styles.badge}>
+                <span className={styles.badgeIcon}>🦀</span>
+                <span className={styles.badgeText}>100% Rust Native</span>
+              </div>
+              <div className={styles.badge}>
+                <span className={styles.badgeIcon}>🛡️</span>
+                <span className={styles.badgeText}>Production Ready</span>
+              </div>
+            </div>
             
             <div className={styles.heroButtons}>
               <Link
@@ -514,7 +529,7 @@ export default function Home(): JSX.Element {
             <div className={styles.ctaContent}>
               <h2 className={styles.ctaTitle}>Ready to Build on Neo?</h2>
               <p className={styles.ctaSubtitle}>
-                Join the growing community of developers building the future of blockchain with NeoRust v0.4.1
+                Join the growing community of developers building the future of blockchain with NeoRust v0.4.2
               </p>
               
               <div className={styles.ctaButtons}>
@@ -534,7 +549,7 @@ export default function Home(): JSX.Element {
               
               <div className={styles.ctaNote}>
                 <p>
-                  <strong>New in v0.4.1:</strong> Enhanced cross-platform compatibility, security fixes, and improved developer experience.
+                  <strong>New in v0.4.2:</strong> Production-ready stability with 135 passing documentation tests, enhanced error handling, and comprehensive code quality improvements.
                   <Link to="/blog" className={styles.ctaLink}> Read the release notes →</Link>
                 </p>
               </div>

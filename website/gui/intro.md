@@ -37,9 +37,9 @@ The NeoRust Desktop GUI isn't just another wallet - it's a comprehensive blockch
 #### Option 1: Download Pre-built Binary
 ```bash
 # Download the latest release for your platform
-# Windows: NeoRust-Desktop-v0.4.1-x64.msi
-# macOS: NeoRust-Desktop-v0.4.1.dmg
-# Linux: NeoRust-Desktop-v0.4.1.AppImage
+# Windows: NeoRust-Desktop-v0.4.2-x64.msi
+# macOS: NeoRust-Desktop-v0.4.2.dmg
+# Linux: NeoRust-Desktop-v0.4.2.AppImage
 ```
 
 #### Option 2: Build from Source
