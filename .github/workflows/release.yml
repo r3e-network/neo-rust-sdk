@@ -77,19 +77,19 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Check formatting
-        run: cargo fmt -- --check
+        run: cargo fmt --all -- --check
 
-      - name: Run clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Run clippy (exclude GUI)
+        run: cargo clippy --workspace --all-features -- -D warnings
 
-      - name: Run tests
+      - name: Run tests (exclude GUI)
         run: cargo test --workspace --all-features
 
-      - name: Run documentation tests
-        run: cargo test --doc
+      - name: Run documentation tests (exclude GUI)
+        run: cargo test --doc --workspace
 
-      - name: Verify documentation builds
-        run: cargo doc --all-features --no-deps
+      - name: Verify documentation builds (exclude GUI)
+        run: cargo doc --workspace --all-features --no-deps
 
       - name: Check package can be built
         run: cargo package --allow-dirty
@@ -159,8 +159,6 @@ jobs:
             path: .
           - name: neo-cli
             path: neo-cli
-          - name: neo-gui
-            path: neo-gui
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

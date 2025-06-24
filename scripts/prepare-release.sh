@@ -3,6 +3,7 @@ set -e
 
 # Prepare Release Script for NeoRust
 # Usage: ./scripts/prepare-release.sh <version>
+# Note: This script excludes neo-gui from the release process
 
 if [ $# -eq 0 ]; then
     echo "Usage: $0 <version>"
@@ -52,14 +53,14 @@ if ! cargo fmt --all -- --check; then
     exit 1
 fi
 
-# Run clippy
+# Run clippy (excluding GUI)
 echo "📎 Running clippy..."
 if ! cargo clippy --workspace --all-features -- -D warnings; then
     echo "❌ Clippy warnings found. Please fix before release."
     exit 1
 fi
 
-# Run tests
+# Run tests (excluding GUI)
 echo "🧪 Running tests..."
 if ! cargo test --workspace; then
     echo "❌ Tests failed. Please fix before release."
@@ -77,7 +78,7 @@ else
     echo "⚠️  cargo-audit not found. Install with: cargo install cargo-audit"
 fi
 
-# Build documentation
+# Build documentation (excluding GUI)
 echo "📚 Building documentation..."
 if ! cargo doc --workspace --no-deps; then
     echo "❌ Documentation build failed."
