@@ -1,6 +1,40 @@
-# Release Process
+# NeoRust Automated Release Process
 
-This document outlines the complete release process for NeoRust, including versioning strategy, quality gates, and automation workflows.
+This document describes the automated release process for NeoRust using GitHub Actions and branch-based triggers.
+
+## 🚀 Quick Start for New Releases
+
+### 1. Add Crates.io API Key to GitHub Secrets
+
+**⚠️ SECURITY**: Never commit API keys to the repository!
+
+1. Go to your GitHub repository → **Settings** → **Secrets and variables** → **Actions**
+2. Click **"New repository secret"**
+3. Name: `CRATES_IO_TOKEN`
+4. Value: Your crates.io API token
+5. Click **"Add secret"**
+
+### 2. Create a New Release
+
+```bash
+# Option 1: Use the automated script (Recommended)
+./scripts/prepare-release.sh 0.4.3
+
+# Option 2: Manual process
+# 1. Update version numbers manually
+# 2. Create release branch: git checkout -b v0.4.3
+# 3. Push branch: git push origin v0.4.3
+```
+
+### 3. Monitor the Automated Release
+
+The GitHub Actions workflow will automatically:
+- ✅ Validate version format
+- ✅ Run comprehensive quality checks
+- ✅ Create GitHub release
+- ✅ Publish to crates.io
+
+## 🔄 Automated Workflow Details
 
 ## 🎯 Release Strategy
 
