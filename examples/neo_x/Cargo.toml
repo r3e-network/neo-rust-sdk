@@ -8,7 +8,7 @@ publish = false
 [dependencies]
 neo3 = { path = "../..", package = "neo3", features = [] }
 tokio = { version = "1.32", features = ["full"] }
-primitive-types = "0.12"
+primitive-types = "0.13"
 eyre = "0.6"
 
 [[example]]
