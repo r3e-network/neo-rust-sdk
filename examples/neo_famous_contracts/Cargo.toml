@@ -10,8 +10,8 @@ futures = ["neo3/futures"]
 ledger = ["neo3/ledger"]
 [dependencies]
 neo3 = { path = "../../", package = "neo3", features = [] }
-tokio = { version = "1.0", features = ["full"] }
-primitive-types = "0.12.1"
+tokio = { version = "1.46", features = ["full"] }
+primitive-types = "0.13.1"
 hex = { package = "const-hex", version = "1.6", features = ["hex"] }
 
 [[example]]

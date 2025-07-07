@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 neo3 = { path = "../.." }
-tokio = { version = "1.0", features = ["full"] }
+tokio = { version = "1.46", features = ["full"] }
 chrono = "0.4"
-rand = "0.8"
+rand = "0.9"
 hex = "0.4"

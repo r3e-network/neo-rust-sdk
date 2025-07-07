@@ -20,32 +20,32 @@ neofs = []
 
 [dependencies]
 neo3 = { path = "..", version = "0.4.2", features = ["futures", "ledger"] }
-tokio = { version = "1.45", features = ["full"] }
-clap = { version = "4.0", features = ["derive"] }
+tokio = { version = "1.46", features = ["full"] }
+clap = { version = "4.5", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-colored = "2.0"
+colored = "3.0"
 comfy-table = "7.0"
-dirs = "5.0"
+dirs = "6.0"
 rpassword = "7.0"
 regex = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
-base64 = "0.21"
+base64 = "0.22"
 hex = "0.4"
-rand = "0.8"
+rand = "0.9"
 futures = "0.3"
 async-trait = "0.1"
 url = "2.4"
 dialoguer = "0.11"
 anyhow = "1.0"
-thiserror = "1.0"
-indicatif = "0.17"
+thiserror = "2.0"
+indicatif = "0.18"
 primitive-types = "0.13"
 num-traits = "0.2"
-reqwest = { version = "0.11", features = ["json"] }
+reqwest = { version = "0.12", features = ["json"] }
 sha2 = "0.10"
 ripemd = "0.1"
-env_logger = "0.11.6"
+env_logger = "0.11.8"
 log = "0.4"
 mime_guess = "2.0"
 
