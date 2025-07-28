@@ -1,5 +1,4 @@
 #![allow(warnings)]
-#![cfg_attr(docsrs, feature(doc_cfg))]
 
 //! ![Neo Logo](https://neo.org/images/neo-logo/NEO-logo.svg)
 //! # NeoRust SDK v0.4.1
