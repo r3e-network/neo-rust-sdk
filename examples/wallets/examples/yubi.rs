@@ -16,7 +16,9 @@ use std::collections::HashMap;
 struct YubiHsmConfig {
 	connector_url: String,
 	auth_key_id: u16,
+	#[allow(dead_code)]
 	password: String,
+	#[allow(dead_code)]
 	timeout_ms: u32,
 }
 
@@ -36,8 +38,11 @@ struct KeyMetadata {
 	id: u16,
 	algorithm: String,
 	capabilities: Vec<String>,
+	#[allow(dead_code)]
 	delegated_capabilities: Vec<String>,
+	#[allow(dead_code)]
 	domains: u16,
+	#[allow(dead_code)]
 	label: String,
 }
 
@@ -142,7 +147,7 @@ impl YubiHsm {
 		let public_key = key_pair.public_key().get_encoded_point(false);
 
 		println!("   ✅ Public key retrieved");
-		println!("       Key: {}", hex::encode(&public_key));
+		println!("       Key: {}", hex::encode(public_key));
 
 		Ok(public_key.as_bytes().to_vec())
 	}
@@ -327,7 +332,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		println!("   📝 Creating transaction for HSM signing...");
 
 		// Create a simple transaction
-		let script = ScriptBuilder::new().contract_call(&gas_hash, "symbol", &[], None)?.to_bytes();
+		let _script = ScriptBuilder::new().contract_call(&gas_hash, "symbol", &[], None)?.to_bytes();
 
 		// Sign with HSM
 		let tx_data = b"neo_transaction_to_sign"; // In reality, this would be the transaction hash
