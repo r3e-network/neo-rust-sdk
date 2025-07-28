@@ -2,9 +2,8 @@
 ///
 /// This example demonstrates how to subscribe to and filter specific types of contract events
 /// on the Neo N3 blockchain using polling-based monitoring with event type filtering.
-use neo3::{neo_clients::APITrait, prelude::*};
-use std::{collections::HashMap, str::FromStr, time::Duration};
-use tokio::time::sleep;
+use neo3::neo_clients::APITrait;
+use std::{collections::HashMap, str::FromStr};
 
 #[derive(Debug, Clone)]
 struct EventFilter {
@@ -81,10 +80,8 @@ async fn subscribe_to_transfers(
 	println!("   💸 Monitoring Transfer events from NEP-17 tokens...");
 
 	// Common NEP-17 token contracts on TestNet
-	let nep17_contracts = vec![
-		("GAS", "d2a4cff31913016155e38e474a2c06d08be276cf"),
-		("NEO", "ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5"),
-	];
+	let nep17_contracts = [("GAS", "d2a4cff31913016155e38e474a2c06d08be276cf"),
+		("NEO", "ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5")];
 
 	let current_height = client.get_block_count().await?;
 	let start_height = current_height.saturating_sub(10);
@@ -98,15 +95,15 @@ async fn subscribe_to_transfers(
 	let mut transfer_events = Vec::new();
 
 	for height in start_height..current_height {
-		if let Ok(block) = client.get_block(height, Some(true)).await {
-			if let Some(transactions) = &block.tx {
+		if let Ok(block) = client.get_block_by_index(height, true).await {
+			if let Some(transactions) = &block.transactions {
 				for tx in transactions {
-					if let Ok(app_log) = client.get_application_log(&tx.hash).await {
+					if let Ok(app_log) = client.get_application_log(tx.hash).await {
 						for execution in &app_log.executions {
 							for notification in &execution.notifications {
 								// Filter for Transfer events only
 								if notification.event_name == "Transfer" {
-									let contract_hex = hex::encode(&notification.contract.0);
+									let contract_hex = format!("{:x}", notification.contract);
 
 									// Check if it's from a known NEP-17 contract
 									if let Some((name, _)) = nep17_contracts
@@ -115,17 +112,18 @@ async fn subscribe_to_transfers(
 									{
 										transfer_events.push(ContractEvent {
 											block_height: height,
-											transaction_hash: tx.hash.clone(),
-											contract_hash: notification.contract.clone(),
+											transaction_hash: tx.hash.to_string(),
+											contract_hash: notification.contract,
 											event_name: notification.event_name.clone(),
-											state: notification.state.clone(),
+											state: Some(notification.state.clone()),
 										});
 
 										println!("      📢 {name} Transfer found:");
 										println!("         Block: {height}");
 										println!("         TX: {}", tx.hash);
-										if let Some(state) = &notification.state {
-											println!("         State: {:?}", state);
+										{
+											let state = &notification.state;
+											println!("         State: {state:?}");
 										}
 									}
 								}
@@ -231,19 +229,17 @@ async fn demonstrate_custom_filtering(
 	let mut pattern_matches = 0;
 
 	for height in start_height..current_height {
-		if let Ok(block) = client.get_block(height, Some(true)).await {
-			if let Some(transactions) = &block.tx {
+		if let Ok(block) = client.get_block_by_index(height, true).await {
+			if let Some(transactions) = &block.transactions {
 				for tx in transactions {
-					if let Ok(app_log) = client.get_application_log(&tx.hash).await {
+					if let Ok(app_log) = client.get_application_log(tx.hash).await {
 						for execution in &app_log.executions {
 							for notification in &execution.notifications {
 								// Custom filter logic
 								match notification.event_name.as_str() {
 									"Transfer" => {
 										// Example: filter by amount (this is conceptual)
-										if let Some(_state) = &notification.state {
-											large_transfers += 1;
-										}
+										large_transfers += 1;
 									},
 									_ => {
 										// Count events from any contract
@@ -287,10 +283,10 @@ async fn get_events_with_filter(
 	let current_height = client.get_block_count().await?;
 
 	for height in filter.from_block..current_height {
-		if let Ok(block) = client.get_block(height, Some(true)).await {
-			if let Some(transactions) = &block.tx {
+		if let Ok(block) = client.get_block_by_index(height, true).await {
+			if let Some(transactions) = &block.transactions {
 				for tx in transactions {
-					if let Ok(app_log) = client.get_application_log(&tx.hash).await {
+					if let Ok(app_log) = client.get_application_log(tx.hash).await {
 						for execution in &app_log.executions {
 							for notification in &execution.notifications {
 								// Check contract filter
@@ -304,10 +300,10 @@ async fn get_events_with_filter(
 								if contract_match && event_match {
 									events.push(ContractEvent {
 										block_height: height,
-										transaction_hash: tx.hash.clone(),
-										contract_hash: notification.contract.clone(),
+										transaction_hash: tx.hash.to_string(),
+										contract_hash: notification.contract,
 										event_name: notification.event_name.clone(),
-										state: notification.state.clone(),
+										state: Some(notification.state.clone()),
 									});
 								}
 							}

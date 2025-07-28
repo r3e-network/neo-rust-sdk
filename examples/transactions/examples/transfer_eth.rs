@@ -105,7 +105,7 @@ async fn check_account_balances(
 		Ok(result) => {
 			if let Some(stack_item) = result.stack.first() {
 				if let Some(symbol) = stack_item.as_string() {
-					println!("      🪙 {} Token (GAS): 0x{:x}", symbol, gas_hash);
+					println!("      🪙 {symbol} Token (GAS): 0x{gas_hash:x}");
 				}
 			}
 		},
@@ -239,17 +239,17 @@ async fn calculate_transaction_fees(
 	let total_fee = base_fee + size_fee;
 
 	println!("\n      🧮 Fee Calculation:");
-	println!("         Base fee: {:.6} GAS", base_fee);
-	println!("         Size fee: {:.6} GAS ({} bytes)", size_fee, estimated_size);
-	println!("         Total fee: {:.6} GAS", total_fee);
+	println!("         Base fee: {base_fee:.6} GAS");
+	println!("         Size fee: {size_fee:.6} GAS ({estimated_size} bytes)");
+	println!("         Total fee: {total_fee:.6} GAS");
 
 	// Required balance
 	let transfer_amount = 5.0;
 	let required_balance = transfer_amount + total_fee;
 	println!("\n      📊 Balance Requirements:");
-	println!("         Transfer amount: {} GAS", transfer_amount);
-	println!("         Network fees: {:.6} GAS", total_fee);
-	println!("         Total required: {:.6} GAS", required_balance);
+	println!("         Transfer amount: {transfer_amount} GAS");
+	println!("         Network fees: {total_fee:.6} GAS");
+	println!("         Total required: {required_balance:.6} GAS");
 
 	Ok(())
 }
@@ -272,7 +272,7 @@ async fn validate_transaction(
 	];
 
 	for (check, status) in validations {
-		println!("      {}: {}", check, status);
+		println!("      {check}: {status}");
 	}
 
 	println!("\n   🔐 Signing requirements:");

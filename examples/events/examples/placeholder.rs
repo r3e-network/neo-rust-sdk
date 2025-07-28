@@ -2,8 +2,8 @@
 ///
 /// This example demonstrates how to monitor contract events and notifications
 /// in Neo N3 by polling blocks and parsing application logs.
-use neo3::{neo_clients::APITrait, prelude::*};
-use std::{collections::HashMap, str::FromStr, time::Duration};
+use neo3::neo_clients::APITrait;
+use std::{collections::HashMap, time::Duration};
 use tokio::time::sleep;
 
 #[tokio::main]
@@ -71,14 +71,14 @@ async fn monitor_recent_events(
 	let mut events_found = 0;
 
 	for height in start_height..current_height {
-		match client.get_block(height, Some(true)).await {
+		match client.get_block_by_index(height, true).await {
 			Ok(block) => {
-				if let Some(transactions) = &block.tx {
+				if let Some(transactions) = &block.transactions {
 					total_transactions += transactions.len();
 
 					for tx in transactions {
 						// Get application log for each transaction
-						match client.get_application_log(&tx.hash).await {
+						match client.get_application_log(tx.hash).await {
 							Ok(app_log) => {
 								if !app_log.executions.is_empty() {
 									for execution in &app_log.executions {
@@ -88,8 +88,8 @@ async fn monitor_recent_events(
 											for notification in &execution.notifications {
 												println!("      📢 Event found in block {height}:");
 												println!(
-													"         Contract: 0x{}",
-													hex::encode(&notification.contract.0)
+													"         Contract: 0x{:x}",
+													notification.contract
 												);
 												println!(
 													"         Event: {}",
@@ -135,13 +135,13 @@ async fn monitor_contract_events(
 	let mut contract_events: HashMap<String, u32> = HashMap::new();
 
 	for height in start_height..current_height {
-		if let Ok(block) = client.get_block(height, Some(true)).await {
-			if let Some(transactions) = &block.tx {
+		if let Ok(block) = client.get_block_by_index(height, true).await {
+			if let Some(transactions) = &block.transactions {
 				for tx in transactions {
-					if let Ok(app_log) = client.get_application_log(&tx.hash).await {
+					if let Ok(app_log) = client.get_application_log(tx.hash).await {
 						for execution in &app_log.executions {
 							for notification in &execution.notifications {
-								let contract_hex = hex::encode(&notification.contract.0);
+								let contract_hex = format!("{:x}", notification.contract);
 
 								// Check if this is a contract we're monitoring
 								for (name, hash) in &contracts_to_monitor {
@@ -181,42 +181,43 @@ async fn parse_event_types(
 	let start_height = current_height.saturating_sub(3);
 
 	for height in start_height..current_height {
-		if let Ok(block) = client.get_block(height, Some(true)).await {
-			if let Some(transactions) = &block.tx {
+		if let Ok(block) = client.get_block_by_index(height, true).await {
+			if let Some(transactions) = &block.transactions {
 				for tx in transactions {
-					if let Ok(app_log) = client.get_application_log(&tx.hash).await {
+					if let Ok(app_log) = client.get_application_log(tx.hash).await {
 						for execution in &app_log.executions {
 							for notification in &execution.notifications {
 								match notification.event_name.as_str() {
 									"Transfer" => {
 										println!("      💸 Transfer Event:");
 										println!(
-											"         Contract: 0x{}",
-											hex::encode(&notification.contract.0)
+											"         Contract: 0x{:x}",
+											notification.contract
 										);
-										if let Some(state) = &notification.state {
-											println!("         State: {:?}", state);
+										{
+											let state = &notification.state;
+											println!("         State: {state:?}");
 										}
 									},
 									"Mint" => {
 										println!("      🪙 Mint Event:");
 										println!(
-											"         Contract: 0x{}",
-											hex::encode(&notification.contract.0)
+											"         Contract: 0x{:x}",
+											notification.contract
 										);
 									},
 									"Burn" => {
 										println!("      🔥 Burn Event:");
 										println!(
-											"         Contract: 0x{}",
-											hex::encode(&notification.contract.0)
+											"         Contract: 0x{:x}",
+											notification.contract
 										);
 									},
 									other => {
-										println!("      🔔 {} Event:", other);
+										println!("      🔔 {other} Event:");
 										println!(
-											"         Contract: 0x{}",
-											hex::encode(&notification.contract.0)
+											"         Contract: 0x{:x}",
+											notification.contract
 										);
 									},
 								}
@@ -248,12 +249,12 @@ async fn demonstrate_continuous_monitoring(
 			println!("      📦 New block #{current_height} detected!");
 
 			// Check the new block for events
-			if let Ok(block) = client.get_block(current_height - 1, Some(true)).await {
-				if let Some(transactions) = &block.tx {
+			if let Ok(block) = client.get_block_by_index(current_height - 1, true).await {
+				if let Some(transactions) = &block.transactions {
 					println!("         Transactions in block: {}", transactions.len());
 
 					for tx in transactions {
-						if let Ok(app_log) = client.get_application_log(&tx.hash).await {
+						if let Ok(app_log) = client.get_application_log(tx.hash).await {
 							let total_events: usize = app_log
 								.executions
 								.iter()
