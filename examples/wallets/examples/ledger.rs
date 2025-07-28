@@ -24,6 +24,7 @@ struct LedgerDevice {
 #[derive(Debug)]
 struct LedgerSignature {
 	signature: Vec<u8>,
+	#[allow(dead_code)]
 	public_key: Vec<u8>,
 }
 
@@ -77,7 +78,7 @@ impl LedgerDevice {
 		let public_key = key_pair.public_key().get_encoded_point(false);
 
 		println!("   🔑 Derived public key for path {path}");
-		println!("       Key: {}", hex::encode(&public_key));
+		println!("       Key: {}", hex::encode(public_key));
 
 		Ok(public_key.as_bytes().to_vec())
 	}
@@ -197,7 +198,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let gas_hash = ScriptHash::from_str("d2a4cff31913016155e38e474a2c06d08be276cf")?;
 
 	for (path, address) in &derived_addresses {
-		println!("   📍 Address: {address} ({})", path);
+		println!("   📍 Address: {address} ({path})");
 
 		if let Ok(address_hash) = ScriptHash::from_address(address) {
 			match client
@@ -232,7 +233,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		println!("   📝 Creating test transaction from {first_address}...");
 
 		// Create a simple transaction
-		let script = ScriptBuilder::new().contract_call(&gas_hash, "symbol", &[], None)?.to_bytes();
+		let _script = ScriptBuilder::new().contract_call(&gas_hash, "symbol", &[], None)?.to_bytes();
 
 		// Simulate transaction signing with Ledger
 		let tx_data = b"simulated_transaction_data"; // In reality, this would be the actual transaction hash
