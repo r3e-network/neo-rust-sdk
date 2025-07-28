@@ -16,8 +16,10 @@ struct EventFilter {
 struct ContractEvent {
 	block_height: u32,
 	transaction_hash: String,
+	#[allow(dead_code)]
 	contract_hash: neo3::neo_types::ScriptHash,
 	event_name: String,
+	#[allow(dead_code)]
 	state: Option<neo3::neo_types::StackItem>,
 }
 
