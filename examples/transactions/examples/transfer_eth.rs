@@ -4,9 +4,8 @@
 /// on the Neo N3 blockchain, including balance checking, transaction building, and fee calculation.
 use neo3::{
 	neo_builder::{ScriptBuilder, TransactionBuilder},
-	neo_clients::{APITrait, HttpProvider, RpcClient},
-	neo_protocol::{Account, AccountTrait},
-	neo_types::{ContractParameter, ScriptHash},
+	neo_clients::APITrait,
+	neo_types::{ContractParameter, ScriptHash, ScriptHashExtension},
 };
 use std::str::FromStr;
 
@@ -97,7 +96,7 @@ async fn check_account_balances(
 	client: &neo3::neo_clients::RpcClient<neo3::neo_clients::HttpProvider>,
 ) -> Result<(), Box<dyn std::error::Error>> {
 	let gas_hash = ScriptHash::from_str("d2a4cff31913016155e38e474a2c06d08be276cf")?;
-	let neo_hash = ScriptHash::from_str("ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5")?;
+	let _neo_hash = ScriptHash::from_str("ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5")?;
 
 	println!("   💰 Token Information:");
 
@@ -106,7 +105,7 @@ async fn check_account_balances(
 		Ok(result) => {
 			if let Some(stack_item) = result.stack.first() {
 				if let Some(symbol) = stack_item.as_string() {
-					println!("      🪙 {} Token (GAS): 0x{}", symbol, hex::encode(gas_hash.0));
+					println!("      🪙 {} Token (GAS): 0x{:x}", symbol, gas_hash);
 				}
 			}
 		},
@@ -256,7 +255,7 @@ async fn calculate_transaction_fees(
 }
 
 async fn validate_transaction(
-	client: &neo3::neo_clients::RpcClient<neo3::neo_clients::HttpProvider>,
+	_client: &neo3::neo_clients::RpcClient<neo3::neo_clients::HttpProvider>,
 ) -> Result<(), Box<dyn std::error::Error>> {
 	println!("   ✅ Transaction validation checklist:");
 
