@@ -71,6 +71,10 @@ jobs:
       working-directory: neo-gui
       run: npm run test:coverage
       
+    - name: Install Playwright browsers
+      working-directory: neo-gui
+      run: npx playwright install --with-deps
+      
     - name: Run E2E tests
       working-directory: neo-gui
       run: npm run test:e2e
