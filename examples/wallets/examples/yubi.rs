@@ -332,7 +332,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		println!("   📝 Creating transaction for HSM signing...");
 
 		// Create a simple transaction
-		let _script = ScriptBuilder::new().contract_call(&gas_hash, "symbol", &[], None)?.to_bytes();
+		let _script =
+			ScriptBuilder::new().contract_call(&gas_hash, "symbol", &[], None)?.to_bytes();
 
 		// Sign with HSM
 		let tx_data = b"neo_transaction_to_sign"; // In reality, this would be the transaction hash
