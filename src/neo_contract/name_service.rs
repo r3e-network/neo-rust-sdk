@@ -1,4 +1,3 @@
-#![feature(const_trait_impl)]
 use std::{string::ToString, sync::Arc};
 
 use crate::{

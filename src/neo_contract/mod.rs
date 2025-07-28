@@ -1,5 +1,3 @@
-#![feature(const_trait_impl)]
-
 //! # Neo Contract Module (v0.1.8)
 //!
 //! Comprehensive interfaces for interacting with Neo N3 smart contracts and tokens.

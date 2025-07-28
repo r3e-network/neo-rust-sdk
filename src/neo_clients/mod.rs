@@ -1,8 +1,6 @@
-#![feature(inherent_associated_types)]
 #![allow(clippy::type_complexity)]
 #![warn(missing_docs)]
 #![deny(unsafe_code)]
-#![cfg_attr(docsrs, feature(doc_cfg))]
 
 //! # Neo Clients
 //!
