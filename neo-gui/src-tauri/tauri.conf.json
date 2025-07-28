@@ -1,0 +1,61 @@
+{
+  "productName": "Neo GUI",
+  "version": "0.4.2",
+  "identifier": "com.r3e.neo-gui",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420"
+  },
+  "app": {
+    "windows": [
+      {
+        "fullscreen": false,
+        "resizable": true,
+        "title": "Neo GUI",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
+        "center": true,
+        "decorations": true,
+        "alwaysOnTop": false,
+        "skipTaskbar": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "../icons/32x32.png",
+      "../icons/128x128.png",
+      "../icons/128x128@2x.png",
+      "../icons/icon.icns",
+      "../icons/icon.ico"
+    ],
+    "resources": [],
+    "copyright": "Copyright (c) 2020-2025 R3E Network",
+    "category": "DeveloperTool",
+    "shortDescription": "Neo N3 Blockchain GUI",
+    "longDescription": "A modern, beautiful GUI application for interacting with the Neo N3 blockchain. Features wallet management, smart contracts, DeFi operations, NFTs, and developer tools.",
+    "linux": {
+      "deb": {
+        "depends": []
+      }
+    },
+    "macOS": {
+      "frameworks": [],
+      "minimumSystemVersion": "10.13"
+    },
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
+    }
+  }
+}
