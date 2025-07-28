@@ -233,7 +233,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		println!("   📝 Creating test transaction from {first_address}...");
 
 		// Create a simple transaction
-		let _script = ScriptBuilder::new().contract_call(&gas_hash, "symbol", &[], None)?.to_bytes();
+		let _script =
+			ScriptBuilder::new().contract_call(&gas_hash, "symbol", &[], None)?.to_bytes();
 
 		// Simulate transaction signing with Ledger
 		let tx_data = b"simulated_transaction_data"; // In reality, this would be the actual transaction hash
