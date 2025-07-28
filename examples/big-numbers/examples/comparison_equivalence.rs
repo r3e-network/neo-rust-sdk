@@ -4,7 +4,7 @@
 /// in Neo N3 contexts, such as token amounts, contract values, and cryptographic operations.
 use neo3::{
 	neo_clients::{APITrait, HttpProvider, RpcClient},
-	neo_types::{ContractParameter, ScriptHash},
+	neo_types::ScriptHash,
 };
 use primitive_types::U256;
 use std::str::FromStr;
@@ -21,8 +21,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let neo_total_supply = U256::from(100_000_000u64) * U256::from(100_000_000u64); // 100M with 8 decimals
 	let gas_amount = U256::from(50_000_000u64) * U256::from(100_000_000u64); // 50M GAS with 8 decimals
 
-	println!("   💎 NEO Total Supply: {}", neo_total_supply);
-	println!("   ⛽ GAS Amount: {}", gas_amount);
+	println!("   💎 NEO Total Supply: {neo_total_supply}");
+	println!("   ⛽ GAS Amount: {gas_amount}");
 
 	// Compare token amounts
 	if neo_total_supply > gas_amount {
@@ -64,7 +64,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let client = RpcClient::new(provider);
 
 	if let Ok(block_count) = client.get_block_count().await {
-		println!("   ✅ Connected to TestNet (Block: {})", block_count);
+		println!("   ✅ Connected to TestNet (Block: {block_count})");
 
 		// Get GAS total supply from network
 		let gas_hash = ScriptHash::from_str("d2a4cff31913016155e38e474a2c06d08be276cf")?;

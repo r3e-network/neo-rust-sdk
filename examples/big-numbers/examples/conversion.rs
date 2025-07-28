@@ -5,7 +5,7 @@
 /// Safe conversion patterns prevent precision loss and overflow issues.
 use neo3::{
 	neo_clients::{APITrait, HttpProvider, RpcClient},
-	neo_types::{ContractParameter, ScriptHash},
+	neo_types::ScriptHash,
 };
 use primitive_types::U256;
 use std::str::FromStr;
@@ -66,7 +66,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let provider = HttpProvider::new("https://testnet1.neo.org:443/")?;
 	let client = RpcClient::new(provider);
 
-	if let Ok(block_count) = client.get_block_count().await {
+	if let Ok(_block_count) = client.get_block_count().await {
 		println!("   ✅ Connected to TestNet");
 
 		// Get GAS total supply and convert to different formats

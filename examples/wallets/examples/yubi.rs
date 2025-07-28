@@ -4,7 +4,7 @@
 /// including key generation, storage, and transaction signing using enterprise-grade
 /// hardware security. In production, this would interface with an actual YubiHSM device.
 use neo3::{
-	neo_builder::{ScriptBuilder, TransactionBuilder},
+	neo_builder::ScriptBuilder,
 	neo_clients::{APITrait, HttpProvider, RpcClient},
 	neo_crypto::KeyPair,
 	neo_types::{ContractParameter, ScriptHash, ScriptHashExtension},

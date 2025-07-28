@@ -18,6 +18,7 @@ struct ContractMethod {
 	name: String,
 	parameters: Vec<MethodParameter>,
 	return_type: String,
+	#[allow(dead_code)]
 	offset: u32,
 	safe: bool,
 }
@@ -269,13 +270,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// Call symbol method
 	let symbol_result = gas_contract.call_method("symbol", vec![]).await?;
 	if let Some(symbol) = symbol_result.as_string() {
-		println!("   💎 Token symbol: {}", symbol);
+		println!("   💎 Token symbol: {symbol}");
 	}
 
 	// Call decimals method
 	let decimals_result = gas_contract.call_method("decimals", vec![]).await?;
 	if let Some(decimals) = decimals_result.as_int() {
-		println!("   🔢 Token decimals: {}", decimals);
+		println!("   🔢 Token decimals: {decimals}");
 	}
 
 	// Call totalSupply method
@@ -333,17 +334,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 	println!("   🔢 Integer parameter:");
 	let int_param = ContractParameter::integer(42);
-	println!("       Value: {:?}", int_param);
+	println!("       Value: {int_param:?}");
 
 	println!("   📝 String parameter:");
 	let string_param = ContractParameter::string("Hello Neo N3!".to_string());
-	println!("       Value: {:?}", string_param);
+	println!("       Value: {string_param:?}");
 
 	println!("   🔗 Hash160 parameter:");
 	let address = "NPvKVTGZapmFWABLsyvfreuqn73jCjJtN1";
 	let hash_param = ContractParameter::h160(&ScriptHash::from_address(address)?);
-	println!("       Address: {}", address);
-	println!("       Hash: {:?}", hash_param);
+	println!("       Address: {address}");
+	println!("       Hash: {hash_param:?}");
 
 	println!("   📦 Array parameter:");
 	let array_param = ContractParameter::array(vec![
@@ -351,7 +352,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		ContractParameter::integer(2),
 		ContractParameter::integer(3),
 	]);
-	println!("       Value: {:?}", array_param);
+	println!("       Value: {array_param:?}");
 
 	println!("   🗂️ Map parameter:");
 	let mut map = HashMap::new();
@@ -361,12 +362,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		ContractParameter::string("value2".to_string()),
 	);
 	let map_param = ContractParameter::map(ContractParameterMap(map));
-	println!("       Value: {:?}", map_param);
+	println!("       Value: {map_param:?}");
 
 	// 7. Method signature analysis
 	println!("\n7️⃣ Method signature analysis...");
 	for (name, method) in &gas_contract.methods {
-		println!("   📋 Method: {}", name);
+		println!("   📋 Method: {name}");
 		println!("       Parameters: {}", method.parameters.len());
 		for param in &method.parameters {
 			println!("         • {} ({})", param.name, param.param_type);
