@@ -97,7 +97,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 					}
 				}
 			},
-			Err(e) => println!("   ❌ Failed to get total supply: {}", e),
+			Err(e) => println!("   ❌ Failed to get total supply: {e}"),
 		}
 	}
 
@@ -112,9 +112,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let different_hash =
 		U256::from_str("0xfedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321")?;
 
-	println!("   🧮 Hash 1: 0x{:x}", block_hash_1);
-	println!("   🧮 Hash 2: 0x{:x}", block_hash_2);
-	println!("   🧮 Different: 0x{:x}", different_hash);
+	println!("   🧮 Hash 1: 0x{block_hash_1:x}");
+	println!("   🧮 Hash 2: 0x{block_hash_2:x}");
+	println!("   🧮 Different: 0x{different_hash:x}");
 
 	// Hash equality check
 	if block_hash_1 == block_hash_2 {
@@ -165,9 +165,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let max_uint256 = U256::max_value();
 	let almost_max = max_uint256 - U256::one();
 
-	println!("   🔢 Zero amount: {}", zero_amount);
-	println!("   🔢 Max U256: {}", max_uint256);
-	println!("   🔢 Almost max: {}", almost_max);
+	println!("   🔢 Zero amount: {zero_amount}");
+	println!("   🔢 Max U256: {max_uint256}");
+	println!("   🔢 Almost max: {almost_max}");
 
 	// Zero checks
 	if zero_amount.is_zero() {
@@ -198,7 +198,7 @@ fn format_token_amount(amount: U256) -> String {
 	let fractional_part = amount % divisor;
 
 	if fractional_part.is_zero() {
-		format!("{}", integer_part)
+		format!("{integer_part}")
 	} else {
 		format!("{}.{:08}", integer_part, fractional_part.as_u64())
 	}
@@ -207,5 +207,5 @@ fn format_token_amount(amount: U256) -> String {
 /// Format a GAS amount with proper decimals
 fn format_gas_amount(amount: U256) -> String {
 	let gas_amount = amount.as_u64() as f64 / 100_000_000.0;
-	format!("{:.8}", gas_amount)
+	format!("{gas_amount:.8}")
 }
