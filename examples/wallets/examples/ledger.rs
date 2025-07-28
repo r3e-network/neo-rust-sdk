@@ -3,7 +3,6 @@
 /// This example demonstrates a simulation of Ledger hardware wallet integration
 /// for Neo N3, including device discovery, address derivation, and transaction signing.
 /// In production, this would interface with the actual Ledger device via HID.
-
 use neo3::{
 	neo_builder::ScriptBuilder,
 	neo_clients::{APITrait, HttpProvider, RpcClient},
@@ -124,10 +123,7 @@ impl LedgerDevice {
 
 		println!("   ✅ Transaction signed successfully");
 
-		Ok(LedgerSignature {
-			signature: signature.to_bytes().to_vec(),
-			public_key,
-		})
+		Ok(LedgerSignature { signature: signature.to_bytes().to_vec(), public_key })
 	}
 }
 
@@ -236,9 +232,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		println!("   📝 Creating test transaction from {first_address}...");
 
 		// Create a simple transaction
-		let script = ScriptBuilder::new()
-			.contract_call(&gas_hash, "symbol", &[], None)?
-			.to_bytes();
+		let script = ScriptBuilder::new().contract_call(&gas_hash, "symbol", &[], None)?.to_bytes();
 
 		// Simulate transaction signing with Ledger
 		let tx_data = b"simulated_transaction_data"; // In reality, this would be the actual transaction hash

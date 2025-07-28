@@ -3,7 +3,6 @@
 /// This example demonstrates a simulation of YubiHSM integration for Neo N3,
 /// including key generation, storage, and transaction signing using enterprise-grade
 /// hardware security. In production, this would interface with an actual YubiHSM device.
-
 use neo3::{
 	neo_builder::{ScriptBuilder, TransactionBuilder},
 	neo_clients::{APITrait, HttpProvider, RpcClient},
@@ -65,10 +64,10 @@ impl YubiHsm {
 	/// Connect to YubiHSM device
 	fn connect(&mut self) -> Result<(), Box<dyn std::error::Error>> {
 		println!("   🔌 Connecting to YubiHSM at {}...", self.config.connector_url);
-		
+
 		// Simulate connection establishment
 		std::thread::sleep(std::time::Duration::from_millis(200));
-		
+
 		self.connected = true;
 		println!("   ✅ Successfully connected to YubiHSM");
 		Ok(())
@@ -81,10 +80,10 @@ impl YubiHsm {
 		}
 
 		println!("   🔐 Authenticating with auth key {}...", self.config.auth_key_id);
-		
+
 		// Simulate authentication process
 		std::thread::sleep(std::time::Duration::from_millis(100));
-		
+
 		self.authenticated = true;
 		self.session_id = Some(1234); // Simulated session ID
 		println!("   ✅ Authentication successful (Session: {})", self.session_id.unwrap());
@@ -92,16 +91,20 @@ impl YubiHsm {
 	}
 
 	/// Generate a new asymmetric key pair in the HSM
-	fn generate_key_pair(&mut self, key_id: u16, label: &str) -> Result<KeyMetadata, Box<dyn std::error::Error>> {
+	fn generate_key_pair(
+		&mut self,
+		key_id: u16,
+		label: &str,
+	) -> Result<KeyMetadata, Box<dyn std::error::Error>> {
 		if !self.authenticated {
 			return Err("Not authenticated".into());
 		}
 
 		println!("   🔑 Generating key pair with ID {key_id} (label: {label})...");
-		
+
 		// Simulate key generation
 		std::thread::sleep(std::time::Duration::from_millis(500));
-		
+
 		let metadata = KeyMetadata {
 			id: key_id,
 			algorithm: "secp256r1".to_string(),
@@ -113,12 +116,12 @@ impl YubiHsm {
 
 		// Store key metadata
 		self.stored_keys.insert(key_id, format!("Neo key: {label}"));
-		
+
 		println!("   ✅ Key pair generated successfully");
 		println!("       ID: {}", metadata.id);
 		println!("       Algorithm: {}", metadata.algorithm);
 		println!("       Capabilities: {:?}", metadata.capabilities);
-		
+
 		Ok(metadata)
 	}
 
@@ -133,19 +136,23 @@ impl YubiHsm {
 		}
 
 		println!("   📤 Retrieving public key for key ID {key_id}...");
-		
+
 		// Simulate public key retrieval
 		let key_pair = KeyPair::new_random(); // In reality, this would be the actual stored key
 		let public_key = key_pair.public_key().get_encoded_point(false);
-		
+
 		println!("   ✅ Public key retrieved");
 		println!("       Key: {}", hex::encode(&public_key));
-		
+
 		Ok(public_key.as_bytes().to_vec())
 	}
 
 	/// Sign data using a stored private key
-	fn sign_data(&self, key_id: u16, data: &[u8]) -> Result<HsmSignature, Box<dyn std::error::Error>> {
+	fn sign_data(
+		&self,
+		key_id: u16,
+		data: &[u8],
+	) -> Result<HsmSignature, Box<dyn std::error::Error>> {
 		if !self.authenticated {
 			return Err("Not authenticated".into());
 		}
@@ -155,17 +162,19 @@ impl YubiHsm {
 		}
 
 		println!("   ✍️ Signing {} bytes with key ID {key_id}...", data.len());
-		
+
 		// Simulate hardware signing operation
 		std::thread::sleep(std::time::Duration::from_millis(300));
-		
+
 		// In reality, this would use the HSM's cryptographic capabilities
 		let key_pair = KeyPair::new_random();
-		let signature = key_pair.private_key().sign_tx(data)
+		let signature = key_pair
+			.private_key()
+			.sign_tx(data)
 			.map_err(|e| format!("HSM signing failed: {e}"))?;
-		
+
 		println!("   ✅ Data signed successfully with HSM");
-		
+
 		Ok(HsmSignature {
 			signature: signature.to_bytes(),
 			key_id,
@@ -181,20 +190,20 @@ impl YubiHsm {
 
 		let key_ids: Vec<u16> = self.stored_keys.keys().cloned().collect();
 		println!("   📋 Found {} stored keys: {:?}", key_ids.len(), key_ids);
-		
+
 		Ok(key_ids)
 	}
 
 	/// Get Neo address from stored key
 	fn get_neo_address(&self, key_id: u16) -> Result<String, Box<dyn std::error::Error>> {
 		let _public_key = self.get_public_key(key_id)?;
-		
+
 		// Convert public key to Neo address
 		// In reality, this would use the actual public key from HSM
 		let key_pair = KeyPair::new_random(); // Simulated
 		let script_hash = key_pair.get_script_hash();
 		let address = script_hash.to_address();
-		
+
 		println!("   📍 Neo address for key {key_id}: {address}");
 		Ok(address.to_string())
 	}
@@ -226,7 +235,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		password: "password".to_string(),
 		timeout_ms: 5000,
 	};
-	
+
 	let mut hsm = YubiHsm::new(config.clone());
 	println!("   ⚙️ HSM Connector: {}", config.connector_url);
 	println!("   🆔 Auth Key ID: {}", config.auth_key_id);
@@ -238,11 +247,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 	// 3. Generate Neo key pairs in HSM
 	println!("\n3️⃣ Generating Neo key pairs in HSM...");
-	let key_labels = vec![
-		(100, "neo-main-wallet"),
-		(101, "neo-hot-wallet"),
-		(102, "neo-cold-storage"),
-	];
+	let key_labels =
+		vec![(100, "neo-main-wallet"), (101, "neo-hot-wallet"), (102, "neo-cold-storage")];
 
 	let mut generated_keys = Vec::new();
 	for (key_id, label) in key_labels {
@@ -320,9 +326,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		println!("   📝 Creating transaction for HSM signing...");
 
 		// Create a simple transaction
-		let script = ScriptBuilder::new()
-			.contract_call(&gas_hash, "symbol", &[], None)?
-			.to_bytes();
+		let script = ScriptBuilder::new().contract_call(&gas_hash, "symbol", &[], None)?.to_bytes();
 
 		// Sign with HSM
 		let tx_data = b"neo_transaction_to_sign"; // In reality, this would be the transaction hash

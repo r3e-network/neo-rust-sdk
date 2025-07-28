@@ -246,7 +246,7 @@ async fn query_contract_state(
 	// Note: find_states requires a root hash - we'll demonstrate the API structure
 	println!("      💡 Storage query would use find_states(root_hash, contract_hash, key_prefix, start_key, count)");
 	println!("      • root_hash: Block state root hash");
-	println!("      • contract_hash: Target contract script hash"); 
+	println!("      • contract_hash: Target contract script hash");
 	println!("      • key_prefix: Storage key prefix to filter");
 	println!("      • start_key: Starting key for pagination");
 	println!("      • count: Maximum items to return");

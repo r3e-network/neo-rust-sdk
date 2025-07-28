@@ -5,7 +5,9 @@
 
 use neo3::{
 	neo_clients::{APITrait, HttpProvider, RpcClient},
-	neo_types::{ContractParameter, ContractParameterMap, ScriptHash, ScriptHashExtension, StackItem},
+	neo_types::{
+		ContractParameter, ContractParameterMap, ScriptHash, ScriptHashExtension, StackItem,
+	},
 };
 use serde_json::{json, Value};
 use std::{collections::HashMap, str::FromStr};
@@ -57,11 +59,7 @@ struct ContractABI {
 impl ContractABI {
 	/// Create a new contract ABI instance
 	fn new(contract_hash: ScriptHash, client: RpcClient<HttpProvider>) -> Self {
-		Self {
-			contract_hash,
-			methods: HashMap::new(),
-			client,
-		}
+		Self { contract_hash, methods: HashMap::new(), client }
 	}
 
 	/// Load methods from a contract manifest
@@ -69,20 +67,33 @@ impl ContractABI {
 		if let Some(abi) = manifest.get("abi") {
 			if let Some(methods) = abi.get("methods").and_then(|m| m.as_array()) {
 				for method in methods {
-					let name = method.get("name").and_then(|n| n.as_str()).unwrap_or("unknown").to_string();
-					let return_type = method.get("returntype").and_then(|r| r.as_str()).unwrap_or("Void").to_string();
+					let name = method
+						.get("name")
+						.and_then(|n| n.as_str())
+						.unwrap_or("unknown")
+						.to_string();
+					let return_type = method
+						.get("returntype")
+						.and_then(|r| r.as_str())
+						.unwrap_or("Void")
+						.to_string();
 					let offset = method.get("offset").and_then(|o| o.as_u64()).unwrap_or(0) as u32;
 					let safe = method.get("safe").and_then(|s| s.as_bool()).unwrap_or(false);
 
 					let mut parameters = Vec::new();
 					if let Some(params) = method.get("parameters").and_then(|p| p.as_array()) {
 						for param in params {
-							let param_name = param.get("name").and_then(|n| n.as_str()).unwrap_or("param").to_string();
-							let param_type = param.get("type").and_then(|t| t.as_str()).unwrap_or("Any").to_string();
-							parameters.push(MethodParameter {
-								name: param_name,
-								param_type,
-							});
+							let param_name = param
+								.get("name")
+								.and_then(|n| n.as_str())
+								.unwrap_or("param")
+								.to_string();
+							let param_type = param
+								.get("type")
+								.and_then(|t| t.as_str())
+								.unwrap_or("Any")
+								.to_string();
+							parameters.push(MethodParameter { name: param_name, param_type });
 						}
 					}
 
@@ -102,14 +113,19 @@ impl ContractABI {
 	}
 
 	/// Call a contract method with structured parameters
-	async fn call_method(&self, method_name: &str, params: Vec<ContractParameter>) -> Result<StackItem, Box<dyn std::error::Error>> {
+	async fn call_method(
+		&self,
+		method_name: &str,
+		params: Vec<ContractParameter>,
+	) -> Result<StackItem, Box<dyn std::error::Error>> {
 		if let Some(method) = self.methods.get(method_name) {
 			println!("   📞 Calling method: {}", method.name);
 			println!("       Parameters: {}", params.len());
 			println!("       Return type: {}", method.return_type);
 			println!("       Safe: {}", method.safe);
 
-			let result = self.client
+			let result = self
+				.client
 				.invoke_function(&self.contract_hash, method_name.to_string(), params, None)
 				.await?;
 
@@ -121,7 +137,10 @@ impl ContractABI {
 	}
 
 	/// Convert a TokenTransfer struct to contract parameters
-	fn token_transfer_to_params(&self, transfer: &TokenTransfer) -> Result<Vec<ContractParameter>, Box<dyn std::error::Error>> {
+	fn token_transfer_to_params(
+		&self,
+		transfer: &TokenTransfer,
+	) -> Result<Vec<ContractParameter>, Box<dyn std::error::Error>> {
 		let from_hash = ScriptHash::from_address(&transfer.from)?;
 		let to_hash = ScriptHash::from_address(&transfer.to)?;
 
@@ -137,7 +156,10 @@ impl ContractABI {
 	}
 
 	/// Convert a SwapOperation struct to contract parameters
-	fn swap_operation_to_params(&self, swap: &SwapOperation) -> Result<Vec<ContractParameter>, Box<dyn std::error::Error>> {
+	fn swap_operation_to_params(
+		&self,
+		swap: &SwapOperation,
+	) -> Result<Vec<ContractParameter>, Box<dyn std::error::Error>> {
 		let token_in_hash = ScriptHash::from_str(&swap.token_in)?;
 		let token_out_hash = ScriptHash::from_str(&swap.token_out)?;
 		let recipient_hash = ScriptHash::from_address(&swap.recipient)?;
@@ -218,7 +240,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 							"type": "Hash160"
 						},
 						{
-							"name": "to", 
+							"name": "to",
 							"type": "Hash160"
 						},
 						{
@@ -289,9 +311,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let swap = SwapOperation {
 		token_in: "d2a4cff31913016155e38e474a2c06d08be276cf".to_string(), // GAS
 		token_out: "ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5".to_string(), // NEO
-		amount_in: 10_00000000, // 10 GAS
-		min_amount_out: 1_00000000, // 1 NEO minimum
-		deadline: 1700000000, // Unix timestamp
+		amount_in: 10_00000000,                                           // 10 GAS
+		min_amount_out: 1_00000000,                                       // 1 NEO minimum
+		deadline: 1700000000,                                             // Unix timestamp
 		recipient: "NPvKVTGZapmFWABLsyvfreuqn73jCjJtN1".to_string(),
 	};
 
@@ -334,7 +356,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("   🗂️ Map parameter:");
 	let mut map = HashMap::new();
 	map.insert(ContractParameter::string("key1".to_string()), ContractParameter::integer(100));
-	map.insert(ContractParameter::string("key2".to_string()), ContractParameter::string("value2".to_string()));
+	map.insert(
+		ContractParameter::string("key2".to_string()),
+		ContractParameter::string("value2".to_string()),
+	);
 	let map_param = ContractParameter::map(ContractParameterMap(map));
 	println!("       Value: {:?}", map_param);
 
