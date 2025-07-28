@@ -563,11 +563,9 @@ pub mod extensions {
 
 // Explicitly mark external dependencies with cfg_attr for docs.rs
 #[cfg(feature = "futures")]
-#[cfg_attr(docsrs, doc(cfg(feature = "futures")))]
 pub use futures;
 
 #[cfg(feature = "ledger")]
-#[cfg_attr(docsrs, doc(cfg(feature = "ledger")))]
 pub use coins_ledger;
 
 // AWS feature is disabled in v0.4.1 due to security vulnerabilities
