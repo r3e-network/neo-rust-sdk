@@ -293,10 +293,12 @@ pub fn create_h160_param(value: &str) -> Result<ContractParameter, CliError> {
 				Err(_) => {
 					// Try handling common token symbols
 					match value.to_uppercase().as_str() {
-						"NEO" =>
-							return create_h160_param("ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5"),
-						"GAS" =>
-							return create_h160_param("d2a4cff31913016155e38e474a2c06d08be276cf"),
+						"NEO" => {
+							return create_h160_param("ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5")
+						},
+						"GAS" => {
+							return create_h160_param("d2a4cff31913016155e38e474a2c06d08be276cf")
+						},
 						_ => {
 							return Err(CliError::InvalidArgument(
 								format!("Invalid address or script hash: {}", value),
@@ -325,12 +327,14 @@ pub fn create_h160_param(value: &str) -> Result<ContractParameter, CliError> {
 pub async fn handle_defi_command(args: DefiArgs, state: &mut CliState) -> Result<(), CliError> {
 	match args.command {
 		DefiCommands::Token { contract } => tokens::get_token_info(&contract, state).await,
-		DefiCommands::Balance { contract, address } =>
-			tokens::get_token_balance(&contract, address.as_deref().unwrap_or(""), state).await,
-		DefiCommands::Transfer { token, to, amount, data: _ } =>
-			tokens::transfer_token(&token, &to, &amount, state).await,
+		DefiCommands::Balance { contract, address } => {
+			tokens::get_token_balance(&contract, address.as_deref().unwrap_or(""), state).await
+		},
+		DefiCommands::Transfer { token, to, amount, data: _ } => {
+			tokens::transfer_token(&token, &to, &amount, state).await
+		},
 		DefiCommands::Flamingo { command } => match command {
-			FlamingoCommands::Swap { from_token, to_token, amount, min_return } =>
+			FlamingoCommands::Swap { from_token, to_token, amount, min_return } => {
 				famous::handle_flamingo_swap(
 					&from_token,
 					&to_token,
@@ -338,47 +342,61 @@ pub async fn handle_defi_command(args: DefiArgs, state: &mut CliState) -> Result
 					min_return.as_deref(),
 					state,
 				)
-				.await,
-			FlamingoCommands::AddLiquidity { token_a, token_b, amount_a, amount_b } =>
+				.await
+			},
+			FlamingoCommands::AddLiquidity { token_a, token_b, amount_a, amount_b } => {
 				famous::handle_flamingo_add_liquidity(
 					&token_a, &token_b, &amount_a, &amount_b, state,
 				)
-				.await,
-			FlamingoCommands::RemoveLiquidity { token_a, token_b, liquidity } =>
+				.await
+			},
+			FlamingoCommands::RemoveLiquidity { token_a, token_b, liquidity } => {
 				famous::handle_flamingo_remove_liquidity(&token_a, &token_b, &liquidity, state)
-					.await,
-			FlamingoCommands::Stake { token, amount } =>
-				famous::handle_flamingo_stake(&token, &amount, state).await,
+					.await
+			},
+			FlamingoCommands::Stake { token, amount } => {
+				famous::handle_flamingo_stake(&token, &amount, state).await
+			},
 			FlamingoCommands::ClaimRewards {} => famous::handle_flamingo_claim_rewards(state).await,
 		},
 		DefiCommands::NeoBurger { command } => match command {
-			NeoBurgerCommands::Wrap { amount } =>
-				famous::handle_neoburger_wrap(&amount, state).await,
-			NeoBurgerCommands::Unwrap { amount } =>
-				famous::handle_neoburger_unwrap(&amount, state).await,
+			NeoBurgerCommands::Wrap { amount } => {
+				famous::handle_neoburger_wrap(&amount, state).await
+			},
+			NeoBurgerCommands::Unwrap { amount } => {
+				famous::handle_neoburger_unwrap(&amount, state).await
+			},
 			NeoBurgerCommands::ClaimGas {} => famous::handle_neoburger_claim_gas(state).await,
 			NeoBurgerCommands::GetRate {} => famous::handle_neoburger_get_rate(state).await,
 		},
 		DefiCommands::NeoCompound { command } => match command {
-			NeoCompoundCommands::Deposit { token, amount } =>
-				famous::handle_neocompound_deposit(&token, &amount, state).await,
-			NeoCompoundCommands::Withdraw { token, amount } =>
-				famous::handle_neocompound_withdraw(&token, &amount, state).await,
-			NeoCompoundCommands::Compound { token } =>
-				famous::handle_neocompound_compound(&token, state).await,
-			NeoCompoundCommands::GetAPY { token } =>
-				famous::handle_neocompound_get_apy(&token, state).await,
+			NeoCompoundCommands::Deposit { token, amount } => {
+				famous::handle_neocompound_deposit(&token, &amount, state).await
+			},
+			NeoCompoundCommands::Withdraw { token, amount } => {
+				famous::handle_neocompound_withdraw(&token, &amount, state).await
+			},
+			NeoCompoundCommands::Compound { token } => {
+				famous::handle_neocompound_compound(&token, state).await
+			},
+			NeoCompoundCommands::GetAPY { token } => {
+				famous::handle_neocompound_get_apy(&token, state).await
+			},
 		},
 		DefiCommands::GrandShare { command } => match command {
-			GrandShareCommands::SubmitProposal { title, description, amount } =>
+			GrandShareCommands::SubmitProposal { title, description, amount } => {
 				famous::handle_grandshare_submit_proposal(&title, &description, &amount, state)
-					.await,
-			GrandShareCommands::Vote { proposal_id, approve } =>
-				famous::handle_grandshare_vote(proposal_id, approve, state).await,
-			GrandShareCommands::FundProject { project_id, amount } =>
-				famous::handle_grandshare_fund_project(project_id, &amount, state).await,
-			GrandShareCommands::ClaimFunds { project_id } =>
-				famous::handle_grandshare_claim_funds(project_id, state).await,
+					.await
+			},
+			GrandShareCommands::Vote { proposal_id, approve } => {
+				famous::handle_grandshare_vote(proposal_id, approve, state).await
+			},
+			GrandShareCommands::FundProject { project_id, amount } => {
+				famous::handle_grandshare_fund_project(project_id, &amount, state).await
+			},
+			GrandShareCommands::ClaimFunds { project_id } => {
+				famous::handle_grandshare_claim_funds(project_id, state).await
+			},
 		},
 	}
 }

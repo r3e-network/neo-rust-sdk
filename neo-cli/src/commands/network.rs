@@ -113,12 +113,14 @@ pub async fn handle_network_command(
 		NetworkCommands::Connect { network } => handle_connect_network(network, state).await,
 		NetworkCommands::Status => handle_network_status(state).await,
 		NetworkCommands::List => handle_list_networks(state).await,
-		NetworkCommands::Add { name, url, network_type, chain_id } =>
-			handle_add_network(name, url, network_type, chain_id, state).await,
+		NetworkCommands::Add { name, url, network_type, chain_id } => {
+			handle_add_network(name, url, network_type, chain_id, state).await
+		},
 		NetworkCommands::Remove { name } => handle_remove_network(name, state).await,
 		NetworkCommands::Peers => handle_show_peers(state).await,
-		NetworkCommands::Block { height, index } =>
-			handle_show_block(height.or(index), state).await,
+		NetworkCommands::Block { height, index } => {
+			handle_show_block(height.or(index), state).await
+		},
 		NetworkCommands::Ping { network } => handle_ping_network(network, state).await,
 	}
 }

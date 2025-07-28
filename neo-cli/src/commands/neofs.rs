@@ -301,15 +301,16 @@ impl NeoFSClient {
 		let url = format!("{}/get/{}/{}", self.http_gateway, container_id, object_id);
 
 		match self.http_client.get(&url).send().await {
-			Ok(response) =>
+			Ok(response) => {
 				if response.status().is_success() {
 					let content = match response.bytes().await {
 						Ok(bytes) => bytes,
-						Err(e) =>
+						Err(e) => {
 							return Err(CliError::NetworkError(format!(
 								"Failed to read response: {}",
 								e
-							))),
+							)))
+						},
 					};
 
 					let file_path = match output_path {
@@ -332,7 +333,8 @@ impl NeoFSClient {
 						"Failed to download object: HTTP {}",
 						response.status()
 					)))
-				},
+				}
+			},
 			Err(e) => Err(CliError::NetworkError(format!("Download error: {}", e))),
 		}
 	}

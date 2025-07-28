@@ -86,23 +86,25 @@ async fn query_gas_info(
 ) -> Result<(), Box<dyn std::error::Error>> {
 	// Get token symbol
 	match client.invoke_function(gas_hash, "symbol".to_string(), vec![], None).await {
-		Ok(result) =>
+		Ok(result) => {
 			if let Some(stack_item) = result.stack.first() {
 				if let Some(symbol) = stack_item.as_string() {
 					println!("   🏷️ Symbol: {symbol}");
 				}
-			},
+			}
+		},
 		Err(e) => println!("   ⚠️ Failed to get symbol: {e}"),
 	}
 
 	// Get token decimals
 	match client.invoke_function(gas_hash, "decimals".to_string(), vec![], None).await {
-		Ok(result) =>
+		Ok(result) => {
 			if let Some(stack_item) = result.stack.first() {
 				if let Some(decimals) = stack_item.as_int() {
 					println!("   🔢 Decimals: {decimals}");
 				}
-			},
+			}
+		},
 		Err(e) => println!("   ⚠️ Failed to get decimals: {e}"),
 	}
 
@@ -140,7 +142,7 @@ async fn check_gas_balance(
 		)
 		.await
 	{
-		Ok(result) =>
+		Ok(result) => {
 			if let Some(balance_item) = result.stack.first() {
 				let balance = balance_item.as_int().unwrap_or(0);
 				let gas_balance = balance as f64 / 100_000_000.0;
@@ -151,7 +153,8 @@ async fn check_gas_balance(
 					println!("   💭 This is a new account with no GAS");
 					println!("   💡 To get TestNet GAS, visit: https://neowish.ngd.network/");
 				}
-			},
+			}
+		},
 		Err(e) => {
 			println!("   ⚠️ Unable to fetch balance: {e}");
 			println!("   💭 This might be a new account with no transaction history");
@@ -176,12 +179,13 @@ async fn check_balance_by_script_hash(
 		)
 		.await
 	{
-		Ok(result) =>
+		Ok(result) => {
 			if let Some(balance_item) = result.stack.first() {
 				let balance = balance_item.as_int().unwrap_or(0);
 				let gas_balance = balance as f64 / 100_000_000.0;
 				println!("      💰 Balance: {gas_balance} GAS");
-			},
+			}
+		},
 		Err(_) => {
 			println!("      💰 Balance: 0 GAS (or unable to fetch)");
 		},

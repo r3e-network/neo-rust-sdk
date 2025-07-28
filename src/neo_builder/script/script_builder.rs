@@ -273,8 +273,9 @@ impl ScriptBuilder {
 				})?;
 				self.push_data(bytes)
 			},
-			ParameterValue::Signature(b) | ParameterValue::PublicKey(b) =>
-				self.push_data(b.as_bytes().to_vec()),
+			ParameterValue::Signature(b) | ParameterValue::PublicKey(b) => {
+				self.push_data(b.as_bytes().to_vec())
+			},
 			ParameterValue::H160(h) => self.push_data(h.as_bytes().to_vec()),
 			ParameterValue::H256(h) => self.push_data(h.as_bytes().to_vec()),
 			ParameterValue::String(s) => self.push_data(s.as_bytes().to_vec()),
@@ -284,8 +285,9 @@ impl ScriptBuilder {
 			ParameterValue::Map(map) => self
 				.push_map(&map.0)
 				.map_err(|e| BuilderError::IllegalArgument(format!("Failed to push map: {}", e)))?,
-			_ =>
-				return Err(BuilderError::IllegalArgument("Unsupported parameter type".to_string())),
+			_ => {
+				return Err(BuilderError::IllegalArgument("Unsupported parameter type".to_string()))
+			},
 		};
 
 		Ok(self)

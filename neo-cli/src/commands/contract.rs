@@ -90,12 +90,15 @@ pub async fn handle_contract_command(
 	state: &mut crate::commands::wallet::CliState,
 ) -> Result<(), CliError> {
 	match args.command {
-		ContractCommands::Deploy { nef, manifest, account } =>
-			deploy_contract(nef, manifest, account, state).await,
-		ContractCommands::Update { script_hash, nef, manifest, account } =>
-			update_contract(script_hash, nef, manifest, account, state).await,
-		ContractCommands::Invoke { script_hash, method, params, account, test_invoke } =>
-			invoke_contract(script_hash, method, params, account, test_invoke, state).await,
+		ContractCommands::Deploy { nef, manifest, account } => {
+			deploy_contract(nef, manifest, account, state).await
+		},
+		ContractCommands::Update { script_hash, nef, manifest, account } => {
+			update_contract(script_hash, nef, manifest, account, state).await
+		},
+		ContractCommands::Invoke { script_hash, method, params, account, test_invoke } => {
+			invoke_contract(script_hash, method, params, account, test_invoke, state).await
+		},
 		ContractCommands::ListNativeContracts => list_native_contracts(state).await,
 	}
 }
@@ -736,14 +739,15 @@ fn contract_parameter_from_json(value: serde_json::Value) -> Result<ContractPara
 	match value {
 		serde_json::Value::Null => Ok(ContractParameter::any()),
 		serde_json::Value::Bool(b) => Ok(ContractParameter::bool(b)),
-		serde_json::Value::Number(n) =>
+		serde_json::Value::Number(n) => {
 			if n.is_i64() {
 				Ok(ContractParameter::integer(n.as_i64().unwrap()))
 			} else if n.is_f64() {
 				Ok(ContractParameter::string(n.to_string()))
 			} else {
 				Err(CliError::Input("Invalid number type".to_string()))
-			},
+			}
+		},
 		serde_json::Value::String(s) => {
 			// Check if it's a hex string (for ByteArray)
 			if let Some(hex_str) = s.strip_prefix("0x") {
@@ -768,7 +772,8 @@ fn contract_parameter_from_json(value: serde_json::Value) -> Result<ContractPara
 			}
 			Ok(ContractParameter::array(params))
 		},
-		serde_json::Value::Object(_) =>
-			Err(CliError::Input("Object parameters not supported".to_string())),
+		serde_json::Value::Object(_) => {
+			Err(CliError::Input("Object parameters not supported".to_string()))
+		},
 	}
 }

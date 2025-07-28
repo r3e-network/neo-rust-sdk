@@ -439,7 +439,8 @@ mod tests {
 		let mut invalid_settings = AppSettings::default();
 		invalid_settings.auto_lock_timeout = 0;
 
-		let result = service.update_settings(invalid_settings).await;
+		let result =
+			service.update_settings(serde_json::to_value(&invalid_settings).unwrap()).await;
 		assert!(result.is_err());
 	}
 }

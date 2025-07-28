@@ -67,6 +67,12 @@ impl TransactionService {
 		*rpc_client = Some(client);
 	}
 
+	/// Get pending transactions
+	pub async fn get_pending_transactions(&self) -> Vec<String> {
+		let pending = self.pending_transactions.read().await;
+		pending.keys().cloned().collect()
+	}
+
 	/// Send a transaction to the Neo network
 	pub async fn send_transaction(
 		&self,
@@ -137,13 +143,14 @@ impl TransactionService {
 				}
 				(ScriptHash::from_slice(&hash_bytes), 8)
 			},
-			_ =>
+			_ => {
 				return Err(Neo3Error::Generic {
 					message: format!(
 						"Unsupported asset type: {}. Only NEO and GAS are supported.",
 						asset
 					),
-				}),
+				})
+			},
 		};
 
 		// Convert amount to smallest unit with proper decimal handling

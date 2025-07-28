@@ -395,20 +395,22 @@ impl Shared {
 						self.pending.borrow_mut().remove(&id);
 					}
 				},
-				Subscribe { id, sink } =>
+				Subscribe { id, sink } => {
 					if self.subs.borrow_mut().insert(id, sink).is_some() {
 						tracing::warn!(
 							%id,
 							"replaced already-registered subscription"
 						);
-					},
-				Unsubscribe { id } =>
+					}
+				},
+				Unsubscribe { id } => {
 					if self.subs.borrow_mut().remove(&id).is_none() {
 						tracing::warn!(
 							%id,
 							"attempted to unsubscribe from non-existent subscription"
 						);
-					},
+					}
+				},
 			}
 		}
 

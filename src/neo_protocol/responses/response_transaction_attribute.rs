@@ -109,8 +109,9 @@ where
 {
 	let value: serde_json::Value = Deserialize::deserialize(deserializer)?;
 	match value {
-		serde_json::Value::Number(num) =>
-			num.as_i64().ok_or_else(|| serde::de::Error::custom("invalid number")),
+		serde_json::Value::Number(num) => {
+			num.as_i64().ok_or_else(|| serde::de::Error::custom("invalid number"))
+		},
 		serde_json::Value::String(s) => s.parse::<i64>().map_err(serde::de::Error::custom),
 		_ => Err(serde::de::Error::custom("invalid type for height")),
 	}

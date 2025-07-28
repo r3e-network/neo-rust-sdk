@@ -97,11 +97,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 			)
 			.await
 		{
-			Ok(result) =>
+			Ok(result) => {
 				if let Some(balance_item) = result.stack.first() {
 					let balance = balance_item.as_int().unwrap_or(0);
 					println!("     💰 GAS Balance: {} GAS", balance as f64 / 100_000_000.0);
-				},
+				}
+			},
 			Err(_) => {
 				println!("     💰 GAS Balance: Unable to fetch");
 			},

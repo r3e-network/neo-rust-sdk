@@ -169,22 +169,30 @@ pub enum NftCommands {
 /// Handle NFT command with comprehensive functionality
 pub async fn handle_nft_command(args: NftArgs, state: &mut CliState) -> Result<(), CliError> {
 	match args.command {
-		NftCommands::Mint { contract, to, token_id, metadata, properties } =>
-			handle_mint_nft(contract, to, token_id, metadata, properties, state).await,
-		NftCommands::Transfer { contract, token_id, from, to, data } =>
-			handle_transfer_nft(contract, token_id, from, to, data, state).await,
-		NftCommands::List { owner, contract, detailed } =>
-			handle_list_nfts(owner, contract, detailed, state).await,
-		NftCommands::Info { contract, token_id } =>
-			handle_nft_info(contract, token_id, state).await,
-		NftCommands::Metadata { contract, token_id, download } =>
-			handle_nft_metadata(contract, token_id, download, state).await,
-		NftCommands::Deploy { name, symbol, description, base_uri, max_supply } =>
-			handle_deploy_nft(name, symbol, description, base_uri, max_supply, state).await,
-		NftCommands::Burn { contract, token_id, owner } =>
-			handle_burn_nft(contract, token_id, owner, state).await,
-		NftCommands::SetProperties { contract, token_id, properties } =>
-			handle_set_properties(contract, token_id, properties, state).await,
+		NftCommands::Mint { contract, to, token_id, metadata, properties } => {
+			handle_mint_nft(contract, to, token_id, metadata, properties, state).await
+		},
+		NftCommands::Transfer { contract, token_id, from, to, data } => {
+			handle_transfer_nft(contract, token_id, from, to, data, state).await
+		},
+		NftCommands::List { owner, contract, detailed } => {
+			handle_list_nfts(owner, contract, detailed, state).await
+		},
+		NftCommands::Info { contract, token_id } => {
+			handle_nft_info(contract, token_id, state).await
+		},
+		NftCommands::Metadata { contract, token_id, download } => {
+			handle_nft_metadata(contract, token_id, download, state).await
+		},
+		NftCommands::Deploy { name, symbol, description, base_uri, max_supply } => {
+			handle_deploy_nft(name, symbol, description, base_uri, max_supply, state).await
+		},
+		NftCommands::Burn { contract, token_id, owner } => {
+			handle_burn_nft(contract, token_id, owner, state).await
+		},
+		NftCommands::SetProperties { contract, token_id, properties } => {
+			handle_set_properties(contract, token_id, properties, state).await
+		},
 		NftCommands::Collection { contract } => handle_collection_info(contract, state).await,
 	}
 }

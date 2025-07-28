@@ -160,13 +160,14 @@ async fn main() -> eyre::Result<()> {
 
 	// Test empty balance
 	match mock.mock_call("getnep17balances") {
-		Ok(response) =>
+		Ok(response) => {
 			if let Some(balance) = response.get("balance") {
 				let empty_vec = vec![];
 				let balance_array = balance.as_array().unwrap_or(&empty_vec);
 				let token_count = balance_array.len();
 				println!("   💰 Empty account balance: {token_count} tokens");
-			},
+			}
+		},
 		Err(e) => println!("   ❌ Error: {e}"),
 	}
 
@@ -222,11 +223,12 @@ async fn main() -> eyre::Result<()> {
 	);
 
 	match mock.mock_call("sendrawtransaction") {
-		Ok(response) =>
+		Ok(response) => {
 			if let Some(hash) = response.get("hash") {
 				let hash_str = hash.as_str().unwrap_or("unknown");
 				println!("   ✅ Transaction sent: {hash_str}");
-			},
+			}
+		},
 		Err(e) => println!("   ❌ Error: {e}"),
 	}
 
@@ -242,7 +244,7 @@ async fn main() -> eyre::Result<()> {
 	);
 
 	match mock.mock_call("sendrawtransaction_fail") {
-		Ok(response) =>
+		Ok(response) => {
 			if let Some(error) = response.get("error") {
 				if let Some(message) = error.get("message") {
 					println!(
@@ -250,7 +252,8 @@ async fn main() -> eyre::Result<()> {
 						message.as_str().unwrap_or("unknown error")
 					);
 				}
-			},
+			}
+		},
 		Err(e) => println!("   ❌ Error: {e}"),
 	}
 

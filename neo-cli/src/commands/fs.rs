@@ -536,8 +536,9 @@ pub async fn handle_fs_command(args: FSArgs, state: &mut CliState) -> Result<(),
 	let client = NeoFSClientImpl::with_endpoint(&endpoint);
 
 	match args.command {
-		FSCommands::Container { command } =>
-			handle_container_command(command, &client, state).await,
+		FSCommands::Container { command } => {
+			handle_container_command(command, &client, state).await
+		},
 		FSCommands::Object { command } => handle_object_command(command, &client).await,
 		FSCommands::Endpoints { command } => handle_endpoint_command(command).await,
 		FSCommands::Status => handle_status_command(&client).await,
@@ -589,10 +590,11 @@ pub async fn handle_endpoint_command(command: EndpointCommands) -> Result<(), Cl
 					match network.as_str() {
 						"mainnet" => "https://rest.mainnet.fs.neo.org".to_string(),
 						"testnet" => "https://rest.testnet.fs.neo.org".to_string(),
-						_ =>
+						_ => {
 							return Err(CliError::InvalidInput(
 								"Invalid network. Use 'mainnet' or 'testnet'".to_string(),
-							)),
+							))
+						},
 					}
 				},
 			};
@@ -824,7 +826,7 @@ async fn handle_container_command(
 			let neofs_client = NeoFSClient::new(config).with_account(account.clone());
 
 			match neofs_client.list_containers().await {
-				Ok(containers) =>
+				Ok(containers) => {
 					if containers.is_empty() {
 						print_info("No containers found for this account");
 					} else {
@@ -832,7 +834,8 @@ async fn handle_container_command(
 						for container_id in containers {
 							print_info(&format!("- {}", container_id.0));
 						}
-					},
+					}
+				},
 				Err(e) => {
 					print_error(&format!("Failed to list containers: {}", e));
 					return Err(CliError::Network(format!("Failed to list containers: {}", e)));
@@ -869,13 +872,14 @@ async fn handle_container_command(
 			let container_id = ContainerId(id.clone());
 
 			match neofs_client.delete_container(&container_id).await {
-				Ok(success) =>
+				Ok(success) => {
 					if success {
 						print_success(&format!("Container deleted: {}", id));
 					} else {
 						print_error(&format!("Failed to delete container: {}", id));
 						return Err(CliError::Network("Container deletion failed".to_string()));
-					},
+					}
+				},
 				Err(e) => {
 					print_error(&format!("Failed to delete container: {}", e));
 					return Err(CliError::Network(format!("Container deletion failed: {}", e)));
@@ -1004,7 +1008,7 @@ async fn handle_object_command(
 			let container_id = ContainerId(container.clone());
 
 			match neofs_client.list_objects(&container_id).await {
-				Ok(objects) =>
+				Ok(objects) => {
 					if objects.is_empty() {
 						print_info("No objects found in this container");
 					} else {
@@ -1012,7 +1016,8 @@ async fn handle_object_command(
 						for object_id in objects {
 							print_info(&format!("- {}", object_id.0));
 						}
-					},
+					}
+				},
 				Err(e) => {
 					print_error(&format!("Failed to list objects: {}", e));
 					return Err(CliError::Network(format!("Failed to list objects: {}", e)));
@@ -1037,13 +1042,14 @@ async fn handle_object_command(
 			let object_id = ObjectId(id.clone());
 
 			match neofs_client.delete_object(&container_id, &object_id).await {
-				Ok(success) =>
+				Ok(success) => {
 					if success {
 						print_success(&format!("Object deleted: {}", id));
 					} else {
 						print_error(&format!("Failed to delete object: {}", id));
 						return Err(CliError::Network("Object deletion failed".to_string()));
-					},
+					}
+				},
 				Err(e) => {
 					print_error(&format!("Failed to delete object: {}", e));
 					return Err(CliError::Network(format!("Object deletion failed: {}", e)));

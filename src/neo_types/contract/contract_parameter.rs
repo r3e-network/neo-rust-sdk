@@ -320,8 +320,9 @@ impl From<Value> for ContractParameter {
 				}
 			},
 			Value::String(s) => Self::string(s),
-			Value::Array(a) =>
-				Self::array(a.into_iter().map(|v| ContractParameter::from(v)).collect()),
+			Value::Array(a) => {
+				Self::array(a.into_iter().map(|v| ContractParameter::from(v)).collect())
+			},
 			Value::Object(o) => Self::map(ContractParameterMap::from_map(
 				o.into_iter()
 					.map(|(k, v)| (ContractParameter::from(k), ContractParameter::from(v)))
@@ -348,12 +349,14 @@ impl ContractParameter {
 	/// Safely extracts a public key from the parameter
 	pub fn as_public_key(&self) -> Result<Secp256r1PublicKey, String> {
 		match &self.value {
-			Some(ParameterValue::PublicKey(bytes)) =>
+			Some(ParameterValue::PublicKey(bytes)) => {
 				Secp256r1PublicKey::from_bytes(bytes.as_bytes())
-					.map_err(|_| "Invalid public key bytes".to_string()),
-			Some(ParameterValue::ByteArray(bytes)) =>
+					.map_err(|_| "Invalid public key bytes".to_string())
+			},
+			Some(ParameterValue::ByteArray(bytes)) => {
 				Secp256r1PublicKey::from_bytes(bytes.as_bytes())
-					.map_err(|_| "Invalid public key bytes".to_string()),
+					.map_err(|_| "Invalid public key bytes".to_string())
+			},
 			_ => Err(format!(
 				"Invalid type for public key conversion. Expected PublicKey or ByteArray, got {:?}",
 				self.typ
@@ -407,8 +410,9 @@ impl Into<Value> for ContractParameter {
 			Some(ParameterValue::H256(h)) => Value::String(h),
 			Some(ParameterValue::PublicKey(p)) => Value::String(p),
 			Some(ParameterValue::Signature(s)) => Value::String(s),
-			Some(ParameterValue::Array(a)) =>
-				Value::Array(a.into_iter().map(|v| v.into()).collect()),
+			Some(ParameterValue::Array(a)) => {
+				Value::Array(a.into_iter().map(|v| v.into()).collect())
+			},
 			Some(ParameterValue::Map(m)) => Value::Array(
 				m.0.iter()
 					.flat_map(|(key, value)| vec![key.clone().into(), value.clone().into()])
@@ -533,8 +537,9 @@ impl ContractParameter {
 
 	pub fn to_byte_array(&self) -> Result<Vec<u8>, String> {
 		match &self.value {
-			Some(ParameterValue::ByteArray(b)) =>
-				b.from_base64_string().map_err(|e| format!("Failed to decode base64: {}", e)),
+			Some(ParameterValue::ByteArray(b)) => {
+				b.from_base64_string().map_err(|e| format!("Failed to decode base64: {}", e))
+			},
 			_ => Err(format!("Cannot convert {:?} to Vec<u8>", self)),
 		}
 	}
@@ -700,8 +705,9 @@ impl ParameterValue {
 
 	pub fn to_byte_array(&self) -> Result<Vec<u8>, String> {
 		match self {
-			ParameterValue::ByteArray(b) =>
-				b.from_base64_string().map_err(|e| format!("Failed to decode base64: {}", e)),
+			ParameterValue::ByteArray(b) => {
+				b.from_base64_string().map_err(|e| format!("Failed to decode base64: {}", e))
+			},
 			_ => Err(format!("Cannot convert {:?} to Vec<u8>", self)),
 		}
 	}

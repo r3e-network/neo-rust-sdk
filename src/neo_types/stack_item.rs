@@ -201,8 +201,9 @@ impl StackItem {
 	/// Returns the string value of a `StackItem::ByteString`, `StackItem::Buffer`, `StackItem::Integer`, or `StackItem::Boolean`.
 	pub fn as_string(&self) -> Option<String> {
 		match self {
-			StackItem::ByteString { value } | StackItem::Buffer { value } =>
-				Some(String::from_utf8_lossy(&base64::decode(value).unwrap()).to_string()),
+			StackItem::ByteString { value } | StackItem::Buffer { value } => {
+				Some(String::from_utf8_lossy(&base64::decode(value).unwrap()).to_string())
+			},
 			StackItem::Integer { value } => Some(value.to_string()),
 			StackItem::Boolean { value } => Some(value.to_string()),
 			_ => None,
@@ -216,8 +217,9 @@ impl StackItem {
 			StackItem::Pointer { value: pointer } => format!("Pointer{{value={}}}", pointer),
 			StackItem::Boolean { value: boolean } => format!("Boolean{{value={}}}", boolean),
 			StackItem::Integer { value: integer } => format!("Integer{{value={}}}", integer),
-			StackItem::ByteString { value: byteString } =>
-				format!("ByteString{{value={:?}}}", byteString),
+			StackItem::ByteString { value: byteString } => {
+				format!("ByteString{{value={:?}}}", byteString)
+			},
 			StackItem::Buffer { value: buffer } => format!("Buffer{{value={:?}}}", buffer),
 			StackItem::Array { value: array } => {
 				let values = array.iter().map(StackItem::to_string).collect::<Vec<_>>().join(", ");
@@ -251,10 +253,12 @@ impl StackItem {
 		match self {
 			StackItem::ByteString { value } | StackItem::Buffer { value } =>
 			// Some(hex::decode(value).unwrap()),
+			{
 				Some(
 					base64::decode(value.trim_end())
 						.expect(&format!("Failed to decode the string: {}", value)),
-				),
+				)
+			},
 			//Some(value.trim_end().as_bytes().to_vec()),
 			StackItem::Integer { value } => {
 				let mut bytes = value.to_be_bytes().to_vec();

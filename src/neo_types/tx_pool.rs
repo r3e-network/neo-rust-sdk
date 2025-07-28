@@ -59,8 +59,9 @@ impl<'de> Visitor<'de> for TxPoolInspectSummaryVisitor {
 			"" => None,
 			"0x" => None,
 			"contract creation" => None,
-			addr =>
-				Some(Address::from_str(addr.trim_start_matches("0x")).map_err(de::Error::custom)?),
+			addr => {
+				Some(Address::from_str(addr.trim_start_matches("0x")).map_err(de::Error::custom)?)
+			},
 		};
 		let value = U256::from_dec_str(value_split[0]).map_err(de::Error::custom)?;
 		let gas = U256::from_dec_str(gas_split[0]).map_err(de::Error::custom)?;

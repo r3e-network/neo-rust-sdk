@@ -48,8 +48,8 @@ use crate::{
 /// use neo3::neo_clients::{HttpProvider, RpcClient};
 ///
 /// fn example() -> Result<(), Box<dyn std::error::Error>> {
-///     // Create a new transaction (placeholder)
-///     // let tx = Transaction::new();
+///     // Create a new transaction using TransactionBuilder
+///     // let tx = tx_builder.build()?;
 ///
 ///     // Transactions are typically created using the TransactionBuilder
 ///     let provider = HttpProvider::new("https://testnet1.neo.org:443")?;

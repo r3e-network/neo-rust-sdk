@@ -64,8 +64,9 @@ pub enum ProviderError {
 impl PartialEq for ProviderError {
 	fn eq(&self, other: &Self) -> bool {
 		match (self, other) {
-			(ProviderError::SerdeJson(a), ProviderError::SerdeJson(b)) =>
-				a.to_string() == b.to_string(),
+			(ProviderError::SerdeJson(a), ProviderError::SerdeJson(b)) => {
+				a.to_string() == b.to_string()
+			},
 			(ProviderError::HTTPError(a), ProviderError::HTTPError(b)) => a.status() == b.status(),
 			(ProviderError::CustomError(a), ProviderError::CustomError(b)) => a == b,
 			(ProviderError::UnsupportedRPC, ProviderError::UnsupportedRPC) => true,

@@ -39,7 +39,7 @@ async fn main() -> eyre::Result<()> {
 			poll_interval.tick().await;
 
 			match block_monitor.check_for_new_blocks().await {
-				Ok(new_blocks) =>
+				Ok(new_blocks) => {
 					for block in new_blocks {
 						print_block_info(&block);
 						blocks_received += 1;
@@ -47,7 +47,8 @@ async fn main() -> eyre::Result<()> {
 						if blocks_received >= max_blocks {
 							return Ok::<(), eyre::Report>(());
 						}
-					},
+					}
+				},
 				Err(e) => {
 					println!("   ⚠️  Error checking for blocks: {e}");
 				},

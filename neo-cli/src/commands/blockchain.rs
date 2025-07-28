@@ -61,8 +61,9 @@ pub async fn handle_blockchain_command(
 	state: &mut crate::commands::wallet::CliState,
 ) -> Result<(), CliError> {
 	match args.command {
-		BlockchainCommands::Export { path, start, end } =>
-			export_blockchain(path, start, end, state).await,
+		BlockchainCommands::Export { path, start, end } => {
+			export_blockchain(path, start, end, state).await
+		},
 		BlockchainCommands::ShowBlock { identifier } => show_block(identifier, state).await,
 		BlockchainCommands::ShowTx { hash } => show_transaction(hash, state).await,
 		BlockchainCommands::ShowContract { hash } => show_contract(hash, state).await,

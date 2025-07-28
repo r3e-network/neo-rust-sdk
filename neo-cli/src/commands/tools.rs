@@ -174,22 +174,28 @@ pub enum ToolsCommands {
 /// Handle tools command with comprehensive functionality
 pub async fn handle_tools_command(args: ToolsArgs, _state: &mut CliState) -> Result<(), CliError> {
 	match args.command {
-		ToolsCommands::Encode { input, format, input_format } =>
-			handle_encode(input, format, input_format).await,
-		ToolsCommands::Decode { input, format, output_format } =>
-			handle_decode(input, format, output_format).await,
-		ToolsCommands::Hash { input, algorithm, input_format, output_format } =>
-			handle_hash(input, algorithm, input_format, output_format).await,
+		ToolsCommands::Encode { input, format, input_format } => {
+			handle_encode(input, format, input_format).await
+		},
+		ToolsCommands::Decode { input, format, output_format } => {
+			handle_decode(input, format, output_format).await
+		},
+		ToolsCommands::Hash { input, algorithm, input_format, output_format } => {
+			handle_hash(input, algorithm, input_format, output_format).await
+		},
 		ToolsCommands::Convert { input, from, to } => handle_convert(input, from, to).await,
-		ToolsCommands::Address { pubkey, version } =>
-			handle_address_generation(pubkey, version).await,
+		ToolsCommands::Address { pubkey, version } => {
+			handle_address_generation(pubkey, version).await
+		},
 		ToolsCommands::ValidateAddress { address } => handle_validate_address(address).await,
 		ToolsCommands::ScriptHash { script } => handle_script_hash(script).await,
 		ToolsCommands::Random { bytes, format } => handle_random_generation(bytes, format).await,
-		ToolsCommands::VerifySignature { message, signature, pubkey } =>
-			handle_verify_signature(message, signature, pubkey).await,
-		ToolsCommands::CalculateFee { size, fee_per_byte, system_fee } =>
-			handle_calculate_fee(size, fee_per_byte, system_fee).await,
+		ToolsCommands::VerifySignature { message, signature, pubkey } => {
+			handle_verify_signature(message, signature, pubkey).await
+		},
+		ToolsCommands::CalculateFee { size, fee_per_byte, system_fee } => {
+			handle_calculate_fee(size, fee_per_byte, system_fee).await
+		},
 		ToolsCommands::FormatJson { input, compact } => handle_format_json(input, compact).await,
 	}
 }

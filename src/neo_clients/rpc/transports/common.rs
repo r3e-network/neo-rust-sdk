@@ -199,11 +199,12 @@ impl<'de: 'a, 'a> Deserialize<'de> for Response<'a> {
 							let value: Params = map.next_value()?;
 							params = Some(value);
 						},
-						key =>
+						key => {
 							return Err(de::Error::unknown_field(
 								key,
 								&["id", "jsonrpc", "result", "error", "params", "method"],
-							)),
+							))
+						},
 					}
 				}
 
@@ -213,11 +214,13 @@ impl<'de: 'a, 'a> Deserialize<'de> for Response<'a> {
 				}
 
 				match (id, result, error, method, params) {
-					(Some(id), Some(result), None, None, None) =>
-						Ok(Response::Success { id, result }),
+					(Some(id), Some(result), None, None, None) => {
+						Ok(Response::Success { id, result })
+					},
 					(Some(id), None, Some(error), None, None) => Ok(Response::Error { id, error }),
-					(None, None, None, Some(method), Some(params)) =>
-						Ok(Response::Notification { method, params }),
+					(None, None, None, Some(method), Some(params)) => {
+						Ok(Response::Notification { method, params })
+					},
 					_ => Err(de::Error::custom(
 						"response must be either a success/error or notification object",
 					)),

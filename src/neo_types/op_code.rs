@@ -556,8 +556,9 @@ impl OpCode {
 			| Self::IsType
 			| Self::Convert => Some(OperandSize::with_size(1)),
 
-			Self::PushInt16 | Self::CallT | Self::Try | Self::InitSlot =>
-				Some(OperandSize::with_size(2)),
+			Self::PushInt16 | Self::CallT | Self::Try | Self::InitSlot => {
+				Some(OperandSize::with_size(2))
+			},
 
 			Self::PushInt32
 			| Self::PushA

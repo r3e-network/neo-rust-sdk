@@ -70,10 +70,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	};
 
 	match client.get_block(serde_json::json!(latest_block_index)).await {
-		Ok(block) =>
+		Ok(block) => {
 			if let Some(hash) = block.get("hash").and_then(|h| h.as_str()) {
 				println!("   Latest block hash: {hash}");
-			},
+			}
+		},
 		Err(e) => {
 			println!("   ❌ Failed to get latest block: {e}");
 		},

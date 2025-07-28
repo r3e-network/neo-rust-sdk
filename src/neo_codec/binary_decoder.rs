@@ -192,7 +192,7 @@ impl<'a> Decoder<'a> {
 			Ok(s) => s,
 			Err(e) => {
 				// Handle invalid UTF-8
-				return Err(CodecError::InvalidEncoding(e.to_string()))
+				return Err(CodecError::InvalidEncoding(e.to_string()));
 			},
 		};
 
@@ -235,8 +235,11 @@ impl<'a> Decoder<'a> {
 			OpCode::PushInt64 => 8,
 			OpCode::PushInt128 => 16,
 			OpCode::PushInt256 => 32,
-			_ =>
-				return Err(CodecError::InvalidEncoding("Couldn't parse PUSHINT OpCode".to_string())),
+			_ => {
+				return Err(CodecError::InvalidEncoding(
+					"Couldn't parse PUSHINT OpCode".to_string(),
+				))
+			},
 		};
 
 		let bytes = self.read_bytes(count)?;

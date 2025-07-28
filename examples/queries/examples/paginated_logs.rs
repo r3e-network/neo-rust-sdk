@@ -147,7 +147,7 @@ async fn query_contract_events(
 
 	for block_index in start_block..(start_block + sample_size) {
 		match client.get_block_by_index(block_index, true).await {
-			Ok(block) =>
+			Ok(block) => {
 				if let Some(transactions) = &block.transactions {
 					for transaction in transactions {
 						if transaction_involves_contract(&transaction.script, contract_hash) {
@@ -155,7 +155,8 @@ async fn query_contract_events(
 							println!("      📝 Contract interaction found in block {block_index}");
 						}
 					}
-				},
+				}
+			},
 			Err(_) => continue,
 		}
 	}

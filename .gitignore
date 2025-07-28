@@ -1,6 +1,11 @@
 # Rust build artifacts
 /target/
+**/target/
+**/Cargo.lock
 .idea/
 .vscode/
 node_modules/
 .cache/
+.autopilot/
+*.bak
+scripts/

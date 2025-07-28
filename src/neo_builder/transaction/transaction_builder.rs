@@ -653,7 +653,7 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 			}
 		}
 		if (!has_atleast_one_signing_account) {
-			return Err(TransactionError::TransactionConfiguration("A transaction requires at least one signing account (i.e. an AccountSigner). None was provided.".to_string()))
+			return Err(TransactionError::TransactionConfiguration("A transaction requires at least one signing account (i.e. an AccountSigner). None was provided.".to_string()));
 		}
 
 		let fee = client.calculate_network_fee(tx.to_array().to_hex_string()).await?;

@@ -94,8 +94,9 @@ impl NetworkService {
 	) -> Neo3Result<serde_json::Value> {
 		if let Some(client) = self.client.read().await.as_ref() {
 			match block_identifier {
-				BlockIdentifier::Height(height) =>
-					client.get_block(serde_json::json!(height)).await,
+				BlockIdentifier::Height(height) => {
+					client.get_block(serde_json::json!(height)).await
+				},
 				BlockIdentifier::Hash(hash) => client.get_block(serde_json::json!(hash)).await,
 				BlockIdentifier::Latest => {
 					let block_count = client.get_block_count().await?;

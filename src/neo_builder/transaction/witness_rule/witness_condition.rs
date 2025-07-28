@@ -287,8 +287,9 @@ impl WitnessCondition {
 	/// Returns the script hash of the witness condition.
 	pub fn script_hash(&self) -> Option<&H160> {
 		match self {
-			WitnessCondition::ScriptHash(hash) | WitnessCondition::CalledByContract(hash) =>
-				Some(hash),
+			WitnessCondition::ScriptHash(hash) | WitnessCondition::CalledByContract(hash) => {
+				Some(hash)
+			},
 			_ => None,
 		}
 	}

@@ -149,7 +149,7 @@ pub trait SmartContractTrait<'a>: Send + Sync {
 		}
 	}
 
-	// Other methods like `call_function_returning_xxx`, iterators, etc.
+	// Other methods for different return types
 	async fn call_function_returning_script_hash(
 		&self,
 		function: &str,

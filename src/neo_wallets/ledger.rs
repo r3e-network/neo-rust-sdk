@@ -104,10 +104,12 @@ impl HDPath {
 	/// Converts the HD path to a vector of integers.
 	pub fn to_vec(&self) -> Vec<u32> {
 		match self {
-			HDPath::LedgerLive(index) =>
-				vec![44 + 0x80000000, 888 + 0x80000000, 0 + 0x80000000, 0, *index],
-			HDPath::Legacy(index) =>
-				vec![44 + 0x80000000, 888 + 0x80000000, 0 + 0x80000000, *index],
+			HDPath::LedgerLive(index) => {
+				vec![44 + 0x80000000, 888 + 0x80000000, 0 + 0x80000000, 0, *index]
+			},
+			HDPath::Legacy(index) => {
+				vec![44 + 0x80000000, 888 + 0x80000000, 0 + 0x80000000, *index]
+			},
 			HDPath::Custom(path) => path.clone(),
 		}
 	}
@@ -149,7 +151,10 @@ impl<T: LedgerAsync> LedgerWallet<T> {
 			.map_err(|e| WalletError::LedgerError(format!("Failed to get address: {e}")))?;
 
 		if response.retcode() != 0x9000 {
-			return Err(WalletError::LedgerError(format!("Ledger error: {:x}", response.retcode())));
+			return Err(WalletError::LedgerError(format!(
+				"Ledger error: {:x}",
+				response.retcode()
+			)));
 		}
 
 		// The response data contains the public key and the Neo N3 address
@@ -190,7 +195,10 @@ impl<T: LedgerAsync> LedgerWallet<T> {
 			})?;
 
 		if response.retcode() != 0x9000 {
-			return Err(WalletError::LedgerError(format!("Ledger error: {:x}", response.retcode())));
+			return Err(WalletError::LedgerError(format!(
+				"Ledger error: {:x}",
+				response.retcode()
+			)));
 		}
 
 		// Parse the signature from the response
@@ -235,7 +243,10 @@ impl<T: LedgerAsync> LedgerWallet<T> {
 			.map_err(|e| WalletError::LedgerError(format!("Failed to sign message: {e}")))?;
 
 		if response.retcode() != 0x9000 {
-			return Err(WalletError::LedgerError(format!("Ledger error: {:x}", response.retcode())));
+			return Err(WalletError::LedgerError(format!(
+				"Ledger error: {:x}",
+				response.retcode()
+			)));
 		}
 
 		// Parse the signature from the response

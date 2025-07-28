@@ -288,24 +288,30 @@ pub enum WalletCommands {
 /// Handle wallet command with comprehensive functionality
 pub async fn handle_wallet_command(args: WalletArgs, state: &mut CliState) -> Result<(), CliError> {
 	match args.command {
-		WalletCommands::Create { path, name, password } =>
-			handle_create_wallet(path, name, password, state).await,
+		WalletCommands::Create { path, name, password } => {
+			handle_create_wallet(path, name, password, state).await
+		},
 		WalletCommands::Open { path, password } => handle_open_wallet(path, password, state).await,
 		WalletCommands::Close => handle_close_wallet(state).await,
 		WalletCommands::List => handle_list_addresses(state).await,
 		WalletCommands::Info => handle_wallet_info(state).await,
-		WalletCommands::CreateAddress { count, label } =>
-			handle_create_address(count, label, state).await,
-		WalletCommands::Import { wif_or_file, label } =>
-			handle_import_key(wif_or_file, label, state).await,
-		WalletCommands::Export { path, address, format } =>
-			handle_export_key(path, address, format, state).await,
+		WalletCommands::CreateAddress { count, label } => {
+			handle_create_address(count, label, state).await
+		},
+		WalletCommands::Import { wif_or_file, label } => {
+			handle_import_key(wif_or_file, label, state).await
+		},
+		WalletCommands::Export { path, address, format } => {
+			handle_export_key(path, address, format, state).await
+		},
 		WalletCommands::Gas { address } => handle_show_gas(address, state).await,
 		WalletCommands::Password => handle_change_password(state).await,
-		WalletCommands::Send { asset, to, amount, from, fee } =>
-			handle_transfer(asset, to, amount, from, fee, state).await,
-		WalletCommands::Balance { address, token, detailed } =>
-			handle_balance(address, token, detailed, state).await,
+		WalletCommands::Send { asset, to, amount, from, fee } => {
+			handle_transfer(asset, to, amount, from, fee, state).await
+		},
+		WalletCommands::Balance { address, token, detailed } => {
+			handle_balance(address, token, detailed, state).await
+		},
 		WalletCommands::Backup { path } => handle_backup_wallet(path, state).await,
 		WalletCommands::Restore { path } => handle_restore_wallet(path, state).await,
 	}

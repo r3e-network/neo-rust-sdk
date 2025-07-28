@@ -190,19 +190,22 @@ impl PartialEq for Signer {
 	fn eq(&self, other: &Self) -> bool {
 		match self {
 			Signer::AccountSigner(account_signer) => match other {
-				Signer::AccountSigner(other_account_signer) =>
-					account_signer.get_signer_hash() == other_account_signer.get_signer_hash(),
+				Signer::AccountSigner(other_account_signer) => {
+					account_signer.get_signer_hash() == other_account_signer.get_signer_hash()
+				},
 				_ => false,
 			},
 			Signer::ContractSigner(contract_signer) => match other {
-				Signer::ContractSigner(other_contract_signer) =>
-					contract_signer.get_signer_hash() == other_contract_signer.get_signer_hash(),
+				Signer::ContractSigner(other_contract_signer) => {
+					contract_signer.get_signer_hash() == other_contract_signer.get_signer_hash()
+				},
 				_ => false,
 			},
 			Signer::TransactionSigner(transaction_signer) => match other {
-				Signer::TransactionSigner(other_transaction_signer) =>
+				Signer::TransactionSigner(other_transaction_signer) => {
 					transaction_signer.get_signer_hash()
-						== other_transaction_signer.get_signer_hash(),
+						== other_transaction_signer.get_signer_hash()
+				},
 				_ => false,
 			},
 		}
@@ -230,8 +233,9 @@ impl SignerTrait for Signer {
 		match self {
 			Signer::AccountSigner(account_signer) => account_signer.set_signer_hash(signer_hash),
 			Signer::ContractSigner(contract_signer) => contract_signer.set_signer_hash(signer_hash),
-			Signer::TransactionSigner(transaction_signer) =>
-				transaction_signer.set_signer_hash(signer_hash),
+			Signer::TransactionSigner(transaction_signer) => {
+				transaction_signer.set_signer_hash(signer_hash)
+			},
 		}
 	}
 
@@ -263,8 +267,9 @@ impl SignerTrait for Signer {
 		match self {
 			Signer::AccountSigner(account_signer) => account_signer.get_allowed_contracts(),
 			Signer::ContractSigner(contract_signer) => contract_signer.get_allowed_contracts(),
-			Signer::TransactionSigner(transaction_signer) =>
-				transaction_signer.get_allowed_contracts(),
+			Signer::TransactionSigner(transaction_signer) => {
+				transaction_signer.get_allowed_contracts()
+			},
 		}
 	}
 
@@ -272,8 +277,9 @@ impl SignerTrait for Signer {
 		match self {
 			Signer::AccountSigner(account_signer) => account_signer.get_allowed_contracts_mut(),
 			Signer::ContractSigner(contract_signer) => contract_signer.get_allowed_contracts_mut(),
-			Signer::TransactionSigner(transaction_signer) =>
-				transaction_signer.get_allowed_contracts_mut(),
+			Signer::TransactionSigner(transaction_signer) => {
+				transaction_signer.get_allowed_contracts_mut()
+			},
 		}
 	}
 
@@ -281,8 +287,9 @@ impl SignerTrait for Signer {
 		match self {
 			Signer::AccountSigner(account_signer) => account_signer.get_allowed_groups(),
 			Signer::ContractSigner(contract_signer) => contract_signer.get_allowed_groups(),
-			Signer::TransactionSigner(transaction_signer) =>
-				transaction_signer.get_allowed_groups(),
+			Signer::TransactionSigner(transaction_signer) => {
+				transaction_signer.get_allowed_groups()
+			},
 		}
 	}
 
@@ -290,8 +297,9 @@ impl SignerTrait for Signer {
 		match self {
 			Signer::AccountSigner(account_signer) => account_signer.get_allowed_groups_mut(),
 			Signer::ContractSigner(contract_signer) => contract_signer.get_allowed_groups_mut(),
-			Signer::TransactionSigner(transaction_signer) =>
-				transaction_signer.get_allowed_groups_mut(),
+			Signer::TransactionSigner(transaction_signer) => {
+				transaction_signer.get_allowed_groups_mut()
+			},
 		}
 	}
 
@@ -369,20 +377,23 @@ impl Signer {
 	pub fn to_account_signer(self) -> Result<AccountSigner, String> {
 		match self {
 			Signer::AccountSigner(account_signer) => Ok(account_signer),
-			_ =>
+			_ => {
 				Err("Cannot convert ContractSigner or TransactionSigner into AccountSigner"
-					.to_string()),
+					.to_string())
+			},
 		}
 	}
 
 	/// Safely converts to ContractSigner
 	pub fn to_contract_signer(self) -> Result<ContractSigner, String> {
 		match self {
-			Signer::AccountSigner(_) =>
-				Err("Cannot convert AccountSigner into ContractSigner".to_string()),
+			Signer::AccountSigner(_) => {
+				Err("Cannot convert AccountSigner into ContractSigner".to_string())
+			},
 			Signer::ContractSigner(contract_signer) => Ok(contract_signer),
-			Signer::TransactionSigner(_) =>
-				Err("Cannot convert TransactionSigner into ContractSigner".to_string()),
+			Signer::TransactionSigner(_) => {
+				Err("Cannot convert TransactionSigner into ContractSigner".to_string())
+			},
 		}
 	}
 }
@@ -534,8 +545,9 @@ impl Serialize for Signer {
 		match self {
 			Signer::AccountSigner(account_signer) => account_signer.serialize(serializer),
 			Signer::ContractSigner(contract_signer) => contract_signer.serialize(serializer),
-			Signer::TransactionSigner(transaction_signer) =>
-				transaction_signer.serialize(serializer),
+			Signer::TransactionSigner(transaction_signer) => {
+				transaction_signer.serialize(serializer)
+			},
 		}
 	}
 }

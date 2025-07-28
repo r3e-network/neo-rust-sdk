@@ -104,10 +104,12 @@ impl<'a, P: JsonRpcProvider + 'static> NeoURI<'a, P> {
 
 	pub fn token_string(&self) -> Option<String> {
 		self.token.as_ref().map(|token| match token {
-			token if *token == NeoToken::<P>::new(None).script_hash() =>
-				Self::NEO_TOKEN_STRING.to_owned(),
-			token if *token == GasToken::<P>::new(None).script_hash() =>
-				Self::GAS_TOKEN_STRING.to_owned(),
+			token if *token == NeoToken::<P>::new(None).script_hash() => {
+				Self::NEO_TOKEN_STRING.to_owned()
+			},
+			token if *token == GasToken::<P>::new(None).script_hash() => {
+				Self::GAS_TOKEN_STRING.to_owned()
+			},
 			_ => ScriptHashExtension::to_bs58_string(token),
 		})
 	}
@@ -132,7 +134,9 @@ impl<'a, P: JsonRpcProvider + 'static> NeoURI<'a, P> {
 		let amount_scale = (amount as f64).log10().floor() as u32 + 1;
 
 		if Self::is_neo_token(&token_hash) && amount_scale > 0 {
-			return Err(ContractError::InvalidArgError("NEO does not support decimals".to_string()));
+			return Err(ContractError::InvalidArgError(
+				"NEO does not support decimals".to_string(),
+			));
 		}
 
 		if Self::is_gas_token(&token_hash)
@@ -208,10 +212,12 @@ impl<'a, P: JsonRpcProvider + 'static> NeoURI<'a, P> {
 
 		if let Some(token) = &self.token {
 			let token_str = match token {
-				token if *token == NeoToken::new(self.provider).script_hash() =>
-					Self::NEO_TOKEN_STRING.to_owned(),
-				token if *token == GasToken::new(self.provider).script_hash() =>
-					Self::GAS_TOKEN_STRING.to_owned(),
+				token if *token == NeoToken::new(self.provider).script_hash() => {
+					Self::NEO_TOKEN_STRING.to_owned()
+				},
+				token if *token == GasToken::new(self.provider).script_hash() => {
+					Self::GAS_TOKEN_STRING.to_owned()
+				},
 				_ => ScriptHashExtension::to_bs58_string(token),
 			};
 

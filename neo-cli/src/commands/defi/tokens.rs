@@ -99,7 +99,7 @@ pub async fn get_token_info(contract: &str, state: &CliState) -> Result<(), CliE
 		.invoke_function_diagnostics(token_hash, "name".to_string(), vec![], vec![])
 		.await
 	{
-		Ok(result) =>
+		Ok(result) => {
 			if let Some(stack_item) = result.stack.first() {
 				if let Some(bytes) = stack_item.as_bytes() {
 					let name = String::from_utf8_lossy(&bytes);
@@ -109,7 +109,8 @@ pub async fn get_token_info(contract: &str, state: &CliState) -> Result<(), CliE
 				}
 			} else {
 				print_info("Token Name: <No result>");
-			},
+			}
+		},
 		Err(e) => {
 			print_error(&format!("Failed to get token name: {}", e));
 		},
@@ -120,7 +121,7 @@ pub async fn get_token_info(contract: &str, state: &CliState) -> Result<(), CliE
 		.invoke_function_diagnostics(token_hash, "symbol".to_string(), vec![], vec![])
 		.await
 	{
-		Ok(result) =>
+		Ok(result) => {
 			if let Some(stack_item) = result.stack.first() {
 				if let Some(bytes) = stack_item.as_bytes() {
 					let symbol = String::from_utf8_lossy(&bytes);
@@ -130,7 +131,8 @@ pub async fn get_token_info(contract: &str, state: &CliState) -> Result<(), CliE
 				}
 			} else {
 				print_info("Token Symbol: <No result>");
-			},
+			}
+		},
 		Err(e) => {
 			print_error(&format!("Failed to get token symbol: {}", e));
 		},
@@ -151,7 +153,7 @@ pub async fn get_token_info(contract: &str, state: &CliState) -> Result<(), CliE
 		.invoke_function_diagnostics(token_hash, "totalSupply".to_string(), vec![], vec![])
 		.await
 	{
-		Ok(result) =>
+		Ok(result) => {
 			if let Some(stack_item) = result.stack.first() {
 				if let Some(amount) = stack_item.as_int() {
 					if let Ok(decimals) =
@@ -167,7 +169,8 @@ pub async fn get_token_info(contract: &str, state: &CliState) -> Result<(), CliE
 				}
 			} else {
 				print_info("Total Supply: <No result>");
-			},
+			}
+		},
 		Err(e) => {
 			print_error(&format!("Failed to get token total supply: {}", e));
 		},
@@ -219,7 +222,7 @@ pub async fn get_token_balance(
 						)
 						.await
 					{
-						Ok(result) =>
+						Ok(result) => {
 							if let Some(stack_item) = result.stack.first() {
 								if let Some(bytes) = stack_item.as_bytes() {
 									String::from_utf8_lossy(&bytes).to_string()
@@ -228,7 +231,8 @@ pub async fn get_token_balance(
 								}
 							} else {
 								"Unknown".to_string()
-							},
+							}
+						},
 						Err(_) => "Unknown".to_string(),
 					};
 
@@ -287,7 +291,7 @@ pub async fn transfer_token(
 		.invoke_function_diagnostics(token_hash, "symbol".to_string(), vec![], vec![])
 		.await
 	{
-		Ok(result) =>
+		Ok(result) => {
 			if let Some(stack_item) = result.stack.first() {
 				if let Some(bytes) = stack_item.as_bytes() {
 					String::from_utf8_lossy(&bytes).to_string()
@@ -296,7 +300,8 @@ pub async fn transfer_token(
 				}
 			} else {
 				"Unknown".to_string()
-			},
+			}
+		},
 		Err(_) => "Unknown".to_string(),
 	};
 

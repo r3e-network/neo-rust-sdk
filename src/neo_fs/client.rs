@@ -168,11 +168,12 @@ impl NeoFSClient {
 			"POST" => self.http_client.post(&url),
 			"PUT" => self.http_client.put(&url),
 			"DELETE" => self.http_client.delete(&url),
-			_ =>
+			_ => {
 				return Err(NeoFSError::InvalidArgument(format!(
 					"Unsupported HTTP method: {}",
 					method
-				))),
+				)))
+			},
 		};
 
 		request = request.headers(headers);

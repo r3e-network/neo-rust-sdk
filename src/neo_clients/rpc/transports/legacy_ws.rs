@@ -324,8 +324,9 @@ where
 	/// Dispatch an outgoing message
 	async fn service(&mut self, instruction: Instruction) -> Result<(), ClientError> {
 		match instruction {
-			Instruction::Request { id, request, sender } =>
-				self.service_request(id, request, sender).await,
+			Instruction::Request { id, request, sender } => {
+				self.service_request(id, request, sender).await
+			},
 			Instruction::Subscribe { id, sink } => self.service_subscribe(id, sink).await,
 			Instruction::Unsubscribe { id } => self.service_unsubscribe(id).await,
 		}
