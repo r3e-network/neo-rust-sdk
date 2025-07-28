@@ -286,7 +286,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 	// 6. Check balances for HSM-managed addresses
 	println!("\n6️⃣ Checking balances for HSM addresses...");
-	let gas_hash = ScriptHash::from_hex("d2a4cff31913016155e38e474a2c06d08be276cf").map_err(|e| eyre::eyre!("Failed to create ScriptHash: {:?}", e))?;
+	let gas_hash = ScriptHash::from_hex("d2a4cff31913016155e38e474a2c06d08be276cf")
+		.map_err(|e| eyre::eyre!("Failed to create ScriptHash: {:?}", e))?;
 
 	for metadata in &generated_keys {
 		if let Ok(address) = hsm.get_neo_address(metadata.id) {

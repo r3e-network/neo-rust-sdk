@@ -80,8 +80,10 @@ async fn subscribe_to_transfers(
 	println!("   💸 Monitoring Transfer events from NEP-17 tokens...");
 
 	// Common NEP-17 token contracts on TestNet
-	let nep17_contracts = [("GAS", "d2a4cff31913016155e38e474a2c06d08be276cf"),
-		("NEO", "ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5")];
+	let nep17_contracts = [
+		("GAS", "d2a4cff31913016155e38e474a2c06d08be276cf"),
+		("NEO", "ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5"),
+	];
 
 	let current_height = client.get_block_count().await?;
 	let start_height = current_height.saturating_sub(10);
