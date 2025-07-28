@@ -206,7 +206,7 @@ async fn handle_return_values(
 			println!("      Raw result: {:?}", result.state);
 
 			if let Some(stack_item) = result.stack.first() {
-				println!("      Stack item type: {:?}", stack_item);
+				println!("      Stack item type: {stack_item:?}");
 
 				// Try different type conversions
 				if let Some(string_val) = stack_item.as_string() {
@@ -235,9 +235,9 @@ async fn handle_return_values(
 }
 
 async fn query_contract_state(
-	client: &neo3::neo_clients::RpcClient<neo3::neo_clients::HttpProvider>,
+	_client: &neo3::neo_clients::RpcClient<neo3::neo_clients::HttpProvider>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-	let gas_hash =
+	let _gas_hash =
 		neo3::neo_types::ScriptHash::from_str("d2a4cff31913016155e38e474a2c06d08be276cf")?;
 
 	println!("   🗂️ Contract storage queries:");
