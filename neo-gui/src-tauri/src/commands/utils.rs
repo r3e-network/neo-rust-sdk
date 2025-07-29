@@ -173,7 +173,7 @@ pub async fn hash_data(
 			let sha256_result = sha256.finalize();
 
 			let mut ripemd160 = Ripemd160::new();
-			ripemd160.update(&sha256_result);
+			ripemd160.update(sha256_result);
 			hex::encode(ripemd160.finalize())
 		},
 		"hash256" => {
@@ -185,7 +185,7 @@ pub async fn hash_data(
 			let first_hash = hasher1.finalize();
 
 			let mut hasher2 = Sha256::new();
-			hasher2.update(&first_hash);
+			hasher2.update(first_hash);
 			hex::encode(hasher2.finalize())
 		},
 		_ => {
@@ -278,7 +278,7 @@ pub async fn address_to_script_hash(
 			let script_hash_string = script_hash.to_string();
 			Ok(ApiResponse::success(script_hash_string))
 		},
-		Err(e) => Ok(ApiResponse::error(format!("Invalid address: {}", e))),
+		Err(e) => Ok(ApiResponse::error(format!("Invalid address: {e}"))),
 	}
 }
 
@@ -296,7 +296,7 @@ pub async fn script_hash_to_address(
 			let address = script_hash.to_address();
 			Ok(ApiResponse::success(address))
 		},
-		Err(e) => Ok(ApiResponse::error(format!("Invalid script hash: {}", e))),
+		Err(e) => Ok(ApiResponse::error(format!("Invalid script hash: {e}"))),
 	}
 }
 
@@ -323,7 +323,7 @@ pub async fn generate_private_key(
 			};
 			Ok(ApiResponse::success(response))
 		},
-		Err(e) => Ok(ApiResponse::error(format!("Failed to generate private key: {}", e))),
+		Err(e) => Ok(ApiResponse::error(format!("Failed to generate private key: {e}"))),
 	}
 }
 
@@ -350,6 +350,6 @@ pub async fn derive_public_key(
 			};
 			Ok(ApiResponse::success(response))
 		},
-		Err(e) => Ok(ApiResponse::error(format!("Invalid private key: {}", e))),
+		Err(e) => Ok(ApiResponse::error(format!("Invalid private key: {e}"))),
 	}
 }

@@ -1,7 +1,7 @@
 {
   "id": "intro",
   "title": "Welcome to NeoRust",
-  "description": "🚀 NeoRust v0.4.1",
+  "description": "🚀 NeoRust v0.4.2",
   "source": "@site/docs/intro.md",
   "sourceDirName": ".",
   "slug": "/intro",
@@ -11,8 +11,8 @@
   "editUrl": "https://github.com/R3E-Network/NeoRust/tree/main/website/docs/intro.md",
   "tags": [],
   "version": "current",
-  "lastUpdatedBy": "Jimmy",
-  "lastUpdatedAt": 1748820964000,
+  "lastUpdatedBy": "jimmy",
+  "lastUpdatedAt": 1750726818000,
   "frontMatter": {},
   "sidebar": "tutorialSidebar",
   "next": {

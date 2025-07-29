@@ -47,8 +47,8 @@ pub async fn connect_to_network(
 			Ok(ApiResponse::success(true))
 		},
 		Err(e) => {
-			log::error!("Failed to connect to network: {}", e);
-			Ok(ApiResponse::error(format!("Failed to connect: {}", e)))
+			log::error!("Failed to connect to network: {e}");
+			Ok(ApiResponse::error(format!("Failed to connect: {e}")))
 		},
 	}
 }
@@ -97,7 +97,7 @@ pub async fn get_block_info(
 	block_identifier: String,
 	state: State<'_, AppState>,
 ) -> Result<ApiResponse<serde_json::Value>, String> {
-	log::info!("Getting block info: {}", block_identifier);
+	log::info!("Getting block info: {block_identifier}");
 
 	let identifier = if block_identifier == "latest" {
 		BlockIdentifier::Latest
@@ -113,8 +113,8 @@ pub async fn get_block_info(
 			Ok(ApiResponse::success(block_info))
 		},
 		Err(e) => {
-			log::error!("Failed to get block info: {}", e);
-			Ok(ApiResponse::error(format!("Failed to get block info: {}", e)))
+			log::error!("Failed to get block info: {e}");
+			Ok(ApiResponse::error(format!("Failed to get block info: {e}")))
 		},
 	}
 }
@@ -125,7 +125,7 @@ pub async fn get_transaction_info(
 	tx_hash: String,
 	state: State<'_, AppState>,
 ) -> Result<ApiResponse<serde_json::Value>, String> {
-	log::info!("Getting transaction info: {}", tx_hash);
+	log::info!("Getting transaction info: {tx_hash}");
 
 	match state.network_service.get_transaction_info(tx_hash).await {
 		Ok(tx_info) => {
@@ -133,8 +133,8 @@ pub async fn get_transaction_info(
 			Ok(ApiResponse::success(tx_info))
 		},
 		Err(e) => {
-			log::error!("Failed to get transaction info: {}", e);
-			Ok(ApiResponse::error(format!("Failed to get transaction info: {}", e)))
+			log::error!("Failed to get transaction info: {e}");
+			Ok(ApiResponse::error(format!("Failed to get transaction info: {e}")))
 		},
 	}
 }
@@ -145,7 +145,7 @@ pub async fn get_network_contract_info(
 	contract_hash: String,
 	state: State<'_, AppState>,
 ) -> Result<ApiResponse<serde_json::Value>, String> {
-	log::info!("Getting contract info: {}", contract_hash);
+	log::info!("Getting contract info: {contract_hash}");
 
 	match state.network_service.get_contract_info(contract_hash).await {
 		Ok(contract_info) => {
@@ -153,8 +153,8 @@ pub async fn get_network_contract_info(
 			Ok(ApiResponse::success(contract_info))
 		},
 		Err(e) => {
-			log::error!("Failed to get contract info: {}", e);
-			Ok(ApiResponse::error(format!("Failed to get contract info: {}", e)))
+			log::error!("Failed to get contract info: {e}");
+			Ok(ApiResponse::error(format!("Failed to get contract info: {e}")))
 		},
 	}
 }

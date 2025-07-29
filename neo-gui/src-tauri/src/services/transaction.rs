@@ -1,10 +1,9 @@
 use chrono::{DateTime, Utc};
 use neo3::{
-	neo_clients::ProductionRpcClient,
+	neo_clients::{HttpProvider, RpcClient},
 	neo_error::{Neo3Error, Neo3Result},
 	neo_protocol::{Account, AccountTrait},
 	neo_types::script_hash::ScriptHash,
-	prelude::*,
 	ScriptHashExtension,
 };
 use rand::Rng;
@@ -15,7 +14,7 @@ use tokio::sync::RwLock;
 /// Transaction service for managing Neo transactions
 #[derive(Clone)]
 pub struct TransactionService {
-	rpc_client: Arc<RwLock<Option<Arc<ProductionRpcClient>>>>,
+	rpc_client: Arc<RwLock<Option<Arc<RpcClient<HttpProvider>>>>>,
 	pending_transactions: Arc<RwLock<HashMap<String, PendingTransaction>>>,
 }
 
@@ -62,7 +61,7 @@ impl TransactionService {
 	}
 
 	/// Set the RPC client for transaction operations
-	pub async fn set_rpc_client(&self, client: Arc<ProductionRpcClient>) {
+	pub async fn set_rpc_client(&self, client: Arc<RpcClient<HttpProvider>>) {
 		let mut rpc_client = self.rpc_client.write().await;
 		*rpc_client = Some(client);
 	}
@@ -92,7 +91,7 @@ impl TransactionService {
 
 		// Get RPC client
 		let client_guard = self.rpc_client.read().await;
-		let client = client_guard.as_ref().ok_or_else(|| {
+		let _client = client_guard.as_ref().ok_or_else(|| {
 			Neo3Error::Config(
 				"No RPC client available. Please connect to a network first.".to_string(),
 			)
@@ -100,9 +99,9 @@ impl TransactionService {
 
 		// Parse and validate addresses
 		let _from_script_hash = ScriptHash::from_address(&from_address)
-			.map_err(|e| Neo3Error::Generic { message: format!("Invalid from address: {}", e) })?;
+			.map_err(|e| Neo3Error::Generic { message: format!("Invalid from address: {e}") })?;
 		let _to_script_hash = ScriptHash::from_address(&to_address)
-			.map_err(|e| Neo3Error::Generic { message: format!("Invalid to address: {}", e) })?;
+			.map_err(|e| Neo3Error::Generic { message: format!("Invalid to address: {e}") })?;
 
 		// Parse and validate amount
 		let amount_value = amount
@@ -121,7 +120,7 @@ impl TransactionService {
 				// Neo native contract hash: 0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5
 				let hash_bytes =
 					hex::decode("ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5").map_err(|e| {
-						Neo3Error::Generic { message: format!("Invalid NEO contract hash: {}", e) }
+						Neo3Error::Generic { message: format!("Invalid NEO contract hash: {e}") }
 					})?;
 				if hash_bytes.len() != 20 {
 					return Err(Neo3Error::Generic {
@@ -134,7 +133,7 @@ impl TransactionService {
 				// GAS native contract hash: 0xd2a4cff31913016155e38e474a2c06d08be276cf
 				let hash_bytes =
 					hex::decode("d2a4cff31913016155e38e474a2c06d08be276cf").map_err(|e| {
-						Neo3Error::Generic { message: format!("Invalid GAS contract hash: {}", e) }
+						Neo3Error::Generic { message: format!("Invalid GAS contract hash: {e}") }
 					})?;
 				if hash_bytes.len() != 20 {
 					return Err(Neo3Error::Generic {
@@ -146,8 +145,7 @@ impl TransactionService {
 			_ => {
 				return Err(Neo3Error::Generic {
 					message: format!(
-						"Unsupported asset type: {}. Only NEO and GAS are supported.",
-						asset
+						"Unsupported asset type: {asset}. Only NEO and GAS are supported."
 					),
 				})
 			},
@@ -159,7 +157,7 @@ impl TransactionService {
 		// Create account from private key for signing
 		let private_key_str = private_key.unwrap();
 		let _from_account = Account::from_wif(&private_key_str)
-			.map_err(|e| Neo3Error::Generic { message: format!("Invalid private key: {}", e) })?;
+			.map_err(|e| Neo3Error::Generic { message: format!("Invalid private key: {e}") })?;
 
 		// Transaction building framework is ready - this implementation provides
 		// complete transaction construction capabilities with proper validation,
@@ -192,11 +190,7 @@ impl TransactionService {
 		pending.insert(tx_id.clone(), pending_tx);
 
 		log::info!(
-			"Transaction submitted: {} -> {} ({} {})",
-			from_address,
-			to_address,
-			amount,
-			asset
+			"Transaction submitted: {from_address} -> {to_address} ({amount} {asset})"
 		);
 		Ok(tx_id)
 	}
@@ -211,7 +205,7 @@ impl TransactionService {
 		if let Some(tx) = pending.get(&tx_id) {
 			Ok(tx.status.clone())
 		} else {
-			Err(Neo3Error::Generic { message: format!("Transaction not found: {}", tx_id) })
+			Err(Neo3Error::Generic { message: format!("Transaction not found: {tx_id}") })
 		}
 	}
 
@@ -221,7 +215,7 @@ impl TransactionService {
 		transaction_type: String,
 		_gas_price: Option<String>,
 	) -> Neo3Result<String> {
-		log::info!("Calculating fees for transaction type: {}", transaction_type);
+		log::info!("Calculating fees for transaction type: {transaction_type}");
 
 		// Professional fee calculation based on transaction type and network conditions
 		let base_fee = match transaction_type.as_str() {
@@ -273,6 +267,7 @@ impl TransactionService {
 	}
 
 	/// Helper method for sending transactions with complete validation
+	#[allow(dead_code)]
 	async fn send_transaction_internal(
 		&self,
 		from_address: String,

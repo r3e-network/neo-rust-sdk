@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkneorust_website=self.webpackChunkneorust_website||[]).push([[8146],{9328:e=>{e.exports=JSON.parse('{"metadata":{"permalink":"/blog","page":1,"postsPerPage":2,"totalPages":1,"totalCount":2,"blogDescription":"Latest updates, tutorials, and insights about NeoRust SDK development","blogTitle":"NeoRust Blog"}}')}}]);

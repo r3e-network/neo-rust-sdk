@@ -1,7 +1,8 @@
 use neo3::{
-	neo_clients::ProductionRpcClient,
+	neo_clients::{HttpProvider, RpcClient, APITrait},
 	neo_error::{Neo3Error, Neo3Result},
 	neo_wallets::Wallet,
+	neo_types::AddressExtension,
 };
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::RwLock;
@@ -39,7 +40,7 @@ impl WalletService {
 		use std::path::PathBuf;
 		wallet
 			.save_to_file(PathBuf::from(&wallet_path))
-			.map_err(|e| Neo3Error::Generic { message: format!("Failed to save wallet: {}", e) })?;
+			.map_err(|e| Neo3Error::Generic { message: format!("Failed to save wallet: {e}") })?;
 
 		// Store in memory
 		let mut wallets = self.wallets.write().await;
@@ -56,7 +57,7 @@ impl WalletService {
 		// Load wallet from file
 		use std::path::PathBuf;
 		let wallet = Wallet::open_wallet(&PathBuf::from(path), password)
-			.map_err(|e| Neo3Error::Generic { message: format!("Failed to open wallet: {}", e) })?;
+			.map_err(|e| Neo3Error::Generic { message: format!("Failed to open wallet: {e}") })?;
 
 		let wallet_id = uuid::Uuid::new_v4().to_string();
 
@@ -74,11 +75,11 @@ impl WalletService {
 	pub async fn get_balance(
 		&self,
 		wallet_id: &str,
-		rpc_client: Option<&ProductionRpcClient>,
+		rpc_client: Option<&RpcClient<HttpProvider>>,
 	) -> Neo3Result<String> {
 		let wallets = self.wallets.read().await;
 		let wallet = wallets.get(wallet_id).ok_or_else(|| Neo3Error::Generic {
-			message: format!("Wallet not found: {}", wallet_id),
+			message: format!("Wallet not found: {wallet_id}"),
 		})?;
 
 		if let Some(client) = rpc_client {
@@ -88,17 +89,23 @@ impl WalletService {
 			for account in wallet.get_accounts() {
 				let address = account.get_address();
 
+				// Convert address string to H160
+				let script_hash = address.address_to_script_hash()
+					.map_err(|e| Neo3Error::Generic { message: format!("Invalid address: {e}") })?;
+				
 				// Get NEP-17 token balances
-				let nep17_balances = client.get_nep17_balances(address.clone()).await?;
+				let nep17_balances = client.get_nep17_balances(script_hash).await
+					.map_err(|e| Neo3Error::Generic { message: format!("Failed to get balances: {e}") })?;
 
 				let mut account_balance = HashMap::new();
-				account_balance.insert("address", account.get_address());
-				account_balance.insert("balances", serde_json::to_string(&nep17_balances)?);
+				account_balance.insert("address".to_string(), serde_json::json!(account.get_address()));
+				account_balance.insert("balances".to_string(), serde_json::json!(nep17_balances));
 
-				balances.insert(account.get_address(), account_balance);
+				balances.insert(account.get_address(), serde_json::json!(account_balance));
 			}
 
-			Ok(serde_json::to_string(&balances)?)
+			Ok(serde_json::to_string(&balances)
+				.map_err(|e| Neo3Error::Generic { message: format!("Failed to serialize balances: {e}") })?)
 		} else {
 			// No RPC client, return empty balances
 			Err(Neo3Error::Config("No RPC client provided for balance query".to_string()))

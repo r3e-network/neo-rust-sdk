@@ -8,11 +8,11 @@
 pub mod api;
 pub mod commands;
 pub mod services;
-pub mod state;
+
+use std::sync::Arc;
 
 // Re-export commonly used types
 pub use api::ApiResponse;
-pub use state::AppState;
 
 // Re-export service modules
 pub use services::{
@@ -21,7 +21,28 @@ pub use services::{
 };
 
 // Re-export command modules
-pub use commands::wallet;
+pub mod command_exports {
+	pub use crate::commands::*;
+}
+
+// Application state with full NeoRust SDK integration
+pub struct AppState {
+	pub wallet_service: Arc<WalletService>,
+	pub network_service: Arc<NetworkService>,
+	pub transaction_service: Arc<TransactionService>,
+	pub settings_service: Arc<SettingsService>,
+}
+
+impl Default for AppState {
+	fn default() -> Self {
+		Self {
+			wallet_service: Arc::new(WalletService::new()),
+			network_service: Arc::new(NetworkService::new()),
+			transaction_service: Arc::new(TransactionService::new()),
+			settings_service: Arc::new(SettingsService::new()),
+		}
+	}
+}
 
 /// Library version
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

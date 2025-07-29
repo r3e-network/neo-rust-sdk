@@ -4,8 +4,8 @@
  * Modify the docusaurus.config.js file at your site's root instead.
  */
 export default {
-  "title": "NeoRust v0.4.1",
-  "tagline": "Next-generation Neo N3 blockchain development toolkit built in Rust",
+  "title": "NeoRust v0.4.2",
+  "tagline": "Production-ready Neo N3 blockchain development toolkit built in Rust",
   "favicon": "img/favicon.svg",
   "url": "https://neorust.netlify.app",
   "baseUrl": "/",
@@ -26,14 +26,14 @@ export default {
       "classic",
       {
         "docs": {
-          "sidebarPath": "/Users/jinghuiliao/git/NeoRust/website/sidebars.js",
+          "sidebarPath": "/Users/jinghuiliao/git/r3e/NeoRust/website/sidebars.js",
           "editUrl": "https://github.com/R3E-Network/NeoRust/tree/main/website/",
           "showLastUpdateAuthor": true,
           "showLastUpdateTime": true,
           "includeCurrentVersion": true,
           "versions": {
             "current": {
-              "label": "v0.4.1",
+              "label": "v0.4.2",
               "path": ""
             }
           }
@@ -46,7 +46,7 @@ export default {
           "editUrl": "https://github.com/R3E-Network/NeoRust/tree/main/website/"
         },
         "theme": {
-          "customCss": "/Users/jinghuiliao/git/NeoRust/website/src/css/custom.css"
+          "customCss": "/Users/jinghuiliao/git/r3e/NeoRust/website/src/css/custom.css"
         },
         "sitemap": {
           "changefreq": "weekly",
@@ -68,7 +68,7 @@ export default {
       },
       {
         "name": "description",
-        "content": "NeoRust v0.4.1 - A comprehensive Rust SDK for Neo N3 blockchain development. Build high-performance dApps with type-safe, modern Rust."
+        "content": "NeoRust v0.4.2 - A production-ready Rust SDK for Neo N3 blockchain development. Build high-performance dApps with type-safe, modern Rust. Features 135 passing documentation tests."
       },
       {
         "property": "og:image",
@@ -252,7 +252,7 @@ export default {
         "width": 160,
         "height": 51
       },
-      "copyright": "\n          <div style=\"margin-top: 16px; padding-top: 16px; border-top: 1px solid #333;\">\n            <p>Copyright © 2025 R3E Network. Built with ❤️ and Docusaurus.</p>\n            <p>NeoRust v0.4.1 - Production-Ready Neo N3 Development Suite</p>\n          </div>\n        "
+      "copyright": "\n          <div style=\"margin-top: 16px; padding-top: 16px; border-top: 1px solid #333;\">\n            <p>Copyright © 2025 R3E Network. Built with ❤️ and Docusaurus.</p>\n            <p>NeoRust v0.4.2 - Production-Ready Neo N3 Development Suite with 135 Passing Doc Tests</p>\n          </div>\n        "
     },
     "prism": {
       "theme": {
@@ -476,8 +476,8 @@ export default {
       "respectPrefersColorScheme": true
     },
     "announcementBar": {
-      "id": "v0.4.1-release",
-      "content": "🎉 <strong>NeoRust v0.4.1</strong> is now available! Enhanced cross-platform compatibility and security fixes. <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://github.com/R3E-Network/NeoRust/releases/tag/v0.4.1\">See what's new</a>",
+      "id": "v0.4.2-release",
+      "content": "🎉 <strong>NeoRust v0.4.2</strong> is now available! Production-ready with 135 passing documentation tests and enhanced stability. <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://github.com/R3E-Network/NeoRust/releases/tag/v0.4.2\">See what's new</a>",
       "backgroundColor": "#059669",
       "textColor": "#ffffff",
       "isCloseable": true
@@ -519,7 +519,7 @@ export default {
         "id": "sdk",
         "path": "sdk",
         "routeBasePath": "sdk",
-        "sidebarPath": "/Users/jinghuiliao/git/NeoRust/website/sidebars-sdk.js",
+        "sidebarPath": "/Users/jinghuiliao/git/r3e/NeoRust/website/sidebars-sdk.js",
         "editUrl": "https://github.com/R3E-Network/NeoRust/tree/main/website/",
         "showLastUpdateAuthor": true,
         "showLastUpdateTime": true
@@ -531,7 +531,7 @@ export default {
         "id": "gui",
         "path": "gui",
         "routeBasePath": "gui",
-        "sidebarPath": "/Users/jinghuiliao/git/NeoRust/website/sidebars-gui.js",
+        "sidebarPath": "/Users/jinghuiliao/git/r3e/NeoRust/website/sidebars-gui.js",
         "editUrl": "https://github.com/R3E-Network/NeoRust/tree/main/website/",
         "showLastUpdateAuthor": true,
         "showLastUpdateTime": true
@@ -543,7 +543,7 @@ export default {
         "id": "cli",
         "path": "cli",
         "routeBasePath": "cli",
-        "sidebarPath": "/Users/jinghuiliao/git/NeoRust/website/sidebars-cli.js",
+        "sidebarPath": "/Users/jinghuiliao/git/r3e/NeoRust/website/sidebars-cli.js",
         "editUrl": "https://github.com/R3E-Network/NeoRust/tree/main/website/",
         "showLastUpdateAuthor": true,
         "showLastUpdateTime": true

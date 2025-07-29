@@ -2,6 +2,12 @@
   "title": "Recent posts",
   "items": [
     {
+      "title": "🎉 NeoRust v0.4.2 Released - Production-Ready with 135 Passing Doc Tests",
+      "permalink": "/blog/neorust-v0.4.2-release",
+      "unlisted": false,
+      "date": "2024-06-24T00:00:00.000Z"
+    },
+    {
       "title": "🎉 NeoRust v0.4.1 Released - Production-Ready Neo N3 Development",
       "permalink": "/blog/neorust-v0.4.1-release",
       "unlisted": false,

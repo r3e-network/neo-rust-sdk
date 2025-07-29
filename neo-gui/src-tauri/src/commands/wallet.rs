@@ -1,11 +1,9 @@
 use chrono::{DateTime, Utc};
-use neo3::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use tauri::{command, State};
-use uuid::Uuid;
 
-use crate::{services::wallet::WalletService, ApiResponse, AppState};
+use crate::{ApiResponse, AppState};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WalletInfo {
@@ -124,7 +122,7 @@ pub async fn create_wallet(
 			let wallet_info = WalletInfo {
 				id: wallet_id.clone(),
 				name: request.name,
-				path: request.path.unwrap_or_else(|| format!("{}.json", wallet_id)),
+				path: request.path.unwrap_or_else(|| format!("{wallet_id}.json")),
 				created_at: Utc::now(),
 				last_accessed: Utc::now(),
 				accounts: vec![AccountInfo {
@@ -139,12 +137,12 @@ pub async fn create_wallet(
 				}],
 				is_open: true,
 			};
-			log::info!("Wallet created successfully: {}", wallet_id);
+			log::info!("Wallet created successfully: {wallet_id}");
 			Ok(ApiResponse::success(wallet_info))
 		},
 		Err(e) => {
-			log::error!("Failed to create wallet: {}", e);
-			Ok(ApiResponse::error(format!("Failed to create wallet: {}", e)))
+			log::error!("Failed to create wallet: {e}");
+			Ok(ApiResponse::error(format!("Failed to create wallet: {e}")))
 		},
 	}
 }
@@ -186,8 +184,8 @@ pub async fn open_wallet(
 			Ok(ApiResponse::success(wallet_info))
 		},
 		Err(e) => {
-			log::error!("Failed to open wallet: {}", e);
-			Ok(ApiResponse::error(format!("Failed to open wallet: {}", e)))
+			log::error!("Failed to open wallet: {e}");
+			Ok(ApiResponse::error(format!("Failed to open wallet: {e}")))
 		},
 	}
 }
@@ -198,19 +196,19 @@ pub async fn close_wallet(
 	wallet_id: String,
 	state: State<'_, AppState>,
 ) -> Result<ApiResponse<bool>, String> {
-	log::info!("Closing wallet: {}", wallet_id);
+	log::info!("Closing wallet: {wallet_id}");
 
 	let wallet_service = &state.wallet_service;
 
 	// Close wallet with proper cleanup and security measures
 	match wallet_service.close_wallet(&wallet_id).await {
 		Ok(_) => {
-			log::info!("Wallet closed successfully: {}", wallet_id);
+			log::info!("Wallet closed successfully: {wallet_id}");
 			Ok(ApiResponse::success(true))
 		},
 		Err(e) => {
-			log::error!("Failed to close wallet: {}", e);
-			Ok(ApiResponse::error(format!("Failed to close wallet: {}", e)))
+			log::error!("Failed to close wallet: {e}");
+			Ok(ApiResponse::error(format!("Failed to close wallet: {e}")))
 		},
 	}
 }
@@ -232,7 +230,7 @@ pub async fn list_wallets(
 		let wallet_info = WalletInfo {
 			id: wallet_id.clone(),
 			name: format!("Wallet {}", &wallet_id[..8]),
-			path: format!("{}.json", wallet_id),
+			path: format!("{wallet_id}.json"),
 			created_at: Utc::now(),
 			last_accessed: Utc::now(),
 			accounts: vec![], // Accounts loaded on wallet open for security
@@ -251,7 +249,7 @@ pub async fn get_wallet_info(
 	wallet_id: String,
 	state: State<'_, AppState>,
 ) -> Result<ApiResponse<WalletInfo>, String> {
-	log::info!("Getting wallet info: {}", wallet_id);
+	log::info!("Getting wallet info: {wallet_id}");
 
 	// Check if wallet exists
 	let wallet_ids = state.wallet_service.list_wallets().await;
@@ -261,18 +259,18 @@ pub async fn get_wallet_info(
 		let wallet_info = WalletInfo {
 			id: wallet_id.clone(),
 			name: format!("Wallet {}", &wallet_id[..8]),
-			path: format!("{}.json", wallet_id),
+			path: format!("{wallet_id}.json"),
 			created_at: Utc::now(),
 			last_accessed: Utc::now(),
 			accounts: vec![], // Accounts loaded separately for enhanced security
 			is_open: true,
 		};
 
-		log::info!("Wallet info retrieved: {}", wallet_id);
+		log::info!("Wallet info retrieved: {wallet_id}");
 		Ok(ApiResponse::success(wallet_info))
 	} else {
-		log::error!("Wallet not found: {}", wallet_id);
-		Ok(ApiResponse::error(format!("Wallet not found: {}", wallet_id)))
+		log::error!("Wallet not found: {wallet_id}");
+		Ok(ApiResponse::error(format!("Wallet not found: {wallet_id}")))
 	}
 }
 
@@ -289,7 +287,7 @@ pub async fn create_address(
 
 	for i in 0..count {
 		let account = AccountInfo {
-			address: format!("NX8GreRFGFK5wpGMWetpX93HmtrezGog{:02}", i),
+			address: format!("NX8GreRFGFK5wpGMWetpX93HmtrezGog{i:02}"),
 			label: request.label.clone().unwrap_or_else(|| format!("Account {}", i + 1)),
 			is_default: i == 0,
 			balance: Some(BalanceInfo {
@@ -335,13 +333,13 @@ pub async fn export_private_key(
 	address: String,
 	_state: State<'_, AppState>,
 ) -> Result<ApiResponse<String>, String> {
-	log::info!("Exporting private key for address: {}", address);
+	log::info!("Exporting private key for address: {address}");
 
 	// Professional private key export with enhanced security measures
 	// Private keys are exported in secure WIF format with proper validation
 	let private_key = "L1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12";
 
-	log::info!("Private key exported for address: {}", address);
+	log::info!("Private key exported for address: {address}");
 	Ok(ApiResponse::success(private_key.to_string()))
 }
 
@@ -352,7 +350,7 @@ pub async fn get_balance(
 	_address: Option<String>,
 	state: State<'_, AppState>,
 ) -> Result<ApiResponse<BalanceInfo>, String> {
-	log::info!("Getting balance for wallet: {}", wallet_id);
+	log::info!("Getting balance for wallet: {wallet_id}");
 
 	// Use wallet service to get balance
 	match state.wallet_service.get_balance(&wallet_id, None).await {
@@ -366,8 +364,8 @@ pub async fn get_balance(
 			Ok(ApiResponse::success(balance))
 		},
 		Err(e) => {
-			log::error!("Failed to get balance: {}", e);
-			Ok(ApiResponse::error(format!("Failed to get balance: {}", e)))
+			log::error!("Failed to get balance: {e}");
+			Ok(ApiResponse::error(format!("Failed to get balance: {e}")))
 		},
 	}
 }
@@ -408,12 +406,12 @@ pub async fn send_transaction(
 				timestamp: Utc::now(),
 			};
 
-			log::info!("Transaction sent successfully: {}", tx_id);
+			log::info!("Transaction sent successfully: {tx_id}");
 			Ok(ApiResponse::success(tx_result))
 		},
 		Err(e) => {
-			log::error!("Failed to send transaction: {}", e);
-			Ok(ApiResponse::error(format!("Failed to send transaction: {}", e)))
+			log::error!("Failed to send transaction: {e}");
+			Ok(ApiResponse::error(format!("Failed to send transaction: {e}")))
 		},
 	}
 }
@@ -427,7 +425,7 @@ pub async fn get_transaction_history(
 	page_size: Option<u32>,
 	_state: State<'_, AppState>,
 ) -> Result<ApiResponse<TransactionHistory>, String> {
-	log::info!("Getting transaction history for wallet: {}", wallet_id);
+	log::info!("Getting transaction history for wallet: {wallet_id}");
 
 	let page = page.unwrap_or(1);
 	let page_size = page_size.unwrap_or(10);
@@ -464,6 +462,6 @@ pub async fn get_transaction_history(
 
 	let history = TransactionHistory { transactions, total_count: 2, page, page_size };
 
-	log::info!("Transaction history retrieved for wallet: {}", wallet_id);
+	log::info!("Transaction history retrieved for wallet: {wallet_id}");
 	Ok(ApiResponse::success(history))
 }

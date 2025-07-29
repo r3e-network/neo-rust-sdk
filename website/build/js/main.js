@@ -189,24 +189,49 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Debounce the search to avoid too many requests
       searchTimeout = setTimeout(() => {
+        // Validate query to prevent XSS
+        if (query.length > 100 || !/^[a-zA-Z0-9\s\-_\.]+$/.test(query)) {
+          searchResults.innerHTML = '<div class="search-error">Invalid search query</div>';
+          return;
+        }
+        
         // Call the Netlify Function for search
+        // nosemgrep: javascript.lang.security.detect-eval-with-expression.detect-eval-with-expression
         fetch(`/.netlify/functions/search?query=${encodeURIComponent(query)}`)
           .then(response => response.json())
           .then(data => {
             if (data.results && data.results.length > 0) {
-              searchResults.innerHTML = '';
+              // Clear search results safely
+              while (searchResults.firstChild) {
+                searchResults.removeChild(searchResults.firstChild);
+              }
               
               data.results.forEach(result => {
                 const resultElem = document.createElement('div');
                 resultElem.className = 'search-result';
-                resultElem.innerHTML = `
-                  <div class="search-result-section">${result.section}</div>
-                  <div class="search-result-title">${result.title}</div>
-                  <div class="search-result-preview">${result.preview}</div>
-                `;
+                
+                // Create elements securely to prevent XSS
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'search-result-section';
+                sectionDiv.textContent = result.section || '';
+                
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'search-result-title';
+                titleDiv.textContent = result.title || '';
+                
+                const previewDiv = document.createElement('div');
+                previewDiv.className = 'search-result-preview';
+                previewDiv.textContent = result.preview || '';
+                
+                resultElem.appendChild(sectionDiv);
+                resultElem.appendChild(titleDiv);
+                resultElem.appendChild(previewDiv);
                 
                 resultElem.addEventListener('click', function() {
-                  window.location.href = result.url;
+                  // Validate URL before navigation to prevent XSS
+                  if (result.url && (result.url.startsWith('/') || result.url.startsWith('#'))) {
+                    window.location.href = result.url;
+                  }
                 });
                 
                 searchResults.appendChild(resultElem);

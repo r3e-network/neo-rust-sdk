@@ -130,7 +130,7 @@ pub async fn mint_nft(
 	// Execute minting with comprehensive error handling
 
 	let result = MintResult {
-		tx_id: format!("0x{}", hex::encode(&uuid::Uuid::new_v4().as_bytes())),
+		tx_id: format!("0x{}", hex::encode(uuid::Uuid::new_v4().as_bytes())),
 		token_id: request.token_id.clone(),
 		collection_hash: request.collection_hash,
 		to_address: request.to_address,
@@ -162,7 +162,7 @@ pub async fn transfer_nft(
 	// Execute transfer with comprehensive status tracking
 
 	let result = TransferResult {
-		tx_id: format!("0x{}", hex::encode(&uuid::Uuid::new_v4().as_bytes())),
+		tx_id: format!("0x{}", hex::encode(uuid::Uuid::new_v4().as_bytes())),
 		token_id: request.token_id.clone(),
 		from_address: request.from_address.clone(),
 		to_address: request.to_address.clone(),
@@ -180,7 +180,7 @@ pub async fn get_nft_info(
 	token_id: String,
 	_state: State<'_, AppState>,
 ) -> Result<ApiResponse<NftInfo>, String> {
-	log::info!("Getting NFT info: {} from contract {}", token_id, contract_hash);
+	log::info!("Getting NFT info: {token_id} from contract {contract_hash}");
 
 	// Professional NFT information retrieval with comprehensive metadata resolution
 	// This implementation provides complete NFT data access including:
@@ -196,7 +196,7 @@ pub async fn get_nft_info(
 		metadata: NftMetadata {
 			name: "Example NFT".to_string(),
 			description: "Professional NFT with comprehensive metadata".to_string(),
-			image: format!("https://ipfs.io/ipfs/QmHash{}", token_id),
+			image: format!("https://ipfs.io/ipfs/QmHash{token_id}"),
 			attributes: vec![
 				NftAttribute {
 					trait_type: "Rarity".to_string(),
@@ -212,12 +212,12 @@ pub async fn get_nft_info(
 			external_url: None,
 			animation_url: None,
 		},
-		token_uri: format!("https://api.example.com/metadata/{}", token_id),
+		token_uri: format!("https://api.example.com/metadata/{token_id}"),
 		created_at: chrono::Utc::now() - chrono::Duration::days(30),
 		last_transfer: Some(chrono::Utc::now() - chrono::Duration::days(5)),
 	};
 
-	log::info!("NFT info retrieved: {}", token_id);
+	log::info!("NFT info retrieved: {token_id}");
 	Ok(ApiResponse::success(nft_info))
 }
 
@@ -241,13 +241,13 @@ pub async fn list_user_nfts(
 	// Generate sample NFT portfolio for demonstration
 	for i in 1..=5 {
 		let nft = NftInfo {
-			token_id: format!("NFT{:03}", i),
+			token_id: format!("NFT{i:03}"),
 			collection_hash: "0x1234567890abcdef".to_string(),
 			owner: request.owner_address.clone(),
 			metadata: NftMetadata {
-				name: format!("Professional NFT #{}", i),
-				description: format!("High-quality NFT #{} with verified provenance", i),
-				image: format!("https://ipfs.io/ipfs/QmImage{}", i),
+				name: format!("Professional NFT #{i}"),
+				description: format!("High-quality NFT #{i} with verified provenance"),
+				image: format!("https://ipfs.io/ipfs/QmImage{i}"),
 				attributes: vec![NftAttribute {
 					trait_type: "Series".to_string(),
 					value: "Genesis".to_string(),
@@ -256,7 +256,7 @@ pub async fn list_user_nfts(
 				external_url: None,
 				animation_url: None,
 			},
-			token_uri: format!("https://api.example.com/metadata/{}", format!("NFT{:03}", i)),
+			token_uri: format!("https://api.example.com/metadata/NFT{i:03}"),
 			created_at: chrono::Utc::now() - chrono::Duration::days(60),
 			last_transfer: None,
 		};
@@ -271,10 +271,10 @@ pub async fn list_user_nfts(
 #[command]
 pub async fn get_nft_market_data(
 	contract_hash: String,
-	token_id: Option<String>,
+	_token_id: Option<String>,
 	_state: State<'_, AppState>,
 ) -> Result<ApiResponse<NftMarketData>, String> {
-	log::info!("Getting market data for contract: {}", contract_hash);
+	log::info!("Getting market data for contract: {contract_hash}");
 
 	// Professional NFT market analysis with comprehensive trading insights
 	// This implementation provides complete market intelligence including:
@@ -296,6 +296,6 @@ pub async fn get_nft_market_data(
 		floor_change_24h: "-3.2".to_string(),
 	};
 
-	log::info!("Market data retrieved for contract: {}", contract_hash);
+	log::info!("Market data retrieved for contract: {contract_hash}");
 	Ok(ApiResponse::success(market_data))
 }

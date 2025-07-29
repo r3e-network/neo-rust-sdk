@@ -1,7 +1,7 @@
 {
   "id": "installation",
   "title": "Installation",
-  "description": "Get started with NeoRust SDK v0.4.1 by installing it in your Rust project.",
+  "description": "Get started with NeoRust SDK v0.4.2 by installing it in your Rust project.",
   "source": "@site/sdk/installation.md",
   "sourceDirName": ".",
   "slug": "/installation",
@@ -11,8 +11,8 @@
   "editUrl": "https://github.com/R3E-Network/NeoRust/tree/main/website/sdk/installation.md",
   "tags": [],
   "version": "current",
-  "lastUpdatedBy": "Jimmy",
-  "lastUpdatedAt": 1748828770000,
+  "lastUpdatedBy": "jimmy",
+  "lastUpdatedAt": 1750721256000,
   "frontMatter": {},
   "sidebar": "sdkSidebar",
   "previous": {

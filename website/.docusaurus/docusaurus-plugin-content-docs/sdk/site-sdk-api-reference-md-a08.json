@@ -1,7 +1,7 @@
 {
   "id": "api-reference",
   "title": "API Reference",
-  "description": "Complete API documentation for NeoRust SDK v0.4.1.",
+  "description": "Complete API documentation for NeoRust SDK v0.4.2.",
   "source": "@site/sdk/api-reference.md",
   "sourceDirName": ".",
   "slug": "/api-reference",
@@ -11,8 +11,8 @@
   "editUrl": "https://github.com/R3E-Network/NeoRust/tree/main/website/sdk/api-reference.md",
   "tags": [],
   "version": "current",
-  "lastUpdatedBy": "Jimmy",
-  "lastUpdatedAt": 1748828770000,
+  "lastUpdatedBy": "jimmy",
+  "lastUpdatedAt": 1750726818000,
   "frontMatter": {},
   "sidebar": "sdkSidebar",
   "previous": {

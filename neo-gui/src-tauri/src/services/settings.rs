@@ -224,28 +224,28 @@ impl SettingsService {
 	pub async fn update_theme(&self, theme: Theme) -> Neo3Result<()> {
 		let mut settings = self.settings.write().await;
 		settings.theme = theme;
-		self.save_to_disk(&*settings).await?;
+		self.save_to_disk(&settings).await?;
 		Ok(())
 	}
 
 	pub async fn update_language(&self, language: Language) -> Neo3Result<()> {
 		let mut settings = self.settings.write().await;
 		settings.language = language;
-		self.save_to_disk(&*settings).await?;
+		self.save_to_disk(&settings).await?;
 		Ok(())
 	}
 
 	pub async fn update_currency(&self, currency: Currency) -> Neo3Result<()> {
 		let mut settings = self.settings.write().await;
 		settings.currency = currency;
-		self.save_to_disk(&*settings).await?;
+		self.save_to_disk(&settings).await?;
 		Ok(())
 	}
 
 	pub async fn update_default_network(&self, network: NetworkType) -> Neo3Result<()> {
 		let mut settings = self.settings.write().await;
 		settings.default_network = network;
-		self.save_to_disk(&*settings).await?;
+		self.save_to_disk(&settings).await?;
 		Ok(())
 	}
 
@@ -259,7 +259,7 @@ impl SettingsService {
 		}
 
 		settings.custom_rpc_endpoints.push(endpoint);
-		self.save_to_disk(&*settings).await?;
+		self.save_to_disk(&settings).await?;
 		Ok(())
 	}
 
@@ -267,7 +267,7 @@ impl SettingsService {
 	pub async fn remove_custom_endpoint(&self, url: &str) -> Neo3Result<()> {
 		let mut settings = self.settings.write().await;
 		settings.custom_rpc_endpoints.retain(|e| e.url != url);
-		self.save_to_disk(&*settings).await?;
+		self.save_to_disk(&settings).await?;
 		Ok(())
 	}
 
@@ -290,6 +290,7 @@ impl SettingsService {
 	}
 
 	/// Validate settings
+	#[allow(dead_code)]
 	fn validate_settings(&self, settings: &AppSettings) -> Neo3Result<()> {
 		// Validate timeout values
 		if settings.auto_lock_timeout == 0 {

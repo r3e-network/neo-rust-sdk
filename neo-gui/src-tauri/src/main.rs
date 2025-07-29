@@ -1,58 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use chrono::{DateTime, Utc};
-use neo3::neo_clients::ProductionRpcClient;
-use serde::{Deserialize, Serialize};
-use std::sync::{Arc, Mutex};
-
-mod commands;
-mod services;
-
-use services::{
-	network::NetworkService, settings::SettingsService, transaction::TransactionService,
-	wallet::WalletService,
-};
-
-// Application state with full NeoRust SDK integration
-pub struct AppState {
-	pub wallet_service: Arc<WalletService>,
-	pub network_service: Arc<NetworkService>,
-	pub transaction_service: Arc<TransactionService>,
-	pub settings_service: Arc<SettingsService>,
-	pub rpc_client: Arc<Mutex<Option<ProductionRpcClient>>>,
-}
-
-impl Default for AppState {
-	fn default() -> Self {
-		Self {
-			wallet_service: Arc::new(WalletService::new()),
-			network_service: Arc::new(NetworkService::new()),
-			transaction_service: Arc::new(TransactionService::new()),
-			settings_service: Arc::new(SettingsService::new()),
-			rpc_client: Arc::new(Mutex::new(None)),
-		}
-	}
-}
-
-// Common types
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ApiResponse<T> {
-	pub success: bool,
-	pub data: Option<T>,
-	pub error: Option<String>,
-	pub timestamp: DateTime<Utc>,
-}
-
-impl<T> ApiResponse<T> {
-	pub fn success(data: T) -> Self {
-		Self { success: true, data: Some(data), error: None, timestamp: Utc::now() }
-	}
-
-	pub fn error(message: String) -> Self {
-		Self { success: false, data: None, error: Some(message), timestamp: Utc::now() }
-	}
-}
+use neo_gui::{AppState, command_exports as commands};
 
 fn main() {
 	env_logger::init();
@@ -114,13 +63,10 @@ fn main() {
 			log::info!("Neo GUI application starting...");
 			Ok(())
 		})
-		.on_window_event(|_window, event| match event {
-			tauri::WindowEvent::CloseRequested { .. } => {
-				log::info!("Application closing...");
-				// Perform cleanup here
-			},
-			_ => {},
-		})
+		.on_window_event(|_window, event| if let tauri::WindowEvent::CloseRequested { .. } = event {
+  				log::info!("Application closing...");
+  				// Perform cleanup here
+  			})
 		.run(tauri::generate_context!())
 		.expect("error while running tauri application");
 }

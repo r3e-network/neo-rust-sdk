@@ -42,7 +42,10 @@ export const useNetworkStore = create<NetworkState>()(
 
         try {
           const result = await invoke('connect_to_network', {
-            request: { endpoint, network_type: networkType },
+            request: { 
+              endpoint: endpoint, 
+              network_type: networkType 
+            },
           });
 
           console.log('Network connection result:', result);

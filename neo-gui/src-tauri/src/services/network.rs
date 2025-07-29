@@ -1,13 +1,16 @@
 use neo3::{
-	neo_clients::{ProductionClientConfig, ProductionRpcClient},
+	neo_clients::{HttpProvider, RpcClient, APITrait},
 	neo_error::{Neo3Error, Neo3Result},
+	prelude::*,
 };
 use std::sync::Arc;
 use tokio::sync::RwLock;
+use serde_json;
+use std::str::FromStr;
 
 /// Network service for managing Neo network connections
 pub struct NetworkService {
-	client: Arc<RwLock<Option<Arc<ProductionRpcClient>>>>,
+	client: Arc<RwLock<Option<Arc<RpcClient<HttpProvider>>>>>,
 	current_endpoint: Arc<RwLock<Option<String>>>,
 	network_type: Arc<RwLock<NetworkType>>,
 }
@@ -30,19 +33,40 @@ impl NetworkService {
 
 	/// Connect to a Neo network
 	pub async fn connect(&self, endpoint: String, network_type: NetworkType) -> Neo3Result<()> {
-		let config = ProductionClientConfig::default();
-		let client = ProductionRpcClient::new(endpoint.clone(), config);
+		log::info!("Attempting to connect to endpoint: {endpoint}");
+		
+		// Ensure the endpoint has proper protocol
+		let normalized_endpoint = if !endpoint.starts_with("http://") && !endpoint.starts_with("https://") {
+			format!("https://{endpoint}")
+		} else {
+			endpoint.clone()
+		};
+		
+		log::info!("Normalized endpoint: {normalized_endpoint}");
+		
+		// Create HTTP provider
+		let provider = HttpProvider::new(normalized_endpoint.as_str())
+			.map_err(|e| {
+				log::error!("Failed to create provider: {e}");
+				Neo3Error::Config(format!("Failed to create provider: {e}"))
+			})?;
+		
+		let client = RpcClient::new(provider);
 
-		// Test the connection
-		match client.health_check().await {
-			Ok(true) => {
+		// Test the connection by trying to get the version
+		log::info!("Testing connection with get_version call...");
+		match client.get_version().await {
+			Ok(version) => {
+				log::info!("Connection successful! Neo node version: {}", version.user_agent);
 				*self.client.write().await = Some(Arc::new(client));
-				*self.current_endpoint.write().await = Some(endpoint);
+				*self.current_endpoint.write().await = Some(normalized_endpoint);
 				*self.network_type.write().await = network_type;
 				Ok(())
 			},
-			Ok(false) => Err(Neo3Error::Config("Health check failed".to_string())),
-			Err(e) => Err(e),
+			Err(e) => {
+				log::error!("Connection test failed: {e}");
+				Err(Neo3Error::Config(format!("Connection test failed: {e}")))
+			}
 		}
 	}
 
@@ -68,7 +92,7 @@ impl NetworkService {
 			if let Some(client) = self.client.read().await.as_ref() {
 				// Get actual block height
 				let height = match client.get_block_count().await {
-					Ok(count) => Some(count),
+					Ok(count) => Some(count as u64),
 					Err(_) => None,
 				};
 
@@ -93,16 +117,33 @@ impl NetworkService {
 		block_identifier: BlockIdentifier,
 	) -> Neo3Result<serde_json::Value> {
 		if let Some(client) = self.client.read().await.as_ref() {
-			match block_identifier {
+			let block = match block_identifier {
 				BlockIdentifier::Height(height) => {
-					client.get_block(serde_json::json!(height)).await
+					// Get block hash by index first, then get the full block
+					let hash = client.get_block_hash(height as u32).await
+						.map_err(|e| Neo3Error::Config(format!("Failed to get block hash: {e}")))?;
+					client.get_block(hash, true).await
+						.map_err(|e| Neo3Error::Config(format!("Failed to get block: {e}")))?
 				},
-				BlockIdentifier::Hash(hash) => client.get_block(serde_json::json!(hash)).await,
+				BlockIdentifier::Hash(hash) => {
+					let hash = H256::from_str(&hash)
+						.map_err(|e| Neo3Error::Config(format!("Invalid block hash: {e}")))?;
+					client.get_block(hash, true).await
+						.map_err(|e| Neo3Error::Config(format!("Failed to get block: {e}")))?
+				},
 				BlockIdentifier::Latest => {
-					let block_count = client.get_block_count().await?;
-					client.get_block(serde_json::json!(block_count - 1)).await
+					let block_count = client.get_block_count().await
+						.map_err(|e| Neo3Error::Config(format!("Failed to get block count: {e}")))?;
+					let hash = client.get_block_hash(block_count - 1).await
+						.map_err(|e| Neo3Error::Config(format!("Failed to get block hash: {e}")))?;
+					client.get_block(hash, true).await
+						.map_err(|e| Neo3Error::Config(format!("Failed to get block: {e}")))?
 				},
-			}
+			};
+			
+			// Serialize the block to JSON
+			serde_json::to_value(block)
+				.map_err(|e| Neo3Error::Config(format!("Failed to serialize block: {e}")))
 		} else {
 			Err(Neo3Error::Config("Not connected to network".to_string()))
 		}
@@ -111,7 +152,15 @@ impl NetworkService {
 	/// Get transaction information
 	pub async fn get_transaction_info(&self, tx_hash: String) -> Neo3Result<serde_json::Value> {
 		if let Some(client) = self.client.read().await.as_ref() {
-			client.get_transaction(tx_hash).await
+			let hash = H256::from_str(&tx_hash)
+				.map_err(|e| Neo3Error::Config(format!("Invalid transaction hash: {e}")))?;
+			
+			let tx = client.get_transaction(hash).await
+				.map_err(|e| Neo3Error::Config(format!("Failed to get transaction: {e}")))?;
+			
+			// Serialize the transaction to JSON
+			serde_json::to_value(tx)
+				.map_err(|e| Neo3Error::Config(format!("Failed to serialize transaction: {e}")))
 		} else {
 			Err(Neo3Error::Config("Not connected to network".to_string()))
 		}
@@ -120,14 +169,22 @@ impl NetworkService {
 	/// Get contract information
 	pub async fn get_contract_info(&self, contract_hash: String) -> Neo3Result<serde_json::Value> {
 		if let Some(client) = self.client.read().await.as_ref() {
-			client.get_contract_state(contract_hash).await
+			let hash = H160::from_str(&contract_hash)
+				.map_err(|e| Neo3Error::Config(format!("Invalid contract hash: {e}")))?;
+			
+			let contract = client.get_contract_state(hash).await
+				.map_err(|e| Neo3Error::Config(format!("Failed to get contract state: {e}")))?;
+			
+			// Serialize the contract state to JSON
+			serde_json::to_value(contract)
+				.map_err(|e| Neo3Error::Config(format!("Failed to serialize contract state: {e}")))
 		} else {
 			Err(Neo3Error::Config("Not connected to network".to_string()))
 		}
 	}
 
 	/// Get the RPC client for other services to use
-	pub async fn get_client(&self) -> Option<Arc<ProductionRpcClient>> {
+	pub async fn get_client(&self) -> Option<Arc<RpcClient<HttpProvider>>> {
 		self.client.read().await.clone()
 	}
 }

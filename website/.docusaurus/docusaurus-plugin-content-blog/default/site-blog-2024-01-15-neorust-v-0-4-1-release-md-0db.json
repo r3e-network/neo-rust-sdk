@@ -32,7 +32,7 @@
       "permalink": "/blog/tags/blockchain"
     }
   ],
-  "readingTime": 3.6,
+  "readingTime": 3.64,
   "hasTruncateMarker": true,
   "authors": [
     {
@@ -60,6 +60,10 @@
     ]
   },
   "unlisted": false,
+  "prevItem": {
+    "title": "🎉 NeoRust v0.4.2 Released - Production-Ready with 135 Passing Doc Tests",
+    "permalink": "/blog/neorust-v0.4.2-release"
+  },
   "nextItem": {
     "title": "🏗️ Building Your First Neo dApp with NeoRust - Complete Guide",
     "permalink": "/blog/building-first-neo-dapp"

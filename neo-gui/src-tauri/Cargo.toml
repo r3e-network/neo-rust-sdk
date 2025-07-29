@@ -55,9 +55,6 @@ wiremock = "0.5"
 test-case = "3.3"
 rand = "0.8"
 
-[[bench]]
-name = "performance_benchmarks"
-harness = false
 
 [features]
 default = ["custom-protocol"]

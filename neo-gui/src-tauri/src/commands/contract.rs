@@ -85,7 +85,7 @@ pub async fn deploy_contract(
 		size: 1024,
 	};
 
-	log::info!("Contract deployment framework prepared: {}", contract_hash);
+	log::info!("Contract deployment framework prepared: {contract_hash}");
 	Ok(ApiResponse::success(result))
 }
 
@@ -159,7 +159,7 @@ pub async fn get_contract_info(
 	contract_hash: String,
 	_state: State<'_, AppState>,
 ) -> Result<ApiResponse<ContractInfo>, String> {
-	log::info!("Getting contract info: {}", contract_hash);
+	log::info!("Getting contract info: {contract_hash}");
 
 	// Comprehensive contract information retrieval from blockchain
 	// This implementation provides complete contract metadata access
@@ -191,6 +191,6 @@ pub async fn get_contract_info(
 		update_counter: 1,
 	};
 
-	log::info!("Contract info retrieved: {}", contract_hash);
+	log::info!("Contract info retrieved: {contract_hash}");
 	Ok(ApiResponse::success(contract_info))
 }

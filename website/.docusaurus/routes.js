@@ -4,7 +4,7 @@ import ComponentCreator from '@docusaurus/ComponentCreator';
 export default [
   {
     path: '/blog',
-    component: ComponentCreator('/blog', 'ace'),
+    component: ComponentCreator('/blog', '39d'),
     exact: true
   },
   {
@@ -28,6 +28,11 @@ export default [
     exact: true
   },
   {
+    path: '/blog/neorust-v0.4.2-release',
+    component: ComponentCreator('/blog/neorust-v0.4.2-release', 'f74'),
+    exact: true
+  },
+  {
     path: '/blog/tags',
     component: ComponentCreator('/blog/tags', '287'),
     exact: true
@@ -39,7 +44,7 @@ export default [
   },
   {
     path: '/blog/tags/blockchain',
-    component: ComponentCreator('/blog/tags/blockchain', '888'),
+    component: ComponentCreator('/blog/tags/blockchain', '393'),
     exact: true
   },
   {
@@ -48,23 +53,33 @@ export default [
     exact: true
   },
   {
+    path: '/blog/tags/documentation',
+    component: ComponentCreator('/blog/tags/documentation', '57a'),
+    exact: true
+  },
+  {
     path: '/blog/tags/neo-3',
-    component: ComponentCreator('/blog/tags/neo-3', 'd97'),
+    component: ComponentCreator('/blog/tags/neo-3', '229'),
+    exact: true
+  },
+  {
+    path: '/blog/tags/quality',
+    component: ComponentCreator('/blog/tags/quality', 'fa3'),
     exact: true
   },
   {
     path: '/blog/tags/release',
-    component: ComponentCreator('/blog/tags/release', 'f24'),
+    component: ComponentCreator('/blog/tags/release', '097'),
     exact: true
   },
   {
     path: '/blog/tags/rust',
-    component: ComponentCreator('/blog/tags/rust', '1c2'),
+    component: ComponentCreator('/blog/tags/rust', '6af'),
     exact: true
   },
   {
     path: '/blog/tags/sdk',
-    component: ComponentCreator('/blog/tags/sdk', '5a2'),
+    component: ComponentCreator('/blog/tags/sdk', 'af4'),
     exact: true
   },
   {
@@ -84,15 +99,15 @@ export default [
   },
   {
     path: '/cli',
-    component: ComponentCreator('/cli', '9ba'),
+    component: ComponentCreator('/cli', '1f5'),
     routes: [
       {
         path: '/cli',
-        component: ComponentCreator('/cli', '1af'),
+        component: ComponentCreator('/cli', '527'),
         routes: [
           {
             path: '/cli',
-            component: ComponentCreator('/cli', '8ab'),
+            component: ComponentCreator('/cli', 'ec0'),
             routes: [
               {
                 path: '/cli/commands',
@@ -102,13 +117,13 @@ export default [
               },
               {
                 path: '/cli/configuration',
-                component: ComponentCreator('/cli/configuration', 'fd1'),
+                component: ComponentCreator('/cli/configuration', '34e'),
                 exact: true,
                 sidebar: "cliSidebar"
               },
               {
                 path: '/cli/intro',
-                component: ComponentCreator('/cli/intro', '671'),
+                component: ComponentCreator('/cli/intro', '936'),
                 exact: true,
                 sidebar: "cliSidebar"
               }
@@ -120,19 +135,19 @@ export default [
   },
   {
     path: '/docs',
-    component: ComponentCreator('/docs', '053'),
+    component: ComponentCreator('/docs', '2e9'),
     routes: [
       {
         path: '/docs',
-        component: ComponentCreator('/docs', '6a5'),
+        component: ComponentCreator('/docs', 'a95'),
         routes: [
           {
             path: '/docs',
-            component: ComponentCreator('/docs', '769'),
+            component: ComponentCreator('/docs', '45d'),
             routes: [
               {
                 path: '/docs/getting-started/installation',
-                component: ComponentCreator('/docs/getting-started/installation', '88d'),
+                component: ComponentCreator('/docs/getting-started/installation', 'b95'),
                 exact: true,
                 sidebar: "tutorialSidebar"
               },
@@ -144,7 +159,7 @@ export default [
               },
               {
                 path: '/docs/intro',
-                component: ComponentCreator('/docs/intro', '289'),
+                component: ComponentCreator('/docs/intro', 'b40'),
                 exact: true,
                 sidebar: "tutorialSidebar"
               },
@@ -162,15 +177,15 @@ export default [
   },
   {
     path: '/gui',
-    component: ComponentCreator('/gui', '18a'),
+    component: ComponentCreator('/gui', '515'),
     routes: [
       {
         path: '/gui',
-        component: ComponentCreator('/gui', '4c5'),
+        component: ComponentCreator('/gui', 'b29'),
         routes: [
           {
             path: '/gui',
-            component: ComponentCreator('/gui', 'c6f'),
+            component: ComponentCreator('/gui', '538'),
             routes: [
               {
                 path: '/gui/basic-operations',
@@ -192,7 +207,7 @@ export default [
               },
               {
                 path: '/gui/intro',
-                component: ComponentCreator('/gui/intro', '0b2'),
+                component: ComponentCreator('/gui/intro', 'c25'),
                 exact: true,
                 sidebar: "guiSidebar"
               },
@@ -228,19 +243,19 @@ export default [
   },
   {
     path: '/sdk',
-    component: ComponentCreator('/sdk', 'eeb'),
+    component: ComponentCreator('/sdk', '5bc'),
     routes: [
       {
         path: '/sdk',
-        component: ComponentCreator('/sdk', '463'),
+        component: ComponentCreator('/sdk', '62c'),
         routes: [
           {
             path: '/sdk',
-            component: ComponentCreator('/sdk', 'c6c'),
+            component: ComponentCreator('/sdk', '7b7'),
             routes: [
               {
                 path: '/sdk/api-reference',
-                component: ComponentCreator('/sdk/api-reference', '641'),
+                component: ComponentCreator('/sdk/api-reference', 'b8c'),
                 exact: true,
                 sidebar: "sdkSidebar"
               },
@@ -258,13 +273,13 @@ export default [
               },
               {
                 path: '/sdk/installation',
-                component: ComponentCreator('/sdk/installation', '5d4'),
+                component: ComponentCreator('/sdk/installation', 'f58'),
                 exact: true,
                 sidebar: "sdkSidebar"
               },
               {
                 path: '/sdk/intro',
-                component: ComponentCreator('/sdk/intro', 'ccf'),
+                component: ComponentCreator('/sdk/intro', '1b9'),
                 exact: true,
                 sidebar: "sdkSidebar"
               },

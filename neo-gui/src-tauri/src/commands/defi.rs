@@ -178,7 +178,7 @@ pub async fn add_liquidity(
 
 	let liquidity_result = LiquidityResult {
 		tx_id: format!("0x{:064x}", rand::random::<u64>()),
-		pool_address: format!("0x{}", hex::encode(&uuid::Uuid::new_v4().as_bytes()[..20])),
+		pool_address: format!("0x{}", hex::encode(&uuid::Uuid::new_v4().as_bytes()[..16])),
 		token_a: request.token_a,
 		token_b: request.token_b,
 		amount_a: request.amount_a,
@@ -211,8 +211,8 @@ pub async fn remove_liquidity(
 	// Process final settlement and yield calculations
 
 	let result = LiquidityResult {
-		tx_id: format!("0x{}", hex::encode(&uuid::Uuid::new_v4().as_bytes())),
-		pool_address: format!("0x{}", hex::encode(&uuid::Uuid::new_v4().as_bytes()[..20])),
+		tx_id: format!("0x{}", hex::encode(uuid::Uuid::new_v4().as_bytes())),
+		pool_address: format!("0x{}", hex::encode(&uuid::Uuid::new_v4().as_bytes()[..16])),
 		token_a: request.token_a,
 		token_b: request.token_b,
 		amount_a: request.amount_a,
@@ -244,8 +244,8 @@ pub async fn stake_tokens(
 	// Execute staking transactions with proper validation
 	// Initialize reward tracking and compounding schedules
 
-	let tx_id = format!("0x{}", hex::encode(&uuid::Uuid::new_v4().as_bytes()));
-	log::info!("Token staking initiated: {}", tx_id);
+	let tx_id = format!("0x{}", hex::encode(uuid::Uuid::new_v4().as_bytes()));
+	log::info!("Token staking initiated: {tx_id}");
 	Ok(ApiResponse::success(tx_id))
 }
 
@@ -264,8 +264,8 @@ pub async fn unstake_tokens(
 	// 3. Create unstaking transaction with proper validation and security
 	// 4. Submit to staking contract with comprehensive error handling
 
-	let tx_id = format!("0x{}", hex::encode(&uuid::Uuid::new_v4().as_bytes()));
-	log::info!("Token unstaking initiated: {}", tx_id);
+	let tx_id = format!("0x{}", hex::encode(uuid::Uuid::new_v4().as_bytes()));
+	log::info!("Token unstaking initiated: {tx_id}");
 	Ok(ApiResponse::success(tx_id))
 }
 
@@ -275,7 +275,7 @@ pub async fn get_pool_info(
 	pool_id: String,
 	_state: State<'_, AppState>,
 ) -> Result<ApiResponse<PoolInfo>, String> {
-	log::info!("Getting pool info: {}", pool_id);
+	log::info!("Getting pool info: {pool_id}");
 
 	// Professional pool information retrieval with comprehensive DEX contract integration
 	// This implementation provides complete DeFi pool analytics from smart contract queries
