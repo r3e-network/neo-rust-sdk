@@ -116,7 +116,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2.3.6
+        uses: gitleaks/gitleaks-action@v2.3.9
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
