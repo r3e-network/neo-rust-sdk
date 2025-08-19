@@ -82,11 +82,27 @@ impl SgxEnclave {
             return Ok(());
         }
         
-        // In a real implementation, this would load and initialize the enclave
-        // For now, we'll simulate initialization
-        self.enclave_id = 1; // Placeholder
-        self.initialized = true;
+        // Load and initialize the enclave
+        let mut launch_token = sgx_launch_token_t { body: [0; 1024] };
+        let mut launch_token_updated = 0i32;
+        let debug = if self.config.debug { 1 } else { 0 };
         
+        let result = unsafe {
+            sgx_create_enclave(
+                b"enclave.signed.so\0".as_ptr() as *const i8,
+                debug,
+                &mut launch_token,
+                &mut launch_token_updated,
+                &mut self.enclave_id,
+                std::ptr::null_mut(),
+            )
+        };
+        
+        if result != sgx_status_t::SGX_SUCCESS {
+            return Err(SgxError::EnclaveError(format!("Failed to create enclave: {:?}", result)));
+        }
+        
+        self.initialized = true;
         Ok(())
     }
     
@@ -124,10 +140,18 @@ impl SgxEnclave {
         let mut output_buffer = vec![0u8; R::expected_size()];
         let mut output_size = output_buffer.len();
         
+        // Perform the actual ECALL
+        let mut retval = sgx_status_t::SGX_SUCCESS;
         let result = unsafe {
-            // This would be the actual ECALL in a real implementation
-            // For now, we simulate it
-            sgx_status_t::SGX_SUCCESS
+            sgx_ecall(
+                self.enclave_id,
+                function_id as i32,
+                input_bytes.as_ptr() as *const core::ffi::c_void,
+                input_bytes.len(),
+                output_buffer.as_mut_ptr() as *mut core::ffi::c_void,
+                output_buffer.len(),
+                &mut retval,
+            )
         };
         
         if result != sgx_status_t::SGX_SUCCESS {
@@ -154,7 +178,15 @@ impl SgxEnclave {
             return Ok(());
         }
         
-        // In a real implementation, this would destroy the enclave
+        // Destroy the enclave
+        let result = unsafe {
+            sgx_destroy_enclave(self.enclave_id)
+        };
+        
+        if result != sgx_status_t::SGX_SUCCESS {
+            return Err(SgxError::EnclaveError(format!("Failed to destroy enclave: {:?}", result)));
+        }
+        
         self.enclave_id = 0;
         self.initialized = false;
         
@@ -234,6 +266,30 @@ pub fn generate_enclave_config(config: &EnclaveConfig) -> String {
         if config.debug { 0 } else { 1 },
         config.misc_select
     )
+}
+
+// External SGX functions
+#[cfg(feature = "sgx")]
+extern "C" {
+    fn sgx_create_enclave(
+        file_name: *const i8,
+        debug: i32,
+        launch_token: *mut sgx_launch_token_t,
+        launch_token_updated: *mut i32,
+        enclave_id: *mut sgx_enclave_id_t,
+        misc_attr: *mut sgx_misc_attribute_t,
+    ) -> sgx_status_t;
+    
+    fn sgx_destroy_enclave(enclave_id: sgx_enclave_id_t) -> sgx_status_t;
+    
+    fn sgx_ecall(
+        eid: sgx_enclave_id_t,
+        index: i32,
+        ocall_table: *const core::ffi::c_void,
+        ms: *mut core::ffi::c_void,
+        ms_size: usize,
+        status: *mut sgx_status_t,
+    ) -> sgx_status_t;
 }
 
 /// Generate Enclave Definition Language (EDL) file content

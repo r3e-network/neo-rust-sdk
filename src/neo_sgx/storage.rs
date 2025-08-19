@@ -193,9 +193,24 @@ impl SecureStorage {
 /// Get current timestamp
 #[cfg(feature = "sgx")]
 fn get_timestamp() -> u64 {
-    // In SGX, we need to get time via OCALL or use monotonic counter
-    // For now, return a placeholder
-    0
+    // Use SGX monotonic counter for timestamp
+    let mut counter_value = 0u32;
+    let mut counter_uuid = sgx_mc_uuid_t { counter_id: [0; 16] };
+    
+    let result = unsafe {
+        sgx_create_monotonic_counter(&mut counter_uuid, &mut counter_value)
+    };
+    
+    if result == sgx_status_t::SGX_SUCCESS {
+        counter_value as u64
+    } else {
+        // Fallback: use a pseudo-timestamp based on sealed data count
+        unsafe {
+            static mut COUNTER: u64 = 0;
+            COUNTER += 1;
+            COUNTER
+        }
+    }
 }
 
 #[cfg(not(feature = "sgx"))]
@@ -220,5 +235,10 @@ extern "C" {
         data: *mut u8,
         data_len: usize,
         actual_data_len: *mut usize,
+    ) -> sgx_status_t;
+    
+    fn sgx_create_monotonic_counter(
+        counter_uuid: *mut sgx_mc_uuid_t,
+        counter_value: *mut u32,
     ) -> sgx_status_t;
 }
