@@ -1,0 +1,125 @@
+name: Code Coverage
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  coverage:
+    name: Generate Code Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+      
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+      
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            target
+          key: ${{ runner.os }}-cargo-coverage-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-coverage-
+      
+      - name: Clean workspace for coverage
+        run: |
+          # Remove neo-gui from workspace to avoid UI dependency issues
+          cp Cargo.toml Cargo.toml.backup
+          sed -i 's/"neo-gui",//g; s/, "neo-gui"//g; s/"neo-gui"//g' Cargo.toml
+          rm -rf neo-gui
+      
+      - name: Generate code coverage
+        run: |
+          # Generate coverage for all packages except neo-gui
+          cargo llvm-cov --workspace --lcov --output-path lcov.info \
+            --ignore-filename-regex '(tests?/|examples?/|benches?/|target/|neo-gui/)' \
+            -- --test-threads=1
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./lcov.info
+          flags: unittests
+          name: neorust-coverage
+          fail_ci_if_error: false
+          verbose: true
+      
+      - name: Upload coverage reports to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ./lcov.info
+      
+      - name: Generate HTML coverage report
+        run: |
+          cargo llvm-cov report --html --output-dir coverage-report
+      
+      - name: Upload HTML coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage-report/
+          retention-days: 30
+      
+      - name: Display coverage summary
+        run: |
+          echo "## Code Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          cargo llvm-cov report --summary-only | tail -n +2 >> $GITHUB_STEP_SUMMARY
+      
+      - name: Check coverage threshold
+        run: |
+          # Extract total coverage percentage
+          COVERAGE=$(cargo llvm-cov report --summary-only | grep TOTAL | awk '{print $10}' | sed 's/%//')
+          
+          # Set minimum threshold
+          THRESHOLD=70
+          
+          echo "Current coverage: ${COVERAGE}%"
+          echo "Required threshold: ${THRESHOLD}%"
+          
+          # Check if coverage meets threshold
+          if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
+            echo "❌ Coverage ${COVERAGE}% is below threshold ${THRESHOLD}%"
+            exit 1
+          else
+            echo "✅ Coverage ${COVERAGE}% meets threshold ${THRESHOLD}%"
+          fi
+      
+      - name: Comment PR with coverage
+        if: github.event_name == 'pull_request'
+        uses: 5monkeys/cobertura-action@master
+        with:
+          path: lcov.info
+          minimum_coverage: 70
+          fail_below_threshold: false
+          show_line: true
+          show_branch: true
+          show_missing: true
+          skip_covered: false
+          only_changed_files: true
+      
+      - name: Restore workspace
+        if: always()
+        run: |
+          mv Cargo.toml.backup Cargo.toml || true
+          git checkout -- neo-gui || true

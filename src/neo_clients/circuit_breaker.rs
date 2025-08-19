@@ -1,7 +1,7 @@
 use crate::neo_error::{Neo3Error, Neo3Result};
 use std::{
 	sync::{
-		atomic::{AtomicU32, AtomicU64, Ordering},
+		atomic::{AtomicU32, Ordering},
 		Arc,
 	},
 	time::{Duration, Instant},

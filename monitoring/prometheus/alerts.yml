@@ -1,0 +1,152 @@
+groups:
+  - name: neorust_critical
+    interval: 30s
+    rules:
+      # Service availability
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "{{ $labels.job }} has been down for more than 1 minute."
+          
+      # High error rate
+      - alert: HighErrorRate
+        expr: rate(neo_transactions_failed_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High transaction failure rate"
+          description: "Transaction failure rate is above 10% (current: {{ $value | humanizePercentage }})"
+          
+      # RPC connection failures
+      - alert: RPCConnectionFailure
+        expr: rate(neo_rpc_errors_total[5m]) > 0.5
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High RPC error rate"
+          description: "RPC error rate is above 50% for {{ $labels.endpoint }}"
+          
+      # Blockchain sync issues
+      - alert: BlockchainOutOfSync
+        expr: neo_sync_status == 0
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Blockchain out of sync"
+          description: "Blockchain has been out of sync for more than 10 minutes on {{ $labels.network }}"
+
+  - name: neorust_warning
+    interval: 60s
+    rules:
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: neo_memory_usage_bytes / (1024 * 1024 * 1024) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 2GB for {{ $labels.component }} (current: {{ $value | humanize1024 }}B)"
+          
+      # Slow transactions
+      - alert: SlowTransactions
+        expr: histogram_quantile(0.95, rate(neo_transaction_duration_seconds_bucket[5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow transaction processing"
+          description: "95th percentile transaction duration is above 5 seconds (current: {{ $value | humanizeDuration }})"
+          
+      # Low connected nodes
+      - alert: LowConnectedNodes
+        expr: neo_connected_nodes < 3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low number of connected nodes"
+          description: "Connected nodes count is below 3 on {{ $labels.network }} (current: {{ $value }})"
+          
+      # High gas fees
+      - alert: HighGasFees
+        expr: histogram_quantile(0.95, rate(neo_transaction_fees_gas_bucket[5m])) > 10
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High transaction fees"
+          description: "95th percentile gas fees above 10 GAS (current: {{ $value }})"
+          
+      # Degraded health status
+      - alert: ServiceDegraded
+        expr: neo_health_status == 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Service health degraded"
+          description: "{{ $labels.component }} health is degraded"
+
+  - name: neorust_performance
+    interval: 60s
+    rules:
+      # High latency
+      - alert: HighNetworkLatency
+        expr: histogram_quantile(0.95, rate(neo_network_latency_ms_bucket[5m])) > 500
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High network latency"
+          description: "95th percentile network latency above 500ms for {{ $labels.endpoint }}"
+          
+      # RPC performance
+      - alert: SlowRPCRequests
+        expr: histogram_quantile(0.95, rate(neo_rpc_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow RPC requests"
+          description: "95th percentile RPC duration above 2 seconds for {{ $labels.method }}"
+          
+      # Contract gas usage
+      - alert: HighContractGasUsage
+        expr: histogram_quantile(0.95, rate(neo_contract_gas_used_bucket[5m])) > 100
+        for: 10m
+        labels:
+          severity: info
+        annotations:
+          summary: "High contract gas usage"
+          description: "Contract {{ $labels.contract }} using high amounts of gas"
+
+  - name: neorust_business
+    interval: 120s
+    rules:
+      # Low transaction volume
+      - alert: LowTransactionVolume
+        expr: rate(neo_transactions_total[1h]) < 0.1
+        for: 1h
+        labels:
+          severity: info
+        annotations:
+          summary: "Low transaction volume"
+          description: "Transaction volume below 0.1 per second over the last hour"
+          
+      # Wallet activity
+      - alert: NoWalletActivity
+        expr: rate(neo_wallet_operations_total[1h]) == 0
+        for: 2h
+        labels:
+          severity: info
+        annotations:
+          summary: "No wallet activity"
+          description: "No wallet operations in the last 2 hours"

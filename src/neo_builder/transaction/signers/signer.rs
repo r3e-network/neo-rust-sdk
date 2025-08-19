@@ -11,13 +11,8 @@ use crate::{
 use elliptic_curve::pkcs8::der::Encode;
 use primitive_types::H160;
 use serde::{Deserialize, Serialize, Serializer};
-use std::{
-	collections::HashSet,
-	hash::{Hash, Hasher},
-	ops::Deref,
-};
+use std::hash::{Hash, Hasher};
 
-use lazy_static::lazy_static;
 
 /// Represents the type of signer in the NEO blockchain.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

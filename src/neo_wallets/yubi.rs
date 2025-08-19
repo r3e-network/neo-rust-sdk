@@ -11,12 +11,6 @@ use yubihsm::{
 	Client, Connector, Credentials, Domain,
 };
 
-use crate::{
-	neo_clients::public_key_to_address,
-	neo_crypto::{HashableForVec, Secp256r1PublicKey},
-	neo_types::Address,
-	neo_wallets::{WalletError, WalletSigner},
-};
 
 #[cfg(feature = "yubi")]
 impl WalletSigner<YubiSigner<NistP256>> {
@@ -224,6 +218,7 @@ pub mod tests {
 		}
 
 		// Test that required error types exist
+		use crate::neo_wallets::wallet::WalletError;
 		let _error = WalletError::YubiHsmError("test".to_string());
 
 		// Professional test validates type system without hardware dependency

@@ -63,7 +63,6 @@ use crate::{
 		Secp256r1PublicKey,
 	},
 	neo_clients::public_key_to_address,
-	providers::ProviderError,
 	vec_to_array32,
 };
 use aes::cipher::{block_padding::NoPadding, BlockDecryptMut, BlockEncryptMut, KeyInit};

@@ -69,7 +69,6 @@
 //! assert_eq!(json_value, json!(123));
 //! ```
 
-use crate::neo_crypto::utils::FromBase64String;
 use base64::{engine::general_purpose, Engine};
 pub use log::*;
 use primitive_types::H256;
@@ -78,7 +77,6 @@ use serde_derive::{Deserialize, Serialize};
 // Re-export everything from these modules
 pub use address::*;
 pub use address_or_scripthash::*;
-pub use block::*;
 pub use bytes::*;
 pub use contract::*;
 pub use error::*;
@@ -89,15 +87,12 @@ pub use path_or_string::*;
 pub use plugin_type::*;
 pub mod script_hash;
 pub use script_hash::{ScriptHash, ScriptHashExtension};
-pub use serde_value::*;
 pub use serde_with_utils::*;
 pub use stack_item::*;
-pub use string::*;
 pub use syncing::*;
 pub use tx_pool::*;
 pub use url_session::*;
 pub use util::*;
-pub use vm_state::*;
 
 // Make modules public for direct access
 pub mod contract;

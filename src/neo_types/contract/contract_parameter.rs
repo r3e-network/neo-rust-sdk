@@ -4,7 +4,7 @@ use crate::{
 	deserialize_map,
 	neo_contract::Role,
 	neo_crypto::utils::{FromBase64String, FromHexString, ToHexString},
-	neo_types::{script_hash::ScriptHashExtension, ScriptHash, TypeError},
+	neo_types::script_hash::ScriptHashExtension,
 	serialize_map, Base64Encode, ContractParameterType, NNSName, NefFile, ValueExtension,
 };
 use getset::Getters;
@@ -13,17 +13,14 @@ use primitive_types::{H160, H256};
 use serde::{
 	de,
 	de::{MapAccess, Visitor},
-	ser::{SerializeMap, SerializeSeq, SerializeStruct, Serializer},
 	Deserialize, Deserializer, Serialize,
 };
 use serde_json::Value;
 use sha3::Digest;
 use std::{
 	collections::HashMap,
-	convert::TryInto,
 	fmt,
 	hash::{Hash, Hasher},
-	str::FromStr,
 };
 use strum_macros::{Display, EnumString};
 

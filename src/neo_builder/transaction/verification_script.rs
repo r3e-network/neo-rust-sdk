@@ -1,8 +1,4 @@
-use std::{
-	collections::HashMap,
-	fmt::{Debug, Formatter},
-	str::FromStr,
-};
+use std::fmt::Debug;
 
 use getset::{Getters, Setters};
 use primitive_types::H160;
@@ -10,9 +6,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
 	crypto::Secp256r1PublicKey,
-	neo_crypto::utils::{FromHexString, ToHexString},
+	neo_crypto::utils::ToHexString,
 	neo_types::{
-		script_hash::ScriptHashExtension, Address, OpCode, ScriptHash, StackItem, TypeError,
+		script_hash::ScriptHashExtension, OpCode,
 	},
 	prelude::Bytes,
 };
@@ -24,7 +20,6 @@ use crate::{
 	crypto::{HashableForVec, Secp256r1Signature},
 	var_size,
 };
-use hex;
 use num_bigint::BigInt;
 use num_traits::{ToPrimitive, Zero};
 use p256::pkcs8::der::Encode;
@@ -250,6 +245,7 @@ mod tests {
 	use hex_literal::hex;
 
 	use super::*;
+	use crate::neo_crypto::utils::FromHexString;
 
 	#[test]
 	fn test_from_public_key() {

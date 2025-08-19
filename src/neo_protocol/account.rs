@@ -82,7 +82,7 @@ use std::{
 use crate::neo_crypto::utils::ToHexString;
 use primitive_types::H160;
 use serde_derive::{Deserialize, Serialize};
-use signature::{hazmat::PrehashSigner, Error, SignerMut};
+use signature::{hazmat::PrehashSigner, Error};
 
 use crate::{
 	neo_builder::VerificationScript,

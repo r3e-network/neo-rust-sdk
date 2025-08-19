@@ -1,4 +1,3 @@
-use ethereum_types::H256;
 /// A builder for constructing and configuring NEO blockchain transactions.
 ///
 /// The `TransactionBuilder` provides a fluent interface for setting various transaction parameters
@@ -47,7 +46,6 @@ use futures_util::TryFutureExt;
 use std::{
 	cell::RefCell,
 	collections::HashSet,
-	default,
 	fmt::Debug,
 	hash::{Hash, Hasher},
 	iter::Iterator,
@@ -58,11 +56,9 @@ use crate::builder::SignerTrait;
 use getset::{CopyGetters, Getters, MutGetters, Setters};
 use once_cell::sync::Lazy;
 use primitive_types::H160;
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
 // Import from neo_types
 use crate::neo_types::{
-	Bytes, ContractParameter, InvocationResult, NameOrAddress, ScriptHash, ScriptHashExtension,
+	Bytes, ContractParameter, InvocationResult, ScriptHash, ScriptHashExtension,
 };
 
 // Import transaction types from neo_builder
@@ -77,10 +73,10 @@ use crate::neo_builder::{
 // Import other modules
 use crate::{
 	neo_clients::{APITrait, JsonRpcProvider, RpcClient},
-	neo_codec::{Decoder, Encoder, NeoSerializable, VarSizeTrait},
+	neo_codec::NeoSerializable,
 	neo_config::{NeoConstants, NEOCONFIG},
-	neo_crypto::{utils::ToHexString, HashableForVec, Secp256r1PublicKey},
-	neo_protocol::{AccountTrait, NeoNetworkFee},
+	neo_crypto::{utils::ToHexString, Secp256r1PublicKey},
+	neo_protocol::AccountTrait,
 };
 
 // Helper functions
@@ -394,7 +390,7 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 
 	pub async fn call_invoke_script(&self) -> Result<InvocationResult, TransactionError> {
 		if self.script.is_none() || self.script.as_ref().unwrap().is_empty() {
-			return Err((TransactionError::NoScript));
+			return Err(TransactionError::NoScript);
 		}
 		let result = self
 			.client
@@ -403,7 +399,7 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 			.invoke_script(self.script.clone().unwrap().to_hex_string(), self.signers.clone())
 			.await
 			.map_err(|e| TransactionError::ProviderError(e))?;
-		Ok((result))
+		Ok(result)
 	}
 
 	/// Builds a transaction from the current builder configuration
@@ -500,7 +496,7 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 		let network_fee = self.get_network_fee().await? + self.additional_network_fee as i64;
 
 		// Check sender balance if needed
-		let mut tx = Transaction {
+		let tx = Transaction {
 			network: Some(self.client.unwrap()),
 			version: self.version,
 			nonce: self.nonce,
@@ -652,7 +648,7 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 				},
 			}
 		}
-		if (!has_atleast_one_signing_account) {
+		if !has_atleast_one_signing_account {
 			return Err(TransactionError::TransactionConfiguration("A transaction requires at least one signing account (i.e. an AccountSigner). None was provided.".to_string()));
 		}
 
@@ -1183,7 +1179,7 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	/// ```
 	pub fn do_if_sender_cannot_cover_fees<F>(
 		&mut self,
-		mut consumer: F,
+		consumer: F,
 	) -> Result<&mut Self, TransactionError>
 	where
 		F: FnMut(i64, i64) + Send + Sync + 'static,

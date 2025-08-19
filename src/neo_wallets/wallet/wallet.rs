@@ -5,14 +5,12 @@ use rayon::prelude::*;
 use serde_derive::{Deserialize, Serialize};
 
 use crate::{
-	neo_builder::{AccountSigner, Transaction, TransactionBuilder, VerificationScript, Witness},
+	neo_builder::{Transaction, TransactionBuilder, Witness},
 	neo_clients::{APITrait, JsonRpcProvider, ProviderError, RpcClient},
 	neo_config::NeoConstants,
-	neo_contract::ContractError,
 	neo_crypto::{CryptoError, HashableForVec, KeyPair, Secp256r1Signature},
 	neo_protocol::{Account, AccountTrait, UnclaimedGas},
 	neo_types::{
-		contract::ContractMethodToken,
 		script_hash::ScriptHashExtension,
 		serde_with_utils::{
 			deserialize_hash_map_h160_account, deserialize_script_hash,
@@ -20,7 +18,7 @@ use crate::{
 		},
 		AddressExtension, ScryptParamsDef,
 	},
-	neo_wallets::{NEP6Account, NEP6Contract, NEP6Parameter, Nep6Wallet, WalletError, WalletTrait},
+	neo_wallets::{NEP6Account, Nep6Wallet, WalletError, WalletTrait},
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -751,7 +749,7 @@ impl Wallet {
 		&self,
 		tx: &Transaction<'a, P>,
 	) -> Result<Witness, WalletError> {
-		let mut tx_with_chain = tx.clone();
+		let tx_with_chain = tx;
 		if tx_with_chain.network().is_none() {
 			// in the case we don't have a network, let's use the signer network magic instead
 			// tx_with_chain.set_network(Some(self.network()));
@@ -888,7 +886,7 @@ impl Wallet {
 		})?;
 
 		// Convert to Wallet
-		let mut wallet = Wallet::from_nep6(nep6_wallet)?;
+		let wallet = Wallet::from_nep6(nep6_wallet)?;
 
 		// Verify the password by checking if we can decrypt any account
 		let can_decrypt = wallet.verify_password(password);

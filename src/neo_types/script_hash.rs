@@ -1,13 +1,10 @@
 use byte_slice_cast::AsByteSlice;
 use primitive_types::H160;
-use serde::{Deserialize, Serialize};
-use std::{fmt, str::FromStr};
 
 use crate::{
 	config::DEFAULT_ADDRESS_VERSION,
-	crypto::{base58check_decode, base58check_encode, HashableForVec, Secp256r1PublicKey},
-	neo_crypto::utils::ToHexString,
-	neo_types::{address::Address, TypeError},
+	crypto::HashableForVec,
+	neo_types::TypeError,
 };
 
 pub type ScriptHash = H160;
@@ -203,18 +200,16 @@ mod tests {
 	#[test]
 	fn test_from_valid_hash() {
 		assert_eq!(
-			H160::from_hex("23ba2703c53263e8d6e522dc32203339dcd8eee9")
+			hex::encode(H160::from_hex("23ba2703c53263e8d6e522dc32203339dcd8eee9")
 				.unwrap()
-				.as_bytes()
-				.to_hex_string(),
+				.as_bytes()),
 			"23ba2703c53263e8d6e522dc32203339dcd8eee9".to_string()
 		);
 
 		assert_eq!(
-			H160::from_hex("0x23ba2703c53263e8d6e522dc32203339dcd8eee9")
+			hex::encode(H160::from_hex("0x23ba2703c53263e8d6e522dc32203339dcd8eee9")
 				.unwrap()
-				.as_bytes()
-				.to_hex_string(),
+				.as_bytes()),
 			"e9eed8dc39332032dc22e5d6e86332c50327ba23".to_string()
 		);
 	}
@@ -248,10 +243,9 @@ mod tests {
 
 		assert_eq!(buffer.to_bytes(), data);
 		assert_eq!(
-			<H160 as ScriptHashExtension>::from_slice(&data)
+			hex::encode(<H160 as ScriptHashExtension>::from_slice(&data)
 				.unwrap()
-				.as_bytes()
-				.to_hex_string(),
+				.as_bytes()),
 			hex_str
 		);
 	}

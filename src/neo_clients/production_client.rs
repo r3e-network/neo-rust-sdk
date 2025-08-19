@@ -1,7 +1,6 @@
 use crate::{
 	neo_clients::{
-		APITrait, Cache, CacheConfig, CircuitBreaker, CircuitBreakerConfig, ConnectionPool,
-		HttpProvider, PoolConfig, RpcCache, RpcClient,
+		Cache, CacheConfig, CircuitBreaker, CircuitBreakerConfig, ConnectionPool, PoolConfig, RpcCache,
 	},
 	neo_error::{Neo3Error, Neo3Result},
 };

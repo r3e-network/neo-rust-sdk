@@ -2,7 +2,7 @@ use primitive_types::H160;
 use serde::{Deserialize, Serialize};
 
 use crate::ContractNef;
-use getset::{CopyGetters, Getters, MutGetters, Setters};
+use getset::{Getters, Setters};
 use neo3::prelude::{ContractManifest, *};
 
 #[derive(Serialize, Deserialize, Getters, Setters, Default, Debug, Clone)]

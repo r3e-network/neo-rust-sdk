@@ -66,7 +66,6 @@ use crate::{
 	crypto::CryptoError,
 	neo_crypto::utils::{FromHexString, ToHexString},
 };
-use elliptic_curve::zeroize::Zeroize;
 use p256::{
 	ecdsa::{signature::Signer, Signature, SigningKey, VerifyingKey},
 	elliptic_curve::{

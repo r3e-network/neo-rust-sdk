@@ -1,12 +1,12 @@
 use std::fmt;
 
-use p256::{ecdsa::Signature, NistP256};
-use primitive_types::{H160, H256};
+use p256::ecdsa::Signature;
+use primitive_types::H256;
 use serde_derive::{Deserialize, Serialize};
 use signature::hazmat::{PrehashSigner, PrehashVerifier};
 
 use crate::{
-	neo_builder::{AccountSigner, Transaction, TransactionError},
+	neo_builder::{Transaction, TransactionError},
 	neo_clients::JsonRpcProvider,
 	neo_crypto::HashableForVec,
 	neo_types::Address,
@@ -67,7 +67,7 @@ impl<D: Sync + Send + PrehashSigner<Signature>> WalletSigner<D> {
 		&self,
 		tx: &Transaction<'a, P>,
 	) -> Result<Signature, WalletError> {
-		let mut tx_with_network = tx.clone();
+		let tx_with_network = tx;
 		if tx_with_network.network().is_none() {
 			// in the case we don't have a network, let's use the signer chain id instead
 			// tx_with_network.set_network(self.network.map(|n| n as u32));

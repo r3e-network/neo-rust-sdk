@@ -6,7 +6,6 @@ use std::{
 	hash::{Hash, Hasher},
 	sync::{Arc, Mutex},
 };
-use tokio::runtime::Handle;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub enum NeoNetwork {

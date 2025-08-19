@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 use crate::neo_crypto::utils::ToHexString;
 use async_trait::async_trait;
@@ -7,18 +7,18 @@ use primitive_types::H160;
 
 // Replace prelude imports with specific types
 use crate::{
-	neo_builder::{BuilderError, CallFlags, ScriptBuilder},
-	neo_clients::{APITrait, JsonRpcProvider, ProviderError, RpcClient},
+	neo_builder::{CallFlags, ScriptBuilder},
+	neo_clients::{APITrait, JsonRpcProvider, RpcClient},
 	neo_contract::{ContractError, NeoIterator},
 	neo_types::{
-		Bytes, ContractManifest, ContractParameter, ContractParameterType, InvocationResult,
+		Bytes, ContractManifest, ContractParameter, InvocationResult,
 		OpCode, ScriptHash, StackItem,
 	},
 	ScriptHashExtension,
 };
 
 // Import transaction types from the correct modules
-use crate::neo_builder::{Signer, Transaction, TransactionBuilder};
+use crate::neo_builder::{Signer, TransactionBuilder};
 
 #[async_trait]
 pub trait SmartContractTrait<'a>: Send + Sync {

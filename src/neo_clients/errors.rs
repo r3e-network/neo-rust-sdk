@@ -1,4 +1,4 @@
-use std::{error::Error, fmt::Debug, sync::Arc};
+use std::{fmt::Debug, sync::Arc};
 
 use crate::{crypto::CryptoError, neo_clients::JsonRpcError, TypeError};
 use thiserror::Error;

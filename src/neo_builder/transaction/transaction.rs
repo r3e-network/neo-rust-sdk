@@ -14,7 +14,6 @@ use crate::{
 	config::NeoConstants,
 	crypto::HashableForVec,
 	neo_clients::{APITrait, HttpProvider, JsonRpcProvider, RpcClient},
-	neo_error::NeoError,
 	neo_protocol::{ApplicationLog, RawTransaction},
 	neo_types::NameOrAddress,
 	Bytes,

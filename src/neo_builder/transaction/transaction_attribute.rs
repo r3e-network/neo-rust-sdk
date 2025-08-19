@@ -1,20 +1,16 @@
 use std::{
-	fmt::{Debug, Formatter},
+	fmt::Debug,
 	hash::{Hash, Hasher},
 };
 
 use crate::neo_crypto::utils::FromBase64String;
-use getset::{Getters, Setters};
-use primitive_types::{H160, H256};
+use primitive_types::H256;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 
 use crate::{
 	builder::TransactionError,
 	codec::{Decoder, Encoder, NeoSerializable},
-	neo_types::{Bytes, TypeError},
 	prelude::Base64Encode,
-	var_size,
 };
 
 use super::oracle_response_code::OracleResponseCode;

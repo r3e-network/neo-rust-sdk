@@ -6,15 +6,12 @@ use crate::{
 };
 use lazy_static::lazy_static;
 use neo3::prelude::*;
-use primitive_types::{H160, H256};
-use regex::Regex;
-use serde_json::{json, Value};
-use std::{fs, path::PathBuf, str::FromStr, sync::Arc};
-use tokio::sync::Mutex;
+use primitive_types::H160;
+use serde_json::json;
+use std::{path::PathBuf, str::FromStr};
 use url::Url;
 use wiremock::{
-	matchers::{body_json, body_partial_json, method, path},
-	Match, Mock, MockServer, ResponseTemplate,
+	matchers::{body_json, body_partial_json, method, path}, Mock, MockServer, ResponseTemplate,
 };
 
 lazy_static! {

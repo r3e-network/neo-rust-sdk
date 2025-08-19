@@ -70,7 +70,6 @@
 
 pub use base58_helper::*;
 pub use error::*;
-pub use key_pair::*;
 pub use keys::*;
 pub use utils::*;
 pub use wif::*;

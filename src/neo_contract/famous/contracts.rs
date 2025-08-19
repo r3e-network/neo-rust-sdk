@@ -6,7 +6,7 @@
 use crate::neo_types::script_hash::ScriptHash;
 use std::str::FromStr;
 
-use crate::{neo_contract::ContractError, prelude::*};
+use crate::neo_contract::ContractError;
 
 /// Enum defining which Neo N3 network a contract is deployed on
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

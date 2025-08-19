@@ -15,7 +15,6 @@
 //!
 //! This module provides error types for NeoFS operations.
 
-use std::fmt;
 use thiserror::Error;
 
 /// Errors that can occur during NeoFS operations

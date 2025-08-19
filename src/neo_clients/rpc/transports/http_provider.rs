@@ -69,7 +69,6 @@ impl From<ClientError> for ProviderError {
 				debug!("SerdeJson Error: {:#?}, Response: {:#?}", err, text);
 				ProviderError::SerdeJson(err)
 			},
-			_ => ProviderError::IllegalState("unexpected error".to_string()),
 		}
 	}
 }

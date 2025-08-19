@@ -6,7 +6,7 @@ use std::{collections::HashMap, fmt};
 /// The `StackItem` enum also provides several utility methods for converting between different types and formats.
 use primitive_types::{H160, H256};
 use serde::{
-	de::{Unexpected, Visitor},
+	de::Visitor,
 	Deserialize, Deserializer, Serialize,
 };
 

@@ -1,17 +1,11 @@
-use std::{
-	hash::{Hash, Hasher},
-	str::FromStr,
-};
+use std::hash::{Hash, Hasher};
 
 use super::{RTransactionSigner, TransactionAttributeEnum};
-use crate::{neo_clients::JsonRpcProvider, neo_protocol::NeoWitness, TypeError};
-use futures_util::TryFutureExt;
+use crate::{neo_protocol::NeoWitness, TypeError};
 use getset::{CopyGetters, Getters, MutGetters, Setters};
 use neo3::VMState;
-use primitive_types::{H256, U256};
-use serde::{Deserialize, Deserializer, Serialize};
-use serde_json::Value;
-use serde_with::__private__::DeError;
+use primitive_types::H256;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Getters, Setters, MutGetters, CopyGetters, Debug, Clone)]
 pub struct RTransaction {

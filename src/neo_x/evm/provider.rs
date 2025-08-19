@@ -1,7 +1,4 @@
-use async_trait::async_trait;
-use primitive_types::H160;
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
 
 use crate::{
 	neo_clients::{JsonRpcProvider, RpcClient},

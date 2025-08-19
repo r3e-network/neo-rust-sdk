@@ -1,5 +1,6 @@
 pub use call_flags::*;
 pub use contract_parameters_context::*;
+pub use gas_estimator::*;
 pub use invocation_script::*;
 pub use oracle_response_code::*;
 pub use signers::*;
@@ -15,6 +16,7 @@ pub use witness_scope::*;
 
 mod call_flags;
 mod contract_parameters_context;
+mod gas_estimator;
 mod invocation_script;
 mod oracle_response_code;
 mod signers;

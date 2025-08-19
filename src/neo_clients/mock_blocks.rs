@@ -1,11 +1,8 @@
 use primitive_types::{H160, H256};
 use rand::Rng;
-use std::{
-	hash::Hash,
-	time::{SystemTime, UNIX_EPOCH},
-};
+use std::time::{SystemTime, UNIX_EPOCH};
 
-pub struct MockBlocks;
+pub(super) struct MockBlocks;
 
 impl MockBlocks {
 	fn unix_timestamp_ms() -> u64 {
@@ -14,14 +11,14 @@ impl MockBlocks {
 			.expect("Time went backwards")
 			.as_millis() as u64
 	}
-	pub fn random_uint256() -> H256 {
+	pub(super) fn random_uint256() -> H256 {
 		let mut rng = rand::thread_rng();
 		let mut data = [0u8; 32];
 		rng.fill(&mut data);
 		H256::from(data)
 	}
 
-	pub fn random_uint160() -> H160 {
+	pub(super) fn random_uint160() -> H160 {
 		let mut rng = rand::thread_rng();
 		let mut data = [0u8; 20];
 		rng.fill(&mut data);
@@ -68,7 +65,7 @@ impl MockBlocks {
 	// }
 }
 
-pub enum InvalidTransactionType {
+pub(super) enum InvalidTransactionType {
 	InsufficientBalance,
 	InvalidSignature,
 	InvalidScript,

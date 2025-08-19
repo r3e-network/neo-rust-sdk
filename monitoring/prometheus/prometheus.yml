@@ -1,0 +1,60 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'neorust-monitor'
+    environment: 'development'
+
+# Alert manager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "alerts.yml"
+
+scrape_configs:
+  # NeoRust SDK metrics
+  - job_name: 'neorust-sdk'
+    static_configs:
+      - targets: ['host.docker.internal:9090']
+        labels:
+          component: 'sdk'
+          
+  # Neo CLI metrics
+  - job_name: 'neo-cli'
+    static_configs:
+      - targets: ['host.docker.internal:9091']
+        labels:
+          component: 'cli'
+          
+  # Neo GUI metrics
+  - job_name: 'neo-gui'
+    static_configs:
+      - targets: ['host.docker.internal:9092']
+        labels:
+          component: 'gui'
+          
+  # Node Exporter (system metrics)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          component: 'system'
+          
+  # OpenTelemetry Collector metrics
+  - job_name: 'otel-collector'
+    static_configs:
+      - targets: ['otel-collector:8888']
+        labels:
+          component: 'collector'
+          
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          component: 'prometheus'

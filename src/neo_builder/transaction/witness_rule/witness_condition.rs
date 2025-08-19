@@ -61,15 +61,8 @@ impl Serialize for WitnessCondition {
 				state.serialize_field("type", "ScriptHash")?;
 				state.serialize_field("hash", &hash.to_hex())?;
 			},
-			WitnessCondition::Group(ref key) | WitnessCondition::CalledByGroup(ref key) => {
-				state.serialize_field(
-					"type",
-					if matches!(self, WitnessCondition::Group(_)) {
-						"Group"
-					} else {
-						"CalledByGroup"
-					},
-				)?;
+			WitnessCondition::Group(ref key) => {
+				state.serialize_field("type", "Group")?;
 				state.serialize_field("group", &key.get_encoded(true).to_hex_string())?;
 			},
 			WitnessCondition::CalledByEntry => {

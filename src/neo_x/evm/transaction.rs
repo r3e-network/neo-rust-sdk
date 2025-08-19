@@ -1,7 +1,5 @@
-use async_trait::async_trait;
 use primitive_types::H160;
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
 
 /// Neo X EVM transaction for interacting with the Neo X EVM-compatible chain
 #[derive(Debug, Clone, Serialize, Deserialize)]

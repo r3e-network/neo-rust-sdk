@@ -2,18 +2,16 @@
 // and handling various formats like Base58 and hexadecimal strings. It leverages cryptographic functions, serialization, and
 // deserialization to work with blockchain-specific data types.
 
-use std::{fmt, str::FromStr};
 
 use primitive_types::H160;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-	crypto::{base58check_decode, base58check_encode, HashableForVec, Secp256r1PublicKey},
-	neo_crypto::utils::{FromHexString, ToHexString},
+	crypto::HashableForVec,
+	neo_crypto::utils::FromHexString,
 	neo_error::NeoError,
 	neo_types::{ScriptHash, ScriptHashExtension, StringExt, TypeError},
-	prelude::Bytes,
 };
 
 pub type Address = String;

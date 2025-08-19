@@ -28,7 +28,7 @@ use reqwest::{
 	Client,
 };
 use serde_json::{json, Value};
-use std::{collections::HashMap, fmt::Debug};
+use std::fmt::Debug;
 
 /// Default mainnet NeoFS gRPC endpoint
 pub const DEFAULT_MAINNET_ENDPOINT: &str = "grpc.mainnet.fs.neo.org:8082";

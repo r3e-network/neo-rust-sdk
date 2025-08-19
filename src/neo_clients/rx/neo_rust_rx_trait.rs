@@ -3,7 +3,7 @@ use futures::stream::Stream;
 use std::{error::Error, pin::Pin};
 
 /// The JSON-RPC client event API for Neo.
-pub trait NeoRustRxTrait {
+pub(crate) trait NeoRustRxTrait {
 	/// Create a stream that emits newly created blocks on the blockchain.
 	///
 	/// # Arguments

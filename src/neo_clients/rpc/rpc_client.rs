@@ -1,32 +1,29 @@
 use async_trait::async_trait;
 use futures_util::lock::Mutex;
-use getset::{Getters, Setters};
+use getset::Getters;
 use primitive_types::{H160, H256};
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use serde_json::{json, value::Value};
+use serde::{de::DeserializeOwned, Serialize};
+use serde_json::json;
 use std::{
 	collections::HashMap,
-	convert::TryFrom,
 	fmt::{Debug, Display},
 	future::Future,
-	net::Ipv4Addr,
 	pin::Pin,
 	str::FromStr,
 	sync::Arc,
 	time::Duration,
 };
-use tracing::{debug, trace};
+use tracing::trace;
 use tracing_futures::Instrument;
-use url::{Host, ParseError, Url};
+use url::Url;
 
 // Replace the generic import with specific imports
 use crate::{
 	neo_builder::{
-		CallFlags, InteropService, ScriptBuilder, TransactionBuilder, TransactionSigner,
+		InteropService, ScriptBuilder, TransactionBuilder, TransactionSigner,
 	},
 	neo_clients::{
-		APITrait, Http, HttpProvider, HttpRateLimitRetryPolicy, JsonRpcProvider, ProviderError,
-		RetryClient, RwClient,
+		APITrait, Http, JsonRpcProvider, ProviderError, RwClient,
 	},
 };
 
@@ -34,7 +31,6 @@ use crate::{
 	builder::{Signer, Transaction, TransactionSendToken},
 	codec::NeoSerializable,
 	config::NEOCONFIG,
-	neo_crypto::utils::{FromBase64String, FromHexString, ToHexString},
 	neo_protocol::*,
 	neo_types::ScriptHashExtension,
 	prelude::Base64Encode,

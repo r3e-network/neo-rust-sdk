@@ -1,6 +1,5 @@
 use std::{
 	collections::HashMap,
-	default,
 	hash::{Hash, Hasher},
 };
 
@@ -9,8 +8,7 @@ use serde::{
 	de::{self, Unexpected},
 	Deserialize, Deserializer, Serialize,
 };
-use strum;
-use strum_macros::{AsRefStr, Display, EnumString};
+use strum_macros::{AsRefStr, EnumString};
 
 use crate::TypeError;
 use neo3::prelude::{deserialize_script_hash, serialize_script_hash, ContractParameter, StackItem};

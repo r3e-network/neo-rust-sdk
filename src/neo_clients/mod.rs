@@ -85,6 +85,7 @@ pub use errors::ProviderError;
 pub use ext::*;
 pub use mock_client::MockClient;
 pub use production_client::{ProductionClientConfig, ProductionClientStats, ProductionRpcClient};
+pub use rate_limiter::{RateLimiter, RateLimiterBuilder, RateLimiterPresets, RateLimitPermit};
 pub use rpc::*;
 #[allow(deprecated)]
 pub use test_provider::{MAINNET, TESTNET};
@@ -100,6 +101,7 @@ mod ext;
 mod mock_blocks;
 mod mock_client;
 mod production_client;
+mod rate_limiter;
 mod rpc;
 mod rx;
 /// Crate utilities and type aliases
@@ -119,7 +121,7 @@ lazy_static! {
 /// Pre-instantiated Infura HTTP clients which rotate through multiple API keys
 /// to prevent rate limits
 mod test_provider {
-	use std::{convert::TryFrom, iter::Cycle, slice::Iter, sync::Mutex};
+	use std::{iter::Cycle, slice::Iter, sync::Mutex};
 
 	use once_cell::sync::Lazy;
 
