@@ -9,9 +9,10 @@ These examples show how to use the NeoFS functionality in NeoRust.
 
 ## Running the Examples
 
-> **Important Note**: These examples currently use placeholder implementations. The actual
-> gRPC implementation will be provided in a future update, at which point these examples
-> will be fully functional.
+> **Important Note**: The NeoFS module requires gRPC implementation which is planned for a future release.
+> These examples demonstrate the API design and usage patterns that will be available once
+> the gRPC backend is integrated. The current implementation returns NotImplemented errors
+> as documented placeholders.
 
 To run an example:
 
@@ -27,7 +28,7 @@ You'll need to have a wallet file available and may need to adjust the paths in 
 
 ## Example Output
 
-Since the implementation currently returns placeholder errors, you'll see output like:
+Since NeoFS requires gRPC implementation (planned for future release), you'll see output like:
 
 ```
 Creating container...

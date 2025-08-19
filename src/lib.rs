@@ -153,7 +153,8 @@
 //!     let client = RpcClient::new(provider);
 //!
 //!     // Create accounts for the sender and recipient
-//!     let sender = Account::from_wif("YOUR_SENDER_WIF_HERE")?;
+//!     // Using TestNet test account - replace with your own WIF for actual use
+//!     let sender = Account::from_wif("L1eV34wPoj9weqhGijdDLtVQzUpWGHszXXpdU9dPuh2nRFFzFa7E")?;
 //!     let recipient = ScriptHash::from_address("NbTiM6h8r99kpRtb428XcsUk1TzKed2gTc")?;
 //!
 //!     // Get the GAS token contract
@@ -205,6 +206,7 @@
 //!
 //! ```no_run
 //! use neo3::neo_clients::{HttpProvider, RpcClient, APITrait};
+//! use neo3::neo_types::{ScriptHash, ContractParameter, StackItem};
 //! use std::str::FromStr;
 //!
 //! #[tokio::main]
@@ -213,13 +215,33 @@
 //!     let provider = HttpProvider::new("https://testnet1.neo.org:443")?;
 //!     let client = RpcClient::new(provider);
 //!     
-//!     // Get basic blockchain information
-//!     let block_count = client.get_block_count().await?;
-//!     println!("Block count: {}", block_count);
+//!     // Get the NEO token contract
+//!     let neo_token = ScriptHash::from_str("ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5")?;
 //!     
-//!     // Get version information
-//!     let version = client.get_version().await?;
-//!     println!("Node version: {}", version.user_agent);
+//!     // Call a read-only method (doesn't require signing)
+//!     let result = client.invoke_function(
+//!         &neo_token,
+//!         "symbol",
+//!         &[],
+//!         vec![]
+//!     ).await?;
+//!     
+//!     // Parse the result
+//!     if let Some(stack) = result.stack {
+//!         if let Some(item) = stack.first() {
+//!             println!("NEO Token Symbol: {:?}", item);
+//!         }
+//!     }
+//!     
+//!     // Get the total supply
+//!     let supply_result = client.invoke_function(
+//!         &neo_token,
+//!         "totalSupply",
+//!         &[],
+//!         vec![]
+//!     ).await?;
+//!     
+//!     println!("Total Supply Result: {:?}", supply_result);
 //!     
 //!     Ok(())
 //! }
@@ -230,6 +252,7 @@
 //! ```no_run
 //! use neo3::neo_clients::{HttpProvider, RpcClient, APITrait};
 //! use neo3::neo_protocol::{Account, AccountTrait};
+//! use neo3::neo_types::{ScriptHash, ContractParameter};
 //! use std::str::FromStr;
 //!
 //! #[tokio::main]
@@ -238,12 +261,30 @@
 //!     let provider = HttpProvider::new("https://testnet1.neo.org:443")?;
 //!     let client = RpcClient::new(provider);
 //!     
-//!     // Create an account
-//!     let account = Account::from_wif("YOUR_PRIVATE_KEY_WIF_HERE")?;
+//!     // Create an account from WIF (Wallet Import Format)
+//!     // This is a TestNet test account - replace with your own WIF for actual use
+//!     let account = Account::from_wif("L1eV34wPoj9weqhGijdDLtVQzUpWGHszXXpdU9dPuh2nRFFzFa7E")?;
 //!     
 //!     // Get account information
 //!     println!("Account address: {}", account.get_address());
 //!     println!("Account script hash: {}", account.get_script_hash());
+//!     
+//!     // Get GAS token balance for the account
+//!     let gas_token = ScriptHash::from_str("d2a4cff31913016155e38e474a2c06d08be276cf")?;
+//!     
+//!     let balance_result = client.invoke_function(
+//!         &gas_token,
+//!         "balanceOf",
+//!         &[ContractParameter::h160(&account.get_script_hash())],
+//!         vec![]
+//!     ).await?;
+//!     
+//!     // Parse the balance result
+//!     if let Some(stack) = balance_result.stack {
+//!         if let Some(item) = stack.first() {
+//!             println!("GAS Balance: {:?}", item);
+//!         }
+//!     }
 //!     
 //!     Ok(())
 //! }
@@ -253,6 +294,8 @@
 //!
 //! ```no_run
 //! use neo3::neo_clients::{HttpProvider, RpcClient, APITrait};
+//! use neo3::neo_types::{ScriptHash, ContractParameter, NNSName};
+//! use std::str::FromStr;
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -260,9 +303,22 @@
 //!     let provider = HttpProvider::new("https://testnet1.neo.org:443")?;
 //!     let client = RpcClient::new(provider);
 //!     
-//!     // Get blockchain information
-//!     let block_count = client.get_block_count().await?;
-//!     println!("Current block count: {}", block_count);
+//!     // NNS contract on TestNet (use MainNet hash for production)
+//!     let nns_contract = ScriptHash::from_str("50ac1c37690cc2cfc594472833cf57505d5f46de")?;
+//!     
+//!     // Check if a name is available
+//!     let available_result = client.invoke_function(
+//!         &nns_contract,
+//!         "isAvailable",
+//!         &[ContractParameter::string("myname.neo")],
+//!         vec![]
+//!     ).await?;
+//!     
+//!     if let Some(stack) = available_result.stack {
+//!         if let Some(item) = stack.first() {
+//!             println!("Is 'myname.neo' available: {:?}", item);
+//!         }
+//!     }
 //!     
 //!     Ok(())
 //! }

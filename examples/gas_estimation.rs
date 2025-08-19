@@ -22,8 +22,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let block_count = client.get_block_count().await?;
     println!("Current block height: {}\n", block_count);
     
-    // Create test account (in production, use your actual account)
-    let account = Account::from_wif("YOUR_WIF_HERE")
+    // Create test account
+    // This is a TestNet test account - replace with your own WIF for actual use
+    let account = Account::from_wif("L1eV34wPoj9weqhGijdDLtVQzUpWGHszXXpdU9dPuh2nRFFzFa7E")
         .unwrap_or_else(|_| Account::create().expect("Failed to create account"));
     
     println!("Using account: {}", account.get_address());

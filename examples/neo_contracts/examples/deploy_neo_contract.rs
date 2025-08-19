@@ -46,10 +46,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 	let client = client.ok_or("Failed to connect to any endpoint")?;
 
-	// 2. Load deployer account (using dummy account for example)
+	// 2. Load deployer account
 	println!("\n🔐 2. Loading deployer account...");
-	// In a real deployment, load from WIF or keystore
-	let deployer_wif = "KxDgvEKzgSBPPfuVfw67oPQBSjidEiqTHURKSDL1R7yGaGYAeYnr"; // Example WIF
+	// This is a TestNet test account - replace with your own WIF for actual deployment
+	let deployer_wif = "L1eV34wPoj9weqhGijdDLtVQzUpWGHszXXpdU9dPuh2nRFFzFa7E"; // TestNet account
 	let deployer_account = Account::from_wif(deployer_wif)?;
 	let deployer_address = deployer_account.get_address();
 	println!("   📍 Deployer address: {deployer_address}");
