@@ -1,4 +1,14 @@
 // Production-ready Neo N3 SDK - warnings are treated as errors in CI
+#![cfg_attr(feature = "sgx", no_std)]
+#![cfg_attr(feature = "sgx", feature(rustc_private))]
+
+// SGX support
+#[cfg(feature = "sgx")]
+extern crate sgx_tstd as std;
+
+// Required for no_std
+#[cfg(feature = "no_std")]
+extern crate alloc;
 
 //! ![Neo Logo](https://neo.org/images/neo-logo/NEO-logo.svg)
 //! # NeoRust SDK v0.4.4
@@ -23,6 +33,14 @@
 //! - **aws**: ⚠️ **DISABLED in v0.4.1** due to security vulnerabilities in rusoto dependencies.
 //!   Will be re-enabled in a future version with modern AWS SDK. For AWS KMS integration,
 //!   please use v0.3.0 or wait for the next major release with updated AWS dependencies.
+//!
+//! - **sgx**: Enables Intel SGX (Software Guard Extensions) support for running Neo operations
+//!   in secure enclaves. This feature enables `no_std` compilation and provides hardware-based
+//!   security for sensitive operations like key management and transaction signing.
+//!
+//! - **no_std**: Enables `no_std` compilation for embedded systems and SGX environments.
+//!   This feature removes dependencies on the standard library, allowing the SDK to run in
+//!   constrained environments with custom allocators.
 //!
 //! To enable specific features in your project, modify your `Cargo.toml` as follows:
 //!
@@ -283,6 +301,7 @@
 //!     ├── neo_contract       - Smart contract interaction abstractions
 //!     ├── neo_crypto         - Neo-specific cryptographic operations
 //!     ├── neo_protocol       - Neo network protocol implementation
+//!     ├── neo_sgx            - SGX support for secure enclave execution
 //!     ├── neo_types          - Core Neo ecosystem data types
 //!     └── neo_wallets        - Neo asset and account management
 //! ```
@@ -358,6 +377,8 @@ pub mod neo_contract;
 pub mod neo_crypto;
 pub mod neo_fs;
 pub mod neo_protocol;
+#[cfg(any(feature = "sgx", feature = "no_std"))]
+pub mod neo_sgx;
 pub mod neo_wallets;
 pub mod neo_x;
 

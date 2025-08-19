@@ -1,0 +1,20 @@
+[package]
+name = "neo-sgx-example"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+neo3 = { path = "../..", features = ["sgx", "no_std"] }
+sgx_tstd = { git = "https://github.com/apache/teaclave-sgx-sdk.git", rev = "v2.0.0" }
+sgx_types = { git = "https://github.com/apache/teaclave-sgx-sdk.git", rev = "v2.0.0" }
+
+[target.'cfg(not(target_env = "sgx"))'.dependencies]
+sgx_urts = { git = "https://github.com/apache/teaclave-sgx-sdk.git", rev = "v2.0.0" }
+
+[lib]
+name = "neo_sgx_enclave"
+crate-type = ["staticlib", "rlib"]
+
+[features]
+default = []
+enclave = ["neo3/sgx"]

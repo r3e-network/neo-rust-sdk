@@ -234,6 +234,12 @@ async-stream = "0.3.5"
 
 bip39 = { version = "2.1.0", features = ["rand"] }
 
+# SGX dependencies (optional)
+sgx_tstd = { git = "https://github.com/apache/teaclave-sgx-sdk.git", rev = "v2.0.0", optional = true }
+sgx_types = { git = "https://github.com/apache/teaclave-sgx-sdk.git", rev = "v2.0.0", optional = true }
+sgx_trts = { git = "https://github.com/apache/teaclave-sgx-sdk.git", rev = "v2.0.0", optional = true }
+sgx_tcrypto = { git = "https://github.com/apache/teaclave-sgx-sdk.git", rev = "v2.0.0", optional = true }
+
 
 [dev-dependencies]
 mockall = "0.13.0"
@@ -264,4 +270,23 @@ default = []
 # YubiHSM features - only for development/testing
 yubi = ["dep:yubihsm"]
 mock-hsm = ["dep:yubihsm", "yubihsm/mockhsm"]
+
+# SGX support for secure enclave execution
+sgx = [
+    "sgx_tstd",
+    "sgx_types", 
+    "sgx_trts",
+    "sgx_tcrypto",
+    "no_std"
+]
+
+# no_std support for embedded and SGX environments
+no_std = [
+    "serde/alloc",
+    "hex/alloc",
+    "sha2/asm",
+    "k256/arithmetic",
+    "elliptic-curve/arithmetic",
+    "generic-array/more_lengths"
+]
 
