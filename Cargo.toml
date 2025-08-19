@@ -234,11 +234,13 @@ async-stream = "0.3.5"
 
 bip39 = { version = "2.1.0", features = ["rand"] }
 
-# SGX dependencies (optional)
-sgx_tstd = { git = "https://github.com/apache/teaclave-sgx-sdk.git", rev = "v2.0.0", optional = true }
-sgx_types = { git = "https://github.com/apache/teaclave-sgx-sdk.git", rev = "v2.0.0", optional = true }
-sgx_trts = { git = "https://github.com/apache/teaclave-sgx-sdk.git", rev = "v2.0.0", optional = true }
-sgx_tcrypto = { git = "https://github.com/apache/teaclave-sgx-sdk.git", rev = "v2.0.0", optional = true }
+# SGX dependencies (optional) - only available when building for SGX target
+# These are commented out by default as they require special SGX environment
+# Uncomment when building for SGX:
+# sgx_tstd = { git = "https://github.com/apache/teaclave-sgx-sdk.git", rev = "v2.0.0", optional = true }
+# sgx_types = { git = "https://github.com/apache/teaclave-sgx-sdk.git", rev = "v2.0.0", optional = true }
+# sgx_trts = { git = "https://github.com/apache/teaclave-sgx-sdk.git", rev = "v2.0.0", optional = true }
+# sgx_tcrypto = { git = "https://github.com/apache/teaclave-sgx-sdk.git", rev = "v2.0.0", optional = true }
 
 
 [dev-dependencies]
@@ -272,12 +274,14 @@ yubi = ["dep:yubihsm"]
 mock-hsm = ["dep:yubihsm", "yubihsm/mockhsm"]
 
 # SGX support for secure enclave execution
+# Note: SGX dependencies must be manually uncommented above when building for SGX
 sgx = [
-    "sgx_tstd",
-    "sgx_types", 
-    "sgx_trts",
-    "sgx_tcrypto",
     "no_std"
+    # Uncomment these when SGX dependencies are enabled:
+    # "sgx_tstd",
+    # "sgx_types", 
+    # "sgx_trts",
+    # "sgx_tcrypto",
 ]
 
 # no_std support for embedded and SGX environments

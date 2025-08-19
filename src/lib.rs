@@ -1,15 +1,3 @@
-// Production-ready Neo N3 SDK - warnings are treated as errors in CI
-#![cfg_attr(feature = "sgx", no_std)]
-#![cfg_attr(feature = "sgx", feature(rustc_private))]
-
-// SGX support
-#[cfg(feature = "sgx")]
-extern crate sgx_tstd as std;
-
-// Required for no_std
-#[cfg(feature = "no_std")]
-extern crate alloc;
-
 //! ![Neo Logo](https://neo.org/images/neo-logo/NEO-logo.svg)
 //! # NeoRust SDK v0.4.4
 //!
@@ -355,8 +343,19 @@ extern crate alloc;
 //!
 //! For detailed information, consult the documentation of each module.
 
+// Production-ready Neo N3 SDK - warnings are treated as errors in CI
+#![cfg_attr(feature = "sgx", no_std)]
+#![cfg_attr(feature = "sgx", feature(rustc_private))]
 #![warn(missing_debug_implementations, missing_docs, rust_2018_idioms, unreachable_pub)]
 #![doc(test(no_crate_inject, attr(deny(rust_2018_idioms), allow(dead_code, unused_variables))))]
+
+// SGX support
+#[cfg(feature = "sgx")]
+extern crate sgx_tstd as std;
+
+// Required for no_std
+#[cfg(feature = "no_std")]
+extern crate alloc;
 
 // For macro expansions only, not public API.
 #[doc(hidden)]
