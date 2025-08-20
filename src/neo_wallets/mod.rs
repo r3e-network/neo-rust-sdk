@@ -80,7 +80,7 @@ pub use wallet_trait::WalletTrait;
 
 #[cfg(feature = "ledger")]
 mod ledger;
-mod wallet;
+pub mod wallet;
 mod wallet_trait;
 
 /// A wallet instantiated with a locally stored private key

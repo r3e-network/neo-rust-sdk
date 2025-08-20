@@ -45,6 +45,8 @@ mod commands;
 mod config;
 mod errors;
 mod utils;
+mod wizard;
+mod generator;
 
 /// Neo CLI - A comprehensive command-line interface for the Neo N3 blockchain
 ///
@@ -144,6 +146,30 @@ enum Commands {
 	/// NeoFS operations
 	#[command(about = "NeoFS file storage operations")]
 	Fs(commands::fs::FSArgs),
+	
+	/// Interactive wizard for guided operations
+	#[command(about = "Launch interactive wizard for easy blockchain interaction")]
+	Wizard,
+	
+	/// Generate a new Neo project from templates
+	#[command(about = "Generate a new Neo project from pre-built templates")]
+	Generate {
+		/// Template to use (basic-dapp, nep17-token, nft, defi, oracle)
+		#[arg(short, long, help = "Project template to use")]
+		template: Option<String>,
+		
+		/// Project name
+		#[arg(help = "Name of the new project")]
+		name: String,
+		
+		/// Target directory (defaults to current directory)
+		#[arg(short = 'd', long, help = "Target directory for the project")]
+		dir: Option<PathBuf>,
+		
+		/// List available templates
+		#[arg(short, long, help = "List all available templates")]
+		list: bool,
+	},
 }
 
 /// Initialize a new configuration file with enhanced options
@@ -304,5 +330,23 @@ async fn main() -> Result<(), CliError> {
 		Commands::Version => handle_version_command(),
 		Commands::Config { path } => handle_config_command(path).await,
 		Commands::Fs(args) => handle_fs_command(args, &mut state).await,
+		Commands::Wizard => wizard::run_wizard().await.map_err(|e| CliError::Other(e.to_string())),
+		Commands::Generate { template, name, dir, list } => {
+			if list {
+				generator::list_templates();
+				Ok(())
+			} else {
+				let template_type = match template.as_deref() {
+					Some("basic-dapp") | None => generator::ProjectTemplate::BasicDapp,
+					Some("nep17-token") => generator::ProjectTemplate::Nep17Token,
+					Some("nft") => generator::ProjectTemplate::NftCollection,
+					Some("defi") => generator::ProjectTemplate::DefiProtocol,
+					Some("oracle") => generator::ProjectTemplate::OracleConsumer,
+					Some(t) => return Err(CliError::Other(format!("Unknown template: {}", t))),
+				};
+				generator::generate_project(template_type, &name, dir)
+					.map_err(|e| CliError::Other(e.to_string()))
+			}
+		},
 	}
 }

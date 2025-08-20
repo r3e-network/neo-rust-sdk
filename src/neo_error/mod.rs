@@ -1,5 +1,8 @@
 use thiserror::Error;
 
+// Include the unified error module for improved developer experience
+pub mod unified;
+
 /// Comprehensive error types for the Neo3 SDK
 #[derive(Error, Debug)]
 pub enum Neo3Error {

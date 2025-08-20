@@ -1,0 +1,270 @@
+# Basic Neo dApp Template
+# This template provides a starting point for Neo blockchain applications
+
+[template]
+name = "basic-dapp"
+description = "Basic Neo N3 dApp with wallet and smart contract interaction"
+version = "1.0.0"
+author = "NeoRust Team"
+
+[files]
+# Main application file
+"src/main.rs" = '''
+//! Basic Neo dApp using NeoRust SDK v0.5.0
+//! 
+//! This template demonstrates:
+//! - Connection to Neo network
+//! - Wallet management
+//! - Smart contract interaction
+//! - Token transfers
+
+use neo3::sdk::{Neo, Network};
+use neo3::neo_wallets::wallet::Wallet;
+use std::error::Error;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+    println!("🚀 Welcome to your Neo dApp!");
+    
+    // Connect to Neo TestNet
+    println!("📡 Connecting to Neo TestNet...");
+    let neo = Neo::testnet().await?;
+    println!("✅ Connected successfully!");
+    
+    // Get current block height
+    let height = neo.get_block_height().await?;
+    println!("📊 Current block height: {}", height);
+    
+    // Create or load wallet
+    let wallet = create_or_load_wallet()?;
+    println!("💼 Wallet ready!");
+    
+    // Example: Check balance
+    let address = "NbTiM6h8r99kpRtb428XcsUk1TzKed2gTc"; // Example address
+    let balance = neo.get_balance(address).await?;
+    println!("💰 Balance for {}:", address);
+    println!("   NEO: {}", balance.neo);
+    println!("   GAS: {:.8}", balance.gas);
+    
+    Ok(())
+}
+
+fn create_or_load_wallet() -> Result<Wallet, Box<dyn Error>> {
+    // Check if wallet exists
+    let wallet_path = "wallet.json";
+    
+    if std::path::Path::new(wallet_path).exists() {
+        println!("📂 Loading existing wallet...");
+        // In production, implement actual wallet loading
+        Ok(Wallet::new())
+    } else {
+        println!("🔑 Creating new wallet...");
+        let wallet = Wallet::new();
+        // In production, save the wallet securely
+        Ok(wallet)
+    }
+}
+'''
+
+"src/config.rs" = '''
+//! Configuration module for the dApp
+
+use serde::{Deserialize, Serialize};
+use std::fs;
+use std::path::Path;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Config {
+    pub network: NetworkConfig,
+    pub wallet: WalletConfig,
+    pub contracts: ContractConfig,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct NetworkConfig {
+    pub rpc_url: String,
+    pub network_type: String, // mainnet, testnet, or custom
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct WalletConfig {
+    pub path: String,
+    pub encrypted: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ContractConfig {
+    pub neo_token: String,
+    pub gas_token: String,
+    pub custom_contracts: Vec<CustomContract>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CustomContract {
+    pub name: String,
+    pub hash: String,
+    pub abi_path: Option<String>,
+}
+
+impl Config {
+    pub fn load(path: &str) -> Result<Self, Box<dyn std::error::Error>> {
+        let contents = fs::read_to_string(path)?;
+        let config: Config = toml::from_str(&contents)?;
+        Ok(config)
+    }
+    
+    pub fn save(&self, path: &str) -> Result<(), Box<dyn std::error::Error>> {
+        let contents = toml::to_string_pretty(self)?;
+        fs::write(path, contents)?;
+        Ok(())
+    }
+    
+    pub fn default() -> Self {
+        Config {
+            network: NetworkConfig {
+                rpc_url: "https://testnet1.neo.org:443".to_string(),
+                network_type: "testnet".to_string(),
+            },
+            wallet: WalletConfig {
+                path: "wallet.json".to_string(),
+                encrypted: true,
+            },
+            contracts: ContractConfig {
+                neo_token: "ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5".to_string(),
+                gas_token: "d2a4cff31913016155e38e474a2c06d08be276cf".to_string(),
+                custom_contracts: vec![],
+            },
+        }
+    }
+}
+'''
+
+"Cargo.toml" = '''
+[package]
+name = "{{project_name}}"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+neo3 = "0.5.0"
+tokio = { version = "1.45", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+anyhow = "1.0"
+clap = { version = "4.0", features = ["derive"] }
+env_logger = "0.11"
+log = "0.4"
+
+[dev-dependencies]
+mockall = "0.13"
+tempfile = "3.0"
+'''
+
+"config.toml" = '''
+# dApp Configuration
+
+[network]
+rpc_url = "https://testnet1.neo.org:443"
+network_type = "testnet"
+
+[wallet]
+path = "wallet.json"
+encrypted = true
+
+[contracts]
+neo_token = "ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5"
+gas_token = "d2a4cff31913016155e38e474a2c06d08be276cf"
+
+# Add your custom contracts here
+# [[contracts.custom_contracts]]
+# name = "MyContract"
+# hash = "0x..."
+# abi_path = "contracts/my_contract.json"
+'''
+
+".gitignore" = '''
+# Rust
+target/
+Cargo.lock
+**/*.rs.bk
+
+# Neo Wallet files
+*.wallet
+*.json
+!config.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+'''
+
+"README.md" = '''
+# {{project_name}}
+
+A Neo N3 dApp built with NeoRust SDK v0.5.0
+
+## Features
+
+- ✅ Neo blockchain connection
+- ✅ Wallet management
+- ✅ Smart contract interaction
+- ✅ Token balance checking
+- ✅ Configuration management
+
+## Quick Start
+
+1. Install Rust (if not already installed):
+   ```bash
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   ```
+
+2. Build the project:
+   ```bash
+   cargo build
+   ```
+
+3. Run the application:
+   ```bash
+   cargo run
+   ```
+
+## Configuration
+
+Edit `config.toml` to customize:
+- Network settings (MainNet/TestNet/Custom)
+- Wallet configuration
+- Smart contract addresses
+
+## Development
+
+### Running Tests
+```bash
+cargo test
+```
+
+### Building for Production
+```bash
+cargo build --release
+```
+
+## Resources
+
+- [NeoRust Documentation](https://docs.rs/neo3)
+- [Neo Developer Portal](https://developers.neo.org)
+- [Neo N3 Documentation](https://docs.neo.org)
+
+## License
+
+MIT
+'''

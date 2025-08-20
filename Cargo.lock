@@ -2568,12 +2568,13 @@ dependencies = [
  "tempfile",
  "thiserror 1.0.69",
  "tokio",
+ "toml",
  "url",
 ]
 
 [[package]]
 name = "neo3"
-version = "0.4.4"
+version = "0.5.0"
 dependencies = [
  "aes",
  "async-stream",
@@ -2671,6 +2672,7 @@ dependencies = [
  "tracing",
  "tracing-futures",
  "tracing-subscriber",
+ "tungstenite 0.23.0",
  "typenum",
  "uint 0.10.0 (git+https://github.com/paritytech/parity-common)",
  "url",
@@ -4581,7 +4583,9 @@ checksum = "c6989540ced10490aaf14e6bad2e3d33728a2813310a0c71d1574304c49631cd"
 dependencies = [
  "futures-util",
  "log",
+ "native-tls",
  "tokio",
+ "tokio-native-tls",
  "tungstenite 0.23.0",
 ]
 
@@ -4784,8 +4788,13 @@ checksum = "6e2e2ce1e47ed2994fd43b04c8f618008d4cabdd5ee34027cf14f9d918edd9c8"
 dependencies = [
  "byteorder",
  "bytes",
+ "data-encoding",
+ "http 1.3.1",
+ "httparse",
  "log",
+ "native-tls",
  "rand",
+ "sha1",
  "thiserror 1.0.69",
  "utf-8",
 ]

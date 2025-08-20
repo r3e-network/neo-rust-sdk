@@ -437,6 +437,9 @@ pub mod neo_sgx;
 pub mod neo_wallets;
 pub mod neo_x;
 
+// High-level SDK API (new in v0.5.0)
+pub mod sdk;
+
 // Re-exports for convenience
 #[doc(inline)]
 pub use neo_builder as builder;

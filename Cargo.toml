@@ -1,10 +1,10 @@
 [package]
 name = "neo3"
-version = "0.4.4"
+version = "0.5.0"
 edition = "2021"
 authors = ["R3E Network <jimmy@r3e.network> (c) 2020-2025"]
 license = "MIT OR Apache-2.0"
-description = "Production-ready Rust SDK for Neo N3 blockchain with real-time gas estimation, rate limiting, and enterprise features"
+description = "Production-ready Rust SDK for Neo N3 blockchain with high-level API, unified error handling, and enterprise features"
 documentation = "https://docs.rs/neo3"
 repository = "https://github.com/R3E-Network/NeoRust"
 homepage = "https://github.com/R3E-Network/NeoRust"
@@ -100,7 +100,8 @@ exclude = [
 
 [dependencies]
 tokio = { version = "1.45", features = ["full"] }
-tokio-tungstenite = { version = "0.23.1", default-features = false }
+tungstenite = "0.23.0"
+tokio-tungstenite = { version = "0.23.1", features = ["native-tls", "connect"] }
 futures = { version = "0.3.28", default-features = false, features = ["std"] }
 futures-core = "0.3.28"
 futures-util = "0.3.28"
