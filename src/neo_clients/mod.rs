@@ -85,7 +85,7 @@ pub use errors::ProviderError;
 pub use ext::*;
 pub use mock_client::MockClient;
 pub use production_client::{ProductionClientConfig, ProductionClientStats, ProductionRpcClient};
-pub use rate_limiter::{RateLimiter, RateLimiterBuilder, RateLimiterPresets, RateLimitPermit};
+pub use rate_limiter::{RateLimitPermit, RateLimiter, RateLimiterBuilder, RateLimiterPresets};
 pub use rpc::*;
 #[allow(deprecated)]
 pub use test_provider::{MAINNET, TESTNET};

@@ -1,11 +1,7 @@
 use byte_slice_cast::AsByteSlice;
 use primitive_types::H160;
 
-use crate::{
-	config::DEFAULT_ADDRESS_VERSION,
-	crypto::HashableForVec,
-	neo_types::TypeError,
-};
+use crate::{config::DEFAULT_ADDRESS_VERSION, crypto::HashableForVec, neo_types::TypeError};
 
 pub type ScriptHash = H160;
 
@@ -200,16 +196,16 @@ mod tests {
 	#[test]
 	fn test_from_valid_hash() {
 		assert_eq!(
-			hex::encode(H160::from_hex("23ba2703c53263e8d6e522dc32203339dcd8eee9")
-				.unwrap()
-				.as_bytes()),
+			hex::encode(
+				H160::from_hex("23ba2703c53263e8d6e522dc32203339dcd8eee9").unwrap().as_bytes()
+			),
 			"23ba2703c53263e8d6e522dc32203339dcd8eee9".to_string()
 		);
 
 		assert_eq!(
-			hex::encode(H160::from_hex("0x23ba2703c53263e8d6e522dc32203339dcd8eee9")
-				.unwrap()
-				.as_bytes()),
+			hex::encode(
+				H160::from_hex("0x23ba2703c53263e8d6e522dc32203339dcd8eee9").unwrap().as_bytes()
+			),
 			"e9eed8dc39332032dc22e5d6e86332c50327ba23".to_string()
 		);
 	}
@@ -243,9 +239,7 @@ mod tests {
 
 		assert_eq!(buffer.to_bytes(), data);
 		assert_eq!(
-			hex::encode(<H160 as ScriptHashExtension>::from_slice(&data)
-				.unwrap()
-				.as_bytes()),
+			hex::encode(<H160 as ScriptHashExtension>::from_slice(&data).unwrap().as_bytes()),
 			hex_str
 		);
 	}

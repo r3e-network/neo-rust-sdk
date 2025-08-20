@@ -11,7 +11,6 @@ use yubihsm::{
 	Client, Connector, Credentials, Domain,
 };
 
-
 #[cfg(feature = "yubi")]
 impl WalletSigner<YubiSigner<NistP256>> {
 	/// Connects to a yubi key's ECDSA account at the provided id

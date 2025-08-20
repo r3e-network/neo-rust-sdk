@@ -11,7 +11,8 @@ use serde_json::json;
 use std::{path::PathBuf, str::FromStr};
 use url::Url;
 use wiremock::{
-	matchers::{body_json, body_partial_json, method, path}, Mock, MockServer, ResponseTemplate,
+	matchers::{body_json, body_partial_json, method, path},
+	Mock, MockServer, ResponseTemplate,
 };
 
 lazy_static! {

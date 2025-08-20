@@ -2,7 +2,6 @@
 // and handling various formats like Base58 and hexadecimal strings. It leverages cryptographic functions, serialization, and
 // deserialization to work with blockchain-specific data types.
 
-
 use primitive_types::H160;
 use rand::Rng;
 use serde::{Deserialize, Serialize};

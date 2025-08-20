@@ -13,7 +13,6 @@ use primitive_types::H160;
 use serde::{Deserialize, Serialize, Serializer};
 use std::hash::{Hash, Hasher};
 
-
 /// Represents the type of signer in the NEO blockchain.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum SignerType {

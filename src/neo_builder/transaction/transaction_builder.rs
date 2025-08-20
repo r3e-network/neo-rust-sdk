@@ -626,8 +626,9 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 							})?;
 					} else {
 						// Create a placeholder single-signature verification script for fee estimation
-						verification_script =
-							self.create_placeholder_single_sig_verification_script().map_err(|e| {
+						verification_script = self
+							.create_placeholder_single_sig_verification_script()
+							.map_err(|e| {
 								TransactionError::IllegalState(format!(
 									"Failed to create single-sig verification script: {}",
 									e
@@ -696,9 +697,11 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 		&self,
 	) -> Result<VerificationScript, TransactionError> {
 		// Create placeholder public key for size estimation
-		let placeholder_public_key =
-			Secp256r1PublicKey::from_encoded(Self::DUMMY_PUB_KEY).ok_or_else(|| {
-				TransactionError::IllegalState("Failed to create placeholder public key".to_string())
+		let placeholder_public_key = Secp256r1PublicKey::from_encoded(Self::DUMMY_PUB_KEY)
+			.ok_or_else(|| {
+				TransactionError::IllegalState(
+					"Failed to create placeholder public key".to_string(),
+				)
 			})?;
 		// Create and return the VerificationScript with the pub_keys and signing threshold
 		Ok(VerificationScript::from_public_key(&placeholder_public_key))
@@ -721,7 +724,9 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 			// Create a placeholder public key for accurate size estimation
 			let placeholder_public_key = Secp256r1PublicKey::from_encoded(Self::DUMMY_PUB_KEY)
 				.ok_or_else(|| {
-					TransactionError::IllegalState("Failed to create placeholder public key".to_string())
+					TransactionError::IllegalState(
+						"Failed to create placeholder public key".to_string(),
+					)
 				})?;
 			pub_keys.push(placeholder_public_key);
 		}

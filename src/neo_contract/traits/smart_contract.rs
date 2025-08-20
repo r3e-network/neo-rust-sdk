@@ -11,8 +11,7 @@ use crate::{
 	neo_clients::{APITrait, JsonRpcProvider, RpcClient},
 	neo_contract::{ContractError, NeoIterator},
 	neo_types::{
-		Bytes, ContractManifest, ContractParameter, InvocationResult,
-		OpCode, ScriptHash, StackItem,
+		Bytes, ContractManifest, ContractParameter, InvocationResult, OpCode, ScriptHash, StackItem,
 	},
 	ScriptHashExtension,
 };

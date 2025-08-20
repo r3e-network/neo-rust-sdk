@@ -19,12 +19,8 @@ use url::Url;
 
 // Replace the generic import with specific imports
 use crate::{
-	neo_builder::{
-		InteropService, ScriptBuilder, TransactionBuilder, TransactionSigner,
-	},
-	neo_clients::{
-		APITrait, Http, JsonRpcProvider, ProviderError, RwClient,
-	},
+	neo_builder::{InteropService, ScriptBuilder, TransactionBuilder, TransactionSigner},
+	neo_clients::{APITrait, Http, JsonRpcProvider, ProviderError, RwClient},
 };
 
 use crate::{

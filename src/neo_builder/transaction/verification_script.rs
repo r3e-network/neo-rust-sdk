@@ -7,9 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
 	crypto::Secp256r1PublicKey,
 	neo_crypto::utils::ToHexString,
-	neo_types::{
-		script_hash::ScriptHashExtension, OpCode,
-	},
+	neo_types::{script_hash::ScriptHashExtension, OpCode},
 	prelude::Bytes,
 };
 

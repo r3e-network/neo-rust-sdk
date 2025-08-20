@@ -5,10 +5,7 @@ use std::{collections::HashMap, fmt};
 /// `MapEntry` is a simple struct that represents a key-value pair in a `StackItem::Map`.
 /// The `StackItem` enum also provides several utility methods for converting between different types and formats.
 use primitive_types::{H160, H256};
-use serde::{
-	de::Visitor,
-	Deserialize, Deserializer, Serialize,
-};
+use serde::{de::Visitor, Deserialize, Deserializer, Serialize};
 
 use crate::crypto::Secp256r1PublicKey;
 use neo3::prelude::{Address, ScriptHashExtension};

@@ -44,9 +44,9 @@ use utils::config::{get_config_path, save_config, Config};
 mod commands;
 mod config;
 mod errors;
+mod generator;
 mod utils;
 mod wizard;
-mod generator;
 
 /// Neo CLI - A comprehensive command-line interface for the Neo N3 blockchain
 ///
@@ -146,26 +146,26 @@ enum Commands {
 	/// NeoFS operations
 	#[command(about = "NeoFS file storage operations")]
 	Fs(commands::fs::FSArgs),
-	
+
 	/// Interactive wizard for guided operations
 	#[command(about = "Launch interactive wizard for easy blockchain interaction")]
 	Wizard,
-	
+
 	/// Generate a new Neo project from templates
 	#[command(about = "Generate a new Neo project from pre-built templates")]
 	Generate {
 		/// Template to use (basic-dapp, nep17-token, nft, defi, oracle)
 		#[arg(short, long, help = "Project template to use")]
 		template: Option<String>,
-		
+
 		/// Project name
 		#[arg(help = "Name of the new project")]
 		name: String,
-		
+
 		/// Target directory (defaults to current directory)
 		#[arg(short = 'd', long, help = "Target directory for the project")]
 		dir: Option<PathBuf>,
-		
+
 		/// List available templates
 		#[arg(short, long, help = "List all available templates")]
 		list: bool,
