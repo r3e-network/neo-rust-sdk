@@ -283,6 +283,62 @@ pub enum WalletCommands {
 		#[arg(short, long, help = "Path to the backup file")]
 		path: PathBuf,
 	},
+
+	/// Create HD wallet with mnemonic phrase
+	#[command(about = "Create or restore HD wallet with BIP-39/44 support")]
+	HDWallet {
+		/// Create new HD wallet or restore from mnemonic
+		#[arg(short, long, help = "Create new HD wallet")]
+		create: bool,
+
+		/// Mnemonic phrase for restoration (12/24 words)
+		#[arg(short, long, help = "Mnemonic phrase for restoration")]
+		mnemonic: Option<String>,
+
+		/// Number of accounts to derive
+		#[arg(short, long, default_value = "1", help = "Number of accounts to derive")]
+		accounts: u32,
+
+		/// Custom derivation path (BIP-44)
+		#[arg(short, long, help = "Custom derivation path")]
+		path: Option<String>,
+
+		/// Save wallet to file
+		#[arg(short, long, help = "Save HD wallet to file")]
+		save: Option<PathBuf>,
+	},
+
+	/// Subscribe to blockchain events via WebSocket
+	#[command(about = "Subscribe to real-time blockchain events")]
+	Subscribe {
+		/// WebSocket URL
+		#[arg(short, long, help = "WebSocket endpoint URL")]
+		url: Option<String>,
+
+		/// Event types to subscribe (block, transaction, notification, etc.)
+		#[arg(short, long, help = "Event types to subscribe")]
+		events: Vec<String>,
+
+		/// Filter by contract hash
+		#[arg(short, long, help = "Filter by contract hash")]
+		contract: Option<String>,
+	},
+
+	/// Simulate transaction before sending
+	#[command(about = "Simulate transaction for gas estimation")]
+	Simulate {
+		/// Transaction script (base64 or hex)
+		#[arg(short, long, help = "Transaction script to simulate")]
+		script: String,
+
+		/// Signers for the transaction
+		#[arg(short, long, help = "Transaction signers")]
+		signers: Vec<String>,
+
+		/// Show detailed simulation results
+		#[arg(short, long, help = "Show detailed results")]
+		detailed: bool,
+	},
 }
 
 /// Handle wallet command with comprehensive functionality
@@ -314,6 +370,15 @@ pub async fn handle_wallet_command(args: WalletArgs, state: &mut CliState) -> Re
 		},
 		WalletCommands::Backup { path } => handle_backup_wallet(path, state).await,
 		WalletCommands::Restore { path } => handle_restore_wallet(path, state).await,
+		WalletCommands::HDWallet { create, mnemonic, accounts, path, save } => {
+			handle_hd_wallet(create, mnemonic, accounts, path, save, state).await
+		},
+		WalletCommands::Subscribe { url, events, contract } => {
+			handle_websocket_subscribe(url, events, contract, state).await
+		},
+		WalletCommands::Simulate { script, signers, detailed } => {
+			handle_transaction_simulation(script, signers, detailed, state).await
+		},
 	}
 }
 
@@ -744,4 +809,286 @@ pub fn get_wallet_path(wallet: &Wallet) -> PathBuf {
 
 pub fn set_wallet_path(wallet: &mut Wallet, path: &PathBuf) {
 	wallet.path = Some(path.clone());
+}
+
+// HD Wallet implementation
+async fn handle_hd_wallet(
+	create: bool,
+	mnemonic: Option<String>,
+	accounts: u32,
+	derivation_path: Option<String>,
+	save_path: Option<PathBuf>,
+	state: &mut CliState,
+) -> Result<(), CliError> {
+	print_section_header("HD Wallet Management");
+
+	// Import HD wallet functionality from the SDK
+	use neo3::prelude::HDWallet;
+
+	let hd_wallet = if create {
+		print_info("🔑 Creating new HD wallet with BIP-39 mnemonic...");
+		
+		// Create new HD wallet
+		let wallet = HDWallet::new(neo3::prelude::Language::English)
+			.map_err(|e| CliError::WalletOperation(format!("Failed to create HD wallet: {}", e)))?;
+		
+		print_success(&format!("✅ HD Wallet created successfully!"));
+		print_warning("⚠️ IMPORTANT: Save your mnemonic phrase securely!");
+		println!();
+		println!("Mnemonic phrase (24 words):");
+		println!("{}", "━".repeat(60));
+		println!("{}", wallet.get_mnemonic_phrase());
+		println!("{}", "━".repeat(60));
+		println!();
+		
+		wallet
+	} else if let Some(phrase) = mnemonic {
+		print_info("📥 Restoring HD wallet from mnemonic phrase...");
+		
+		HDWallet::from_mnemonic(&phrase, neo3::prelude::Language::English)
+			.map_err(|e| CliError::WalletOperation(format!("Failed to restore HD wallet: {}", e)))?
+	} else {
+		return Err(CliError::WalletOperation(
+			"Please specify --create or provide --mnemonic phrase".to_string()
+		));
+	};
+
+	// Derive accounts
+	print_info(&format!("🔄 Deriving {} account(s)...", accounts));
+	let mut table = create_table(&["Index", "Address", "Public Key"]);
+	
+	for i in 0..accounts {
+		let path = derivation_path.clone().unwrap_or_else(|| format!("m/44'/888'/0'/0/{}", i));
+		match hd_wallet.derive_account(&path) {
+			Ok(account) => {
+				table.add_row(vec![
+					Cell::new(i),
+					Cell::new(account.get_address()),
+					Cell::new(&account.get_public_key()[..8].to_string() + "..."),
+				]);
+			},
+			Err(e) => {
+				print_warning(&format!("Failed to derive account {}: {}", i, e));
+			}
+		}
+	}
+	
+	println!("{}", table);
+
+	// Save if requested
+	if let Some(save_path) = save_path {
+		print_info(&format!("💾 Saving HD wallet to {}...", save_path.display()));
+		
+		let wallet_data = serde_json::json!({
+			"type": "HD",
+			"mnemonic": hd_wallet.get_mnemonic_phrase(),
+			"accounts": accounts,
+			"derivation_path": derivation_path.unwrap_or_else(|| "m/44'/888'/0'/0/0".to_string()),
+		});
+		
+		std::fs::write(&save_path, serde_json::to_string_pretty(&wallet_data)?)
+			.map_err(|e| CliError::FileSystem(format!("Failed to save wallet: {}", e)))?;
+		
+		print_success(&format!("✅ HD wallet saved to {}", save_path.display()));
+	}
+
+	Ok(())
+}
+
+// WebSocket subscription implementation
+async fn handle_websocket_subscribe(
+	url: Option<String>,
+	events: Vec<String>,
+	contract: Option<String>,
+	state: &mut CliState,
+) -> Result<(), CliError> {
+	print_section_header("WebSocket Event Subscription");
+
+	use neo3::prelude::{WebSocketClient, SubscriptionType};
+	use futures::StreamExt;
+
+	let ws_url = url.unwrap_or_else(|| {
+		if let Some(network) = &state.current_network {
+			network.rpc_url.replace("http", "ws").replace("https", "wss")
+		} else {
+			"wss://testnet1.neo.coz.io:443/ws".to_string()
+		}
+	});
+
+	print_info(&format!("🔌 Connecting to WebSocket: {}", ws_url));
+
+	let mut client = WebSocketClient::new(&ws_url)
+		.await
+		.map_err(|e| CliError::Network(format!("Failed to connect to WebSocket: {}", e)))?;
+
+	// Subscribe to requested events
+	if events.is_empty() || events.contains(&"block".to_string()) {
+		client.subscribe_to_blocks()
+			.await
+			.map_err(|e| CliError::Network(format!("Failed to subscribe to blocks: {}", e)))?;
+		print_success("✅ Subscribed to block events");
+	}
+
+	if events.contains(&"transaction".to_string()) {
+		client.subscribe_to_transactions()
+			.await
+			.map_err(|e| CliError::Network(format!("Failed to subscribe to transactions: {}", e)))?;
+		print_success("✅ Subscribed to transaction events");
+	}
+
+	if let Some(contract_hash) = contract {
+		client.subscribe_to_contract_notifications(&contract_hash)
+			.await
+			.map_err(|e| CliError::Network(format!("Failed to subscribe to contract: {}", e)))?;
+		print_success(&format!("✅ Subscribed to contract {} notifications", contract_hash));
+	}
+
+	print_info("📡 Listening for events (press Ctrl+C to stop)...");
+	println!();
+
+	// Listen for events
+	let mut event_stream = client.get_event_stream();
+	while let Some((event_type, data)) = event_stream.next().await {
+		match event_type {
+			SubscriptionType::NewBlock => {
+				println!("🔷 New Block: {}", serde_json::to_string(&data)?);
+			},
+			SubscriptionType::Transaction => {
+				println!("💸 Transaction: {}", serde_json::to_string(&data)?);
+			},
+			SubscriptionType::Notification => {
+				println!("📢 Notification: {}", serde_json::to_string(&data)?);
+			},
+			_ => {
+				println!("📨 Event: {:?} - {}", event_type, serde_json::to_string(&data)?);
+			}
+		}
+	}
+
+	Ok(())
+}
+
+// Transaction simulation implementation
+async fn handle_transaction_simulation(
+	script: String,
+	signers: Vec<String>,
+	detailed: bool,
+	state: &mut CliState,
+) -> Result<(), CliError> {
+	print_section_header("Transaction Simulation");
+
+	use neo3::prelude::{TransactionSimulator, Signer, AccountSigner};
+
+	let rpc_client = state.get_rpc_client()?;
+	
+	// Create simulator
+	let mut simulator = TransactionSimulator::new(rpc_client.clone());
+
+	// Parse script (hex or base64)
+	let script_bytes = if script.starts_with("0x") {
+		hex::decode(&script[2..])
+			.map_err(|e| CliError::InvalidInput(format!("Invalid hex script: {}", e)))?
+	} else {
+		base64::decode(&script)
+			.map_err(|e| CliError::InvalidInput(format!("Invalid base64 script: {}", e)))?
+	};
+
+	// Parse signers
+	let mut signer_list = Vec::new();
+	for signer_str in signers {
+		// Parse as address or account hash
+		let signer = AccountSigner::new(
+			&signer_str,
+			neo3::prelude::WitnessScope::CalledByEntry
+		);
+		signer_list.push(Signer::Account(signer));
+	}
+
+	print_info("🔍 Simulating transaction...");
+	
+	// Run simulation
+	match simulator.simulate_transaction(&script_bytes, signer_list).await {
+		Ok(result) => {
+			print_success("✅ Simulation completed successfully!");
+			println!();
+
+			// Display results
+			let mut table = create_table(&["Property", "Value"]);
+			
+			table.add_row(vec![
+				Cell::new("Execution State"),
+				Cell::new(if result.state == neo3::prelude::NeoVMStateType::Halt { 
+					"SUCCESS" 
+				} else { 
+					"FAILED" 
+				}).fg(if result.state == neo3::prelude::NeoVMStateType::Halt { 
+					Color::Green 
+				} else { 
+					Color::Red 
+				}),
+			]);
+			
+			table.add_row(vec![
+				Cell::new("GAS Consumed"),
+				Cell::new(format!("{} GAS", result.gas_consumed)),
+			]);
+			
+			table.add_row(vec![
+				Cell::new("System Fee"),
+				Cell::new(format!("{} GAS", result.system_fee)),
+			]);
+			
+			table.add_row(vec![
+				Cell::new("Network Fee"),
+				Cell::new(format!("{} GAS", result.network_fee)),
+			]);
+			
+			table.add_row(vec![
+				Cell::new("Total Fee"),
+				Cell::new(format!("{} GAS", result.total_fee())),
+			]);
+			
+			if !result.notifications.is_empty() {
+				table.add_row(vec![
+					Cell::new("Notifications"),
+					Cell::new(format!("{} events", result.notifications.len())),
+				]);
+			}
+
+			println!("{}", table);
+
+			if detailed {
+				println!();
+				print_section_header("Detailed Results");
+				
+				if !result.notifications.is_empty() {
+					println!("📢 Notifications:");
+					for (i, notif) in result.notifications.iter().enumerate() {
+						println!("  {}. Contract: {}", i + 1, notif.contract);
+						println!("     Event: {}", notif.event_name);
+						println!("     State: {:?}", notif.state);
+					}
+				}
+
+				if let Some(exception) = &result.exception {
+					println!();
+					print_warning(&format!("⚠️ Exception: {}", exception));
+				}
+
+				if !result.logs.is_empty() {
+					println!();
+					println!("📝 Logs:");
+					for log in &result.logs {
+						println!("  {}", log);
+					}
+				}
+			}
+		},
+		Err(e) => {
+			print_warning(&format!("❌ Simulation failed: {}", e));
+			return Err(CliError::WalletOperation(format!("Transaction simulation failed: {}", e)));
+		}
+	}
+
+	Ok(())
 }

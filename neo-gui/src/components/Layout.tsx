@@ -12,6 +12,9 @@ import {
   UserCircleIcon,
   Bars3Icon,
   XMarkIcon,
+  KeyIcon,
+  WifiIcon,
+  BeakerIcon,
 } from '@heroicons/react/24/outline';
 import { useAppStore } from '../stores/appStore';
 import { useNetworkStore } from '../stores/networkStore';
@@ -19,8 +22,11 @@ import { useNetworkStore } from '../stores/networkStore';
 const navigation = [
   { name: 'Dashboard', href: '/', icon: HomeIcon },
   { name: 'Wallet', href: '/wallet', icon: WalletIcon },
+  { name: 'HD Wallet', href: '/hd-wallet', icon: KeyIcon },
   { name: 'NFTs', href: '/nft', icon: CubeIcon },
   { name: 'Tools', href: '/tools', icon: WrenchScrewdriverIcon },
+  { name: 'WebSocket', href: '/websocket', icon: WifiIcon },
+  { name: 'Simulator', href: '/simulator', icon: BeakerIcon },
   { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
   { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
 ];

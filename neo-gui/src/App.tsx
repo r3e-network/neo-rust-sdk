@@ -9,6 +9,9 @@ import NFT from './pages/NFT';
 import Tools from './pages/Tools';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
+import HDWallet from './pages/HDWallet';
+import WebSocketMonitor from './pages/WebSocketMonitor';
+import TransactionSimulator from './pages/TransactionSimulator';
 
 // Stores
 import { useAppStore } from './stores/appStore';
@@ -74,8 +77,11 @@ const App: React.FC = () => {
           <Route path='/' element={<Layout />}>
             <Route index element={<Dashboard />} />
             <Route path='wallet' element={<Wallet />} />
+            <Route path='hd-wallet' element={<HDWallet />} />
             <Route path='nft' element={<NFT />} />
             <Route path='tools' element={<Tools />} />
+            <Route path='websocket' element={<WebSocketMonitor />} />
+            <Route path='simulator' element={<TransactionSimulator />} />
             <Route path='analytics' element={<Analytics />} />
             <Route path='settings' element={<Settings />} />
           </Route>
