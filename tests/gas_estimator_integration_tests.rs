@@ -2,7 +2,7 @@
 mod gas_estimator_integration_tests {
 	use neo3::neo_builder::{AccountSigner, GasEstimator, ScriptBuilder, Signer, TransactionBuilder, WitnessScope};
 	use neo3::neo_clients::{APITrait, HttpProvider, RpcClient};
-	use neo3::neo_protocol::Account;
+	use neo3::neo_protocol::{Account, AccountTrait};
 	use neo3::neo_types::{ContractParameter, OpCode, ScriptHash};
 	use neo3::prelude::*;
 	use num_bigint::BigInt;
@@ -44,7 +44,7 @@ mod gas_estimator_integration_tests {
 			.to_bytes();
 
 		// Create a test account (this would normally come from a wallet)
-		let test_account = Account::from_wif("L1QqQJnpBwbsPGAuutuzPTac8piqvbR1HRjrY5qHup48TBCBFe4g")
+		let test_account = <Account as AccountTrait>::from_wif("L1QqQJnpBwbsPGAuutuzPTac8piqvbR1HRjrY5qHup48TBCBFe4g")
 			.expect("Failed to create account");
 		
 		// Create signer
