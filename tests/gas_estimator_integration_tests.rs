@@ -1,9 +1,11 @@
 #[cfg(test)]
 mod gas_estimator_integration_tests {
-	use neo3::neo_builder::{GasEstimator, ScriptBuilder, Signer, TransactionBuilder};
+	use neo3::neo_builder::{AccountSigner, GasEstimator, ScriptBuilder, Signer, TransactionBuilder, WitnessScope};
 	use neo3::neo_clients::{APITrait, HttpProvider, RpcClient};
-	use neo3::neo_types::{ContractParameter, ScriptHash};
+	use neo3::neo_protocol::Account;
+	use neo3::neo_types::{ContractParameter, OpCode, ScriptHash};
 	use neo3::prelude::*;
+	use num_bigint::BigInt;
 	use std::str::FromStr;
 
 	// Helper function to create a test client
@@ -41,11 +43,18 @@ mod gas_estimator_integration_tests {
 			.expect("Failed to build script")
 			.to_bytes();
 
+		// Create a test account (this would normally come from a wallet)
+		let test_account = Account::from_wif("L1QqQJnpBwbsPGAuutuzPTac8piqvbR1HRjrY5qHup48TBCBFe4g")
+			.expect("Failed to create account");
+		
+		// Create signer
+		let signer = Signer::AccountSigner(AccountSigner::new(&test_account, WitnessScope::CalledByEntry));
+		
 		// Estimate gas
 		let estimated_gas = GasEstimator::estimate_gas_realtime(
 			&client,
 			&script,
-			vec![Signer::called_by_entry(&from)],
+			vec![signer],
 		)
 		.await;
 
@@ -66,9 +75,9 @@ mod gas_estimator_integration_tests {
 
 		// Create a simple script
 		let script = ScriptBuilder::new()
-			.push_integer(42)
-			.push_integer(13)
-			.emit(OpCode::Add)
+			.push_integer(BigInt::from(42))
+			.push_integer(BigInt::from(13))
+			.op_code(&[OpCode::Add])
 			.to_bytes();
 
 		let signers = vec![];
@@ -98,25 +107,25 @@ mod gas_estimator_integration_tests {
 		let scripts = vec![
 			(
 				ScriptBuilder::new()
-					.push_integer(1)
-					.push_integer(2)
-					.emit(OpCode::Add)
+					.push_integer(BigInt::from(1))
+					.push_integer(BigInt::from(2))
+					.op_code(&[OpCode::Add])
 					.to_bytes(),
 				vec![],
 			),
 			(
 				ScriptBuilder::new()
-					.push_string("Hello".to_string())
-					.push_string("World".to_string())
-					.emit(OpCode::Cat)
+					.push_data("Hello".as_bytes().to_vec())
+					.push_data("World".as_bytes().to_vec())
+					.op_code(&[OpCode::Cat])
 					.to_bytes(),
 				vec![],
 			),
 			(
 				ScriptBuilder::new()
-					.push_integer(100)
-					.push_integer(50)
-					.emit(OpCode::Sub)
+					.push_integer(BigInt::from(100))
+					.push_integer(BigInt::from(50))
+					.op_code(&[OpCode::Sub])
 					.to_bytes(),
 				vec![],
 			),
