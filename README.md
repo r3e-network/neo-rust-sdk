@@ -1,9 +1,7 @@
 # NeoRust
 
-[![Rust CI](https://github.com/r3e-network/NeoRust/actions/workflows/rust.yml/badge.svg)](https://github.com/r3e-network/NeoRust/actions/workflows/rust.yml)
-[![Build & Test](https://github.com/r3e-network/NeoRust/actions/workflows/neorust-build-test.yml/badge.svg)](https://github.com/r3e-network/NeoRust/actions/workflows/neorust-build-test.yml)
-[![Neo GUI](https://github.com/r3e-network/NeoRust/actions/workflows/neo-gui.yml/badge.svg)](https://github.com/r3e-network/NeoRust/actions/workflows/neo-gui.yml)
-[![Security](https://github.com/r3e-network/NeoRust/actions/workflows/security.yml/badge.svg)](https://github.com/r3e-network/NeoRust/actions/workflows/security.yml)
+[![Build & Test](https://github.com/r3e-network/NeoRust/actions/workflows/build-test.yml/badge.svg)](https://github.com/r3e-network/NeoRust/actions/workflows/build-test.yml)
+[![Release](https://github.com/r3e-network/NeoRust/actions/workflows/release.yml/badge.svg)](https://github.com/r3e-network/NeoRust/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Crates.io](https://img.shields.io/crates/v/neo3.svg)](https://crates.io/crates/neo3)
 [![Documentation](https://docs.rs/neo3/badge.svg)](https://docs.rs/neo3)
@@ -261,35 +259,42 @@ cargo test --test integration_tests
 
 ## CI/CD
 
-The project uses GitHub Actions for continuous integration:
-
-### Running CI Locally
-
-Before pushing changes, run the local CI scripts:
-
-```bash
-# Run all CI checks
-./check-ci.sh
-
-# Or run individual checks
-./scripts/ci/01-format-check.sh
-./scripts/ci/02-clippy-check.sh
-./scripts/ci/03-rust-tests.sh
-./scripts/ci/04-benchmarks.sh
-./scripts/ci/05-documentation.sh
-./scripts/ci/06-security-audit.sh
-./scripts/ci/07-release-check.sh
-./scripts/ci/08-neo-gui-tests.sh
-```
+The project uses streamlined GitHub Actions workflows:
 
 ### GitHub Workflows
 
-- **neorust-build-test.yml** - Main Rust build and test workflow
-- **neo-gui.yml** - Separate workflow for GUI (Tauri) builds
-- **docs.yml** - Documentation generation and deployment
-- **security.yml** - Security audits and vulnerability scanning
-- **ci.yml** - Comprehensive CI checks
-- **rust.yml** - Rust-specific checks
+- **build-test.yml** - Unified build, test, and quality checks
+  - Multi-platform testing (Linux, Windows, macOS)
+  - Rust formatting and clippy checks
+  - Security audit on every PR
+  - Code coverage reporting
+  - Optional Neo GUI builds
+  
+- **release.yml** - Automated release process
+  - Triggered by version tags (v*.*.*)
+  - Cross-platform binary builds
+  - Automatic crates.io publishing
+  - GitHub release creation with artifacts
+  - Release notes extraction from CHANGELOG
+
+### Running Tests Locally
+
+```bash
+# Format check
+cargo fmt --all -- --check
+
+# Clippy lints
+cargo clippy --all-targets --all-features -- -D warnings
+
+# Run all tests
+cargo test --all-features
+
+# Security audit
+cargo audit
+
+# Build documentation
+cargo doc --no-deps --all-features
+```
 
 ## Feature Comparison
 
