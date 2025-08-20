@@ -45,6 +45,8 @@ mod commands;
 mod config;
 mod errors;
 mod generator;
+mod monitoring;
+mod security;
 mod utils;
 mod wizard;
 

@@ -38,6 +38,15 @@ pub enum CliError {
 	#[error("Authentication error: {0}")]
 	Authentication(String),
 
+	#[error("Security error: {0}")]
+	Security(String),
+
+	#[error("Timeout error: {0}")]
+	Timeout(String),
+
+	#[error("RPC error: {0}")]
+	RpcError(String),
+
 	#[error("Not implemented: {0}")]
 	NotImplemented(String),
 

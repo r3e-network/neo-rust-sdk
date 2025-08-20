@@ -1,0 +1,143 @@
+# Development Configuration for NeoRust Applications
+
+[general]
+environment = "development"
+log_level = "debug"
+enable_telemetry = false
+enable_crash_reporting = false
+
+[security]
+# Session management (relaxed for development)
+session_timeout_minutes = 120
+max_session_duration_hours = 168
+max_concurrent_sessions = 10
+require_reauthentication = false
+enable_2fa = false
+
+# Encryption
+use_hardware_security = false
+keychain_service = "neo-wallet-dev"
+encryption_algorithm = "AES-256-GCM"
+
+# Network security
+enable_tls = false
+tls_min_version = "1.2"
+verify_certificates = false
+
+[network]
+# Local development endpoints
+mainnet_endpoints = [
+    "http://localhost:10332"
+]
+
+testnet_endpoints = [
+    "http://localhost:20332",
+    "https://testnet1.neo.coz.io:443"
+]
+
+# Network settings (faster for development)
+request_timeout_seconds = 60
+health_check_interval_seconds = 300
+max_retries = 5
+retry_delay_ms = 500
+exponential_backoff = false
+
+# WebSocket settings
+websocket_endpoints = [
+    "ws://localhost:10334/ws",
+    "ws://localhost:20334/ws"
+]
+websocket_reconnect_interval_seconds = 2
+websocket_max_reconnect_attempts = 100
+
+[performance]
+# Cache settings (aggressive for development)
+enable_cache = true
+cache_ttl_seconds = 60
+max_cache_size_mb = 500
+
+# Rate limiting (disabled for development)
+enable_rate_limiting = false
+max_requests_per_minute = 1000
+burst_size = 100
+
+# Connection pooling
+connection_pool_size = 5
+idle_connection_timeout_seconds = 600
+
+[storage]
+# Database settings
+database_url = "sqlite://./data/neorust_dev.db"
+max_connections = 5
+connection_timeout_seconds = 30
+
+# File storage
+data_directory = "./data"
+log_directory = "./logs"
+temp_directory = "./tmp"
+
+[monitoring]
+# Metrics collection
+enable_metrics = true
+metrics_port = 9091
+metrics_path = "/metrics"
+
+# Logging (verbose for development)
+log_format = "pretty"
+log_rotation = "size"
+max_log_files = 10
+max_log_size_mb = 50
+
+# Health check
+health_check_port = 8081
+health_check_path = "/health"
+
+# Telemetry (disabled for development)
+telemetry_endpoint = ""
+telemetry_batch_size = 0
+telemetry_flush_interval_seconds = 0
+
+[updates]
+# Auto-update settings (disabled for development)
+enable_auto_update = false
+update_check_interval_hours = 0
+update_channel = "dev"
+update_server = ""
+
+[features]
+# Feature flags (all enabled for development)
+enable_hd_wallet = true
+enable_websocket = true
+enable_transaction_simulation = true
+enable_hardware_wallet = true
+enable_multi_signature = true
+enable_offline_mode = true
+
+[limits]
+# Transaction limits (relaxed for testing)
+max_transaction_size_kb = 2048
+max_script_size_kb = 128
+max_transaction_attributes = 32
+
+# Wallet limits (increased for testing)
+max_accounts_per_wallet = 1000
+max_wallets = 100
+
+# API limits (relaxed for development)
+max_api_response_size_mb = 100
+api_timeout_seconds = 300
+
+[compliance]
+# Regulatory compliance (disabled for development)
+enable_kyc = false
+enable_aml = false
+jurisdiction = "test"
+data_retention_days = 7
+
+[backup]
+# Backup settings (simplified for development)
+enable_auto_backup = false
+backup_interval_hours = 0
+backup_retention_days = 7
+backup_location = "./backup"
+encryption_enabled = false

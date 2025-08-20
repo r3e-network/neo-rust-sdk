@@ -1,0 +1,150 @@
+# Production Configuration for NeoRust Applications
+
+[general]
+environment = "production"
+log_level = "info"
+enable_telemetry = true
+enable_crash_reporting = true
+
+[security]
+# Session management
+session_timeout_minutes = 30
+max_session_duration_hours = 24
+max_concurrent_sessions = 5
+require_reauthentication = true
+enable_2fa = false
+
+# Encryption
+use_hardware_security = true
+keychain_service = "neo-wallet"
+encryption_algorithm = "AES-256-GCM"
+
+# Network security
+enable_tls = true
+tls_min_version = "1.2"
+verify_certificates = true
+
+[network]
+# RPC endpoints with failover
+mainnet_endpoints = [
+    "https://mainnet1.neo.coz.io:443",
+    "https://mainnet2.neo.coz.io:443",
+    "https://mainnet3.neo.coz.io:443",
+    "https://seed1.neo.org:443",
+    "https://seed2.neo.org:443"
+]
+
+testnet_endpoints = [
+    "https://testnet1.neo.coz.io:443",
+    "https://testnet2.neo.coz.io:443",
+    "https://testnet3.neo.coz.io:443",
+    "https://seed1.ngd.network:443",
+    "https://seed2.ngd.network:443"
+]
+
+# Network settings
+request_timeout_seconds = 30
+health_check_interval_seconds = 60
+max_retries = 3
+retry_delay_ms = 1000
+exponential_backoff = true
+
+# WebSocket settings
+websocket_endpoints = [
+    "wss://mainnet1.neo.coz.io:443/ws",
+    "wss://mainnet2.neo.coz.io:443/ws"
+]
+websocket_reconnect_interval_seconds = 5
+websocket_max_reconnect_attempts = 10
+
+[performance]
+# Cache settings
+enable_cache = true
+cache_ttl_seconds = 300
+max_cache_size_mb = 100
+
+# Rate limiting
+enable_rate_limiting = true
+max_requests_per_minute = 60
+burst_size = 10
+
+# Connection pooling
+connection_pool_size = 10
+idle_connection_timeout_seconds = 300
+
+[storage]
+# Database settings
+database_url = "postgresql://localhost/neorust_production"
+max_connections = 20
+connection_timeout_seconds = 10
+
+# File storage
+data_directory = "/var/lib/neorust"
+log_directory = "/var/log/neorust"
+temp_directory = "/tmp/neorust"
+
+[monitoring]
+# Metrics collection
+enable_metrics = true
+metrics_port = 9090
+metrics_path = "/metrics"
+
+# Logging
+log_format = "json"
+log_rotation = "daily"
+max_log_files = 30
+max_log_size_mb = 100
+
+# Health check
+health_check_port = 8080
+health_check_path = "/health"
+
+# Telemetry
+telemetry_endpoint = "https://telemetry.neo.org/v1/events"
+telemetry_batch_size = 100
+telemetry_flush_interval_seconds = 60
+
+[updates]
+# Auto-update settings
+enable_auto_update = false
+update_check_interval_hours = 24
+update_channel = "stable"
+update_server = "https://updates.neo.org/v1"
+
+[features]
+# Feature flags
+enable_hd_wallet = true
+enable_websocket = true
+enable_transaction_simulation = true
+enable_hardware_wallet = false
+enable_multi_signature = true
+enable_offline_mode = true
+
+[limits]
+# Transaction limits
+max_transaction_size_kb = 1024
+max_script_size_kb = 65
+max_transaction_attributes = 16
+
+# Wallet limits
+max_accounts_per_wallet = 100
+max_wallets = 10
+
+# API limits
+max_api_response_size_mb = 10
+api_timeout_seconds = 60
+
+[compliance]
+# Regulatory compliance
+enable_kyc = false
+enable_aml = false
+jurisdiction = "global"
+data_retention_days = 365
+
+[backup]
+# Backup settings
+enable_auto_backup = true
+backup_interval_hours = 24
+backup_retention_days = 30
+backup_location = "/backup/neorust"
+encryption_enabled = true
