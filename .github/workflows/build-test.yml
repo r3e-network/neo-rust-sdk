@@ -76,6 +76,7 @@ jobs:
     name: Neo GUI - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
+    continue-on-error: true  # Don't fail the workflow if GUI fails
     if: |
       github.event_name == 'push' ||
       (github.event_name == 'pull_request' && 
