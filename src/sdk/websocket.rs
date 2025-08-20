@@ -14,8 +14,6 @@ use tokio::net::TcpStream;
 use tokio::sync::{RwLock, mpsc, oneshot};
 use tokio_tungstenite::{connect_async, MaybeTlsStream, WebSocketStream};
 use tungstenite::protocol::Message;
-use url::Url;
-
 /// WebSocket subscription types
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum SubscriptionType {
@@ -130,7 +128,7 @@ impl SubscriptionHandle {
 
 /// WebSocket client for real-time blockchain updates
 pub struct WebSocketClient {
-    url: Url,
+    url: String,
     ws_stream: Option<WebSocketStream<MaybeTlsStream<TcpStream>>>,
     subscriptions: Arc<RwLock<HashMap<String, SubscriptionType>>>,
     event_tx: mpsc::UnboundedSender<(SubscriptionType, EventData)>,
@@ -142,19 +140,22 @@ pub struct WebSocketClient {
 impl WebSocketClient {
     /// Create a new WebSocket client
     pub async fn new(url: &str) -> Result<Self, NeoError> {
-        let url = Url::parse(url).map_err(|e| NeoError::Network {
-            message: format!("Invalid WebSocket URL: {}", e),
-            source: None,
-            recovery: ErrorRecovery::new()
-                .suggest("Check the WebSocket URL format")
-                .suggest("Ensure the URL starts with ws:// or wss://")
-                .doc("https://docs.neo.org/docs/n3/develop/tool/sdk/websocket"),
-        })?;
+        // Validate the URL format
+        if !url.starts_with("ws://") && !url.starts_with("wss://") {
+            return Err(NeoError::Network {
+                message: format!("Invalid WebSocket URL: {}", url),
+                source: None,
+                recovery: ErrorRecovery::new()
+                    .suggest("Check the WebSocket URL format")
+                    .suggest("Ensure the URL starts with ws:// or wss://")
+                    .doc("https://docs.neo.org/docs/n3/develop/tool/sdk/websocket"),
+            });
+        }
 
         let (event_tx, event_rx) = mpsc::unbounded_channel();
 
         Ok(Self {
-            url,
+            url: url.to_string(),
             ws_stream: None,
             subscriptions: Arc::new(RwLock::new(HashMap::new())),
             event_tx,
@@ -166,7 +167,7 @@ impl WebSocketClient {
 
     /// Connect to the WebSocket server
     pub async fn connect(&mut self) -> Result<(), NeoError> {
-        let (ws_stream, _) = connect_async(&self.url).await.map_err(|e| NeoError::Network {
+        let (ws_stream, _) = connect_async(self.url.as_str()).await.map_err(|e| NeoError::Network {
             message: format!("Failed to connect to WebSocket: {}", e),
             source: None,
             recovery: ErrorRecovery::new()
@@ -229,8 +230,10 @@ impl WebSocketClient {
     /// Unsubscribe from blockchain events
     pub async fn unsubscribe(&mut self, handle: SubscriptionHandle) -> Result<(), NeoError> {
         // Remove from subscriptions
-        let mut subs = self.subscriptions.write().await;
-        subs.remove(&handle.id);
+        {
+            let mut subs = self.subscriptions.write().await;
+            subs.remove(&handle.id);
+        }
 
         // Send unsubscribe request
         let request = self.create_unsubscribe_request(&handle.id);
@@ -285,7 +288,7 @@ impl WebSocketClient {
                             
                             tokio::time::sleep(reconnect_interval).await;
                             
-                            match connect_async(&url).await {
+                            match connect_async(url.as_str()).await {
                                 Ok((new_ws, _)) => {
                                     ws = new_ws;
                                     eprintln!("Reconnected successfully");
@@ -344,7 +347,7 @@ impl WebSocketClient {
             Message::Binary(_) => {
                 // Handle binary messages if needed
             }
-            Message::Ping(data) => {
+            Message::Ping(_data) => {
                 // Auto-handled by tungstenite
             }
             Message::Pong(_) => {

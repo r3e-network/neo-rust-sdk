@@ -178,7 +178,7 @@ impl HDWallet {
         passphrase: Option<&str>,
         language: Language,
     ) -> Result<Self, NeoError> {
-        let mnemonic = Mnemonic::from_phrase(phrase, language).map_err(|e| NeoError::Wallet {
+        let mnemonic = Mnemonic::parse_in(language, phrase).map_err(|e| NeoError::Wallet {
             message: format!("Invalid mnemonic phrase: {}", e),
             source: Some(Box::new(e)),
             recovery: ErrorRecovery::new()

@@ -4,8 +4,8 @@
 //! allowing developers to estimate gas costs and preview state changes.
 
 use crate::neo_error::unified::{NeoError, ErrorRecovery};
-use crate::neo_types::{ScriptHash, ContractParameter, StackItem, VMState};
-use crate::neo_builder::{TransactionBuilder, ScriptBuilder, Transaction, Signer};
+use crate::neo_types::{ScriptHash, ContractParameter, StackItem, NeoVMStateType};
+use crate::neo_builder::{TransactionBuilder, ScriptBuilder, Signer};
 use crate::neo_clients::{RpcClient, HttpProvider, APITrait};
 use crate::neo_protocol::{Account, AccountTrait};
 use serde::{Serialize, Deserialize};
@@ -18,7 +18,7 @@ pub struct SimulationResult {
     /// Whether the transaction would succeed
     pub success: bool,
     /// VM state after execution
-    pub vm_state: VMState,
+    pub vm_state: NeoVMStateType,
     /// Estimated gas consumption
     pub gas_consumed: u64,
     /// Estimated system fee
@@ -191,10 +191,11 @@ impl TransactionSimulator {
     /// Simulate a transaction before submission
     pub async fn simulate_transaction(
         &mut self,
-        tx: &Transaction<'_>,
+        script: &[u8],
+        signers: Vec<Signer>,
     ) -> Result<SimulationResult, NeoError> {
         // Check cache first
-        let tx_hash = self.calculate_tx_hash(tx);
+        let tx_hash = self.calculate_script_hash(script);
         if let Some(cached) = self.cache.get(&tx_hash) {
             if cached.is_valid() {
                 return Ok(cached.result.clone());
@@ -202,7 +203,7 @@ impl TransactionSimulator {
         }
 
         // Perform simulation
-        let result = self.perform_simulation(tx).await?;
+        let result = self.perform_simulation(script, signers).await?;
         
         // Cache the result
         self.cache.insert(tx_hash, CachedSimulation {
@@ -221,7 +222,7 @@ impl TransactionSimulator {
     ) -> Result<SimulationResult, NeoError> {
         // Use invokecontractverify RPC method
         let result = self.client.invoke_script(
-            script,
+            hex::encode(script),
             signers.clone(),
         ).await.map_err(|e| NeoError::Network {
             message: format!("Failed to simulate script: {}", e),
@@ -250,6 +251,8 @@ impl TransactionSimulator {
                 message: format!("Failed to build script: {}", e),
                 source: None,
                 recovery: ErrorRecovery::new(),
+                contract: None,
+                method: None,
             })?
             .to_bytes();
 
@@ -269,16 +272,17 @@ impl TransactionSimulator {
     /// Preview state changes for a transaction
     pub async fn preview_state_changes(
         &mut self,
-        tx: &Transaction<'_>,
+        script: &[u8],
+        signers: Vec<Signer>,
     ) -> Result<StateChanges, NeoError> {
-        let simulation = self.simulate_transaction(tx).await?;
+        let simulation = self.simulate_transaction(script, signers).await?;
         Ok(simulation.state_changes)
     }
 
     /// Perform the actual simulation
-    async fn perform_simulation(&self, tx: &Transaction<'_>) -> Result<SimulationResult, NeoError> {
+    async fn perform_simulation(&self, script: &[u8], signers: Vec<Signer>) -> Result<SimulationResult, NeoError> {
         // Get current blockchain state
-        let block_height = self.client.get_block_count().await.map_err(|e| NeoError::Network {
+        let _block_height = self.client.get_block_count().await.map_err(|e| NeoError::Network {
             message: format!("Failed to get block height: {}", e),
             source: None,
             recovery: ErrorRecovery::new(),
@@ -286,8 +290,8 @@ impl TransactionSimulator {
 
         // Simulate the transaction script
         let invocation_result = self.client.invoke_script(
-            &tx.script,
-            tx.signers.clone(),
+            hex::encode(script),
+            signers.clone(),
         ).await.map_err(|e| NeoError::Network {
             message: format!("Failed to invoke script: {}", e),
             source: None,
@@ -299,15 +303,15 @@ impl TransactionSimulator {
         // Parse the result
         let mut result = self.parse_invocation_result(
             invocation_result,
-            &tx.script,
-            tx.signers.clone(),
+            script,
+            signers,
         ).await?;
 
         // Apply optimization rules
-        result.suggestions = self.apply_optimization_rules(tx, &result);
+        result.suggestions = self.apply_optimization_rules(script, &result);
 
         // Add warnings
-        result.warnings = self.analyze_for_warnings(tx, &result);
+        result.warnings = self.analyze_for_warnings(script, &result);
 
         Ok(result)
     }
@@ -320,7 +324,7 @@ impl TransactionSimulator {
         signers: Vec<Signer>,
     ) -> Result<SimulationResult, NeoError> {
         // Determine success
-        let success = matches!(result.state, VMState::Halt);
+        let success = matches!(result.state, NeoVMStateType::Halt);
 
         // Parse notifications
         let notifications = self.parse_notifications(&result);
@@ -342,7 +346,7 @@ impl TransactionSimulator {
             total_fee: system_fee + network_fee,
             state_changes,
             notifications,
-            return_values: result.stack.unwrap_or_else(|| vec![]),
+            return_values: result.stack.clone(),
             warnings: Vec::new(),
             suggestions: Vec::new(),
         })
@@ -432,14 +436,14 @@ impl TransactionSimulator {
             message: format!("Failed to get token symbol: {}", e),
             source: None,
             recovery: ErrorRecovery::new(),
+            contract: None,
+            method: Some("symbol".to_string()),
         })?;
 
-        // Parse the result
-        if let Some(stack) = result.stack {
-            if let Some(item) = stack.first() {
-                // Convert stack item to string
-                return Ok("TOKEN".to_string()); // Simplified - parse actual value
-            }
+        // Parse the result - stack is not optional
+        if let Some(item) = result.stack.first() {
+            // Convert stack item to string
+            return Ok("TOKEN".to_string()); // Simplified - parse actual value
         }
 
         Ok("UNKNOWN".to_string())
@@ -462,11 +466,11 @@ impl TransactionSimulator {
     }
 
     /// Apply optimization rules
-    fn apply_optimization_rules(&self, tx: &Transaction<'_>, result: &SimulationResult) -> Vec<OptimizationSuggestion> {
+    fn apply_optimization_rules(&self, script: &[u8], result: &SimulationResult) -> Vec<OptimizationSuggestion> {
         let mut suggestions = Vec::new();
 
         for rule in &self.optimization_rules {
-            if let Some(suggestion) = rule.check(tx, result) {
+            if let Some(suggestion) = rule.check(script, result) {
                 suggestions.push(suggestion);
             }
         }
@@ -475,7 +479,7 @@ impl TransactionSimulator {
     }
 
     /// Analyze for warnings
-    fn analyze_for_warnings(&self, tx: &Transaction<'_>, result: &SimulationResult) -> Vec<SimulationWarning> {
+    fn analyze_for_warnings(&self, _script: &[u8], result: &SimulationResult) -> Vec<SimulationWarning> {
         let mut warnings = Vec::new();
 
         // Check if transaction failed
@@ -508,11 +512,11 @@ impl TransactionSimulator {
         warnings
     }
 
-    /// Calculate transaction hash for caching
-    fn calculate_tx_hash(&self, tx: &Transaction<'_>) -> String {
+    /// Calculate script hash for caching
+    fn calculate_script_hash(&self, script: &[u8]) -> String {
         use sha2::{Sha256, Digest};
         let mut hasher = Sha256::new();
-        hasher.update(&tx.script);
+        hasher.update(script);
         format!("{:x}", hasher.finalize())
     }
 
@@ -536,7 +540,7 @@ enum OptimizationRule {
 }
 
 impl OptimizationRule {
-    fn check(&self, tx: &Transaction<'_>, result: &SimulationResult) -> Option<OptimizationSuggestion> {
+    fn check(&self, _script: &[u8], result: &SimulationResult) -> Option<OptimizationSuggestion> {
         match self {
             Self::BatchTransfers => {
                 if result.notifications.iter().filter(|n| n.event_name == "Transfer").count() > 3 {
@@ -646,6 +650,8 @@ impl TransactionSimulatorBuilder {
             source: None,
             recovery: ErrorRecovery::new()
                 .suggest("Provide an RPC client using .client() method"),
+            contract: None,
+            method: None,
         })?;
 
         let mut simulator = TransactionSimulator::new(client);
@@ -680,7 +686,7 @@ mod tests {
     fn test_simulation_result() {
         let result = SimulationResult {
             success: true,
-            vm_state: VMState::Halt,
+            vm_state: NeoVMStateType::Halt,
             gas_consumed: 1_000_000,
             system_fee: 1_100_000,
             network_fee: 500_000,
