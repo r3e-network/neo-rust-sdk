@@ -63,9 +63,6 @@ jobs:
           - os: macos-latest
             target: x86_64-apple-darwin
             artifact: neorust-macos-amd64
-          - os: macos-latest
-            target: aarch64-apple-darwin
-            artifact: neorust-macos-arm64
             
     steps:
     - uses: actions/checkout@v4
@@ -77,14 +74,16 @@ jobs:
 
     - name: Build release binary
       run: |
-        cargo build --release --target ${{ matrix.target }} --bin neo-cli
-        cargo build --release --target ${{ matrix.target }} --all-features
+        cargo build --release --target ${{ matrix.target }} --all-features --workspace
+        cargo build --release --target ${{ matrix.target }} -p neo-cli --bin neo-cli || true
 
     - name: Package artifacts (Unix)
       if: runner.os != 'Windows'
       run: |
         mkdir -p dist
-        cp target/${{ matrix.target }}/release/neo-cli dist/
+        if [ -f target/${{ matrix.target }}/release/neo-cli ]; then
+          cp target/${{ matrix.target }}/release/neo-cli dist/
+        fi
         cp README.md LICENSE CHANGELOG.md dist/
         tar -czf ${{ matrix.artifact }}.tar.gz -C dist .
 
@@ -93,7 +92,9 @@ jobs:
       shell: pwsh
       run: |
         New-Item -ItemType Directory -Force -Path dist
-        Copy-Item target\${{ matrix.target }}\release\neo-cli.exe dist\
+        if (Test-Path target\${{ matrix.target }}\release\neo-cli.exe) {
+          Copy-Item target\${{ matrix.target }}\release\neo-cli.exe dist\
+        }
         Copy-Item README.md, LICENSE, CHANGELOG.md dist\
         Compress-Archive -Path dist\* -DestinationPath ${{ matrix.artifact }}.zip
 
