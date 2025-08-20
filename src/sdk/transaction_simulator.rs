@@ -342,7 +342,7 @@ impl TransactionSimulator {
             total_fee: system_fee + network_fee,
             state_changes,
             notifications,
-            return_values: result.stack.unwrap_or_default(),
+            return_values: result.stack.unwrap_or_else(|| vec![]),
             warnings: Vec::new(),
             suggestions: Vec::new(),
         })

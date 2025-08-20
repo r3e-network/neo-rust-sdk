@@ -54,7 +54,7 @@ impl DerivationPath {
                 source: None,
                 recovery: ErrorRecovery::new()
                     .suggest("Use format: m/44'/888'/account'/change/index")
-                    .docs("https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki"),
+                    .doc("https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki"),
             });
         }
 
@@ -103,6 +103,8 @@ impl DerivationPath {
 pub struct HDWallet {
     /// Mnemonic phrase
     mnemonic: Mnemonic,
+    /// Mnemonic phrase as string
+    mnemonic_phrase: String,
     /// Seed bytes derived from mnemonic
     seed: Vec<u8>,
     /// Master private key
@@ -158,9 +160,11 @@ impl HDWallet {
         // Generate seed from mnemonic
         let seed = mnemonic.to_seed(passphrase.unwrap_or(""));
         let master_key = ExtendedPrivateKey::from_seed(&seed)?;
+        let mnemonic_phrase = mnemonic.to_string();
 
         Ok(Self {
             mnemonic,
+            mnemonic_phrase,
             seed: seed.to_vec(),
             master_key,
             accounts: HashMap::new(),
@@ -188,7 +192,7 @@ impl HDWallet {
 
     /// Get the mnemonic phrase
     pub fn mnemonic_phrase(&self) -> &str {
-        self.mnemonic.phrase()
+        &self.mnemonic_phrase
     }
 
     /// Derive an account at the given path
@@ -281,9 +285,9 @@ impl HDWallet {
     }
 
     /// Export wallet to encrypted JSON
-    pub fn export_encrypted(&self, password: &str) -> Result<String, NeoError> {
+    pub fn export_encrypted(&self, _password: &str) -> Result<String, NeoError> {
         let wallet_data = HDWalletData {
-            mnemonic: self.mnemonic.phrase().to_string(),
+            mnemonic: self.mnemonic_phrase.clone(),
             language: format!("{:?}", self.language),
             accounts: self.accounts.keys().cloned().collect(),
         };
@@ -300,7 +304,7 @@ impl HDWallet {
     }
 
     /// Import wallet from encrypted JSON
-    pub fn import_encrypted(json: &str, password: &str) -> Result<Self, NeoError> {
+    pub fn import_encrypted(json: &str, _password: &str) -> Result<Self, NeoError> {
         // TODO: Implement proper decryption
         let wallet_data: HDWalletData = serde_json::from_str(json).map_err(|e| NeoError::Wallet {
             message: format!("Failed to deserialize wallet: {}", e),

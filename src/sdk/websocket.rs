@@ -148,7 +148,7 @@ impl WebSocketClient {
             recovery: ErrorRecovery::new()
                 .suggest("Check the WebSocket URL format")
                 .suggest("Ensure the URL starts with ws:// or wss://")
-                .docs("https://docs.neo.org/docs/n3/develop/tool/sdk/websocket"),
+                .doc("https://docs.neo.org/docs/n3/develop/tool/sdk/websocket"),
         })?;
 
         let (event_tx, event_rx) = mpsc::unbounded_channel();
