@@ -81,7 +81,7 @@ jobs:
 
     - name: Build release binary
       run: |
-        cargo build --release --target ${{ matrix.target }} --all-features --workspace
+        cargo build --release --target ${{ matrix.target }} --no-default-features --workspace
         cargo build --release --target ${{ matrix.target }} -p neo-cli --bin neo-cli || true
 
     - name: Package artifacts (Unix)
