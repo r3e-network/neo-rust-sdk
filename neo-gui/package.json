@@ -36,7 +36,7 @@
     "react-router-dom": "^6.20.1",
     "recharts": "^2.8.0",
     "util-deprecate": "^1.0.2",
-    "zustand": "^4.4.7"
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@playwright/test": "^1.53.1",
