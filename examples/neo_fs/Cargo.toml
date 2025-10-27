@@ -13,8 +13,8 @@ futures = ["neo3/futures"]
 ledger = ["neo3/ledger"]
 [dependencies]
 neo3 = { path = "../../", package = "neo3", features = [] }
-tokio = { version = "1.32", features = ["full"] }
-anyhow = "1.0.75"
+tokio = { version = "1.48", features = ["full"] }
+anyhow = "1.0.100"
 
 [[example]]
 name = "neo_fs_basic_usage"
