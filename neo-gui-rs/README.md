@@ -26,3 +26,4 @@ cargo run -p neo-gui-rs
 - Uses the SDK’s async RPC client directly—no Node or Tauri toolchain required.
 - Wallet actions are local only; signing/sending transactions will be added in a follow-up.
 - Use `cargo run -p neo-gui-rs --release` for smoother rendering on low-spec machines.
+- Renderer: vendored `eframe` 0.27 (glow-only path) to avoid the transitive `wgpu/paste` advisory; no wgpu backend is linked.
