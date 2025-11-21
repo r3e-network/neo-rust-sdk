@@ -3,7 +3,8 @@ use parking_lot::Mutex;
 use once_cell::sync::Lazy;
 use std::sync::Arc;
 use tokio::runtime::Runtime;
-use tokio_stream::wrappers::ReceiverStream;
+use tokio::sync::mpsc::{unbounded_channel, UnboundedSender};
+use tokio::time::{sleep, Duration};
 
 static VERSION: Lazy<String> = Lazy::new(|| "0.5.1".to_string());
 
@@ -19,7 +20,9 @@ fn main() -> eframe::Result<()> {
 		Box::new(|_cc| {
 			let rt = Runtime::new().expect("Failed to build tokio runtime");
 			let state = Arc::new(Mutex::new(AppState::default()));
-			Box::new(NeoGuiApp { state, rt })
+			let (tx, rx) = unbounded_channel();
+			spawn_background(rx, state.clone(), rt.handle().clone());
+			Box::new(NeoGuiApp { state, rt, tx })
 		}),
 	)
 }
@@ -52,6 +55,7 @@ struct AppState {
 struct NeoGuiApp {
 	state: Arc<Mutex<AppState>>,
 	rt: Runtime,
+	tx: UnboundedSender<Action>,
 }
 
 #[derive(Clone)]
@@ -170,10 +174,13 @@ impl NeoGuiApp {
 		ui.add_space(8.0);
 		ui.horizontal(|ui| {
 			if ui.button("Connect").clicked() {
-				self.connect_network(true);
+				self.queue_action(Action::Connect {
+					endpoint,
+					network_type,
+				});
 			}
 			if ui.button("Disconnect").clicked() {
-				self.connect_network(false);
+				self.queue_action(Action::Disconnect);
 			}
 			ui.label(status);
 			if connected {
@@ -193,21 +200,54 @@ impl NeoGuiApp {
 		});
 	}
 
-	fn connect_network(&self, connect: bool) {
-		let mut state = self.state.lock();
-		if connect {
-			state.network.connected = true;
-			state.network.status = "Connected (mock)".to_string();
-			state.logs.push(format!(
-				"Connected to {} [{}]",
-				state.network.endpoint, state.network.network_type
-			));
-		} else {
-			state.network.connected = false;
-			state.network.status = "Disconnected".to_string();
-			state.logs.push("Disconnected from network".to_string());
-		}
+	fn queue_action(&self, action: Action) {
+		let _ = self.tx.send(action);
 	}
+}
+
+#[derive(Clone)]
+enum Action {
+	Connect { endpoint: String, network_type: String },
+	Disconnect,
+}
+
+fn spawn_background(
+	mut rx: tokio::sync::mpsc::UnboundedReceiver<Action>,
+	state: Arc<Mutex<AppState>>,
+	handle: tokio::runtime::Handle,
+) {
+	handle.spawn(async move {
+		while let Some(msg) = rx.recv().await {
+			match msg {
+				Action::Connect { endpoint, network_type } => {
+					{
+						let mut s = state.lock();
+						s.network.status = "Connecting...".to_string();
+						s.logs.push(format!("Connecting to {} [{}]", endpoint, network_type));
+					}
+					sleep(Duration::from_millis(500)).await;
+					let mut s = state.lock();
+					s.network.connected = true;
+					s.network.endpoint = endpoint;
+					s.network.network_type = network_type;
+					s.network.status = "Connected".to_string();
+					s.logs.push("Connected.".to_string());
+				},
+				Action::Disconnect => {
+					{
+						let mut s = state.lock();
+						s.network.status = "Disconnecting...".to_string();
+						s.logs.push("Disconnecting...".to_string());
+					}
+					sleep(Duration::from_millis(300)).await;
+					let mut s = state.lock();
+					s.network.connected = false;
+					s.network.status = "Disconnected".to_string();
+					s.logs.push("Disconnected.".to_string());
+				},
+			}
+		}
+	});
 }
 
 impl eframe::App for NeoGuiApp {
