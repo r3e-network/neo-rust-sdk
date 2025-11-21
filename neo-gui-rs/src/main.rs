@@ -54,6 +54,8 @@ struct AppState {
 	client: Option<Arc<RpcClient<HttpProvider>>>,
 	poller_running: bool,
 	last_height: Option<u32>,
+	peer_count: Option<usize>,
+	version: Option<String>,
 }
 
 struct NeoGuiApp {
@@ -112,7 +114,7 @@ impl NeoGuiApp {
 
 		ui.separator();
 		ui.label("Status");
-		let (net, wal) = {
+		let (net, wal, ver, peers) = {
 			let state = self.state.lock();
 			(
 				format!(
@@ -122,9 +124,15 @@ impl NeoGuiApp {
 					state.network.status
 				),
 				state.wallet_status.clone(),
+				state.version.clone().unwrap_or_else(|| "unknown".to_string()),
+				state.peer_count,
 			)
 		};
 		ui.small(format!("Network: {}", net));
+		ui.small(format!("Version: {}", ver));
+		if let Some(p) = peers {
+			ui.small(format!("Peers: {}", p));
+		}
 		ui.small(format!("Wallet: {}", wal));
 	}
 
@@ -251,6 +259,8 @@ fn spawn_background(
 							s.logs.push(format!("Connected. Height: {}", height));
 							s.client = Some(Arc::new(client));
 							s.last_height = Some(height);
+							s.peer_count = None;
+							s.version = None;
 						},
 						Err(e) => {
 							s.network.connected = false;
@@ -318,6 +328,32 @@ async fn status_poller(client: Arc<RpcClient<HttpProvider>>, state: Arc<Mutex<Ap
 				let mut s = state.lock();
 				s.network.status = format!("Error: {}", e);
 				s.logs.push(format!("Status poll failed: {}", e));
+			},
+		}
+
+		// version/peers best-effort
+		match client.get_version().await {
+			Ok(v) => {
+				let mut s = state.lock();
+				s.version = Some(v.user_agent.clone());
+			},
+			Err(e) => {
+				let mut s = state.lock();
+				s.logs.push(format!("Version fetch failed: {}", e));
+			},
+		}
+
+		match client.get_peers().await {
+			Ok(peers) => {
+				let mut s = state.lock();
+				let count = peers.connected.len()
+					+ peers.unconnected.len()
+					+ peers.bad.len();
+				s.peer_count = Some(count);
+			},
+			Err(e) => {
+				let mut s = state.lock();
+				s.logs.push(format!("Peers fetch failed: {}", e));
 			},
 		}
 	}
