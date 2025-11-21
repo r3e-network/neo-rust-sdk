@@ -58,6 +58,7 @@ struct AppState {
 	peer_count: Option<usize>,
 	version: Option<String>,
 	accounts: Vec<AccountInfo>,
+	wif_input: String,
 }
 
 struct NeoGuiApp {
@@ -227,6 +228,40 @@ impl NeoGuiApp {
 	fn render_wallet(&mut self, ui: &mut egui::Ui) {
 		ui.heading("Wallet");
 		ui.label("Local account management (offline key generation).");
+		ui.add_space(6.0);
+
+		ui.horizontal(|ui| {
+			ui.label("Import WIF:");
+			let mut state = self.state.lock();
+			ui.text_edit_singleline(&mut state.wif_input);
+			if ui.button("Import").clicked() {
+				let wif = state.wif_input.trim().to_string();
+				drop(state);
+				if wif.is_empty() {
+					self.state.lock().logs.push("WIF import: input is empty".to_string());
+				} else {
+					match Account::from_wif(&wif) {
+						Ok(acc) => {
+							let info = AccountInfo {
+								address: acc.get_address(),
+								scripthash: format!("{}", acc.get_script_hash()),
+							};
+							let mut s = self.state.lock();
+							s.accounts.push(info.clone());
+							s.logs.push(format!("Imported account {}", info.address));
+							s.wif_input.clear();
+						},
+						Err(e) => {
+							self.state
+								.lock()
+								.logs
+								.push(format!("WIF import failed: {}", e));
+						},
+					}
+				}
+			}
+		});
+
 		ui.add_space(4.0);
 		if ui.button("Create new account").clicked() {
 			match Account::create() {
