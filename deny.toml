@@ -9,6 +9,9 @@ version = 2
 # They always emit errors and can only be ignored via the ignore field
 unmaintained = "workspace"
 yanked = "warn"
+ignore = [
+    { id = "RUSTSEC-2024-0436", reason = "paste is only pulled via eframe's optional wgpu backend; build is locked to glow-only path and does not link wgpu" },
+]
 
 # This section is considered when running `cargo deny check bans`.
 # More documentation about the 'bans' section can be found here:
