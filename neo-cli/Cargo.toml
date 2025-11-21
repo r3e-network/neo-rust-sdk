@@ -50,11 +50,7 @@ log = "0.4"
 mime_guess = "2.0"
 uuid = { version = "1.6", features = ["v4"] }
 aes-gcm = "0.10"
-aes = "0.8.3"
-block-modes = "0.9.1"
 bip39 = { version = "2.1", default-features = false, features = ["std", "rand"] }
-bip32 = "0.5"
-pbkdf2 = "0.12"
 
 [dev-dependencies]
 tempfile = "3.10.0"
