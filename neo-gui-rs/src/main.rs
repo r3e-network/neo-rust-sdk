@@ -52,6 +52,8 @@ struct AppState {
 	wallet_status: String,
 	logs: Vec<String>,
 	client: Option<Arc<RpcClient<HttpProvider>>>,
+	poller_running: bool,
+	last_height: Option<u32>,
 }
 
 struct NeoGuiApp {
@@ -248,6 +250,7 @@ fn spawn_background(
 							s.network.status = format!("Connected · height {}", height);
 							s.logs.push(format!("Connected. Height: {}", height));
 							s.client = Some(Arc::new(client));
+							s.last_height = Some(height);
 						},
 						Err(e) => {
 							s.network.connected = false;
@@ -255,6 +258,19 @@ fn spawn_background(
 							s.logs.push(format!("Connection failed: {}", e));
 							s.client = None;
 						},
+					}
+					// start status poller if not running
+					let should_spawn = {
+						let s = state.lock();
+						s.network.connected && !s.poller_running
+					};
+					if should_spawn {
+						if let Some(c) = state.lock().client.clone() {
+							let state_clone = state.clone();
+							handle.spawn(status_poller(c, state_clone));
+							let mut s = state.lock();
+							s.poller_running = true;
+						}
 					}
 				},
 				Action::Disconnect => {
@@ -269,10 +285,44 @@ fn spawn_background(
 					s.network.status = "Disconnected".to_string();
 					s.logs.push("Disconnected.".to_string());
 					s.client = None;
+					s.poller_running = false;
+					s.last_height = None;
 				},
 			}
 		}
 	});
+}
+
+async fn status_poller(client: Arc<RpcClient<HttpProvider>>, state: Arc<Mutex<AppState>>) {
+	loop {
+		sleep(Duration::from_secs(5)).await;
+		let connected = {
+			let s = state.lock();
+			s.network.connected
+		};
+		if !connected {
+			break;
+		}
+
+		match client.get_block_count().await {
+			Ok(height) => {
+				let mut s = state.lock();
+				let changed = s.last_height.map(|h| h != height).unwrap_or(true);
+				s.last_height = Some(height);
+				s.network.status = format!("Connected · height {}", height);
+				if changed {
+					s.logs.push(format!("Height: {}", height));
+				}
+			},
+			Err(e) => {
+				let mut s = state.lock();
+				s.network.status = format!("Error: {}", e);
+				s.logs.push(format!("Status poll failed: {}", e));
+			},
+		}
+	}
+	let mut s = state.lock();
+	s.poller_running = false;
 }
 
 impl eframe::App for NeoGuiApp {
