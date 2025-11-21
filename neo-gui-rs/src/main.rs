@@ -44,13 +44,33 @@ impl Default for Tab {
 #[derive(Default)]
 struct AppState {
 	current_tab: Tab,
-	network_status: String,
+	network: NetworkInfo,
 	wallet_status: String,
+	logs: Vec<String>,
 }
 
 struct NeoGuiApp {
 	state: Arc<Mutex<AppState>>,
 	rt: Runtime,
+}
+
+#[derive(Clone)]
+struct NetworkInfo {
+	endpoint: String,
+	network_type: String,
+	connected: bool,
+	status: String,
+}
+
+impl Default for NetworkInfo {
+	fn default() -> Self {
+		Self {
+			endpoint: "https://testnet1.neo.org:443".to_string(),
+			network_type: "testnet".to_string(),
+			connected: false,
+			status: "Not connected".to_string(),
+		}
+	}
 }
 
 impl NeoGuiApp {
@@ -59,7 +79,20 @@ impl NeoGuiApp {
 		ui.label(format!("Native GUI · v{}", *VERSION));
 		ui.separator();
 		ui.label("Network endpoint");
-		ui.text_edit_singleline(&mut self.state.lock().network_status);
+		{
+			let mut state = self.state.lock();
+			ui.text_edit_singleline(&mut state.network.endpoint);
+			ui.horizontal(|ui| {
+				ui.label("Type");
+				egui::ComboBox::from_label("")
+					.selected_text(state.network.network_type.clone())
+					.show_ui(ui, |ui| {
+						ui.selectable_value(&mut state.network.network_type, "mainnet".to_string(), "mainnet");
+						ui.selectable_value(&mut state.network.network_type, "testnet".to_string(), "testnet");
+						ui.selectable_value(&mut state.network.network_type, "custom".to_string(), "custom");
+					});
+			});
+		}
 
 		self.tab_button(ui, Tab::Dashboard, "Dashboard");
 		self.tab_button(ui, Tab::Wallet, "Wallet");
@@ -73,7 +106,15 @@ impl NeoGuiApp {
 		ui.label("Status");
 		let (net, wal) = {
 			let state = self.state.lock();
-			(state.network_status.clone(), state.wallet_status.clone())
+			(
+				format!(
+					"{} ({}), {}",
+					state.network.endpoint,
+					state.network.network_type,
+					state.network.status
+				),
+				state.wallet_status.clone(),
+			)
 		};
 		ui.small(format!("Network: {}", net));
 		ui.small(format!("Wallet: {}", wal));
@@ -92,13 +133,79 @@ impl NeoGuiApp {
 	fn render_content(&mut self, ui: &mut egui::Ui) {
 		let tab = self.state.lock().current_tab;
 		match tab {
-			Tab::Dashboard => ui.label("Dashboard • metrics and quick actions (placeholder)"),
+			Tab::Dashboard => self.render_dashboard(ui),
 			Tab::Wallet => ui.label("Wallet • accounts, balances, transfers (placeholder)"),
 			Tab::HdWallet => ui.label("HD Wallet • derive and manage accounts (placeholder)"),
 			Tab::Simulator => ui.label("Transaction Simulator • scripts and fee estimates (placeholder)"),
 			Tab::WebSocket => ui.label("WebSocket Monitor • real-time events (placeholder)"),
 			Tab::Analytics => ui.label("Analytics • charts and trends (placeholder)"),
 			Tab::Settings => ui.label("Settings • network, theme, language (placeholder)"),
+		}
+	}
+
+	fn render_dashboard(&mut self, ui: &mut egui::Ui) {
+		ui.heading("Dashboard");
+		ui.label("Connect to a Neo N3 node to get status and balances.");
+		ui.separator();
+
+		let (endpoint, network_type, connected, status) = {
+			let state = self.state.lock();
+			(
+				state.network.endpoint.clone(),
+				state.network.network_type.clone(),
+				state.network.connected,
+				state.network.status.clone(),
+			)
+		};
+
+		ui.horizontal(|ui| {
+			ui.label("Endpoint:");
+			ui.monospace(endpoint);
+		});
+		ui.horizontal(|ui| {
+			ui.label("Network:");
+			ui.monospace(network_type);
+		});
+
+		ui.add_space(8.0);
+		ui.horizontal(|ui| {
+			if ui.button("Connect").clicked() {
+				self.connect_network(true);
+			}
+			if ui.button("Disconnect").clicked() {
+				self.connect_network(false);
+			}
+			ui.label(status);
+			if connected {
+				ui.colored_label(egui::Color32::from_rgb(34, 197, 94), "connected");
+			} else {
+				ui.colored_label(egui::Color32::from_rgb(239, 68, 68), "disconnected");
+			}
+		});
+
+		ui.separator();
+		ui.label("Activity");
+		egui::ScrollArea::vertical().max_height(200.0).show(ui, |ui| {
+			let logs = self.state.lock().logs.clone();
+			for entry in logs.iter().rev() {
+				ui.label(entry);
+			}
+		});
+	}
+
+	fn connect_network(&self, connect: bool) {
+		let mut state = self.state.lock();
+		if connect {
+			state.network.connected = true;
+			state.network.status = "Connected (mock)".to_string();
+			state.logs.push(format!(
+				"Connected to {} [{}]",
+				state.network.endpoint, state.network.network_type
+			));
+		} else {
+			state.network.connected = false;
+			state.network.status = "Disconnected".to_string();
+			state.logs.push("Disconnected from network".to_string());
 		}
 	}
 }
