@@ -118,23 +118,23 @@ impl MetricsRegistry {
 			output.push_str(&format!("# TYPE {} {}\n", metric.name, type_str));
 
 			// Write metric value with labels
-				let labels = if metric.labels.is_empty() {
-					String::new()
-				} else {
-					let label_pairs: Vec<String> =
-						metric.labels.iter().map(|(k, v)| format!("{}=\"{}\"", k, v)).collect();
-					format!("{{{}}}", label_pairs.join(","))
-				};
-				let label_suffix = if labels.is_empty() {
-					String::new()
-				} else {
-					format!(",{}", &labels[1..labels.len() - 1])
-				};
+			let labels = if metric.labels.is_empty() {
+				String::new()
+			} else {
+				let label_pairs: Vec<String> =
+					metric.labels.iter().map(|(k, v)| format!("{}=\"{}\"", k, v)).collect();
+				format!("{{{}}}", label_pairs.join(","))
+			};
+			let label_suffix = if labels.is_empty() {
+				String::new()
+			} else {
+				format!(",{}", &labels[1..labels.len() - 1])
+			};
 
-				match &metric.value {
-					MetricValue::Counter(v) => {
-						output.push_str(&format!("{}{} {}\n", metric.name, labels, v));
-					},
+			match &metric.value {
+				MetricValue::Counter(v) => {
+					output.push_str(&format!("{}{} {}\n", metric.name, labels, v));
+				},
 				MetricValue::Gauge(v) => {
 					output.push_str(&format!("{}{} {}\n", metric.name, labels, v));
 				},
@@ -154,36 +154,30 @@ impl MetricsRegistry {
 						}
 					}
 
-						for (i, &bucket) in buckets.iter().enumerate() {
-							output.push_str(&format!(
-								"{}_bucket{{le=\"{}\"{}}} {}\n",
-								metric.name,
-								bucket,
-								label_suffix,
-								counts[i]
-							));
-						}
+					for (i, &bucket) in buckets.iter().enumerate() {
 						output.push_str(&format!(
-							"{}_bucket{{le=\"+Inf\"{}}} {}\n",
-							metric.name,
-							label_suffix,
-							values.len()
+							"{}_bucket{{le=\"{}\"{}}} {}\n",
+							metric.name, bucket, label_suffix, counts[i]
 						));
-						output.push_str(&format!("{}_sum{} {}\n", metric.name, labels, sum));
-						output.push_str(&format!("{}_count{} {}\n", metric.name, labels, values.len()));
-					},
+					}
+					output.push_str(&format!(
+						"{}_bucket{{le=\"+Inf\"{}}} {}\n",
+						metric.name,
+						label_suffix,
+						values.len()
+					));
+					output.push_str(&format!("{}_sum{} {}\n", metric.name, labels, sum));
+					output.push_str(&format!("{}_count{} {}\n", metric.name, labels, values.len()));
+				},
 				MetricValue::Summary(data) => {
-						for (quantile, value) in &data.quantiles {
-							output.push_str(&format!(
-								"{}{{quantile=\"{}\"{}}} {}\n",
-								metric.name,
-								quantile,
-								label_suffix,
-								value
-							));
-						}
-						output.push_str(&format!("{}_sum{} {}\n", metric.name, labels, data.sum));
-						output.push_str(&format!("{}_count{} {}\n", metric.name, labels, data.count));
+					for (quantile, value) in &data.quantiles {
+						output.push_str(&format!(
+							"{}{{quantile=\"{}\"{}}} {}\n",
+							metric.name, quantile, label_suffix, value
+						));
+					}
+					output.push_str(&format!("{}_sum{} {}\n", metric.name, labels, data.sum));
+					output.push_str(&format!("{}_count{} {}\n", metric.name, labels, data.count));
 				},
 			}
 		}
@@ -217,14 +211,14 @@ impl MetricsCollector {
 	}
 
 	/// Start metrics HTTP server
-		pub fn start_server(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-			if !self.config.enabled {
-				return Ok(());
-			}
+	pub fn start_server(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+		if !self.config.enabled {
+			return Ok(());
+		}
 
-			let registry = Arc::clone(&self.registry);
-			let port = self.config.port;
-			let _path = self.config.path.clone();
+		let registry = Arc::clone(&self.registry);
+		let port = self.config.port;
+		let _path = self.config.path.clone();
 
 		let handle = tokio::spawn(async move {
 			// In production, use a proper HTTP server like warp or actix-web

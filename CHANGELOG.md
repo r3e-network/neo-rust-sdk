@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Transaction tracing and contract deployment examples now run against real TestNet RPC, loading actual NEF/manifest fixtures.
+
 ### Changed
 
 ### Fixed

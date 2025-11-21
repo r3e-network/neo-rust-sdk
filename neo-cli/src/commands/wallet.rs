@@ -993,7 +993,8 @@ async fn handle_transaction_simulation(
 			.map_err(|e| CliError::InvalidInput(format!("Invalid hex script: {}", e)))?
 	} else {
 		use base64::{engine::general_purpose::STANDARD, Engine as _};
-		STANDARD.decode(script.as_bytes())
+		STANDARD
+			.decode(script.as_bytes())
 			.map_err(|e| CliError::InvalidInput(format!("Invalid base64 script: {}", e)))?
 	};
 

@@ -4199,6 +4199,7 @@ dependencies = [
  "eyre",
  "hex",
  "neo3",
+ "serde_json",
  "tokio",
 ]
 
