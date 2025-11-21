@@ -1,6 +1,6 @@
 use hmac::{Hmac, Mac};
 use ripemd::{Digest as RipemdDigest, Ripemd160};
-use sha2::{Digest, Sha256, Sha512};
+use sha2::{Sha256, Sha512};
 
 pub trait HashableForVec {
 	fn hash256(&self) -> Vec<u8>;
@@ -28,7 +28,7 @@ impl HashableForVec for [u8] {
 		let sha_result = sha256.finalize();
 
 		let mut ripemd = Ripemd160::new();
-		ripemd.update(&sha_result);
+		ripemd.update(sha_result);
 		ripemd.finalize().to_vec()
 	}
 

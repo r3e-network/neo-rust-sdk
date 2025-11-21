@@ -4,7 +4,7 @@
 //! contracts deployed on Neo N3 networks that developers may want to interact with.
 
 use crate::neo_types::script_hash::ScriptHash;
-use std::str::FromStr;
+use std::{fmt, str::FromStr};
 
 use crate::neo_contract::ContractError;
 
@@ -19,23 +19,26 @@ pub enum Network {
 	PrivateNet,
 }
 
-impl Network {
-	/// Convert a string to a Network enum
-	pub fn from_str(s: &str) -> Option<Self> {
-		match s.to_lowercase().as_str() {
-			"mainnet" => Some(Network::MainNet),
-			"testnet" => Some(Network::TestNet),
-			"privatenet" => Some(Network::PrivateNet),
-			_ => None,
-		}
+impl fmt::Display for Network {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		let label = match self {
+			Network::MainNet => "mainnet",
+			Network::TestNet => "testnet",
+			Network::PrivateNet => "privatenet",
+		};
+		write!(f, "{}", label)
 	}
+}
 
-	/// Convert Network enum to string
-	pub fn to_string(&self) -> String {
-		match self {
-			Network::MainNet => "mainnet".to_string(),
-			Network::TestNet => "testnet".to_string(),
-			Network::PrivateNet => "privatenet".to_string(),
+impl FromStr for Network {
+	type Err = String;
+
+	fn from_str(s: &str) -> Result<Self, Self::Err> {
+		match s.to_lowercase().as_str() {
+			"mainnet" => Ok(Network::MainNet),
+			"testnet" => Ok(Network::TestNet),
+			"privatenet" => Ok(Network::PrivateNet),
+			_ => Err(format!("Unknown network: {}", s)),
 		}
 	}
 }

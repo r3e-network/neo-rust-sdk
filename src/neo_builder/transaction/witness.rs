@@ -12,6 +12,12 @@ pub struct Witness {
 	pub verification: VerificationScript,
 }
 
+impl Default for Witness {
+	fn default() -> Self {
+		Self::new()
+	}
+}
+
 impl Witness {
 	pub fn new() -> Self {
 		Self { invocation: InvocationScript::new(), verification: VerificationScript::new() }
@@ -59,8 +65,7 @@ impl Witness {
 			));
 		}
 
-		let invocation_script =
-			InvocationScript::from_signatures(&signatures[..threshold as usize]);
+		let invocation_script = InvocationScript::from_signatures(&signatures[..threshold]);
 		Ok(Self { invocation: invocation_script, verification: verification_script })
 	}
 

@@ -138,7 +138,9 @@ impl From<YubiSigner<NistP256>> for WalletSigner<YubiSigner<NistP256>> {
 }
 
 #[cfg(test)]
-pub mod tests {
+mod tests {
+	#![allow(unused_imports)]
+
 	use std::str::FromStr;
 
 	use super::*;
@@ -221,6 +223,5 @@ pub mod tests {
 		let _error = WalletError::YubiHsmError("test".to_string());
 
 		// Professional test validates type system without hardware dependency
-		assert!(true);
 	}
 }

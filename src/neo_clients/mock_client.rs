@@ -283,7 +283,7 @@ impl MockClient {
 	// 	self
 	// }
 
-	pub async fn mock_send_raw_transaction(&mut self, result: RawTransaction) -> &mut Self {
+    pub async fn mock_send_raw_transaction(&mut self, _result: RawTransaction) -> &mut Self {
 		self.mock_response_with_file_ignore_param("sendrawtransaction", "sendrawtransaction.json")
 			.await;
 		self

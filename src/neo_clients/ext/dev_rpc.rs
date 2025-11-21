@@ -134,6 +134,7 @@ mod tests {
 	use crate::{Http, Provider};
 
 	#[tokio::test]
+	#[ignore = "requires local Anvil dev chain"]
 	async fn test_snapshot() {
 		let anvil = Anvil::new().spawn();
 		let provider = Provider::<Http>::try_from(anvil.endpoint()).unwrap();

@@ -1,9 +1,6 @@
 // Code adapted from: https://github.com/althea-net/guac_rs/tree/master/web3/src/jsonrpc
 
-use std::{
-	str::FromStr,
-	sync::atomic::{AtomicU64, Ordering},
-};
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use async_trait::async_trait;
 use http::HeaderValue;

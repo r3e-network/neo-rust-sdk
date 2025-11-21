@@ -5,7 +5,7 @@ use std::str::FromStr;
 
 use crate::{
 	builder::{AccountSigner, TransactionBuilder},
-	neo_clients::{APITrait, JsonRpcProvider, RpcClient},
+	neo_clients::{JsonRpcProvider, RpcClient},
 	neo_contract::{ContractError, SmartContractTrait},
 	neo_protocol::Account,
 };
@@ -81,11 +81,13 @@ impl<'a, P: JsonRpcProvider + 'static> NeoCompoundContract<'a, P> {
 		token: &ScriptHash,
 		amount: i64,
 		account: &Account,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let params = vec![token.into(), ContractParameter::integer(amount)];
 
 		let mut builder = self.invoke_function(Self::DEPOSIT, params).await?;
-		builder.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()]);
+		builder
+			.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()])
+			.map_err(|err| ContractError::RuntimeError(err.to_string()))?;
 
 		Ok(builder)
 	}
@@ -106,11 +108,13 @@ impl<'a, P: JsonRpcProvider + 'static> NeoCompoundContract<'a, P> {
 		token: &ScriptHash,
 		amount: i64,
 		account: &Account,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let params = vec![token.into(), ContractParameter::integer(amount)];
 
 		let mut builder = self.invoke_function(Self::WITHDRAW, params).await?;
-		builder.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()]);
+		builder
+			.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()])
+			.map_err(|err| ContractError::RuntimeError(err.to_string()))?;
 
 		Ok(builder)
 	}
@@ -129,11 +133,13 @@ impl<'a, P: JsonRpcProvider + 'static> NeoCompoundContract<'a, P> {
 		&self,
 		token: &ScriptHash,
 		account: &Account,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let params = vec![token.into()];
 
 		let mut builder = self.invoke_function(Self::COMPOUND, params).await?;
-		builder.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()]);
+		builder
+			.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()])
+			.map_err(|err| ContractError::RuntimeError(err.to_string()))?;
 
 		Ok(builder)
 	}

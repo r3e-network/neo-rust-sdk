@@ -89,9 +89,9 @@ impl Clone for ProviderError {
 			ProviderError::NnsError(message) => ProviderError::NnsError(message.clone()),
 			ProviderError::NnsNotOwned(message) => ProviderError::NnsNotOwned(message.clone()),
 			ProviderError::SerdeJson(error) => ProviderError::SerdeJson(serde_json::Error::io(
-				std::io::Error::new(std::io::ErrorKind::Other, error.to_string()),
+				std::io::Error::other(error.to_string()),
 			)),
-			ProviderError::HexError(error) => ProviderError::HexError(error.clone()),
+			ProviderError::HexError(error) => ProviderError::HexError(*error),
 			ProviderError::HTTPError(error) => ProviderError::HTTPError(Arc::clone(error)),
 			ProviderError::JsonRpcError(error) => ProviderError::JsonRpcError(error.clone()),
 			ProviderError::CustomError(message) => ProviderError::CustomError(message.clone()),

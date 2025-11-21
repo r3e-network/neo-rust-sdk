@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::neo_error::{Neo3Error, NetworkError};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -267,14 +269,17 @@ mod tests {
 		for _ in 0..3 {
 			let limiter = limiter.clone();
 			handles.push(tokio::spawn(async move {
-				// Just check if we can acquire, don't hold the permit
+				// Acquire and immediately drop permit
 				limiter.acquire().await.is_ok()
 			}));
 		}
 
-		// Only 2 should succeed immediately, 3rd will wait
-		sleep(Duration::from_millis(100)).await;
+		// Wait for all tasks to complete
+		let results = futures_util::future::join_all(handles).await;
+		// All tasks should complete successfully, with at most 2 running concurrently
+		assert!(results.into_iter().all(|r| r.unwrap_or(false)));
 
+		// Tokens should have been consumed
 		let tokens = limiter.available_tokens().await;
 		assert!(tokens < 100.0); // Some tokens consumed
 	}

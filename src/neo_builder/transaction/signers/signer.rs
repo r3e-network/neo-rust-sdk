@@ -1,3 +1,10 @@
+#![allow(
+	clippy::from_over_into,
+	clippy::to_string_in_format_args,
+	clippy::unnecessary_to_owned,
+	clippy::clone_on_copy
+)]
+
 use crate::{
 	builder::{
 		AccountSigner, BuilderError, ContractSigner, TransactionError, TransactionSigner,
@@ -8,7 +15,6 @@ use crate::{
 	crypto::Secp256r1PublicKey,
 	neo_protocol::AccountTrait,
 };
-use elliptic_curve::pkcs8::der::Encode;
 use primitive_types::H160;
 use serde::{Deserialize, Serialize, Serializer};
 use std::hash::{Hash, Hasher};

@@ -1,3 +1,5 @@
+#![allow(clippy::items_after_test_module)]
+
 //! # Neo Types (v0.4.1)
 //!
 //! Core data types for the Neo N3 blockchain.
@@ -155,13 +157,13 @@ pub trait Base64Encode {
 
 impl Base64Encode for Vec<u8> {
 	fn to_base64(&self) -> String {
-		base64::encode(&self)
+		base64::engine::general_purpose::STANDARD.encode(self)
 	}
 }
 
 impl Base64Encode for &[u8] {
 	fn to_base64(&self) -> String {
-		base64::encode(&self)
+		base64::engine::general_purpose::STANDARD.encode(self)
 	}
 }
 

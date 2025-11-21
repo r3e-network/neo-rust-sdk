@@ -17,8 +17,10 @@ use wiremock::{Match, Request};
 pub type EscalationPolicy = Box<dyn Fn(U256, usize) -> U256 + Send + Sync>;
 
 // Helper type alias
+#[allow(dead_code)]
 #[cfg(target_arch = "wasm32")]
 pub(crate) type PinBoxFut<'a, T> = Pin<Box<dyn Future<Output = Result<T, ProviderError>> + 'a>>;
+#[allow(dead_code)]
 #[cfg(not(target_arch = "wasm32"))]
 pub(crate) type PinBoxFut<'a, T> =
 	Pin<Box<dyn Future<Output = Result<T, ProviderError>> + Send + 'a>>;
@@ -60,7 +62,7 @@ pub fn public_key_to_address(public_key: &Secp256r1PublicKey) -> String {
 /// Convert a public key to a script hash.
 pub fn public_key_to_script_hash(public_key: &Secp256r1PublicKey) -> ScriptHash {
 	let script = VerificationScript::from_public_key(public_key);
-	ScriptHash::from_script(&script.script())
+	ScriptHash::from_script(script.script())
 }
 
 /// Convert a private key to a script hash.

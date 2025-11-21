@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::neo_protocol::NeoBlock;
 use futures::stream::Stream;
 use std::{error::Error, pin::Pin};

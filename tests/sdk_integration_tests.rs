@@ -21,21 +21,14 @@ mod sdk_tests {
 
 		// If this compiles, the builder pattern works correctly
 		// The actual config fields are private implementation details
-		assert!(true, "Builder pattern works correctly");
+		let _ = _builder;
 	}
 
 	#[tokio::test]
 	async fn test_network_enum() {
 		// Test network variants
-		match Network::MainNet {
-			Network::MainNet => assert!(true),
-			_ => panic!("Expected MainNet"),
-		}
-
-		match Network::TestNet {
-			Network::TestNet => assert!(true),
-			_ => panic!("Expected TestNet"),
-		}
+		assert!(matches!(Network::MainNet, Network::MainNet));
+		assert!(matches!(Network::TestNet, Network::TestNet));
 
 		let custom_url = "https://custom.neo.org";
 		match Network::Custom(custom_url.to_string()) {
@@ -71,22 +64,15 @@ mod sdk_tests {
 	#[tokio::test]
 	async fn test_token_enum() {
 		// Test Token enum variants
-		match Token::NEO {
-			Token::NEO => assert!(true),
-			_ => panic!("Expected NEO token"),
-		}
-
-		match Token::GAS {
-			Token::GAS => assert!(true),
-			_ => panic!("Expected GAS token"),
-		}
+		assert!(matches!(Token::NEO, Token::NEO));
+		assert!(matches!(Token::GAS, Token::GAS));
 
 		use neo3::neo_types::ScriptHash;
 		use std::str::FromStr;
 
 		let custom_hash =
 			ScriptHash::from_str("0x0000000000000000000000000000000000000000").unwrap();
-		match Token::Custom(custom_hash.clone()) {
+		match Token::Custom(custom_hash) {
 			Token::Custom(hash) => assert_eq!(hash, custom_hash),
 			_ => panic!("Expected Custom token"),
 		}
@@ -133,7 +119,7 @@ mod sdk_tests {
 			Ok(neo) => {
 				// If connection succeeds, verify it's MainNet
 				match neo.network() {
-					Network::MainNet => assert!(true),
+					Network::MainNet => {},
 					_ => panic!("Expected MainNet network"),
 				}
 			},
@@ -193,7 +179,7 @@ mod sdk_tests {
 				.with_memo("Test transfer");
 
 		// If this compiles, the builder pattern works correctly
-		assert!(true, "Transfer builder pattern works");
+		let _ = _transfer;
 	}
 }
 

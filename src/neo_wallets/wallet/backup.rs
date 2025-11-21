@@ -38,9 +38,9 @@ impl WalletBackup {
 			.map_err(|e| WalletError::AccountState(format!("Serialization error: {e}")))?;
 
 		// Write to file at path
-		let mut file = File::create(path).map_err(|e| WalletError::IoError(e))?;
+		let mut file = File::create(path).map_err(WalletError::IoError)?;
 
-		file.write_all(json.as_bytes()).map_err(|e| WalletError::IoError(e))?;
+		file.write_all(json.as_bytes()).map_err(WalletError::IoError)?;
 
 		Ok(())
 	}
@@ -68,7 +68,7 @@ impl WalletBackup {
 	/// ```
 	pub fn recover(path: PathBuf) -> Result<Wallet, WalletError> {
 		// Read file content
-		let file_content = std::fs::read_to_string(path).map_err(|e| WalletError::IoError(e))?;
+		let file_content = std::fs::read_to_string(path).map_err(WalletError::IoError)?;
 
 		// Parse JSON to Nep6Wallet
 		let nep6_wallet = serde_json::from_str(&file_content)
@@ -81,7 +81,7 @@ impl WalletBackup {
 
 #[cfg(test)]
 mod tests {
-	use std::{fs, path::PathBuf};
+	use std::fs;
 
 	use crate::{
 		neo_protocol::{Account, AccountTrait},

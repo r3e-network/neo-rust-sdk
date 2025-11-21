@@ -87,18 +87,3 @@ pub use error::CryptoError;
 pub use hash::HashableForVec;
 pub use key_pair::KeyPair;
 pub use keys::{Secp256r1PublicKey, Secp256r1Signature};
-
-pub(crate) fn add(left: usize, right: usize) -> usize {
-	left + right
-}
-
-#[cfg(test)]
-mod tests {
-	use super::*;
-
-	#[test]
-	fn it_works() {
-		let result = add(2, 2);
-		assert_eq!(result, 4);
-	}
-}

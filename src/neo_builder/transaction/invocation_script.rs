@@ -21,6 +21,12 @@ pub struct InvocationScript {
 	script: Vec<u8>,
 }
 
+impl Default for InvocationScript {
+	fn default() -> Self {
+		Self::new()
+	}
+}
+
 impl InvocationScript {
 	/// Constructs an empty invocation script.
 	pub fn new() -> Self {
@@ -120,11 +126,13 @@ impl NeoSerializable for InvocationScript {
 	type Error = BuilderError;
 
 	fn size(&self) -> usize {
-		return var_size(self.script.len()) + self.script.len();
+		var_size(self.script.len()) + self.script.len()
 	}
 
 	fn encode(&self, writer: &mut Encoder) {
-		writer.write_var_bytes(&self.script);
+		writer
+			.write_var_bytes(&self.script)
+			.expect("Failed to encode invocation script");
 	}
 
 	fn decode(reader: &mut Decoder) -> Result<Self, Self::Error> {
@@ -140,8 +148,6 @@ impl NeoSerializable for InvocationScript {
 
 #[cfg(test)]
 mod tests {
-	use crate::neo_crypto::utils::ToHexString;
-
 	use super::*;
 
 	#[test]
@@ -157,7 +163,7 @@ mod tests {
 			hex::encode(expected_signature.to_bytes())
 		);
 		assert_eq!(hex::decode(&expected).unwrap(), script.script);
-		assert_eq!(hex::decode(&format!("42{}", expected)).unwrap(), script.to_array());
+		assert_eq!(hex::decode(format!("42{}", expected)).unwrap(), script.to_array());
 	}
 
 	#[test]
@@ -185,7 +191,7 @@ mod tests {
 		let script =
 			format!("{}40{}", OpCode::PushData1.to_hex_string(), hex::encode(signature.to_bytes()));
 		let deserialized = InvocationScript::from_serialized_script(
-			hex::decode(&format!("42{}", script)).unwrap(),
+			hex::decode(format!("42{}", script)).unwrap(),
 		);
 		assert_eq!(deserialized.script, hex::decode(&script).unwrap());
 	}
@@ -202,7 +208,7 @@ mod tests {
 		let message = vec![0u8; 10];
 		let key_pair = KeyPair::new_random();
 		let signature = key_pair.private_key.sign_tx(&message).unwrap();
-		let inv = InvocationScript::from_signatures(&vec![
+		let inv = InvocationScript::from_signatures(&[
 			signature.clone(),
 			signature.clone(),
 			signature.clone(),

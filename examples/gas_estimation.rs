@@ -3,11 +3,12 @@
 //! This example demonstrates how to use the new real-time gas estimation
 //! features in NeoRust v0.4.4 for accurate transaction fee calculation.
 
-use neo3::neo_builder::{AccountSigner, GasEstimator, ScriptBuilder, Signer, TransactionBuilder};
+use neo3::neo_builder::{AccountSigner, GasEstimator, ScriptBuilder, Signer};
 use neo3::neo_clients::{APITrait, HttpProvider, RpcClient};
 use neo3::neo_protocol::{Account, AccountTrait};
 use neo3::neo_types::{ContractParameter, ScriptHash, ScriptHashExtension};
 use neo3::prelude::*;
+use num_bigint::BigInt;
 use std::str::FromStr;
 
 #[tokio::main]
@@ -69,11 +70,9 @@ async fn example_simple_transfer(
 		.to_bytes();
 
 	// Estimate gas consumption
-	match GasEstimator::estimate_gas_realtime(
-		client,
-		&script,
-		vec![Signer::called_by_entry(&account.get_script_hash())],
-	)
+	let signers = vec![AccountSigner::called_by_entry(account)?.into()];
+
+	match GasEstimator::estimate_gas_realtime(client, &script, signers)
 	.await
 	{
 		Ok(gas) => {
@@ -94,17 +93,17 @@ async fn example_simple_transfer(
 
 async fn example_contract_call(
 	client: &RpcClient<HttpProvider>,
-	account: &Account,
+	_account: &Account,
 ) -> Result<(), Box<dyn std::error::Error>> {
 	println!("--- Example 2: Complex Contract Call Gas Estimation ---");
 
 	// Build a more complex script with multiple operations
 	let script = ScriptBuilder::new()
-		.push_string("Hello, Neo!".to_string())
-		.push_integer(42)
-		.emit(OpCode::Pack)
-		.push_integer(2)
-		.emit(OpCode::Pack)
+		.push_data("Hello, Neo!".as_bytes().to_vec())
+		.push_integer(BigInt::from(42))
+		.op_code(&[OpCode::Pack])
+		.push_integer(BigInt::from(2))
+		.op_code(&[OpCode::Pack])
 		.to_bytes();
 
 	match GasEstimator::estimate_gas_realtime(client, &script, vec![]).await {
@@ -122,30 +121,30 @@ async fn example_contract_call(
 
 async fn example_batch_estimation(
 	client: &RpcClient<HttpProvider>,
-	account: &Account,
+	_account: &Account,
 ) -> Result<(), Box<dyn std::error::Error>> {
 	println!("--- Example 3: Batch Gas Estimation ---");
 
 	// Prepare multiple scripts for batch estimation
 	let scripts = vec![
-		(
-			ScriptBuilder::new()
-				.push_integer(100)
-				.push_integer(200)
-				.emit(OpCode::Add)
-				.to_bytes(),
-			vec![],
-		),
-		(
-			ScriptBuilder::new()
-				.push_string("Test1".to_string())
-				.push_string("Test2".to_string())
-				.emit(OpCode::Cat)
-				.to_bytes(),
-			vec![],
-		),
-		(ScriptBuilder::new().push_boolean(true).emit(OpCode::Not).to_bytes(), vec![]),
-	];
+			(
+				ScriptBuilder::new()
+					.push_integer(BigInt::from(100))
+					.push_integer(BigInt::from(200))
+					.op_code(&[OpCode::Add])
+					.to_bytes(),
+				vec![],
+			),
+			(
+				ScriptBuilder::new()
+					.push_data("Test1".as_bytes().to_vec())
+					.push_data("Test2".as_bytes().to_vec())
+					.op_code(&[OpCode::Cat])
+					.to_bytes(),
+				vec![],
+			),
+			(ScriptBuilder::new().push_bool(true).op_code(&[OpCode::Not]).to_bytes(), vec![]),
+		];
 
 	// Convert to expected format
 	let scripts_ref: Vec<(&[u8], Vec<Signer>)> = scripts
@@ -174,12 +173,13 @@ async fn example_batch_estimation(
 
 async fn example_with_safety_margin(
 	client: &RpcClient<HttpProvider>,
-	account: &Account,
+	_account: &Account,
 ) -> Result<(), Box<dyn std::error::Error>> {
 	println!("--- Example 4: Gas Estimation with Safety Margin ---");
 
 	// Build a script
-	let script = ScriptBuilder::new().push_integer(1000).emit(OpCode::Sqrt).to_bytes();
+	let script =
+		ScriptBuilder::new().push_integer(BigInt::from(1000)).op_code(&[OpCode::Sqrt]).to_bytes();
 
 	// Estimate without margin
 	let base_gas = GasEstimator::estimate_gas_realtime(client, &script, vec![]).await.unwrap_or(0);

@@ -47,7 +47,7 @@ impl NeoSerializable for H256 {
 		H256::len_bytes()
 	}
 	fn encode(&self, writer: &mut Encoder) {
-		writer.write_bytes(&self.as_bytes());
+		writer.write_bytes(self.as_bytes());
 	}
 
 	fn decode(reader: &mut Decoder) -> Result<Self, CodecError>

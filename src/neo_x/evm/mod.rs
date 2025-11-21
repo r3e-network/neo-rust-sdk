@@ -1,3 +1,5 @@
+//! Neo X EVM compatibility layer
+
 pub mod provider;
 pub mod transaction;
 

@@ -31,7 +31,7 @@ impl ContractNef {
 		Self {
 			magic,
 			compiler,
-			source: source.unwrap_or_else(|| "".to_string()),
+			source: source.unwrap_or_default(),
 			tokens,
 			script,
 			checksum,

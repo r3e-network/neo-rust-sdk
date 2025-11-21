@@ -1,7 +1,7 @@
-use std::hash::Hasher;
+// use std::hash::Hasher;
 
 use primitive_types::H160;
-use tokio::io::AsyncReadExt;
+// use tokio::io::AsyncReadExt;
 
 use crate::{
 	codec::{CodecError, Decoder, Encoder, NeoSerializable},
@@ -37,12 +37,13 @@ pub struct NefFile {
 	pub(crate) checksum: Bytes,
 }
 
-impl Into<ContractParameter> for NefFile {
-	fn into(self) -> ContractParameter {
-		ContractParameter::byte_array(self.to_array())
+impl From<NefFile> for ContractParameter {
+	fn from(val: NefFile) -> ContractParameter {
+		ContractParameter::byte_array(val.to_array())
 	}
 }
 
+#[allow(dead_code)]
 impl NefFile {
 	const MAGIC: u32 = 0x3346454E;
 	const MAGIC_SIZE: usize = 4;
@@ -67,9 +68,7 @@ impl NefFile {
 	fn compute_checksum_from_bytes(bytes: Bytes) -> Result<Bytes, TypeError> {
 		let mut file_bytes = bytes.clone();
 		file_bytes.truncate(bytes.len() - Self::CHECKSUM_SIZE);
-		file_bytes.hash256()[..Self::CHECKSUM_SIZE].try_into().map_err(|_| {
-			TypeError::InvalidEncoding("Failed to extract checksum from hash".to_string())
-		})
+		Ok(file_bytes.hash256()[..Self::CHECKSUM_SIZE].to_vec())
 	}
 
 	fn read_from_file(file: &str) -> Result<Self, TypeError> {
@@ -108,7 +107,7 @@ impl NefFile {
 
 	fn read_from_stack_item(item: StackItem) -> Result<Self, TypeError> {
 		if let StackItem::ByteString { value: bytes } = item {
-			let mut reader = Decoder::new(&bytes.as_bytes());
+			let mut reader = Decoder::new(bytes.as_bytes());
 			reader.read_serializable().map_err(|e| {
 				TypeError::InvalidEncoding(format!(
 					"Failed to deserialize NEF from stack item: {}",
@@ -145,9 +144,11 @@ impl NeoSerializable for NefFile {
 			.expect("Failed to serialize compiler");
 		writer.write_var_string(&self.source_url);
 		writer.write_u8(0);
-		writer.write_serializable_variable_list(&self.method_tokens);
+		writer
+			.write_serializable_variable_list(&self.method_tokens)
+			.expect("Failed to serialize method tokens");
 		writer.write_u16(0);
-		writer.write_var_bytes(&self.script);
+		writer.write_var_bytes(&self.script).expect("Failed to serialize script");
 		writer.write_bytes(&self.checksum);
 	}
 

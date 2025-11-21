@@ -91,7 +91,7 @@ where
 			let expression = v["expression"]
 				.as_str()
 				.ok_or(serde::de::Error::custom("Expected a boolean for Boolean type"))?;
-			Ok(WitnessCondition::Boolean(if expression == "true" { true } else { false }))
+			Ok(WitnessCondition::Boolean(expression == "true"))
 		},
 		Some("Not") => {
 			let expression = serde_json::from_value(v["expression"].clone())
@@ -264,7 +264,7 @@ impl WitnessCondition {
 	/// Returns the expression of the witness condition.
 	pub fn expression(&self) -> Option<&WitnessCondition> {
 		match self {
-			WitnessCondition::Not(exp) => Some(&exp),
+			WitnessCondition::Not(exp) => Some(exp),
 			_ => None,
 		}
 	}
@@ -272,7 +272,7 @@ impl WitnessCondition {
 	/// Returns the expression list of the witness condition.
 	pub fn expression_list(&self) -> Option<&[WitnessCondition]> {
 		match self {
-			WitnessCondition::And(exp) | WitnessCondition::Or(exp) => Some(&exp),
+			WitnessCondition::And(exp) | WitnessCondition::Or(exp) => Some(exp),
 			_ => None,
 		}
 	}
@@ -331,11 +331,15 @@ impl NeoSerializable for WitnessCondition {
 			},
 			WitnessCondition::And(exp) => {
 				writer.write_u8(WitnessCondition::AND_BYTE);
-				writer.write_serializable_variable_list(exp);
+				writer
+					.write_serializable_variable_list(exp)
+					.expect("Failed to encode AND witness condition");
 			},
 			WitnessCondition::Or(exp) => {
 				writer.write_u8(WitnessCondition::OR_BYTE);
-				writer.write_serializable_variable_list(exp);
+				writer
+					.write_serializable_variable_list(exp)
+					.expect("Failed to encode OR witness condition");
 			},
 			WitnessCondition::ScriptHash(hash) => {
 				writer.write_u8(WitnessCondition::SCRIPT_HASH_BYTE);

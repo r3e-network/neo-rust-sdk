@@ -419,7 +419,7 @@ impl NEP2 {
 
 		let mut buf = [0u8; 64];
 		let pt_len = data.len();
-		buf[..pt_len].copy_from_slice(&data);
+		buf[..pt_len].copy_from_slice(data);
 
 		let ct = Aes256EcbEnc::new(&key.into())
 			.encrypt_padded_mut::<NoPadding>(&mut buf, pt_len)
@@ -451,7 +451,7 @@ impl NEP2 {
 		let mut buf = [0u8; 64];
 
 		let pt = Aes256EcbDec::new(&key.into())
-			.decrypt_padded_b2b_mut::<NoPadding>(&encrypted_data, &mut buf)
+			.decrypt_padded_b2b_mut::<NoPadding>(encrypted_data, &mut buf)
 			.map_err(|_| "AES decryption failed".to_string())?;
 
 		Ok(pt.to_vec())
@@ -545,7 +545,7 @@ impl NEP2 {
 	/// # Returns
 	///
 	/// The decrypted KeyPair
-	pub fn decrypt_test_vector(password: &str, nep2: &str) -> Result<KeyPair, Nep2Error> {
+	pub fn decrypt_test_vector(_password: &str, _nep2: &str) -> Result<KeyPair, Nep2Error> {
 		// Test vector expected private key
 		let expected_private_key =
 			"96de8fc8c256fa1e1556d41af431cace7dca68707c78dd88c3acab8b17164c47";
@@ -564,7 +564,6 @@ impl NEP2 {
 
 /// Compatibility functions to maintain backward compatibility with existing code
 /// These functions are provided for convenience and compatibility with the old API
-
 /// Encrypts a private key in hexadecimal format using NEP2.
 ///
 /// # Arguments
@@ -668,7 +667,7 @@ mod tests {
 		let encrypted = NEP2::encrypt_with_params(
 			TestConstants::DEFAULT_ACCOUNT_PASSWORD,
 			&key_pair,
-			params.clone(),
+			params,
 		)
 		.unwrap();
 
@@ -701,7 +700,7 @@ mod tests {
 				_ => {
 					eprintln!("Expected VerificationFailed error, got: {:?}", err);
 					// Don't panic, just fail the test gracefully
-					assert!(false, "Expected VerificationFailed error, got: {:?}", err);
+					panic!("Expected VerificationFailed error, got: {:?}", err);
 				},
 			}
 		}

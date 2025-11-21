@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 use crate::{
 	builder::{SignerTrait, SignerType, WitnessRule, WitnessScope},
 	crypto::Secp256r1PublicKey,

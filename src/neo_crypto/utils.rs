@@ -1,7 +1,7 @@
 use crate::crypto::{
 	CryptoError, PrivateKeyExtension, PublicKeyExtension, Secp256r1PrivateKey, Secp256r1PublicKey,
 };
-use base64;
+use base64::{self, Engine};
 use hex;
 
 /// Convert a private key to a public key.
@@ -19,7 +19,7 @@ pub fn private_key_to_public_key(private_key: &Secp256r1PrivateKey) -> Secp256r1
 ///
 /// A hexadecimal string representation of the private key
 pub fn private_key_to_hex_string(private_key: &Secp256r1PrivateKey) -> String {
-	hex::encode(private_key.to_raw_bytes().to_vec())
+	hex::encode(private_key.to_raw_bytes())
 }
 
 /// Convert a private key in hex format to a Secp256r1PrivateKey.
@@ -43,7 +43,7 @@ pub fn private_key_from_hex(hex: &str) -> Result<Secp256r1PrivateKey, CryptoErro
 ///
 /// A hexadecimal string representation of the public key
 pub fn public_key_to_hex_string(public_key: &[u8]) -> String {
-	hex::encode(public_key.to_vec())
+	hex::encode(public_key)
 }
 
 /// Convert a public key in hex format to a Secp256r1PublicKey.
@@ -130,12 +130,23 @@ pub trait FromBase64String {
 
 impl FromBase64String for str {
 	fn from_base64_string(&self) -> Result<Vec<u8>, base64::DecodeError> {
-		base64::decode(self)
+		base64::engine::general_purpose::STANDARD.decode(self)
 	}
 }
 
 impl FromBase64String for String {
 	fn from_base64_string(&self) -> Result<Vec<u8>, base64::DecodeError> {
-		base64::decode(self)
+		base64::engine::general_purpose::STANDARD.decode(self)
+	}
+}
+
+/// Trait to add base64 encoding functionality to byte slices
+pub trait ToBase64String {
+	fn to_base64_string(&self) -> String;
+}
+
+impl ToBase64String for [u8] {
+	fn to_base64_string(&self) -> String {
+		base64::engine::general_purpose::STANDARD.encode(self)
 	}
 }

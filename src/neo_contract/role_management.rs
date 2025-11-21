@@ -1,5 +1,4 @@
 use async_trait::async_trait;
-use num_enum::TryFromPrimitive;
 use primitive_types::H160;
 use serde::{Deserialize, Serialize};
 
@@ -81,7 +80,7 @@ impl<'a, P: JsonRpcProvider + 'static> RoleManagement<'a, P> {
 		&self,
 		role: Role,
 		pub_keys: Vec<Secp256r1PublicKey>,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		if pub_keys.is_empty() {
 			return Err(ContractError::InvalidNeoName(
 				"At least 1 public key is required".to_string(),
@@ -99,7 +98,7 @@ impl<'a, P: JsonRpcProvider> SmartContractTrait<'a> for RoleManagement<'a, P> {
 	type P = P;
 
 	fn script_hash(&self) -> H160 {
-		self.script_hash.clone()
+		self.script_hash
 	}
 
 	fn set_script_hash(&mut self, script_hash: H160) {
@@ -135,8 +134,8 @@ impl From<Role> for StackItem {
 	}
 }
 
-impl Into<ContractParameter> for Role {
-	fn into(self) -> ContractParameter {
-		ContractParameter::integer(self.byte() as i64)
+impl From<Role> for ContractParameter {
+	fn from(role: Role) -> ContractParameter {
+		ContractParameter::integer(role.byte() as i64)
 	}
 }

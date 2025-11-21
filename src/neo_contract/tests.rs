@@ -9,8 +9,9 @@ use std::{collections::HashMap, str::FromStr};
 
 #[cfg(test)]
 mod tests {
+	#![allow(unused_variables, dead_code, clippy::module_inception)]
+
 	use super::*;
-	use std::sync::Arc;
 
 	// Create a test RPC client (uses mock in fast mode)
 	fn create_test_client() -> providers::RpcClient<providers::HttpProvider> {

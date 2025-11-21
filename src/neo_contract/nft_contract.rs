@@ -22,7 +22,7 @@ pub struct NftContract<'a, P: JsonRpcProvider> {
 impl<'a, P: JsonRpcProvider> NftContract<'a, P> {
 	pub fn new(script_hash: &H160, provider: Option<&'a RpcClient<P>>) -> Self {
 		Self {
-			script_hash: script_hash.clone(),
+			script_hash: *script_hash,
 			total_supply: None,
 			decimals: None,
 			symbol: None,

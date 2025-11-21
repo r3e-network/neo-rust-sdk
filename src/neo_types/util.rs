@@ -6,6 +6,7 @@
 // where such conversions and encodings are frequently required.
 
 use primitive_types::{H160, H256, U256};
+use base64::Engine;
 
 use crate::{prelude::ScriptHash, TypeError};
 
@@ -22,12 +23,12 @@ use crate::{prelude::ScriptHash, TypeError};
 /// assert_eq!(parse_string_u64(hex).unwrap(), 12345);
 /// ```
 pub fn parse_string_u64(u64_str: &str) -> Result<u64, TypeError> {
-	if u64_str.starts_with("0x") {
-		u64::from_str_radix(&u64_str[2..], 16).map_err(|e| {
+	if let Some(stripped) = u64_str.strip_prefix("0x") {
+		u64::from_str_radix(stripped, 16).map_err(|e| {
 			TypeError::InvalidFormat(format!("Failed to parse hex u64 '{}': {}", u64_str, e))
 		})
 	} else {
-		u64::from_str_radix(u64_str, 10).map_err(|e| {
+		u64_str.parse::<u64>().map_err(|e| {
 			TypeError::InvalidFormat(format!("Failed to parse decimal u64 '{}': {}", u64_str, e))
 		})
 	}
@@ -47,12 +48,12 @@ pub fn parse_string_u64(u64_str: &str) -> Result<u64, TypeError> {
 /// assert_eq!(parse_string_u256(hex).unwrap(), U256::from(123456789));
 /// ```
 pub fn parse_string_u256(u256_str: &str) -> Result<U256, TypeError> {
-	if u256_str.starts_with("0x") {
-		U256::from_str_radix(&u256_str[2..], 16).map_err(|e| {
+	if let Some(stripped) = u256_str.strip_prefix("0x") {
+		U256::from_str_radix(stripped, 16).map_err(|e| {
 			TypeError::InvalidFormat(format!("Failed to parse hex U256 '{}': {}", u256_str, e))
 		})
 	} else {
-		U256::from_str_radix(u256_str, 10).map_err(|e| {
+		U256::from_dec_str(u256_str).map_err(|e| {
 			TypeError::InvalidFormat(format!("Failed to parse decimal U256 '{}': {}", u256_str, e))
 		})
 	}
@@ -202,7 +203,7 @@ pub fn encode_string_u256(u256: &U256) -> String {
 /// assert_eq!(encoded_values, vec!["0x1", "0x2"]);
 /// ```
 pub fn encode_vec_string_vec_u256(item: Vec<U256>) -> Vec<String> {
-	item.iter().map(|x| encode_string_u256(&x)).collect()
+	item.iter().map(encode_string_u256).collect()
 }
 
 /// Parses a vector of hexadecimal string representations into a vector of `U256` values.
@@ -295,10 +296,10 @@ pub fn string_to_bytes(mystring: &str) -> Result<Vec<u8>, TypeError> {
 /// ```
 pub fn u256_sqrt(input: &U256) -> U256 {
 	if *input < 2.into() {
-		return input.clone();
+		return *input;
 	}
 	let mut x: U256 = (input + U256::one()) >> 1;
-	let mut y = input.clone();
+	let mut y = *input;
 	while x < y {
 		y = x;
 		x = (input / x + x) >> 1;
@@ -405,7 +406,7 @@ pub trait ToBase64 {
 
 impl ToBase64 for [u8] {
 	fn to_base64(&self) -> String {
-		base64::encode(self)
+		base64::engine::general_purpose::STANDARD.encode(self)
 	}
 }
 
@@ -424,7 +425,7 @@ mod test {
 	// }
 
 	#[test]
-	pub fn test_bytes_to_string() {
+	fn test_bytes_to_string() {
 		let mybytes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 		let bytestring = bytes_to_string(&mybytes);
 		let orig_bytestring = "0x0102030405060708090a";

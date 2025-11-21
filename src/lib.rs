@@ -1,5 +1,12 @@
+#![allow(
+	clippy::result_large_err,
+	clippy::too_many_arguments,
+	clippy::wrong_self_convention,
+	clippy::module_inception,
+	clippy::type_complexity
+)]
 //! ![Neo Logo](https://neo.org/images/neo-logo/NEO-logo.svg)
-//! # NeoRust SDK v0.4.4
+//! # NeoRust SDK v0.5.1
 //!
 //! A production-ready Rust SDK for the Neo N3 blockchain with enterprise-grade features.
 //!
@@ -34,13 +41,13 @@
 //!
 //! ```toml
 //! [dependencies]
-//! neo3 = { version = "0.4.4", features = ["futures", "ledger"] }
+//! neo3 = { version = "0.5.1", features = ["futures", "ledger"] }
 //! ```
 //!
 //! You can disable default features with:
 //!
 //! ```toml
-//! neo3 = { version = "0.4.4", default-features = false, features = ["futures"] }
+//! neo3 = { version = "0.5.1", default-features = false, features = ["futures"] }
 //! ```
 //!
 //! ## Overview
@@ -49,12 +56,12 @@
 //! intuitive, type-safe, and productive. The library provides full support for all
 //! Neo N3 features and follows Rust best practices for reliability and performance.
 //!
-//! ### New in v0.4.4
-//! - **Real-time Gas Estimation**: Accurate gas calculation via blockchain RPC
-//! - **Rate Limiting**: Token bucket algorithm with configurable presets
-//! - **Production Client**: Enterprise features with connection pooling and circuit breakers
-//! - **Property-Based Testing**: Comprehensive testing with proptest framework
-//! - **99.5% Production Ready**: Enterprise-grade reliability and performance
+//! ### New in v0.5.x
+//! - **WebSocket Support**: Real-time blockchain events with automatic reconnection
+//! - **HD Wallets (BIP-39/44)**: Deterministic wallet generation and derivation
+//! - **Transaction Simulation**: Preview fees, VM state, and state changes before sending
+//! - **High-Level SDK API**: Simplified entrypoint (`Neo`) for common operations
+//! - **Enhanced Error Handling**: Consistent `NeoError` with recovery suggestions
 //!
 //! ## Core Modules
 //!
@@ -402,7 +409,8 @@
 // Production-ready Neo N3 SDK - warnings are treated as errors in CI
 #![cfg_attr(feature = "sgx", no_std)]
 #![cfg_attr(feature = "sgx", feature(rustc_private))]
-#![warn(missing_debug_implementations, missing_docs, rust_2018_idioms, unreachable_pub)]
+#![allow(elided_lifetimes_in_paths, missing_docs, missing_debug_implementations)]
+#![warn(unreachable_pub)]
 #![doc(test(no_crate_inject, attr(deny(rust_2018_idioms), allow(dead_code, unused_variables))))]
 
 // SGX support
@@ -437,7 +445,7 @@ pub mod neo_sgx;
 pub mod neo_wallets;
 pub mod neo_x;
 
-// High-level SDK API (new in v0.5.0)
+// High-level SDK API (new in v0.5.x)
 pub mod sdk;
 
 // Re-exports for convenience
@@ -539,22 +547,19 @@ pub use crate::neo_types::serde_value::ValueExtension;
 /// ```
 pub mod prelude;
 
-#[cfg(all(test))]
+#[cfg(test)]
 mod tests {
 	use super::prelude::*;
 	use primitive_types::H160;
 	use std::str::FromStr;
-
-	use tokio;
 
 	use crate::{
 		builder::{AccountSigner, ScriptBuilder, TransactionBuilder},
 		neo_clients::{APITrait, HttpProvider, RpcClient},
 		neo_protocol::{Account, AccountTrait},
 	};
-	use url::Url;
 
-	#[cfg(all(test))]
+	#[cfg(test)]
 	#[tokio::test]
 	#[ignore] // Ignoring this test as it requires a live Neo N3 node and real tokens
 	async fn test_create_and_send_transaction() -> Result<(), Box<dyn std::error::Error>> {
@@ -595,7 +600,7 @@ mod tests {
 			.valid_until_block(rpc_client.get_block_count().await? + 5760)?; // Valid for ~1 day
 
 		// Sign the transaction
-		let mut signed_tx = tx_builder.sign().await?;
+		let signed_tx = tx_builder.sign().await?;
 
 		// For testing purposes, we'll just verify that we can create and sign the transaction
 		// without actually sending it to the network

@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use num_traits::{real::Real, ToPrimitive};
+use num_traits::ToPrimitive;
 use primitive_types::H160;
 use rust_decimal::Decimal;
 
@@ -29,7 +29,7 @@ pub trait TokenTrait<'a, P: JsonRpcProvider>: SmartContractTrait<'a, P = P> {
 
 	async fn get_total_supply(&mut self) -> Result<u64, ContractError> {
 		if let Some(supply) = &self.total_supply() {
-			return Ok(supply.clone().into());
+			return Ok(*supply);
 		}
 
 		let supply =
@@ -41,7 +41,7 @@ pub trait TokenTrait<'a, P: JsonRpcProvider>: SmartContractTrait<'a, P = P> {
 
 	async fn get_decimals(&mut self) -> Result<u8, ContractError> {
 		if let Some(decimals) = &self.decimals() {
-			return Ok(decimals.clone().into());
+			return Ok(*decimals);
 		}
 
 		let decimals =

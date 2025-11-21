@@ -2,6 +2,7 @@
 //!
 //! This module provides a hierarchical error system with context,
 //! recovery suggestions, and better error messages.
+#![allow(dead_code)]
 
 use std::fmt;
 use thiserror::Error;
@@ -86,7 +87,7 @@ pub enum NeoError {
 }
 
 /// Error recovery suggestions
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ErrorRecovery {
 	/// Suggested actions to recover from the error
 	pub suggestions: Vec<String>,
@@ -96,12 +97,6 @@ pub struct ErrorRecovery {
 	pub retry_after: Option<std::time::Duration>,
 	/// Links to documentation
 	pub docs: Vec<String>,
-}
-
-impl Default for ErrorRecovery {
-	fn default() -> Self {
-		Self { suggestions: vec![], retryable: false, retry_after: None, docs: vec![] }
-	}
 }
 
 impl ErrorRecovery {

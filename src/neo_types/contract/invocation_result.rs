@@ -41,11 +41,12 @@ fn default_gas_consumed() -> String {
 	"1234567".to_string()
 }
 
-#[derive(Serialize, EnumString, AsRefStr, Debug, PartialEq, Eq, Clone, Hash)]
+#[derive(Serialize, EnumString, AsRefStr, Debug, PartialEq, Eq, Clone, Hash, Default)]
 #[strum(serialize_all = "UPPERCASE")]
 #[serde(rename_all = "UPPERCASE")]
 pub enum NeoVMStateType {
 	None,
+	#[default]
 	Halt,
 	Fault,
 	Break,
@@ -53,12 +54,6 @@ pub enum NeoVMStateType {
 	StepOut,
 	StepOver,
 	Exception,
-}
-
-impl Default for NeoVMStateType {
-	fn default() -> Self {
-		NeoVMStateType::Halt
-	}
 }
 
 // Custom deserialization logic
@@ -93,6 +88,7 @@ impl<'de> Deserialize<'de> for NeoVMStateType {
 
 impl InvocationResult {
 	// constructor and helper methods
+	#[allow(clippy::too_many_arguments)]
 	pub fn new(
 		script: String,
 		state: NeoVMStateType,

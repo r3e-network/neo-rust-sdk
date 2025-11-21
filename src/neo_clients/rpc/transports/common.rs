@@ -118,7 +118,7 @@ impl<'de: 'a, 'a> Deserialize<'de> for Response<'a> {
 	where
 		D: serde::Deserializer<'de>,
 	{
-		struct ResponseVisitor<'a>(&'a ());
+		struct ResponseVisitor<'a>(std::marker::PhantomData<&'a ()>);
 		impl<'de: 'a, 'a> Visitor<'de> for ResponseVisitor<'a> {
 			type Value = Response<'a>;
 
@@ -228,7 +228,7 @@ impl<'de: 'a, 'a> Deserialize<'de> for Response<'a> {
 			}
 		}
 
-		deserializer.deserialize_map(ResponseVisitor(&()))
+		deserializer.deserialize_map(ResponseVisitor(std::marker::PhantomData))
 	}
 }
 
@@ -360,7 +360,6 @@ impl JwtAuth {
 			&jsonwebtoken::DecodingKey::from_secret(secret.as_bytes()),
 			&validation,
 		)
-		.map_err(Into::into)
 	}
 }
 
@@ -395,9 +394,7 @@ mod tests {
 				let result: u64 = serde_json::from_str(result.get()).unwrap();
 				assert_eq!(result, 19);
 			},
-			_ => {
-				assert!(false, "Expected Success response but got: {:?}", response);
-			},
+			_ => panic!("Expected Success response but got: {:?}", response),
 		}
 
 		let response: Response<'_> = serde_json::from_str(
@@ -412,9 +409,7 @@ mod tests {
 				assert_eq!(error.message, "error occurred");
 				assert!(error.data.is_none());
 			},
-			_ => {
-				assert!(false, "Expected Error response but got: {:?}", response);
-			},
+			_ => panic!("Expected Error response but got: {:?}", response),
 		}
 
 		let response: Response<'_> =
@@ -426,9 +421,7 @@ mod tests {
 				let result: String = serde_json::from_str(result.get()).unwrap();
 				assert_eq!(i64::from_str_radix(result.trim_start_matches("0x"), 16).unwrap(), 250);
 			},
-			_ => {
-				assert!(false, "Expected Success response but got: {:?}", response);
-			},
+			_ => panic!("Expected Success response but got: {:?}", response),
 		}
 	}
 

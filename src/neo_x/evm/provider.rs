@@ -10,6 +10,7 @@ use crate::{
 pub struct NeoXProvider<'a, P: JsonRpcProvider> {
 	rpc_url: String,
 	#[serde(skip)]
+	#[allow(dead_code)]
 	provider: Option<&'a RpcClient<P>>,
 }
 

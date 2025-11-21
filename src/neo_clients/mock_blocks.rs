@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use primitive_types::{H160, H256};
 use rand::Rng;
 use std::time::{SystemTime, UNIX_EPOCH};

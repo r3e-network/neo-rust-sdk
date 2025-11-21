@@ -3,6 +3,7 @@
 //! This module provides comprehensive WebSocket connectivity for Neo blockchain,
 //! enabling real-time event subscriptions, transaction monitoring, and live
 //! notifications with automatic reconnection and error recovery.
+#![allow(missing_docs, missing_debug_implementations)]
 //!
 //! ## Features
 //!
@@ -38,7 +39,7 @@
 //! ```
 
 use crate::neo_error::unified::{ErrorRecovery, NeoError};
-use crate::neo_types::{Address, Bytes, ScriptHash};
+use crate::neo_types::{Address, ScriptHash};
 use futures_util::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

@@ -1,6 +1,7 @@
 use bs58;
 use hex;
 use sha2::{Digest, Sha256};
+use base64::Engine;
 
 use neo3::prelude::ScriptHash;
 
@@ -34,11 +35,11 @@ impl StringExt for String {
 	}
 
 	fn base64_decoded(&self) -> Result<Vec<u8>, base64::DecodeError> {
-		base64::decode(self)
+		base64::engine::general_purpose::STANDARD.decode(self)
 	}
 
 	fn base64_encoded(&self) -> String {
-		base64::encode(self.as_bytes())
+		base64::engine::general_purpose::STANDARD.encode(self.as_bytes())
 	}
 
 	fn base58_decoded(&self) -> Option<Vec<u8>> {
@@ -70,7 +71,7 @@ impl StringExt for String {
 	fn is_valid_address(&self) -> bool {
 		if let Some(data) = self.base58_decoded() {
 			if data.len() == 25 && data[0] == 0x17 {
-				let checksum = &Sha256::digest(&Sha256::digest(&data[..21]))[..4];
+				let checksum = &Sha256::digest(Sha256::digest(&data[..21]))[..4];
 				checksum == &data[21..]
 			} else {
 				false
@@ -81,7 +82,7 @@ impl StringExt for String {
 	}
 
 	fn is_valid_hex(&self) -> bool {
-		self.len() % 2 == 0 && self.chars().all(|c| c.is_ascii_hexdigit())
+		self.len().is_multiple_of(2) && self.chars().all(|c| c.is_ascii_hexdigit())
 	}
 
 	fn address_to_scripthash(&self) -> Result<ScriptHash, &'static str> {

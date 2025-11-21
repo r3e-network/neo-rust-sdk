@@ -50,7 +50,7 @@ impl<'a, P: JsonRpcProvider + 'static> NeoToken<'a, P> {
 
 	// Unclaimed Gas
 
-	async fn unclaimed_gas(
+	pub async fn unclaimed_gas(
 		&self,
 		account: &Account,
 		block_height: i32,
@@ -58,7 +58,7 @@ impl<'a, P: JsonRpcProvider + 'static> NeoToken<'a, P> {
 		self.unclaimed_gas_contract(&account.get_script_hash(), block_height).await
 	}
 
-	async fn unclaimed_gas_contract(
+	pub async fn unclaimed_gas_contract(
 		&self,
 		script_hash: &H160,
 		block_height: i32,
@@ -74,29 +74,29 @@ impl<'a, P: JsonRpcProvider + 'static> NeoToken<'a, P> {
 
 	// Candidate Registration
 
-	async fn register_candidate(
+	pub async fn register_candidate(
 		&self,
 		candidate_key: &Secp256r1PublicKey,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		self.invoke_function("registerCandidate", vec![candidate_key.into()]).await
 	}
 
-	async fn unregister_candidate(
+	pub async fn unregister_candidate(
 		&self,
 		candidate_key: &Secp256r1PublicKey,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		self.invoke_function("unregisterCandidate", vec![candidate_key.into()]).await
 	}
 
 	// Committee and Candidates Information
 
-	async fn get_committee(&self) -> Result<Vec<Secp256r1PublicKey>, ContractError> {
+	pub async fn get_committee(&self) -> Result<Vec<Secp256r1PublicKey>, ContractError> {
 		self.call_function_returning_list_of_public_keys("getCommittee")
 			.await
 			.map_err(|e| ContractError::UnexpectedReturnType(e.to_string()))
 	}
 
-	async fn get_candidates(&self) -> Result<Vec<Candidate>, ContractError> {
+	pub async fn get_candidates(&self) -> Result<Vec<Candidate>, ContractError> {
 		let candidates = self.call_invoke_function("getCandidates", vec![], vec![]).await.unwrap();
 		let item = candidates.stack.first().unwrap();
 		if let StackItem::Array { value: array } = item {
@@ -116,7 +116,7 @@ impl<'a, P: JsonRpcProvider + 'static> NeoToken<'a, P> {
 		}
 	}
 
-	async fn is_candidate(&self, public_key: &Secp256r1PublicKey) -> Result<bool, ContractError> {
+	pub async fn is_candidate(&self, public_key: &Secp256r1PublicKey) -> Result<bool, ContractError> {
 		Ok(self
 			.get_candidates()
 			.await
@@ -127,11 +127,11 @@ impl<'a, P: JsonRpcProvider + 'static> NeoToken<'a, P> {
 
 	// Voting
 
-	async fn vote(
+	pub async fn vote(
 		&self,
 		voter: &H160,
 		candidate: Option<&Secp256r1PublicKey>,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let params = match candidate {
 			Some(key) => vec![voter.into(), key.into()],
 			None => vec![voter.into(), ContractParameter::new(ContractParameterType::Any)],
@@ -140,11 +140,11 @@ impl<'a, P: JsonRpcProvider + 'static> NeoToken<'a, P> {
 		self.invoke_function("vote", params).await
 	}
 
-	async fn cancel_vote(&self, voter: &H160) -> Result<TransactionBuilder<P>, ContractError> {
+	pub async fn cancel_vote(&self, voter: &H160) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		self.vote(voter, None).await
 	}
 
-	async fn build_vote_script(
+	pub async fn build_vote_script(
 		&self,
 		voter: &H160,
 		candidate: Option<&Secp256r1PublicKey>,
@@ -159,29 +159,29 @@ impl<'a, P: JsonRpcProvider + 'static> NeoToken<'a, P> {
 
 	// Network Settings
 
-	async fn get_gas_per_block(&self) -> Result<i32, ContractError> {
+	pub async fn get_gas_per_block(&self) -> Result<i32, ContractError> {
 		self.call_function_returning_int("getGasPerBlock", vec![]).await
 	}
 
-	async fn set_gas_per_block(
+	pub async fn set_gas_per_block(
 		&self,
 		gas_per_block: i32,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		self.invoke_function("setGasPerBlock", vec![gas_per_block.into()]).await
 	}
 
-	async fn get_register_price(&self) -> Result<i32, ContractError> {
+	pub async fn get_register_price(&self) -> Result<i32, ContractError> {
 		self.call_function_returning_int("getRegisterPrice", vec![]).await
 	}
 
-	async fn set_register_price(
+	pub async fn set_register_price(
 		&self,
 		register_price: i32,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		self.invoke_function("setRegisterPrice", vec![register_price.into()]).await
 	}
 
-	async fn get_account_state(&self, account: &H160) -> Result<AccountState, ContractError> {
+	pub async fn get_account_state(&self, account: &H160) -> Result<AccountState, ContractError> {
 		let result = self
 			.call_invoke_function("getAccountState", vec![account.into()], vec![])
 			.await
@@ -199,11 +199,11 @@ impl<'a, P: JsonRpcProvider + 'static> NeoToken<'a, P> {
 				let public_key = items[2].clone();
 
 				if let StackItem::Any = public_key {
-					return Ok(AccountState {
+					Ok(AccountState {
 						balance,
 						balance_height: update_height,
 						public_key: None,
-					});
+					})
 				} else {
 					let pubkey =
 						Secp256r1PublicKey::from_bytes(public_key.as_bytes().unwrap().as_slice())
@@ -219,7 +219,7 @@ impl<'a, P: JsonRpcProvider + 'static> NeoToken<'a, P> {
 		}
 	}
 
-	async fn call_function_returning_list_of_public_keys(
+	pub async fn call_function_returning_list_of_public_keys(
 		&self,
 		function: &str,
 	) -> Result<Vec<Secp256r1PublicKey>, ContractError> {
@@ -249,6 +249,7 @@ impl<'a, P: JsonRpcProvider + 'static> NeoToken<'a, P> {
 		}
 	}
 
+	#[allow(dead_code)]
 	async fn resolve_nns_text_record(&self, _name: &NNSName) -> Result<H160, ContractError> {
 		// NEO token doesn't support NNS text record resolution
 		// Return an error indicating this operation is not supported

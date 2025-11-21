@@ -1,4 +1,11 @@
-use std::{collections::HashMap, fs::File, io::Write, path::PathBuf};
+#![allow(missing_docs)]
+
+use std::{
+	collections::HashMap,
+	fs::File,
+	io::Write,
+	path::{Path, PathBuf},
+};
 
 use primitive_types::H160;
 use rayon::prelude::*;
@@ -37,6 +44,19 @@ pub struct Wallet {
 	pub extra: Option<HashMap<String, String>>,
 }
 
+impl Default for Wallet {
+	fn default() -> Self {
+		Self {
+			name: "NeoWallet".to_string(),
+			version: "1.0".to_string(),
+			scrypt_params: ScryptParamsDef::default(),
+			accounts: HashMap::new(),
+			default_account: H160::default(),
+			extra: None,
+		}
+	}
+}
+
 impl WalletTrait for Wallet {
 	type Account = Account;
 
@@ -53,11 +73,7 @@ impl WalletTrait for Wallet {
 	}
 
 	fn accounts(&self) -> Vec<Self::Account> {
-		self.accounts
-			.clone()
-			.into_iter()
-			.map(|(_k, v)| v.clone())
-			.collect::<Vec<Self::Account>>()
+		self.accounts.values().cloned().collect::<Vec<Self::Account>>()
 	}
 
 	fn default_account(&self) -> &Account {
@@ -77,7 +93,7 @@ impl WalletTrait for Wallet {
 	}
 
 	fn set_default_account(&mut self, default_account: H160) {
-		self.default_account = default_account.clone();
+		self.default_account = default_account;
 		if let Some(account) = self.accounts.get_mut(&self.default_account) {
 			account.is_default = true;
 		}
@@ -86,7 +102,7 @@ impl WalletTrait for Wallet {
 	fn add_account(&mut self, account: Self::Account) {
 		// let weak_self = Arc::new(&self);
 		// account.set_wallet(Some(Arc::downgrade(weak_self)));
-		self.accounts.insert(account.get_script_hash().clone(), account);
+		self.accounts.insert(account.get_script_hash(), account);
 	}
 
 	fn remove_account(&mut self, hash: &H160) -> Option<Self::Account> {
@@ -125,18 +141,6 @@ impl Wallet {
 		}
 	}
 
-	/// Creates a new wallet instance without any accounts.
-	pub fn default() -> Self {
-		Self {
-			name: "NeoWallet".to_string(),
-			version: "1.0".to_string(),
-			scrypt_params: ScryptParamsDef::default(),
-			accounts: HashMap::new(),
-			default_account: H160::default(),
-			extra: None,
-		}
-	}
-
 	/// Converts the wallet to a NEP6Wallet format.
 	pub fn to_nep6(&self) -> Result<Nep6Wallet, WalletError> {
 		let accounts = self
@@ -165,7 +169,7 @@ impl Wallet {
 	pub fn from_nep6(nep6: Nep6Wallet) -> Result<Self, WalletError> {
 		let accounts = nep6
 			.accounts()
-			.into_iter()
+			.iter()
 			.filter_map(|v| v.to_account().ok())
 			.collect::<Vec<_>>();
 
@@ -185,7 +189,7 @@ impl Wallet {
 			name: nep6.name().clone(),
 			version: nep6.version().clone(),
 			scrypt_params: nep6.scrypt().clone(),
-			accounts: accounts.into_iter().map(|a| (a.get_script_hash().clone(), a)).collect(),
+			accounts: accounts.into_iter().map(|a| (a.get_script_hash(), a)).collect(),
 			default_account: default_account_address.address_to_script_hash().map_err(|e| {
 				WalletError::AccountState(format!(
 					"Failed to convert address to script hash: {}",
@@ -460,7 +464,7 @@ impl Wallet {
 	///
 	/// A `Result` containing the new wallet or a `WalletError`
 	#[deprecated(since = "0.1.0", note = "Please use `create_wallet` instead")]
-	pub fn create(path: &PathBuf, password: &str) -> Result<Self, WalletError> {
+	pub fn create(path: &Path, password: &str) -> Result<Self, WalletError> {
 		Self::create_wallet(path, password)
 	}
 
@@ -478,7 +482,7 @@ impl Wallet {
 	///
 	/// A `Result` containing the opened wallet or a `WalletError`
 	#[deprecated(since = "0.1.0", note = "Please use `open_wallet` instead")]
-	pub fn open(path: &PathBuf, password: &str) -> Result<Self, WalletError> {
+	pub fn open(path: &Path, password: &str) -> Result<Self, WalletError> {
 		Self::open_wallet(path, password)
 	}
 
@@ -499,8 +503,8 @@ impl Wallet {
 		let key_pair = KeyPair::from_wif(wif)
 			.map_err(|e| WalletError::AccountState(format!("Failed to import private key: {e}")))?;
 
-		let account = Account::from_key_pair(key_pair, None, None)
-			.map_err(|e| WalletError::ProviderError(e))?;
+		let account =
+			Account::from_key_pair(key_pair, None, None).map_err(WalletError::ProviderError)?;
 		self.add_account(account.clone());
 		Ok(self.get_account(&account.get_script_hash()).unwrap())
 	}
@@ -678,7 +682,7 @@ impl Wallet {
 	/// # Parameters
 	///
 	/// - `message`: The message to be signed. This can be any data that implements `AsRef<[u8]>`,
-	/// allowing for flexibility in the type of data that can be signed.
+	///   allowing for flexibility in the type of data that can be signed.
 	///
 	/// # Returns
 	///
@@ -829,6 +833,7 @@ impl Wallet {
 	/// # Returns
 	///
 	/// The `Address` of the wallet's default account.
+	#[allow(dead_code)]
 	fn address(&self) -> String {
 		// Get the default account's address
 		if let Some(account) = self.get_account(&self.default_account) {
@@ -849,18 +854,18 @@ impl Wallet {
 	/// # Returns
 	///
 	/// A `Result` containing the new wallet or a `WalletError`
-	pub fn create_wallet(path: &PathBuf, password: &str) -> Result<Self, WalletError> {
+	pub fn create_wallet(path: &Path, password: &str) -> Result<Self, WalletError> {
 		let mut wallet = Wallet::new();
 
 		// Create a new account for the wallet
-		let account = Account::create().map_err(|e| WalletError::ProviderError(e))?;
+		let account = Account::create().map_err(WalletError::ProviderError)?;
 		wallet.add_account(account);
 
 		// Encrypt the wallet with the provided password
 		wallet.encrypt_accounts(password);
 
 		// Save the wallet to the specified path
-		wallet.save_to_file(path.clone())?;
+		wallet.save_to_file(path.to_path_buf())?;
 
 		Ok(wallet)
 	}
@@ -875,7 +880,7 @@ impl Wallet {
 	/// # Returns
 	///
 	/// A `Result` containing the opened wallet or a `WalletError`
-	pub fn open_wallet(path: &PathBuf, password: &str) -> Result<Self, WalletError> {
+	pub fn open_wallet(path: &Path, password: &str) -> Result<Self, WalletError> {
 		// Read the wallet file
 		let wallet_json = std::fs::read_to_string(path)
 			.map_err(|e| WalletError::FileError(format!("Failed to read wallet file: {e}")))?;
@@ -915,7 +920,7 @@ impl Wallet {
 	///
 	/// A `Result` containing the new account or a `WalletError`
 	pub fn create_new_account(&mut self) -> Result<&Account, WalletError> {
-		let account = Account::create().map_err(|e| WalletError::ProviderError(e))?;
+		let account = Account::create().map_err(WalletError::ProviderError)?;
 		let script_hash = account.address_or_scripthash.script_hash();
 		self.add_account(account);
 
@@ -933,7 +938,7 @@ impl Wallet {
 	/// A `Result` containing the imported account or a `WalletError`
 	pub fn import_from_wif(&mut self, private_key: &str) -> Result<&Account, WalletError> {
 		// Create a key pair from the private key
-		let key_pair = KeyPair::from_wif(private_key).map_err(|e| WalletError::CryptoError(e))?;
+		let key_pair = KeyPair::from_wif(private_key).map_err(WalletError::CryptoError)?;
 
 		// Create an account from the key pair
 		let account = Account::from_key_pair(key_pair, None, None)
@@ -972,7 +977,7 @@ impl Wallet {
 			let unclaimed = rpc_client
 				.get_unclaimed_gas(script_hash)
 				.await
-				.map_err(|e| WalletError::ProviderError(e))?;
+				.map_err(WalletError::ProviderError)?;
 
 			// Add to the total
 			total_unclaimed += unclaimed.unclaimed.parse::<f64>().unwrap_or(0.0);
@@ -989,6 +994,7 @@ impl Wallet {
 	/// # Returns
 	///
 	/// The network ID as a `u32`.
+	#[allow(dead_code)]
 	fn network(&self) -> u32 {
 		// Default to MainNet if not specified
 		self.extra
@@ -1048,7 +1054,7 @@ mod tests {
 		assert!(!account.is_default);
 
 		let hash = account.address_or_scripthash.script_hash();
-		wallet.set_default_account(hash.clone());
+		wallet.set_default_account(hash);
 		assert!(wallet.get_account(&hash).expect("Account should exist in wallet").is_default);
 	}
 
@@ -1098,7 +1104,7 @@ mod tests {
 	#[test]
 	fn test_is_default_account() {
 		let account = Account::create().expect("Should be able to create account in test");
-		let mut wallet = Wallet::from_accounts(vec![account.clone()])
+		let wallet = Wallet::from_accounts(vec![account.clone()])
 			.expect("Should be able to create wallet from accounts in test");
 
 		assert_eq!(wallet.default_account, account.get_script_hash());

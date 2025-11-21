@@ -125,15 +125,13 @@ pub trait SmartContractTrait<'a>: Send + Sync {
 		signers: Vec<Signer>,
 	) -> Result<InvocationResult, ContractError> {
 		if function.is_empty() {
-			return Err(ContractError::from(ContractError::InvalidNeoName(
-				"Function cannot be empty".to_string(),
-			)));
+			return Err(ContractError::InvalidNeoName("Function cannot be empty".to_string()));
 		}
 
 		let res = self
 			.provider()
 			.unwrap()
-			.invoke_function(&self.script_hash().clone(), function.into(), params, Some(signers))
+			.invoke_function(&self.script_hash(), function.into(), params, Some(signers))
 			.await?
 			.clone();
 
@@ -160,7 +158,7 @@ pub trait SmartContractTrait<'a>: Send + Sync {
 		let item = &output.stack[0];
 		item.as_bytes()
 			.as_deref()
-			.map(|b| ScriptHash::from_script(b))
+			.map(ScriptHash::from_script)
 			.ok_or_else(|| ContractError::UnexpectedReturnType("Script hash".to_string()))
 	}
 

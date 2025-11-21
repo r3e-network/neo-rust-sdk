@@ -176,13 +176,19 @@ impl NeoSerializable for TransactionSigner {
 		writer.write_serializable_fixed(self.get_signer_hash());
 		writer.write_u8(WitnessScope::combine(self.scopes.as_slice()));
 		if self.scopes.contains(&WitnessScope::CustomContracts) {
-			writer.write_serializable_variable_list(self.allowed_contracts.as_ref().unwrap());
+			writer
+				.write_serializable_variable_list(self.allowed_contracts.as_ref().unwrap())
+				.expect("Failed to encode transaction signer allowed contracts");
 		}
 		if self.scopes.contains(&WitnessScope::CustomGroups) {
-			writer.write_serializable_variable_list(self.allowed_groups.as_ref().unwrap());
+			writer
+				.write_serializable_variable_list(self.allowed_groups.as_ref().unwrap())
+				.expect("Failed to encode transaction signer allowed groups");
 		}
 		if self.scopes.contains(&WitnessScope::WitnessRules) {
-			writer.write_serializable_variable_list(self.rules.as_ref().unwrap());
+			writer
+				.write_serializable_variable_list(self.rules.as_ref().unwrap())
+				.expect("Failed to encode transaction signer rules");
 		}
 	}
 

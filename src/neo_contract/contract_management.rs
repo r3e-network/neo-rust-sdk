@@ -1,5 +1,4 @@
 use async_trait::async_trait;
-use futures::{FutureExt, TryFutureExt};
 use primitive_types::H160;
 use serde::{Deserialize, Serialize};
 
@@ -121,7 +120,7 @@ impl<'a, P: JsonRpcProvider + 'static> ContractManagement<'a, P> {
 		nef: &NefFile,
 		manifest: &[u8],
 		data: Option<ContractParameter>,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let params = vec![nef.into(), manifest.into(), data.unwrap()];
 		let tx = self.invoke_function("deploy", params).await;
 		tx
@@ -133,7 +132,7 @@ impl<'a, P: JsonRpcProvider> SmartContractTrait<'a> for ContractManagement<'a, P
 	type P = P;
 
 	fn script_hash(&self) -> H160 {
-		self.script_hash.clone()
+		self.script_hash
 	}
 
 	fn set_script_hash(&mut self, script_hash: H160) {

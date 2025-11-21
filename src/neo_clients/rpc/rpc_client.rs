@@ -79,6 +79,7 @@ impl FromStr for NeoClient {
 #[derive(Clone, Debug, Getters)]
 pub struct RpcClient<P> {
 	provider: P,
+	#[allow(dead_code)]
 	nns: Option<Address>,
 	interval: Option<Duration>,
 	from: Option<Address>,
@@ -500,7 +501,7 @@ impl<P: JsonRpcProvider> APITrait for RpcClient<P> {
 		&self,
 		nef: NefFile,
 		manifest: ContractManifest,
-		signers: Vec<Signer>,
+		_signers: Vec<Signer>,
 	) -> Result<TransactionBuilder<P>, ProviderError> {
 		let nef_bytes = nef.to_array();
 		let manifest_json = serde_json::to_string(&manifest).map_err(|e| {
@@ -528,7 +529,7 @@ impl<P: JsonRpcProvider> APITrait for RpcClient<P> {
 		contract_hash: H160,
 		nef: NefFile,
 		manifest: ContractManifest,
-		signers: Vec<Signer>,
+		_signers: Vec<Signer>,
 	) -> Result<TransactionBuilder<P>, ProviderError> {
 		let nef_bytes = nef.to_array();
 		let manifest_json = serde_json::to_string(&manifest).map_err(|e| {
@@ -557,7 +558,7 @@ impl<P: JsonRpcProvider> APITrait for RpcClient<P> {
 		contract_hash: H160,
 		method: &str,
 		parameters: Vec<ContractParameter>,
-		signers: Vec<Signer>,
+		_signers: Vec<Signer>,
 	) -> Result<TransactionBuilder<P>, ProviderError> {
 		let mut script_builder = ScriptBuilder::new();
 		script_builder
@@ -677,7 +678,10 @@ impl<P: JsonRpcProvider> APITrait for RpcClient<P> {
 	/// Gets the wallet balance of the corresponding token.
 	/// - Parameter tokenHash: The token hash
 	/// - Returns: The request object
-	async fn get_wallet_balance(&self, token_hash: H160) -> Result<Balance, ProviderError> {
+	async fn get_wallet_balance(
+		&self,
+		token_hash: H160,
+	) -> Result<WalletBalance, ProviderError> {
 		self.request("getwalletbalance", vec![token_hash.to_value()]).await
 	}
 
@@ -706,9 +710,9 @@ impl<P: JsonRpcProvider> APITrait for RpcClient<P> {
 	/// - Returns: The request object
 	async fn calculate_network_fee(
 		&self,
-		txBase64: String,
+		tx_base64: String,
 	) -> Result<NeoNetworkFee, ProviderError> {
-		self.request("calculatenetworkfee", vec![Base64Encode::to_base64(&txBase64)])
+		self.request("calculatenetworkfee", vec![Base64Encode::to_base64(&tx_base64)])
 			.await
 	}
 
@@ -783,7 +787,7 @@ impl<P: JsonRpcProvider> APITrait for RpcClient<P> {
 
 	async fn cancel_transaction(
 		&self,
-		txHash: H256,
+		tx_hash: H256,
 		signers: Vec<H160>,
 		extra_fee: Option<u64>,
 	) -> Result<RTransaction, ProviderError> {
@@ -794,7 +798,7 @@ impl<P: JsonRpcProvider> APITrait for RpcClient<P> {
 		let signer_addresses: Vec<String> =
 			signers.into_iter().map(|signer| signer.to_address()).collect();
 		let params = json!([
-			hex::encode(txHash.0),
+			hex::encode(tx_hash.0),
 			signer_addresses,
 			extra_fee.map_or("".to_string(), |fee| fee.to_string())
 		]);

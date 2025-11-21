@@ -1,3 +1,4 @@
+#![allow(clippy::items_after_test_module)]
 // This module demonstrates extensions for blockchain address manipulation, focusing on converting between addresses, script hashes,
 // and handling various formats like Base58 and hexadecimal strings. It leverages cryptographic functions, serialization, and
 // deserialization to work with blockchain-specific data types.
@@ -158,7 +159,7 @@ mod tests {
 	}
 }
 
-pub fn from_script_hash(script_hash: &H160) -> Result<String, NeoError> {
+pub fn from_script_hash(_script_hash: &H160) -> Result<String, NeoError> {
 	Err(NeoError::UnsupportedOperation(
 		"Address conversion from script hash requires comprehensive cryptographic implementation"
 			.to_string(),

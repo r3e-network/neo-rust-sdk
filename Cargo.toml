@@ -1,6 +1,6 @@
 [package]
 name = "neo3"
-version = "0.5.0"
+version = "0.5.1"
 edition = "2021"
 authors = ["R3E Network <jimmy@r3e.network> (c) 2020-2025"]
 license = "MIT OR Apache-2.0"
@@ -273,6 +273,13 @@ default = []
 # YubiHSM features - only for development/testing
 yubi = ["dep:yubihsm"]
 mock-hsm = ["dep:yubihsm", "yubihsm/mockhsm"]
+dev-rpc = []
+ipc = []
+init = []
+substrate = []
+ws = []
+legacy-ws = []
+yubihsm = []
 
 # SGX support for secure enclave execution
 # Note: SGX dependencies must be manually uncommented above when building for SGX
@@ -294,4 +301,3 @@ no_std = [
     "elliptic-curve/arithmetic",
     "generic-array/more_lengths"
 ]
-

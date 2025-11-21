@@ -229,6 +229,12 @@ impl PartialEq for Counter {
 	}
 }
 
+impl Default for Counter {
+	fn default() -> Self {
+		Self::new()
+	}
+}
+
 impl Counter {
 	pub fn new() -> Self {
 		Counter { count: Arc::new(Mutex::new(1)) }

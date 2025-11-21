@@ -76,7 +76,7 @@ impl AccountSigner {
 
 	/// Returns the script hash of the account.
 	pub fn get_script_hash(&self) -> H160 {
-		self.account.get_script_hash().clone()
+		self.account.get_script_hash()
 	}
 }
 
@@ -101,13 +101,19 @@ impl NeoSerializable for AccountSigner {
 		writer.write_serializable_fixed(&self.signer_hash);
 		writer.write_u8(WitnessScope::combine(&self.scopes));
 		if self.scopes.contains(&WitnessScope::CustomContracts) {
-			writer.write_serializable_variable_list(&self.allowed_contracts);
+			writer
+				.write_serializable_variable_list(&self.allowed_contracts)
+				.expect("Failed to encode account signer allowed contracts");
 		}
 		if self.scopes.contains(&WitnessScope::CustomGroups) {
-			writer.write_serializable_variable_list(&self.allowed_groups);
+			writer
+				.write_serializable_variable_list(&self.allowed_groups)
+				.expect("Failed to encode account signer allowed groups");
 		}
 		if self.scopes.contains(&WitnessScope::WitnessRules) {
-			writer.write_serializable_variable_list(&self.rules);
+			writer
+				.write_serializable_variable_list(&self.rules)
+				.expect("Failed to encode account signer rules");
 		}
 	}
 
@@ -249,7 +255,7 @@ impl SignerTrait for AccountSigner {
 impl AccountSigner {
 	pub fn new(account: &Account, scope: WitnessScope) -> Self {
 		Self {
-			signer_hash: account.get_script_hash().clone(),
+			signer_hash: account.get_script_hash(),
 			scopes: vec![scope],
 			allowed_contracts: vec![],
 			allowed_groups: vec![],

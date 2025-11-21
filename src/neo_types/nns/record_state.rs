@@ -1,4 +1,4 @@
-use std::hash::{Hash, Hasher};
+use std::hash::Hash;
 
 use num_enum::TryFromPrimitive;
 use serde::{Deserialize, Serialize};
@@ -12,6 +12,7 @@ pub struct RecordState {
 	pub data: String,
 }
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug, TryFromPrimitive)]
 #[repr(u8)]
 pub enum RecordType {
@@ -31,7 +32,7 @@ impl RecordState {
 			StackItem::Array { value: vec } if vec.len() == 3 => {
 				if let Some(name) = vec[0].as_string() {
 					if let Some(byte) = vec[1].as_int() {
-						if let Some(record_type) = RecordType::try_from(byte as u8).ok() {
+						if let Ok(record_type) = RecordType::try_from(byte as u8) {
 							if let Some(data) = vec[2].as_string() {
 								return Ok(Self::new(name, record_type, data));
 							}

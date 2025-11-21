@@ -2,7 +2,7 @@
 //!
 //! This shows how the simplified API makes common operations much easier.
 
-use neo3::sdk::{Neo, Network, Token};
+use neo3::sdk::{Neo, Network};
 use std::time::Duration;
 
 #[tokio::main]

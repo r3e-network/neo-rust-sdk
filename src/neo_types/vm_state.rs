@@ -15,12 +15,14 @@ use strum_macros::{Display, EnumString};
 	TryFromPrimitive,
 	Serialize,
 	Deserialize,
+	Default,
 )]
 #[repr(u8)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum VMState {
 	/// The virtual machine is in the "NONE" state.
 	#[strum(serialize = "NONE")]
+	#[default]
 	None = 0,
 	/// The virtual machine is in the "HALT" state.
 	#[strum(serialize = "HALT")]
@@ -31,11 +33,4 @@ pub enum VMState {
 	/// The virtual machine is in the "BREAK" state.
 	#[strum(serialize = "BREAK")]
 	Break = 4,
-}
-
-impl Default for VMState {
-	fn default() -> Self {
-		// Provide a default implementation for VMState
-		VMState::None
-	}
 }

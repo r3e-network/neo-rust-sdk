@@ -1,5 +1,3 @@
-use std::hash::{Hash, Hasher};
-
 use primitive_types::H160;
 use serde::{Deserialize, Serialize};
 

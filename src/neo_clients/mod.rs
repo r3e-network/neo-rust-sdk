@@ -1,5 +1,5 @@
 #![allow(clippy::type_complexity)]
-#![warn(missing_docs)]
+#![allow(missing_docs)]
 #![deny(unsafe_code)]
 
 //! # Neo Clients

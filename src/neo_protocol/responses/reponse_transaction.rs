@@ -1,5 +1,3 @@
-use std::hash::{Hash, Hasher};
-
 use super::{RTransactionSigner, TransactionAttributeEnum};
 use crate::{neo_protocol::NeoWitness, TypeError};
 use getset::{CopyGetters, Getters, MutGetters, Setters};

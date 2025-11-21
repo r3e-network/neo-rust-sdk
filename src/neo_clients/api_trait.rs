@@ -5,10 +5,10 @@ use crate::{
 	config::NEOCONFIG,
 	neo_clients::{JsonRpcProvider, ProviderError, RpcClient},
 	neo_protocol::{
-		ApplicationLog, Balance, MemPoolDetails, NeoAddress, NeoBlock, NeoNetworkFee, NeoVersion,
+		ApplicationLog, MemPoolDetails, NeoAddress, NeoBlock, NeoNetworkFee, NeoVersion,
 		Nep11Balances, Nep11Transfers, Nep17Balances, Nep17Transfers, Peers, Plugin, RTransaction,
 		RawTransaction, StateHeight, StateRoot, States, SubmitBlock, UnclaimedGas, ValidateAddress,
-		Validator,
+		Validator, WalletBalance,
 	},
 	ContractManifest, ContractParameter, ContractState, InvocationResult, NativeContractState,
 	NefFile, StackItem,
@@ -32,7 +32,7 @@ pub trait APITrait: Sync + Send + Debug {
 	async fn network(&self) -> Result<u32, ProviderError>;
 
 	fn nns_resolver(&self) -> H160 {
-		H160::from(NEOCONFIG.lock().unwrap().nns_resolver.clone())
+		NEOCONFIG.lock().unwrap().nns_resolver
 	}
 
 	fn block_interval(&self) -> u32 {
@@ -172,7 +172,7 @@ pub trait APITrait: Sync + Send + Debug {
 
 	async fn dump_priv_key(&self, script_hash: H160) -> Result<String, Self::Error>;
 
-	async fn get_wallet_balance(&self, token_hash: H160) -> Result<Balance, Self::Error>;
+	async fn get_wallet_balance(&self, token_hash: H160) -> Result<WalletBalance, Self::Error>;
 
 	async fn get_new_address(&self) -> Result<String, Self::Error>;
 
@@ -211,7 +211,7 @@ pub trait APITrait: Sync + Send + Debug {
 
 	async fn cancel_transaction(
 		&self,
-		txHash: H256,
+		tx_hash: H256,
 		signers: Vec<H160>,
 		extra_fee: Option<u64>,
 	) -> Result<RTransaction, ProviderError>;
@@ -307,7 +307,7 @@ pub trait APITrait: Sync + Send + Debug {
 		nef: NefFile,
 		manifest: ContractManifest,
 		signers: Vec<Signer>,
-	) -> Result<TransactionBuilder<Self::Provider>, Self::Error>;
+	) -> Result<TransactionBuilder<'life0, Self::Provider>, Self::Error>;
 
 	async fn create_contract_update_transaction(
 		&self,
@@ -315,7 +315,7 @@ pub trait APITrait: Sync + Send + Debug {
 		nef: NefFile,
 		manifest: ContractManifest,
 		signers: Vec<Signer>,
-	) -> Result<TransactionBuilder<Self::Provider>, Self::Error>;
+	) -> Result<TransactionBuilder<'life0, Self::Provider>, Self::Error>;
 
 	async fn create_invocation_transaction(
 		&self,
@@ -323,7 +323,7 @@ pub trait APITrait: Sync + Send + Debug {
 		method: &str,
 		params: Vec<ContractParameter>,
 		signers: Vec<Signer>,
-	) -> Result<TransactionBuilder<Self::Provider>, Self::Error>;
+	) -> Result<TransactionBuilder<'life0, Self::Provider>, Self::Error>;
 
 	async fn get_block_by_index(&self, index: u32, full_tx: bool) -> Result<NeoBlock, Self::Error>;
 

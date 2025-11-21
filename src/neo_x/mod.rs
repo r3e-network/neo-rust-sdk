@@ -83,7 +83,9 @@
 //! }
 //! ```
 
+/// Bridge operations between Neo N3 and Neo X
 pub mod bridge;
+/// EVM compatibility helpers for Neo X
 pub mod evm;
 
 pub use bridge::*;

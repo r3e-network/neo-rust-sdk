@@ -5,7 +5,7 @@ use std::str::FromStr;
 
 use crate::{
 	builder::{AccountSigner, TransactionBuilder},
-	neo_clients::{APITrait, JsonRpcProvider, RpcClient},
+	neo_clients::{JsonRpcProvider, RpcClient},
 	neo_contract::{ContractError, SmartContractTrait},
 	neo_protocol::Account,
 };
@@ -87,7 +87,7 @@ impl<'a, P: JsonRpcProvider + 'static> FlamingoContract<'a, P> {
 		amount: i64,
 		min_return: i64,
 		account: &Account,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let params = vec![
 			from_token.into(),
 			to_token.into(),
@@ -96,7 +96,9 @@ impl<'a, P: JsonRpcProvider + 'static> FlamingoContract<'a, P> {
 		];
 
 		let mut builder = self.invoke_function(Self::SWAP, params).await?;
-		builder.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()]);
+		builder
+			.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()])
+			.map_err(|err| ContractError::RuntimeError(err.to_string()))?;
 
 		Ok(builder)
 	}
@@ -121,7 +123,7 @@ impl<'a, P: JsonRpcProvider + 'static> FlamingoContract<'a, P> {
 		amount_a: i64,
 		amount_b: i64,
 		account: &Account,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let params = vec![
 			token_a.into(),
 			token_b.into(),
@@ -130,7 +132,9 @@ impl<'a, P: JsonRpcProvider + 'static> FlamingoContract<'a, P> {
 		];
 
 		let mut builder = self.invoke_function(Self::ADD_LIQUIDITY, params).await?;
-		builder.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()]);
+		builder
+			.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()])
+			.map_err(|err| ContractError::RuntimeError(err.to_string()))?;
 
 		Ok(builder)
 	}
@@ -153,11 +157,13 @@ impl<'a, P: JsonRpcProvider + 'static> FlamingoContract<'a, P> {
 		token_b: &ScriptHash,
 		liquidity: i64,
 		account: &Account,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let params = vec![token_a.into(), token_b.into(), ContractParameter::integer(liquidity)];
 
 		let mut builder = self.invoke_function(Self::REMOVE_LIQUIDITY, params).await?;
-		builder.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()]);
+		builder
+			.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()])
+			.map_err(|err| ContractError::RuntimeError(err.to_string()))?;
 
 		Ok(builder)
 	}
@@ -178,11 +184,13 @@ impl<'a, P: JsonRpcProvider + 'static> FlamingoContract<'a, P> {
 		token: &ScriptHash,
 		amount: i64,
 		account: &Account,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let params = vec![token.into(), ContractParameter::integer(amount)];
 
 		let mut builder = self.invoke_function(Self::STAKE, params).await?;
-		builder.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()]);
+		builder
+			.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()])
+			.map_err(|err| ContractError::RuntimeError(err.to_string()))?;
 
 		Ok(builder)
 	}
@@ -199,11 +207,13 @@ impl<'a, P: JsonRpcProvider + 'static> FlamingoContract<'a, P> {
 	pub async fn claim_rewards(
 		&self,
 		account: &Account,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let params = vec![];
 
 		let mut builder = self.invoke_function(Self::CLAIM_REWARDS, params).await?;
-		builder.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()]);
+		builder
+			.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()])
+			.map_err(|err| ContractError::RuntimeError(err.to_string()))?;
 
 		Ok(builder)
 	}

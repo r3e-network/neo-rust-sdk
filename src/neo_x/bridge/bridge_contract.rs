@@ -92,19 +92,19 @@ impl<'a, P: JsonRpcProvider + 'static> NeoXBridgeContract<'a, P> {
 		amount: i64,
 		destination: &str,
 		account: &Account,
-	) -> Result<TransactionBuilder<P>, ContractError> {
-		let params = vec![
-			token.into(),
-			ContractParameter::integer(amount),
-			ContractParameter::string(destination.to_string()),
-		];
+		) -> Result<TransactionBuilder<'_, P>, ContractError> {
+			let params = vec![
+				token.into(),
+				ContractParameter::integer(amount),
+				ContractParameter::string(destination.to_string()),
+			];
 
 		let mut builder = self.invoke_function(Self::DEPOSIT, params).await?;
-		builder.set_signers(vec![AccountSigner::called_by_entry(account)
-			.map_err(|e| {
-				ContractError::InvalidAccount(format!("Failed to create account signer: {}", e))
-			})?
-			.into()]);
+	let _ = builder.set_signers(vec![AccountSigner::called_by_entry(account)
+		.map_err(|e| {
+			ContractError::InvalidAccount(format!("Failed to create account signer: {}", e))
+		})?
+		.into()]);
 
 		Ok(builder)
 	}
@@ -127,19 +127,19 @@ impl<'a, P: JsonRpcProvider + 'static> NeoXBridgeContract<'a, P> {
 		amount: i64,
 		destination: &str,
 		account: &Account,
-	) -> Result<TransactionBuilder<P>, ContractError> {
-		let params = vec![
-			token.into(),
-			ContractParameter::integer(amount),
-			ContractParameter::string(destination.to_string()),
-		];
+		) -> Result<TransactionBuilder<'_, P>, ContractError> {
+			let params = vec![
+				token.into(),
+				ContractParameter::integer(amount),
+				ContractParameter::string(destination.to_string()),
+			];
 
 		let mut builder = self.invoke_function(Self::WITHDRAW, params).await?;
-		builder.set_signers(vec![AccountSigner::called_by_entry(account)
-			.map_err(|e| {
-				ContractError::InvalidAccount(format!("Failed to create account signer: {}", e))
-			})?
-			.into()]);
+	let _ = builder.set_signers(vec![AccountSigner::called_by_entry(account)
+		.map_err(|e| {
+			ContractError::InvalidAccount(format!("Failed to create account signer: {}", e))
+		})?
+		.into()]);
 
 		Ok(builder)
 	}

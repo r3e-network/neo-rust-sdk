@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2025-11-20
+
+### Added
+- New guides for HD wallet usage, transaction simulation, websocket subscriptions, and v0.5 migration to keep docs current.
+
+### Changed
+- HD wallet derivation hardened by default and entropy handling made more robust for offline generation.
+- Public API surface corrected (public structs/enums, derives) and numerous unused imports/lifetimes cleaned up for smoother downstream use.
+- Base64 engine updates and RPC/encoding tweaks aligned with upstream API changes.
+- Integration tests marked `ignore` where they depend on live RPC, reducing CI flakiness; rate limiter concurrency test stabilized.
+
+### Fixed
+- Visibility/export issues in transaction attributes, name service, simulation/response types, and unspent balances.
+- Invocation/verification script tests and mock client behaviors adjusted to match current expectations.
+- Various clippy/test warnings addressed, preparing the codebase for stricter linting.
+
 ## [0.5.0] - 2025-08-20
 
 ### 🎆 Major Release: Enterprise Features & Professional SDK

@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
 	crypto::Secp256r1PublicKey,
 	neo_crypto::utils::ToHexString,
-	neo_types::{script_hash::ScriptHashExtension, OpCode},
+	neo_types::OpCode,
 	prelude::Bytes,
 };
 
@@ -20,12 +20,17 @@ use crate::{
 };
 use num_bigint::BigInt;
 use num_traits::{ToPrimitive, Zero};
-use p256::pkcs8::der::Encode;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Getters, Setters, Serialize, Deserialize)]
 pub struct VerificationScript {
 	#[getset(get = "pub", set = "pub")]
 	script: Bytes,
+}
+
+impl Default for VerificationScript {
+	fn default() -> Self {
+		Self::new()
+	}
 }
 
 impl VerificationScript {
@@ -104,7 +109,9 @@ impl VerificationScript {
 			if len != 33 {
 				return false;
 			}
-			reader.by_ref().read_encoded_ec_point();
+			if reader.by_ref().read_encoded_ec_point().is_err() {
+				return false;
+			}
 			m += 1;
 			reader.mark();
 		}
@@ -115,7 +122,7 @@ impl VerificationScript {
 
 		reader.reset();
 
-		if BigInt::from(reader.read_push_int().unwrap()) != m
+		if reader.read_push_int().unwrap() != m
 			|| reader.read_u8() != OpCode::Syscall.opcode()
 		{
 			return false;
@@ -224,7 +231,9 @@ impl NeoSerializable for VerificationScript {
 	}
 
 	fn encode(&self, writer: &mut Encoder) {
-		writer.write_var_bytes(&self.script);
+		writer
+			.write_var_bytes(&self.script)
+			.expect("Failed to encode verification script");
 	}
 
 	fn decode(reader: &mut Decoder) -> Result<Self, Self::Error> {
@@ -248,7 +257,7 @@ mod tests {
 	#[test]
 	fn test_from_public_key() {
 		let key = "035fdb1d1f06759547020891ae97c729327853aeb1256b6fe0473bc2e9fa42ff50";
-		let pubkey = Secp256r1PublicKey::from_encoded(key.clone()).unwrap();
+		let pubkey = Secp256r1PublicKey::from_encoded(key).unwrap();
 		let script = VerificationScript::from_public_key(&pubkey);
 		let expected = format!(
 			"{}21{}{}{}",
@@ -302,7 +311,7 @@ mod tests {
 	#[test]
 	fn test_serialize_deserialize() {
 		let key = "035fdb1d1f06759547020891ae97c729327853aeb1256b6fe0473bc2e9fa42ff50";
-		let pubkey = Secp256r1PublicKey::from_encoded(key.clone()).unwrap();
+		let pubkey = Secp256r1PublicKey::from_encoded(key).unwrap();
 
 		let script = VerificationScript::from_public_key(&pubkey);
 
@@ -419,7 +428,7 @@ mod tests {
 
 	#[test]
 	fn test_fail_is_multi_sig_abrupt_end() -> Result<(), BuilderError> {
-		let script = hex::decode(&format!(
+		let script = hex::decode(format!(
 			"{}{}2102028a99826edc0c97d18e22b6932373d908d323aa7f92656a77ec26e8861699ef",
 			OpCode::Push2.to_hex_string(),
 			OpCode::PushData1.to_hex_string(),
@@ -434,7 +443,7 @@ mod tests {
 
 	#[test]
 	fn test_fail_is_multi_sig_wrong_push_data() -> Result<(), BuilderError> {
-		let script = hex::decode(&format!(
+		let script = hex::decode(format!(
 			"{}{}{}{}{}{}{}{}3073b3bb",
 			OpCode::Push2.to_hex_string(),
 			OpCode::PushData1.to_hex_string(),
@@ -455,7 +464,7 @@ mod tests {
 
 	#[test]
 	fn test_fail_is_multi_sig_n_greater_than_m() -> Result<(), BuilderError> {
-		let script = hex::decode(&format!(
+		let script = hex::decode(format!(
 			"{}{}{}{}{}{}{}{}3073b3bb",
 			OpCode::Push3.to_hex_string(),
 			OpCode::PushData1.to_hex_string(),
@@ -476,7 +485,7 @@ mod tests {
 
 	#[test]
 	fn test_fail_is_multi_sig_m_incorrect() -> Result<(), BuilderError> {
-		let script = hex::decode(&format!(
+		let script = hex::decode(format!(
 			"{}{}{}{}{}{}{}{}3073b3bb",
 			OpCode::Push2.to_hex_string(),
 			OpCode::PushData1.to_hex_string(),
@@ -497,7 +506,7 @@ mod tests {
 
 	#[test]
 	fn test_fail_is_multi_sig_missing_push_null() -> Result<(), BuilderError> {
-		let script = hex::decode(&format!(
+		let script = hex::decode(format!(
 			"{}{}{}{}{}{}{}3073b3bb",
 			OpCode::Push2.to_hex_string(),
 			OpCode::PushData1.to_hex_string(),
@@ -517,7 +526,7 @@ mod tests {
 
 	#[test]
 	fn test_fail_is_multi_sig_missing_syscall() -> Result<(), BuilderError> {
-		let script = hex::decode(&format!(
+		let script = hex::decode(format!(
 			"{}{}{}{}{}{}{}3073b3bb",
 			OpCode::Push2.to_hex_string(),
 			OpCode::PushData1.to_hex_string(),
@@ -537,7 +546,7 @@ mod tests {
 
 	#[test]
 	fn test_fail_is_multi_sig_wrong_interop_service() -> Result<(), BuilderError> {
-		let script = hex::decode(&format!(
+		let script = hex::decode(format!(
 			"{}{}{}{}{}{}{}{}103ab300",
 			OpCode::Push2.to_hex_string(),
 			OpCode::PushData1.to_hex_string(),

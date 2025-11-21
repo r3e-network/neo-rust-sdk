@@ -1,5 +1,8 @@
+#![allow(dead_code)]
+
 use std::ops::BitXor;
 
+use base64::Engine;
 use bs58::encode as bs58_encode;
 use derive_more::{AsRef, Deref, Index, IndexMut, IntoIterator};
 use hex::encode as hex_encode;
@@ -22,7 +25,7 @@ impl Bytes {
 	}
 
 	fn base64_encoded(&self) -> String {
-		base64::encode(&self.0)
+		base64::engine::general_purpose::STANDARD.encode(&self.0)
 	}
 
 	fn base58_encoded(&self) -> String {
@@ -30,7 +33,7 @@ impl Bytes {
 	}
 
 	fn base58_check_encoded(&self) -> String {
-		let checksum = &Sha256::digest(&Sha256::digest(&self.0))[..4];
+		let checksum = &Sha256::digest(Sha256::digest(&self.0))[..4];
 		let mut bytes = self.0.clone();
 		bytes.extend_from_slice(checksum);
 		bs58_encode(&bytes).into_string()

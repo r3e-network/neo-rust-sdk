@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::{
 	neo_clients::{APITrait, HttpProvider, RpcClient},
 	neo_error::{Neo3Error, Neo3Result},
@@ -299,12 +301,13 @@ mod tests {
 	}
 
 	#[tokio::test]
+	#[ignore = "requires live RPC endpoint"]
 	async fn test_pool_stats() {
 		let config = PoolConfig { max_connections: 2, ..Default::default() };
 		let pool = ConnectionPool::new("https://testnet.neo.org:443".to_string(), config);
 
 		// Execute a simple operation
-		let result = pool
+		let _result = pool
 			.execute(|client| {
 				Box::pin(async move {
 					client.get_version().await.map_err(|e| {

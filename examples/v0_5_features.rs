@@ -1,20 +1,27 @@
-//! Example demonstrating new features in NeoRust v0.5.0
+//! Example demonstrating new features in NeoRust v0.5.1
 //!
-//! This example showcases the major features introduced in v0.5.0:
+//! This example showcases the major features introduced in v0.5.x:
 //! - WebSocket real-time events
 //! - HD Wallet with BIP-39/44
 //! - Transaction simulation
 //! - High-level SDK API
 
 use bip39::Language;
-use neo3::prelude::*;
-use neo3::sdk::{hd_wallet::*, transaction_simulator::*, websocket::*, Neo};
+use neo3::neo_builder::ScriptBuilder;
+use neo3::neo_clients::{HttpProvider, RpcClient};
+use neo3::neo_error::unified::NeoError as UnifiedNeoError;
+use neo3::sdk::{
+	hd_wallet::*,
+	transaction_simulator::*,
+	websocket::{SubscriptionType, WebSocketClient},
+	Neo,
+};
 use std::sync::Arc;
 use tokio;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-	println!("🚀 NeoRust v0.5.0 Feature Demonstration\n");
+	println!("🚀 NeoRust v0.5.1 Feature Demonstration\n");
 
 	// ========================================
 	// 1. High-Level SDK API
@@ -31,8 +38,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("   GAS: {}", balance.gas);
 	if !balance.tokens.is_empty() {
 		println!("   Other tokens:");
-		for (token, amount) in &balance.tokens {
-			println!("     - {}: {}", token, amount);
+		for token in &balance.tokens {
+			println!("     - {} ({}): {}", token.symbol, token.contract, token.amount);
 		}
 	}
 	println!();
@@ -58,7 +65,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// Demonstrate wallet restoration
 	println!("\n   Restoring wallet from mnemonic...");
 	let test_mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-	let restored_wallet = HDWallet::from_phrase(test_mnemonic, None, Language::English)?;
+	let _restored_wallet = HDWallet::from_phrase(test_mnemonic, None, Language::English)?;
 	println!("   ✅ Wallet restored successfully!");
 	println!();
 
@@ -67,6 +74,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// ========================================
 	println!("🌐 WebSocket Real-time Events");
 	println!("   Note: Requires a Neo node with WebSocket support");
+	// Keep types referenced even when the sample connection block is commented out.
+	let _ = SubscriptionType::NewBlocks;
+	let _ = std::any::type_name::<WebSocketClient>();
 
 	// Example WebSocket connection (commented out - requires running node)
 	/*
@@ -129,18 +139,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("   Simulation Results:");
 	println!("   - Success: {}", simulation_result.success);
 	println!("   - VM State: {:?}", simulation_result.vm_state);
-	println!("   - Gas Consumed: {} GAS", simulation_result.gas_consumed as f64 / 100_000_000.0);
-	println!("   - Total Fee: {} GAS", simulation_result.total_fee as f64 / 100_000_000.0);
+		println!("   - Gas Consumed: {} GAS", simulation_result.gas_consumed as f64 / 100_000_000.0);
+		println!("   - Total Fee: {} GAS", simulation_result.total_fee as f64 / 100_000_000.0);
 
 	// Display warnings if any
 	if !simulation_result.warnings.is_empty() {
-		println!("\n   ⚠️ Warnings:");
-		for warning in &simulation_result.warnings {
-			println!("     - {}: {}", warning.level as i32, warning.message);
-			if let Some(suggestion) = &warning.suggestion {
-				println!("       💡 {}", suggestion);
+			println!("\n   ⚠️ Warnings:");
+			for warning in &simulation_result.warnings {
+				println!("     - {:?}: {}", warning.level, warning.message);
+				if let Some(suggestion) = &warning.suggestion {
+					println!("       💡 {}", suggestion);
+				}
 			}
-		}
 	}
 
 	// Display optimization suggestions
@@ -165,15 +175,34 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	match neo.get_balance("invalid_address").await {
 		Ok(_) => println!("   Unexpected success"),
 		Err(e) => {
-			println!("   Error: {}", e.message);
-			if !e.recovery.suggestions.is_empty() {
-				println!("   Recovery suggestions:");
-				for suggestion in &e.recovery.suggestions {
-					println!("     💡 {}", suggestion);
+			println!("   Error: {}", e);
+
+			let recovery = match &e {
+				UnifiedNeoError::Network { recovery, .. }
+				| UnifiedNeoError::Wallet { recovery, .. }
+				| UnifiedNeoError::Contract { recovery, .. }
+				| UnifiedNeoError::Transaction { recovery, .. }
+				| UnifiedNeoError::Configuration { recovery, .. }
+				| UnifiedNeoError::Validation { recovery, .. }
+				| UnifiedNeoError::InsufficientFunds { recovery, .. }
+				| UnifiedNeoError::Timeout { recovery, .. }
+				| UnifiedNeoError::RateLimit { recovery, .. }
+				| UnifiedNeoError::Other { recovery, .. } => Some(recovery),
+			};
+
+			if let Some(recovery) = recovery {
+				if !recovery.suggestions.is_empty() {
+					println!("   Recovery suggestions:");
+					for suggestion in &recovery.suggestions {
+						println!("     💡 {}", suggestion);
+					}
 				}
-			}
-			if let Some(doc) = &e.recovery.documentation {
-				println!("   📚 Documentation: {}", doc);
+				if !recovery.docs.is_empty() {
+					println!("   📚 Documentation:");
+					for doc in &recovery.docs {
+						println!("     - {}", doc);
+					}
+				}
 			}
 		},
 	}
@@ -183,7 +212,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// Summary
 	// ========================================
 	println!("✨ Summary");
-	println!("   NeoRust v0.5.0 provides:");
+	println!("   NeoRust v0.5.1 provides:");
 	println!("   ✅ 50-70% code reduction with high-level API");
 	println!("   ✅ Real-time events via WebSocket");
 	println!("   ✅ HD wallets with BIP-39/44 support");

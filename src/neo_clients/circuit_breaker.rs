@@ -9,20 +9,15 @@ use std::{
 use tokio::sync::RwLock;
 
 /// Circuit breaker states
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub enum CircuitState {
 	/// Circuit is closed, requests flow normally
+	#[default]
 	Closed,
 	/// Circuit is open, requests are rejected immediately
 	Open,
 	/// Circuit is half-open, testing if service has recovered
 	HalfOpen,
-}
-
-impl Default for CircuitState {
-	fn default() -> Self {
-		CircuitState::Closed
-	}
 }
 
 /// Circuit breaker configuration

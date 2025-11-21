@@ -138,6 +138,7 @@ impl GasEstimator {
 }
 
 /// Extension trait for TransactionBuilder to add real-time gas estimation
+#[allow(async_fn_in_trait)]
 pub trait TransactionBuilderGasExt {
 	/// Estimate gas using real-time invokescript
 	async fn estimate_gas_realtime(&self) -> Result<i64, TransactionError>;

@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use num_bigint::BigInt;
 
 /// Trait to convert types to padded byte vectors.

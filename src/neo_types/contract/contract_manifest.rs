@@ -33,6 +33,7 @@ pub struct ContractManifest {
 }
 
 impl ContractManifest {
+	#[allow(clippy::too_many_arguments)]
 	pub fn new(
 		name: Option<String>,
 		groups: Vec<ContractGroup>,
@@ -46,7 +47,7 @@ impl ContractManifest {
 		Self {
 			name,
 			groups,
-			features: features.unwrap_or_else(|| HashMap::new()),
+			features: features.unwrap_or_default(),
 			supported_standards,
 			abi,
 			permissions,
@@ -159,8 +160,8 @@ pub struct ContractABI {
 impl ContractABI {
 	pub fn new(methods: Option<Vec<ContractMethod>>, events: Option<Vec<ContractEvent>>) -> Self {
 		Self {
-			methods: methods.unwrap_or_else(|| Vec::new()),
-			events: events.unwrap_or_else(|| Vec::new()),
+			methods: methods.unwrap_or_default(),
+			events: events.unwrap_or_default(),
 		}
 	}
 
@@ -224,7 +225,7 @@ impl ContractMethod {
 	) -> Self {
 		Self {
 			name,
-			parameters: parameters.unwrap_or_else(|| Vec::new()),
+			parameters: parameters.unwrap_or_default(),
 			offset,
 			return_type,
 			safe,

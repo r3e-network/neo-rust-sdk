@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use num_enum::TryFromPrimitive;
 use strum_macros::{Display, EnumString};
 

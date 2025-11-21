@@ -12,6 +12,7 @@
 // limitations under the License.
 
 //! Client for interacting with NeoFS.
+use base64::Engine;
 
 use crate::{
 	neo_fs::{
@@ -79,6 +80,22 @@ pub struct NeoFSClient {
 	base_url: String,
 }
 
+impl Default for NeoFSClient {
+	fn default() -> Self {
+		Self {
+			config: NeoFSConfig {
+				endpoint: DEFAULT_MAINNET_ENDPOINT.to_string(),
+				auth: None,
+				timeout_sec: 10,
+				insecure: false,
+			},
+			account: None,
+			http_client: Client::new(),
+			base_url: DEFAULT_MAINNET_HTTP_GATEWAY.to_string(),
+		}
+	}
+}
+
 impl NeoFSClient {
 	/// Creates a new NeoFS client with the given configuration
 	pub fn new(config: NeoFSConfig) -> Self {
@@ -95,21 +112,6 @@ impl NeoFSClient {
 		};
 
 		Self { config, account: None, http_client, base_url }
-	}
-
-	/// Creates a new NeoFS client with default configuration
-	pub fn default() -> Self {
-		Self {
-			config: NeoFSConfig {
-				endpoint: DEFAULT_MAINNET_ENDPOINT.to_string(),
-				auth: None,
-				timeout_sec: 10,
-				insecure: false,
-			},
-			account: None,
-			http_client: Client::new(),
-			base_url: DEFAULT_MAINNET_HTTP_GATEWAY.to_string(),
-		}
 	}
 
 	/// Sets the account to use for authentication
@@ -245,7 +247,7 @@ impl NeoFSClient {
 		let request_body = json!({
 			"uploadId": upload.upload_id,
 			"partNumber": part.part_number,
-			"data": base64::encode(&part.payload)
+            "data": base64::engine::general_purpose::STANDARD.encode(&part.payload)
 		});
 
 		let endpoint = format!("multipart/{}/parts", upload.upload_id);
@@ -374,7 +376,7 @@ impl NeoFSService for NeoFSClient {
 				"containerId": container_id.0,
 				"ownerId": owner_id.0,
 				"attributes": object.attributes,
-				"payload": base64::encode(&object.payload)
+                "payload": base64::engine::general_purpose::STANDARD.encode(&object.payload)
 			}
 		});
 
@@ -405,7 +407,7 @@ impl NeoFSService for NeoFSClient {
 			let mut object = Object::new(container_id.clone(), OwnerId(owner_id.to_string()));
 
 			if let Some(payload_b64) = object_data.get("payload").and_then(|v| v.as_str()) {
-				object.payload = base64::decode(payload_b64).map_err(|e| {
+                object.payload = base64::engine::general_purpose::STANDARD.decode(payload_b64).map_err(|e| {
 					NeoFSError::UnexpectedResponse(format!("Invalid base64 payload: {}", e))
 				})?;
 			}
@@ -470,7 +472,7 @@ impl NeoFSService for NeoFSClient {
 
 		let response = self.make_request("POST", "auth/bearer", Some(request_body)).await?;
 
-		if let Some(token) = response.get("token").and_then(|v| v.as_str()) {
+		if let Some(_token) = response.get("token").and_then(|v| v.as_str()) {
 			Ok(BearerToken {
 				owner_id,
 				token_id: format!("bearer-{}", chrono::Utc::now().timestamp()),
@@ -509,7 +511,7 @@ impl NeoFSService for NeoFSClient {
 			let signature = token_data
 				.get("signature")
 				.and_then(|v| v.as_str())
-				.map(|s| base64::decode(s).unwrap_or_default())
+                .map(|s| base64::engine::general_purpose::STANDARD.decode(s).unwrap_or_default())
 				.unwrap_or_default();
 
 			Ok(SessionToken {

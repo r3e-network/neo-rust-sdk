@@ -1,7 +1,6 @@
 use sha2::{Digest, Sha256};
 
 use crate::crypto::{CryptoError, Secp256r1PrivateKey};
-use neo3::prelude::*;
 
 /// Converts a WIF (Wallet Import Format) string into a `Secp256r1PrivateKey`.
 ///
@@ -28,12 +27,12 @@ pub fn private_key_from_wif(wif: &str) -> Result<Secp256r1PrivateKey, CryptoErro
 		return Err(CryptoError::InvalidFormat("Incorrect WIF format.".to_string()));
 	}
 
-	let checksum_calculated = Sha256::digest(&Sha256::digest(&data[..34]));
+	let checksum_calculated = Sha256::digest(Sha256::digest(&data[..34]));
 	if checksum_calculated[..4] != data[34..] {
 		return Err(CryptoError::InvalidFormat("Incorrect WIF checksum.".to_string()));
 	}
 
-	Secp256r1PrivateKey::from_bytes(&data[1..33].to_vec())
+	Secp256r1PrivateKey::from_bytes(&data[1..33])
 }
 
 /// Converts a `Secp256r1PrivateKey` into a WIF (Wallet Import Format) string.
@@ -51,7 +50,7 @@ pub fn wif_from_private_key(private_key: &Secp256r1PrivateKey) -> String {
 	extended_key.extend(private_key.to_raw_bytes());
 	extended_key.push(0x01);
 
-	let hash = Sha256::digest(&Sha256::digest(&extended_key));
+	let hash = Sha256::digest(Sha256::digest(&extended_key));
 	let checksum = &hash[0..4];
 	extended_key.extend_from_slice(checksum);
 
@@ -88,7 +87,7 @@ mod tests {
 	#[test]
 	fn test_invalid_wif_bytes() {
 		let wif = "L25kgAQJXNHnhc7Sx9bomxxwVSMsZdkaNQ3m2VfHrnLzKWMLP13A";
-		let expected_key =
+		let _expected_key =
 			hex::decode("9117f4bf9be717c9a90994326897f4243503accd06712162267e77f18b49c3a3")
 				.unwrap();
 

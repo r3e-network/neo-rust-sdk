@@ -35,10 +35,10 @@ pub enum TransactionAttribute {
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Hash, Debug, Clone)]
-struct OracleResponse {
-	pub(crate) id: u32,
-	pub(crate) response_code: OracleResponseCode,
-	pub(crate) result: String,
+pub struct OracleResponse {
+	pub id: u32,
+	pub response_code: OracleResponseCode,
+	pub result: String,
 }
 
 impl TransactionAttribute {
@@ -54,7 +54,7 @@ impl TransactionAttribute {
 			TransactionAttribute::OracleResponse(OracleResponse { id, response_code, result }) => {
 				bytes.push(0x11);
 				bytes.extend(&id.to_be_bytes());
-				bytes.push(response_code.clone() as u8);
+				bytes.push(*response_code as u8);
 				bytes.extend(result.as_bytes());
 			},
 			_ => {},
@@ -135,8 +135,10 @@ impl NeoSerializable for TransactionAttribute {
 				let mut v = id.to_be_bytes();
 				v.reverse();
 				writer.write(&v);
-				writer.write_u8(response_code.clone() as u8);
-				writer.write_var_bytes(result.from_base64_string().unwrap().as_slice());
+				writer.write_u8(*response_code as u8);
+				writer
+					.write_var_bytes(result.from_base64_string().unwrap().as_slice())
+					.expect("Failed to encode oracle response");
 			},
 			_ => {},
 		}

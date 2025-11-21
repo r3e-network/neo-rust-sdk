@@ -4,6 +4,7 @@
 //! allowing developers to preview transaction effects, estimate gas costs,
 //! and analyze state changes before submitting to the blockchain. This helps
 //! prevent failed transactions and optimize gas usage.
+#![allow(missing_docs, missing_debug_implementations)]
 //!
 //! ## Features
 //!
@@ -53,10 +54,10 @@
 //! # }
 //! ```
 
-use crate::neo_builder::{ScriptBuilder, Signer, TransactionBuilder};
+use crate::neo_builder::{ScriptBuilder, Signer};
 use crate::neo_clients::{APITrait, HttpProvider, RpcClient};
 use crate::neo_error::unified::{ErrorRecovery, NeoError};
-use crate::neo_protocol::{Account, AccountTrait};
+// use crate::neo_protocol::AccountTrait;
 use crate::neo_types::{ContractParameter, NeoVMStateType, ScriptHash, StackItem};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -278,7 +279,7 @@ impl TransactionSimulator {
 	/// Cached results: <1ms
 	pub async fn simulate_transaction(
 		&mut self,
-		script: &[u8],
+        script: &[u8],
 		signers: Vec<Signer>,
 	) -> Result<SimulationResult, NeoError> {
 		// Check cache first
@@ -467,7 +468,7 @@ impl TransactionSimulator {
 				notifications
 					.iter()
 					.map(|n| Notification {
-						contract: n.contract.clone(),
+						contract: n.contract,
 						event_name: n.event_name.clone(),
 						state: serde_json::to_value(&n.state).unwrap_or(serde_json::Value::Null),
 					})
@@ -480,10 +481,10 @@ impl TransactionSimulator {
 	async fn analyze_state_changes(
 		&self,
 		result: &crate::neo_types::InvocationResult,
-		script: &[u8],
+		_script: &[u8],
 	) -> Result<StateChanges, NeoError> {
-		let mut storage = HashMap::new();
-		let mut balances = HashMap::new();
+        let storage = HashMap::new();
+        let balances = HashMap::new();
 		let mut transfers = Vec::new();
 		let deployments = Vec::new();
 		let updates = Vec::new();
@@ -494,7 +495,7 @@ impl TransactionSimulator {
 				if notification.event_name == "Transfer" {
 					// Parse NEP-17 transfer
 					let parsed_notification = Notification {
-						contract: notification.contract.clone(),
+						contract: notification.contract,
 						event_name: notification.event_name.clone(),
 						state: serde_json::to_value(&notification.state)
 							.unwrap_or(serde_json::Value::Null),
@@ -529,7 +530,7 @@ impl TransactionSimulator {
 		// Parse the state JSON - in a real implementation this would properly parse the StackItem
 		// For now, return a simplified version
 		Some(TokenTransfer {
-			token: notification.contract.clone(),
+			token: notification.contract,
 			symbol: token_symbol,
 			from: "sender".to_string(), // Would parse from state
 			to: "receiver".to_string(), // Would parse from state
@@ -553,7 +554,7 @@ impl TransactionSimulator {
 			})?;
 
 		// Parse the result - stack is not optional
-		if let Some(item) = result.stack.first() {
+            if let Some(_item) = result.stack.first() {
 			// Convert stack item to string
 			return Ok("TOKEN".to_string()); // Simplified - parse actual value
 		}
@@ -660,7 +661,8 @@ impl TransactionSimulator {
 }
 
 /// Optimization rule
-enum OptimizationRule {
+#[derive(Debug, Clone, Copy)]
+pub enum OptimizationRule {
 	BatchTransfers,
 	UseNativeContracts,
 	MinimizeStorageOps,
@@ -752,6 +754,12 @@ pub struct TransactionSimulatorBuilder {
 	client: Option<Arc<RpcClient<HttpProvider>>>,
 	cache_duration: std::time::Duration,
 	optimization_rules: Vec<OptimizationRule>,
+}
+
+impl Default for TransactionSimulatorBuilder {
+	fn default() -> Self {
+		Self::new()
+	}
 }
 
 impl TransactionSimulatorBuilder {

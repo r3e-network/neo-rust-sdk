@@ -9,8 +9,8 @@ pub struct Unspents {
 	pub balances: Vec<Balance>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
-struct Balance {
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct Balance {
 	#[serde(rename = "unspent")]
 	pub(crate) unspent_transactions: Vec<UnspentTransaction>,
 	#[serde(rename = "assethash")]
@@ -42,7 +42,7 @@ impl Hash for Balance {
 	}
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct UnspentTransaction {
 	#[serde(rename = "txid")]
 	pub tx_id: String,

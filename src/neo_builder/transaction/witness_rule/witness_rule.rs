@@ -191,7 +191,7 @@ mod tests {
 	#[test]
 	fn test_called_by_contract_serialize_deserialize() {
 		let hash = TestConstants::DEFAULT_ACCOUNT_SCRIPT_HASH;
-		let condition = WitnessCondition::CalledByContract(H160::from_hex(&hash).unwrap());
+		let condition = WitnessCondition::CalledByContract(H160::from_hex(hash).unwrap());
 
 		let bytes = hex::decode(format!("28{}", hash)).unwrap();
 
@@ -299,8 +299,7 @@ mod tests {
 
 		let rule: WitnessRule = serde_json::from_str(json).unwrap();
 
-		let bo = Box::new(WitnessCondition::CalledByEntry);
-		assert!(matches!(rule.condition, WitnessCondition::Not(bo)));
+		assert!(matches!(rule.condition, WitnessCondition::Not(_)));
 	}
 
 	#[test]

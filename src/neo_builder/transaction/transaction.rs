@@ -1,8 +1,8 @@
 use std::hash::{Hash, Hasher};
 
-use futures_util::TryFutureExt;
 use getset::{CopyGetters, Getters, MutGetters, Setters};
 use primitive_types::U256;
+use base64::Engine;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 use serde_with::__private__::DeError;
@@ -167,11 +167,9 @@ impl<'de, 'a, P: JsonRpcProvider + 'static> Deserialize<'de> for Transaction<'a,
 			serde_json::from_value(value["witnesses"].clone()).map_err(DeError::custom)?;
 
 		// For bytes, assuming it's a Vec<u8> and stored as a base64 string in JSON
-		let script: Bytes = base64::decode(value["script"].as_str().unwrap_or_default())
+		let script: Bytes = base64::engine::general_purpose::STANDARD
+			.decode(value["script"].as_str().unwrap_or_default())
 			.map_err(DeError::custom)?;
-
-		// For optional fields
-		let block_time = value["blocktime"].as_i64().map(|v| v as i32);
 
 		// Complete field deserialization with comprehensive error handling
 		let size = value
@@ -258,9 +256,13 @@ impl<'a, T: JsonRpcProvider + 'static> Transaction<'a, T> {
 		writer.write_i64(self.sys_fee);
 		writer.write_i64(self.net_fee);
 		writer.write_u32(self.valid_until_block);
-		writer.write_serializable_variable_list(&self.signers);
-		writer.write_serializable_variable_list(&self.attributes);
-		writer.write_var_bytes(&self.script);
+		writer
+			.write_serializable_variable_list(&self.signers)
+			.expect("Failed to encode signers");
+		writer
+			.write_serializable_variable_list(&self.attributes)
+			.expect("Failed to encode attributes");
+		writer.write_var_bytes(&self.script).expect("Failed to encode script");
 	}
 
 	/// Sends the transaction to the Neo N3 network.
@@ -458,14 +460,10 @@ impl<'a, T: JsonRpcProvider + 'static> Transaction<'a, T> {
 
 			// If there are new blocks, check them for our transaction
 			if latest_block > current_block {
-				for block_index in current_block..latest_block {
-					// Get the block hash for this index
-					let block_hash = self.network().unwrap().get_block_hash(block_index).await?;
-
-					// Get the block with full transaction details
+				while current_block < latest_block {
+					let block_hash = self.network().unwrap().get_block_hash(current_block).await?;
 					let block = self.network().unwrap().get_block(block_hash, true).await?;
 
-					// Check if our transaction is in this block
 					if let Some(transactions) = &block.transactions {
 						for tx in transactions.iter() {
 							if tx.hash == tx_id {
@@ -474,7 +472,7 @@ impl<'a, T: JsonRpcProvider + 'static> Transaction<'a, T> {
 						}
 					}
 
-					current_block = block_index + 1;
+					current_block += 1;
 				}
 			}
 
@@ -645,7 +643,9 @@ impl<'a, P: JsonRpcProvider + 'static> NeoSerializable for Transaction<'a, P> {
 
 	fn encode(&self, writer: &mut Encoder) {
 		self.serialize_without_witnesses(writer);
-		writer.write_serializable_variable_list(&self.witnesses);
+		writer
+			.write_serializable_variable_list(&self.witnesses)
+			.expect("Failed to encode witnesses");
 	}
 
 	fn decode(reader: &mut Decoder) -> Result<Self, Self::Error>

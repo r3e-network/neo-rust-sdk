@@ -1,3 +1,5 @@
+#![allow(clippy::module_inception)]
+
 pub use call_flags::*;
 pub use contract_parameters_context::*;
 pub use gas_estimator::*;

@@ -58,7 +58,7 @@ where
 	})
 }
 
-pub fn serialize_scopes<S>(scopes: &Vec<WitnessScope>, serializer: S) -> Result<S::Ok, S::Error>
+pub fn serialize_scopes<S>(scopes: &[WitnessScope], serializer: S) -> Result<S::Ok, S::Error>
 where
 	S: Serializer,
 {
@@ -232,7 +232,7 @@ where
 {
 	match item {
 		Some(u256) => {
-			let u256_str = encode_string_u256(&u256);
+			let u256_str = encode_string_u256(u256);
 			serializer.serialize_str(&u256_str)
 		},
 		None => serializer.serialize_none(),
@@ -269,12 +269,12 @@ where
 {
 	let s: String = Deserialize::deserialize(deserializer)?;
 	let v = if s.starts_with("0x") {
-		let s = s.trim_start_matches("0x");
-		u32::from_str_radix(&s, 16).map_err(|e| {
+		let trimmed = s.trim_start_matches("0x");
+		u32::from_str_radix(trimmed, 16).map_err(|e| {
 			serde::de::Error::custom(format!("Failed to parse hex u32 '{}': {}", s, e))
 		})?
 	} else {
-		u32::from_str_radix(&s, 10).map_err(|e| {
+		s.parse::<u32>().map_err(|e| {
 			serde::de::Error::custom(format!("Failed to parse decimal u32 '{}': {}", s, e))
 		})?
 	};
@@ -285,8 +285,7 @@ pub fn serialize_u64<S>(item: &u64, serializer: S) -> Result<S::Ok, S::Error>
 where
 	S: Serializer,
 {
-	let item_str = format!("{}", item);
-	serializer.serialize_str(&item_str)
+	serializer.serialize_str(&item.to_string())
 }
 
 pub fn deserialize_u64<'de, D>(deserializer: D) -> Result<u64, D::Error>
@@ -316,7 +315,7 @@ where
 	// let item_str = encode_string_h160(item);
 	let binding = encode_string_h160(item);
 	let item_str = binding.trim_start_matches("0x");
-	serializer.serialize_str(&item_str)
+	serializer.serialize_str(item_str)
 }
 
 pub fn deserialize_address_or_script_hash<'de, D>(
@@ -399,7 +398,7 @@ where
 		Some(addr) => {
 			let mut seq = serializer.serialize_seq(Some(addr.len()))?;
 			for i in addr {
-				seq.serialize_element(&i.to_hex().trim_start_matches("0x"))?;
+				seq.serialize_element(i.to_hex().trim_start_matches("0x"))?;
 			}
 			seq.end()
 		},
@@ -416,8 +415,8 @@ where
 {
 	match item {
 		Some(addr) => {
-			let addr_str = encode_string_h160(&addr);
-			serializer.serialize_str(&addr_str)
+			let addr_str = encode_string_h160(addr);
+			serializer.serialize_str(addr_str.as_str())
 		},
 		None => serializer.serialize_none(),
 	}
@@ -503,7 +502,7 @@ pub fn serialize_private_key<S>(
 where
 	S: Serializer,
 {
-	let item_str = encode_string_h256(&H256::from_slice(&item.to_raw_bytes().to_vec()));
+	let item_str = encode_string_h256(&H256::from_slice(item.to_raw_bytes().as_ref()));
 	serializer.serialize_str(&item_str)
 }
 
@@ -528,7 +527,7 @@ pub fn serialize_public_key<S>(item: &Secp256r1PublicKey, serializer: S) -> Resu
 where
 	S: Serializer,
 {
-	let item_str = encode_string_h256(&H256::from_slice(&item.get_encoded(true)));
+	let item_str = encode_string_h256(&H256::from_slice(item.get_encoded(true).as_slice()));
 	serializer.serialize_str(&item_str)
 }
 
@@ -782,7 +781,7 @@ where
 {
 	match item {
 		Some(h256) => {
-			let h256_str = encode_string_h256(&h256);
+			let h256_str = encode_string_h256(h256);
 			serializer.serialize_str(&h256_str)
 		},
 		None => serializer.serialize_none(),
@@ -814,7 +813,7 @@ where
 {
 	let mut map = serializer.serialize_map(Some(item.len()))?;
 	for (k, v) in item {
-		let value: HashSet<String> = v.iter().map(|x| encode_string_u256(&x)).collect();
+		let value: HashSet<String> = v.iter().map(encode_string_u256).collect();
 		map.serialize_entry(&encode_string_u256(k), &value)?;
 	}
 	map.end()
@@ -889,7 +888,7 @@ where
 {
 	let mut map = serializer.serialize_map(Some(item.len()))?;
 	for (k, v) in item {
-		let value: HashSet<String> = v.iter().map(|x| encode_string_h256(&x)).collect();
+		let value: HashSet<String> = v.iter().map(encode_string_h256).collect();
 		map.serialize_entry(&encode_string_u256(k), &value)?;
 	}
 	map.end()
@@ -931,7 +930,7 @@ where
 {
 	let mut map = serializer.serialize_map(Some(item.len()))?;
 	for (k, v) in item {
-		let value: Vec<String> = v.iter().map(|x| encode_string_u256(&x)).collect();
+		let value: Vec<String> = v.iter().map(encode_string_u256).collect();
 		map.serialize_entry(&encode_string_u256(k), &value)?;
 	}
 	map.end()

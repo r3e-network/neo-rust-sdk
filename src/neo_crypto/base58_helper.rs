@@ -14,7 +14,7 @@ use sha2::{Digest, Sha256};
 /// let encoded = base58check_encode(&bytes);
 /// ```
 pub fn base58check_encode(bytes: &[u8]) -> String {
-	if bytes.len() == 0 {
+	if bytes.is_empty() {
 		return "".to_string();
 	}
 
@@ -73,7 +73,7 @@ pub fn calculate_checksum(input: &[u8]) -> [u8; 4] {
 	let mut hasher = Sha256::new();
 	hasher.update(input);
 	let hash = hasher.finalize();
-	let hash256 = Sha256::digest(&hash);
+	let hash256 = Sha256::digest(hash);
 	hash256[..4]
 		.try_into()
 		.expect("Taking first 4 bytes of a SHA256 hash should never fail")

@@ -5,7 +5,7 @@ use std::str::FromStr;
 
 use crate::{
 	builder::{AccountSigner, TransactionBuilder},
-	neo_clients::{APITrait, JsonRpcProvider, RpcClient},
+	neo_clients::{JsonRpcProvider, RpcClient},
 	neo_contract::{ContractError, SmartContractTrait},
 	neo_protocol::Account,
 };
@@ -83,12 +83,14 @@ impl<'a, P: JsonRpcProvider + 'static> GrandShareContract<'a, P> {
 		description: &str,
 		requested_amount: i64,
 		account: &Account,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let params =
 			vec![title.into(), description.into(), ContractParameter::integer(requested_amount)];
 
 		let mut builder = self.invoke_function(Self::SUBMIT_PROPOSAL, params).await?;
-		builder.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()]);
+		builder
+			.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()])
+			.map_err(|err| ContractError::RuntimeError(err.to_string()))?;
 
 		Ok(builder)
 	}
@@ -109,14 +111,16 @@ impl<'a, P: JsonRpcProvider + 'static> GrandShareContract<'a, P> {
 		proposal_id: i32,
 		vote_type: bool,
 		account: &Account,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let params = vec![
 			ContractParameter::integer(proposal_id.into()),
 			ContractParameter::bool(vote_type),
 		];
 
 		let mut builder = self.invoke_function(Self::VOTE, params).await?;
-		builder.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()]);
+		builder
+			.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()])
+			.map_err(|err| ContractError::RuntimeError(err.to_string()))?;
 
 		Ok(builder)
 	}
@@ -137,12 +141,14 @@ impl<'a, P: JsonRpcProvider + 'static> GrandShareContract<'a, P> {
 		project_id: i32,
 		amount: i64,
 		account: &Account,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let params =
 			vec![ContractParameter::integer(project_id.into()), ContractParameter::integer(amount)];
 
 		let mut builder = self.invoke_function(Self::FUND_PROJECT, params).await?;
-		builder.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()]);
+		builder
+			.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()])
+			.map_err(|err| ContractError::RuntimeError(err.to_string()))?;
 
 		Ok(builder)
 	}
@@ -161,11 +167,13 @@ impl<'a, P: JsonRpcProvider + 'static> GrandShareContract<'a, P> {
 		&self,
 		project_id: i32,
 		account: &Account,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let params = vec![ContractParameter::integer(project_id.into())];
 
 		let mut builder = self.invoke_function(Self::CLAIM_FUNDS, params).await?;
-		builder.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()]);
+		builder
+			.set_signers(vec![AccountSigner::called_by_entry(account).unwrap().into()])
+			.map_err(|err| ContractError::RuntimeError(err.to_string()))?;
 
 		Ok(builder)
 	}

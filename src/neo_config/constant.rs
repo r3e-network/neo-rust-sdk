@@ -46,3 +46,9 @@ impl NeoConstants {
 		Self {}
 	}
 }
+
+impl Default for NeoConstants {
+	fn default() -> Self {
+		Self::new()
+	}
+}

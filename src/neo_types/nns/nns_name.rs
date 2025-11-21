@@ -50,7 +50,7 @@ impl NNSName {
 			.ok_or_else(|| TypeError::InvalidNeoName("Fragment cannot be empty".to_string()))?;
 		if is_root && !first.is_ascii_alphabetic() {
 			return Err(TypeError::InvalidNeoName("Root must start with letter".to_string()));
-		} else if !is_root && !(first.is_ascii_alphanumeric() || first == '-') {
+		} else if !(is_root || first.is_ascii_alphanumeric() || first == '-') {
 			return Err(TypeError::InvalidNeoName("Invalid start character".to_string()));
 		}
 

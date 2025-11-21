@@ -1,10 +1,9 @@
 #[cfg(test)]
 mod gas_estimator_integration_tests {
-	use neo3::neo_builder::{AccountSigner, GasEstimator, ScriptBuilder, Signer, TransactionBuilder, WitnessScope};
-	use neo3::neo_clients::{APITrait, HttpProvider, RpcClient};
+	use neo3::neo_builder::{AccountSigner, GasEstimator, ScriptBuilder, Signer, WitnessScope};
+	use neo3::neo_clients::{HttpProvider, RpcClient};
 	use neo3::neo_protocol::{Account, AccountTrait};
 	use neo3::neo_types::{ContractParameter, OpCode, ScriptHash};
-	use neo3::prelude::*;
 	use num_bigint::BigInt;
 	use std::str::FromStr;
 
@@ -16,6 +15,7 @@ mod gas_estimator_integration_tests {
 	}
 
 	#[tokio::test]
+	#[ignore = "requires live testnet RPC"]
 	async fn test_gas_estimation_for_simple_transfer() {
 		let client = create_test_client().await;
 
@@ -70,6 +70,7 @@ mod gas_estimator_integration_tests {
 	}
 
 	#[tokio::test]
+	#[ignore = "requires live testnet RPC"]
 	async fn test_gas_estimation_with_margin() {
 		let client = create_test_client().await;
 
@@ -100,11 +101,12 @@ mod gas_estimator_integration_tests {
 	}
 
 	#[tokio::test]
+	#[ignore = "requires live testnet RPC"]
 	async fn test_batch_gas_estimation() {
 		let client = create_test_client().await;
 
 		// Create multiple scripts
-		let scripts = vec![
+		let scripts = [
 			(
 				ScriptBuilder::new()
 					.push_integer(BigInt::from(1))

@@ -249,7 +249,7 @@ impl<'a> Decoder<'a> {
 	/// Reads a push string from the byte slice.
 	pub fn read_push_string(&mut self) -> Result<String, CodecError> {
 		let bytes = self.read_push_bytes()?;
-		String::from_utf8(Vec::from(bytes))
+		String::from_utf8(bytes)
 			.map_err(|_| CodecError::InvalidEncoding("Invalid UTF-8".to_string()))
 	}
 

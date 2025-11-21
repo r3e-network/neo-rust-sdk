@@ -51,7 +51,9 @@ pub trait NonFungibleTokenTrait<'a, P: JsonRpcProvider>: TokenTrait<'a, P> + Sen
 		data: Option<ContractParameter>,
 	) -> Result<TransactionBuilder<P>, ContractError> {
 		let mut builder = self.transfer_inner(to, token_id, data).await.unwrap();
-		&builder.set_signers(vec![AccountSigner::called_by_entry(from).unwrap().into()]);
+		builder
+			.set_signers(vec![AccountSigner::called_by_entry(from).unwrap().into()])
+			.map_err(|err| ContractError::RuntimeError(err.to_string()))?;
 
 		Ok(builder)
 	}
@@ -85,7 +87,9 @@ pub trait NonFungibleTokenTrait<'a, P: JsonRpcProvider>: TokenTrait<'a, P> + Sen
 			.transfer_inner(ScriptHash::from_address(to).unwrap(), token_id, data)
 			.await
 			.unwrap();
-		build.set_signers(vec![AccountSigner::called_by_entry(from).unwrap().into()]);
+		build
+			.set_signers(vec![AccountSigner::called_by_entry(from).unwrap().into()])
+			.map_err(|err| ContractError::RuntimeError(err.to_string()))?;
 
 		Ok(build)
 	}
@@ -170,7 +174,9 @@ pub trait NonFungibleTokenTrait<'a, P: JsonRpcProvider>: TokenTrait<'a, P> + Sen
 			.transfer_divisible_from_hashes(&from.get_script_hash(), to, amount, token_id, data)
 			.await
 			.unwrap();
-		builder.set_signers(vec![AccountSigner::called_by_entry(from).unwrap().into()]);
+		builder
+			.set_signers(vec![AccountSigner::called_by_entry(from).unwrap().into()])
+			.map_err(|err| ContractError::RuntimeError(err.to_string()))?;
 		Ok(builder)
 	}
 
@@ -209,7 +215,9 @@ pub trait NonFungibleTokenTrait<'a, P: JsonRpcProvider>: TokenTrait<'a, P> + Sen
 			)
 			.await
 			.unwrap();
-		builder.set_signers(vec![AccountSigner::called_by_entry(from).unwrap().into()]);
+		builder
+			.set_signers(vec![AccountSigner::called_by_entry(from).unwrap().into()])
+			.map_err(|err| ContractError::RuntimeError(err.to_string()))?;
 		Ok(builder)
 	}
 
@@ -314,7 +322,7 @@ pub trait NonFungibleTokenTrait<'a, P: JsonRpcProvider>: TokenTrait<'a, P> + Sen
 		let map = stack_item
 			.as_map()
 			.ok_or(ContractError::UnexpectedReturnType(
-				stack_item.to_string() + &StackItem::MAP_VALUE.to_string(),
+				stack_item.to_string() + StackItem::MAP_VALUE,
 			))
 			.unwrap();
 
@@ -344,7 +352,7 @@ pub trait NonFungibleTokenTrait<'a, P: JsonRpcProvider>: TokenTrait<'a, P> + Sen
 		let map = stack_item
 			.as_map()
 			.ok_or(ContractError::UnexpectedReturnType(
-				stack_item.to_string() + &StackItem::MAP_VALUE.to_string(),
+				stack_item.to_string() + StackItem::MAP_VALUE,
 			))
 			.unwrap();
 

@@ -233,7 +233,7 @@ impl From<H160> for Account {
 impl From<&H160> for Account {
 	fn from(script_hash: &H160) -> Self {
 		Self {
-			address_or_scripthash: AddressOrScriptHash::ScriptHash(script_hash.clone()),
+			address_or_scripthash: AddressOrScriptHash::ScriptHash(*script_hash),
 			..Default::default()
 		}
 	}
@@ -468,7 +468,7 @@ impl AccountTrait for Account {
 	}
 
 	fn from_verification_script(script: &VerificationScript) -> Result<Self, Self::Error> {
-		let address = ScriptHash::from_script(&script.script());
+		let address = ScriptHash::from_script(script.script());
 
 		let (signing_threshold, nr_of_participants) = if script.is_multi_sig() {
 			(
@@ -491,7 +491,7 @@ impl AccountTrait for Account {
 
 	fn from_public_key(public_key: &Secp256r1PublicKey) -> Result<Self, Self::Error> {
 		let script = VerificationScript::from_public_key(public_key);
-		let address = ScriptHash::from_script(&script.script());
+		let address = ScriptHash::from_script(script.script());
 
 		Ok(Self {
 			address_or_scripthash: AddressOrScriptHash::ScriptHash(address),
@@ -514,7 +514,7 @@ impl AccountTrait for Account {
 		signing_threshold: u32,
 	) -> Result<Self, Self::Error> {
 		let script = VerificationScript::from_multi_sig(public_keys, signing_threshold as u8);
-		let addr = ScriptHash::from_script(&script.script());
+		let addr = ScriptHash::from_script(script.script());
 
 		Ok(Self {
 			label: Some(addr.to_address()),
@@ -568,7 +568,7 @@ impl AccountTrait for Account {
 
 impl PrehashSigner<Secp256r1Signature> for Account {
 	fn sign_prehash(&self, _prehash: &[u8]) -> Result<Secp256r1Signature, Error> {
-		let key_pair = self.key_pair.as_ref().ok_or_else(|| Error::new())?;
+		let key_pair = self.key_pair.as_ref().ok_or_else(Error::new)?;
 
 		let signature = key_pair.private_key.sign_prehash(_prehash).map_err(|_| Error::new())?;
 
@@ -654,6 +654,8 @@ impl Account {
 
 #[cfg(test)]
 mod tests {
+	#![allow(unused_imports)]
+
 	use super::*;
 	use crate::{
 		neo_clients::{BodyRegexMatcher, HttpProvider, MockClient},

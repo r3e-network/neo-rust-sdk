@@ -42,7 +42,6 @@
 ///
 /// This builder implements `Debug`, `Clone`, `Eq`, `PartialEq`, and `Hash` traits.
 /// It uses generics to allow for different types of JSON-RPC providers.
-use futures_util::TryFutureExt;
 use std::{
 	cell::RefCell,
 	collections::HashSet,
@@ -58,7 +57,7 @@ use once_cell::sync::Lazy;
 use primitive_types::H160;
 // Import from neo_types
 use crate::neo_types::{
-	Bytes, ContractParameter, InvocationResult, ScriptHash, ScriptHashExtension,
+	Bytes, ContractParameter, InvocationResult, ScriptHash,
 };
 
 // Import transaction types from neo_builder
@@ -85,14 +84,7 @@ use crate::neo_clients::public_key_to_script_hash;
 // Import Account from neo_protocol
 use crate::neo_protocol::Account;
 
-// Special module for initialization - conditionally include
-#[cfg(feature = "init")]
-use crate::prelude::init_logger;
-// Define a local replacement for when init feature is not enabled
-#[cfg(not(feature = "init"))]
-fn init_logger() {
-	// No-op when feature is not enabled
-}
+use super::init_logger;
 
 #[derive(Getters, Setters, MutGetters, CopyGetters, Default)]
 pub struct TransactionBuilder<'a, P: JsonRpcProvider + 'static> {
@@ -375,7 +367,7 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 			self.signers.insert(0, s);
 			Ok(self)
 		} else {
-			Err(TransactionError::ScriptFormat(format!("Could not find a signer with script hash {}. Make sure to add the signer before calling this method.", sender.to_string()).into()))
+			Err(TransactionError::ScriptFormat(format!("Could not find a signer with script hash {}. Make sure to add the signer before calling this method.", sender)))
 		}
 	}
 
@@ -398,7 +390,7 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 			.rpc_client()
 			.invoke_script(self.script.clone().unwrap().to_hex_string(), self.signers.clone())
 			.await
-			.map_err(|e| TransactionError::ProviderError(e))?;
+			.map_err(TransactionError::ProviderError)?;
 		Ok(result)
 	}
 
@@ -429,12 +421,12 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	///     Ok(())
 	/// }
 	/// ```
-	pub async fn build(&mut self) -> Result<Transaction<P>, TransactionError> {
+	pub async fn build(&mut self) -> Result<Transaction<'_, P>, TransactionError> {
 		self.get_unsigned_tx().await
 	}
 
 	// Get unsigned transaction
-	pub async fn get_unsigned_tx(&mut self) -> Result<Transaction<P>, TransactionError> {
+	pub async fn get_unsigned_tx(&mut self) -> Result<Transaction<'_, P>, TransactionError> {
 		// Validate configuration
 		if self.signers.is_empty() {
 			return Err(TransactionError::NoSigners);
@@ -541,7 +533,7 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 		let response = client
 			.invoke_script(script.to_hex_string(), vec![self.signers[0].clone()])
 			.await
-			.map_err(|e| TransactionError::ProviderError(e))?;
+			.map_err(TransactionError::ProviderError)?;
 
 		// Check if the VM execution resulted in a fault
 		if response.has_state_fault() {
@@ -563,9 +555,9 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 			// Otherwise, we continue with the transaction despite the fault
 		}
 
-		Ok(i64::from_str(&response.gas_consumed).map_err(|_| {
+		i64::from_str(&response.gas_consumed).map_err(|_| {
 			TransactionError::IllegalState("Failed to parse gas consumed".to_string())
-		})?)
+		})
 	}
 
 	async fn get_network_fee(&mut self) -> Result<i64, TransactionError> {
@@ -611,30 +603,25 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 				Signer::AccountSigner(account_signer) => {
 					// Get the account from AccountSigner
 					let account = account_signer.account();
-					let verification_script;
-
-					// Check if the account is multi-signature or single-signature
-					if account.is_multi_sig() {
+					let verification_script = if account.is_multi_sig() {
 						// Create a placeholder multi-signature verification script for fee estimation
-						verification_script = self
-							.create_placeholder_multi_sig_verification_script(account)
+						self.create_placeholder_multi_sig_verification_script(account)
 							.map_err(|e| {
 								TransactionError::IllegalState(format!(
 									"Failed to create multi-sig verification script: {}",
 									e
 								))
-							})?;
+							})?
 					} else {
 						// Create a placeholder single-signature verification script for fee estimation
-						verification_script = self
-							.create_placeholder_single_sig_verification_script()
+						self.create_placeholder_single_sig_verification_script()
 							.map_err(|e| {
 								TransactionError::IllegalState(format!(
 									"Failed to create single-sig verification script: {}",
 									e
 								))
-							})?;
-					}
+							})?
+					};
 
 					// Add a witness with an empty signature and the verification script
 					tx.add_witness(Witness::from_scripts(
@@ -682,7 +669,7 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 					None,
 				)
 				.await
-				.map_err(|e| TransactionError::ProviderError(e))?
+				.map_err(TransactionError::ProviderError)?
 				.stack[0]
 				.clone();
 
@@ -749,10 +736,7 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	}
 
 	fn is_account_signer(signer: &Signer) -> bool {
-		if signer.get_type() == SignerType::AccountSigner {
-			return true;
-		}
-		return false;
+		signer.get_type() == SignerType::AccountSigner
 	}
 
 	/// Signs the transaction with the provided signers.
@@ -828,7 +812,7 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	///     Ok(())
 	/// }
 	/// ```
-	pub async fn sign(&mut self) -> Result<Transaction<P>, BuilderError> {
+	pub async fn sign(&mut self) -> Result<Transaction<'_, P>, BuilderError> {
 		init_logger();
 		let mut unsigned_tx = self.get_unsigned_tx().await?;
 		let tx_bytes = unsigned_tx.get_hash_data().await?;
@@ -981,10 +965,10 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 				TransactionAttribute::HighPriority => {
 					self.add_high_priority_attribute(attr)?;
 				},
-				TransactionAttribute::NotValidBefore { height } => {
+				TransactionAttribute::NotValidBefore { height: _ } => {
 					self.add_not_valid_before_attribute(attr)?;
 				},
-				TransactionAttribute::Conflicts { hash } => {
+				TransactionAttribute::Conflicts { hash: _ } => {
 					self.add_conflicts_attribute(attr)?;
 				},
 				// TransactionAttribute::OracleResponse(oracle_response) => {
@@ -1050,13 +1034,14 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 
 	// Check if the attributes vector has an attribute of the specified type
 	fn has_attribute_of_type(&self, attr_type: TransactionAttribute) -> bool {
-		self.attributes.iter().any(|attr| match (attr, &attr_type) {
-			(
-				TransactionAttribute::NotValidBefore { .. },
-				TransactionAttribute::NotValidBefore { .. },
-			) => true,
-			(TransactionAttribute::HighPriority, TransactionAttribute::HighPriority) => true,
-			_ => false,
+		self.attributes.iter().any(|attr| {
+			matches!(
+				(attr, &attr_type),
+				(
+					TransactionAttribute::NotValidBefore { .. },
+					TransactionAttribute::NotValidBefore { .. },
+				) | (TransactionAttribute::HighPriority, TransactionAttribute::HighPriority)
+			)
 		})
 	}
 
@@ -1069,8 +1054,8 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 		self.has_attribute_of_type(TransactionAttribute::HighPriority)
 	}
 
-	fn contains_duplicate_signers(&self, signers: &Vec<Signer>) -> bool {
-		let signer_list: Vec<H160> = signers.iter().map(|s| s.get_signer_hash().clone()).collect();
+	fn contains_duplicate_signers(&self, signers: &[Signer]) -> bool {
+		let signer_list: Vec<H160> = signers.iter().map(|s| *s.get_signer_hash()).collect();
 		let signer_set: HashSet<_> = signer_list.iter().collect();
 		signer_list.len() != signer_set.len()
 	}
@@ -1109,7 +1094,7 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 		};
 
 		let response =
-			match client.get_committee().await.map_err(|e| TransactionError::ProviderError(e)) {
+			match client.get_committee().await.map_err(TransactionError::ProviderError) {
 				Ok(response) => response,
 				Err(_) => return false, // If we can't get committee info, assume not allowed
 			};
@@ -1128,13 +1113,13 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 			.signers
 			.iter()
 			.map(|signer| signer.get_signer_hash())
-			.any(|script_hash| committee.contains(&script_hash));
+			.any(|script_hash| committee.contains(script_hash));
 
 		if signers_contain_committee_member {
 			return true;
 		}
 
-		return self.signers_contain_multi_sig_with_committee_member(&committee);
+		self.signers_contain_multi_sig_with_committee_member(&committee)
 	}
 
 	/// Checks if the sender account of this transaction can cover the network and system fees.
@@ -1143,7 +1128,6 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	/// The check and potential execution of the consumer is only performed when the transaction is built, i.e., when calling `TransactionBuilder::sign` or `TransactionBuilder::get_unsigned_transaction`.
 	/// - Parameter consumer: The consumer
 	/// - Returns: This transaction builder (self)
-	/// Checks if the sender account can cover the transaction fees and executes a callback if not.
 	///
 	/// This method allows you to provide a callback function that will be executed if the sender
 	/// account does not have enough GAS to cover the network and system fees. The callback

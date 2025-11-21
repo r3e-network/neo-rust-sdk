@@ -70,14 +70,13 @@ use p256::{
 	ecdsa::{signature::Signer, Signature, SigningKey, VerifyingKey},
 	elliptic_curve::{
 		sec1::{FromEncodedPoint, ToEncodedPoint},
-		Field,
 	},
 	EncodedPoint, FieldBytes, PublicKey, SecretKey,
 };
 use primitive_types::U256;
 use rand_core::OsRng;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use signature::{hazmat::PrehashSigner, SignerMut, Verifier};
+use signature::{hazmat::PrehashSigner, Verifier};
 
 #[cfg_attr(feature = "substrate", serde(crate = "serde_substrate"))]
 #[derive(Debug, Clone)]
@@ -235,6 +234,7 @@ impl Secp256r1PublicKey {
 		Secp256r1PublicKey::from_bytes(encoded.as_slice()).ok()
 	}
 
+	#[allow(dead_code)]
 	fn get_size(&self) -> usize {
 		if self.inner.to_encoded_point(false).is_identity() {
 			1
@@ -318,7 +318,7 @@ impl Secp256r1PrivateKey {
 	///
 	/// - Returns: A `Result` with the `Secp256r1Signature` or a `CryptoError`.
 	pub fn sign_tx(&self, message: &[u8]) -> Result<Secp256r1Signature, CryptoError> {
-		let signing_key = SigningKey::from_slice(&self.inner.to_bytes().as_slice())
+		let signing_key = SigningKey::from_slice(self.inner.to_bytes().as_slice())
 			.map_err(|_| CryptoError::InvalidPrivateKey)?;
 		let (signature, _) =
 			signing_key.try_sign(message).map_err(|_| CryptoError::SigningError)?;
@@ -332,9 +332,9 @@ impl Secp256r1PrivateKey {
 	/// - Parameter message: A byte slice representing the prehashed message to be signed.
 	/// - Returns: A `Result` with the `Secp256r1Signature` or a `CryptoError`.
 	/// - Note: The message should be prehashed using a secure hash function before calling this method.
-	///  The signature is generated using the ECDSA algorithm.
+	///   The signature is generated using the ECDSA algorithm.
 	pub fn sign_prehash(&self, message: &[u8]) -> Result<Secp256r1Signature, CryptoError> {
-		let signing_key = SigningKey::from_slice(&self.inner.to_bytes().as_slice())
+		let signing_key = SigningKey::from_slice(self.inner.to_bytes().as_slice())
 			.map_err(|_| CryptoError::InvalidPrivateKey)?;
 		let (signature, _) =
 			signing_key.sign_prehash(message).map_err(|_| CryptoError::SigningError)?;
@@ -421,15 +421,15 @@ impl Secp256r1Signature {
 
 impl fmt::Display for Secp256r1PrivateKey {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-		write!(f, "Secp256r1PrivateKey: {}\n", hex::encode(self.inner.to_bytes().as_slice()))
+		writeln!(f, "Secp256r1PrivateKey: {}", hex::encode(self.inner.to_bytes()))
 	}
 }
 
 impl fmt::Display for Secp256r1PublicKey {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-		write!(
+		writeln!(
 			f,
-			"Secp256r1PublicKey: {}\n",
+			"Secp256r1PublicKey: {}",
 			hex::encode(self.inner.to_encoded_point(false).as_bytes())
 		)
 	}
@@ -437,8 +437,8 @@ impl fmt::Display for Secp256r1PublicKey {
 
 impl fmt::Display for Secp256r1Signature {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-		write!(f, "Secp256r1Signature\n")?;
-		write!(f, "x: {}\n", hex::encode(&self.to_bytes()))
+		writeln!(f, "Secp256r1Signature")?;
+		writeln!(f, "x: {}", hex::encode(self.to_bytes()))
 	}
 }
 
@@ -510,9 +510,7 @@ impl PartialEq for Secp256r1PublicKey {
 
 impl PartialOrd for Secp256r1PublicKey {
 	fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-		let self_bytes = self.get_encoded(true);
-		let other_bytes = other.get_encoded(true);
-		self_bytes.partial_cmp(&other_bytes)
+		Some(self.cmp(other))
 	}
 }
 
@@ -649,10 +647,8 @@ mod tests {
 
 	use crate::{
 		codec::{Decoder, NeoSerializable},
-		crypto::{
-			HashableForVec, Secp256r1PrivateKey, Secp256r1PublicKey, Secp256r1Signature, ToArray32,
-		},
-		neo_crypto::utils::{FromHexString, ToHexString},
+		crypto::{HashableForVec, Secp256r1PrivateKey, Secp256r1PublicKey, Secp256r1Signature},
+		neo_crypto::utils::ToHexString,
 	};
 
 	const ENCODED_POINT: &str =
@@ -669,7 +665,7 @@ mod tests {
 		let enc_ec_point = "03b4af8d061b6b320cce6c63bc4ec7894dce107bfc5f5ef5c68a93b4ad1e136816";
 		let enc_ec_point_bytes = hex::decode(enc_ec_point).unwrap();
 
-		let pub_key = Secp256r1PublicKey::from_encoded(&enc_ec_point).unwrap();
+		let pub_key = Secp256r1PublicKey::from_encoded(enc_ec_point).unwrap();
 
 		assert_eq!(pub_key.get_encoded_point(false), expected_ec_point);
 		assert_eq!(pub_key.get_encoded(true), enc_ec_point_bytes);
@@ -703,7 +699,7 @@ mod tests {
 	#[test]
 	fn test_serialize_public_key() {
 		let enc_point = "03b4af8d061b6b320cce6c63bc4ec7894dce107bfc5f5ef5c68a93b4ad1e136816";
-		let pub_key = Secp256r1PublicKey::from_encoded(&enc_point).unwrap();
+		let pub_key = Secp256r1PublicKey::from_encoded(enc_point).unwrap();
 
 		assert_eq!(pub_key.to_array(), hex::decode(enc_point).unwrap());
 	}
@@ -718,7 +714,7 @@ mod tests {
 
 	#[test]
 	fn test_public_key_size() {
-		let mut key = Secp256r1PublicKey::from_encoded(
+		let key = Secp256r1PublicKey::from_encoded(
 			"036b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296",
 		)
 		.unwrap();
@@ -747,8 +743,8 @@ mod tests {
 
 		assert!(key1 > key2);
 		assert!(key1 == key1_uncompressed);
-		assert!(!(key1 < key1_uncompressed));
-		assert!(!(key1 > key1_uncompressed));
+		assert!(key1 >= key1_uncompressed);
+		assert!(key1 <= key1_uncompressed);
 	}
 
 	#[test]

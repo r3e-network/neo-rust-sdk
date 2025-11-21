@@ -16,7 +16,7 @@ use serde::{
 	Deserialize, Deserializer, Serialize,
 };
 use serde_json::Value;
-use sha3::Digest;
+// use sha3::Digest;
 use std::{
 	collections::HashMap,
 	fmt,
@@ -228,7 +228,7 @@ impl From<u64> for ContractParameter {
 
 impl From<&Role> for ContractParameter {
 	fn from(value: &Role) -> Self {
-		Self::integer(value.clone() as i64)
+		Self::integer(*value as i64)
 	}
 }
 
@@ -318,7 +318,7 @@ impl From<Value> for ContractParameter {
 			},
 			Value::String(s) => Self::string(s),
 			Value::Array(a) => {
-				Self::array(a.into_iter().map(|v| ContractParameter::from(v)).collect())
+				Self::array(a.into_iter().map(ContractParameter::from).collect())
 			},
 			Value::Object(o) => Self::map(ContractParameterMap::from_map(
 				o.into_iter()
@@ -396,9 +396,9 @@ impl ContractParameter {
 	}
 }
 
-impl Into<Value> for ContractParameter {
-	fn into(self) -> Value {
-		match self.value {
+impl From<ContractParameter> for Value {
+	fn from(param: ContractParameter) -> Self {
+		match param.value {
 			Some(ParameterValue::Boolean(b)) => Value::Bool(b),
 			Some(ParameterValue::Integer(i)) => Value::Number(serde_json::Number::from(i)),
 			Some(ParameterValue::ByteArray(b)) => Value::String(b),
@@ -407,12 +407,10 @@ impl Into<Value> for ContractParameter {
 			Some(ParameterValue::H256(h)) => Value::String(h),
 			Some(ParameterValue::PublicKey(p)) => Value::String(p),
 			Some(ParameterValue::Signature(s)) => Value::String(s),
-			Some(ParameterValue::Array(a)) => {
-				Value::Array(a.into_iter().map(|v| v.into()).collect())
-			},
+			Some(ParameterValue::Array(a)) => Value::Array(a.into_iter().map(Value::from).collect()),
 			Some(ParameterValue::Map(m)) => Value::Array(
 				m.0.iter()
-					.flat_map(|(key, value)| vec![key.clone().into(), value.clone().into()])
+					.flat_map(|(key, value)| vec![Value::from(key.clone()), Value::from(value.clone())])
 					.collect(),
 			),
 			Some(ParameterValue::Any) => Value::Null,
@@ -423,7 +421,7 @@ impl Into<Value> for ContractParameter {
 
 impl From<Vec<Value>> for ContractParameter {
 	fn from(value: Vec<Value>) -> Self {
-		Self::array(value.into_iter().map(|v| ContractParameter::from(v)).collect())
+		Self::array(value.into_iter().map(ContractParameter::from).collect())
 	}
 }
 
@@ -496,7 +494,7 @@ impl ContractParameter {
 	}
 
 	pub fn get_type(&self) -> ContractParameterType {
-		self.typ.clone()
+		self.typ
 	}
 
 	pub fn with_value(typ: ContractParameterType, value: ParameterValue) -> Self {
@@ -874,7 +872,7 @@ mod tests {
 
 	#[test]
 	fn test_array_from_empty() {
-		let param = ContractParameter::array(Vec::new());
+		let _param = ContractParameter::array(Vec::new());
 
 		// assert!(matches!(param.value, Some([])));
 	}
@@ -1027,14 +1025,13 @@ mod tests {
 		let param = ContractParameter::bool(false);
 		// assert_param(&param, false, ContractParameterType::Boolean);
 		assert_eq!(param.typ, ContractParameterType::Boolean);
-		assert_eq!(
-			param
+		assert!(
+			!param
 				.value
 				.as_ref()
 				.expect("Parameter value should not be None")
 				.to_bool()
-				.expect("Should be able to convert to bool"),
-			false
+				.expect("Should be able to convert to bool")
 		);
 	}
 
@@ -1055,7 +1052,7 @@ mod tests {
 	}
 
 	#[test]
-	fn test_H160() {
+	fn test_h160() {
 		let hash = H160::from([0u8; 20]);
 		let param = ContractParameter::h160(&hash);
 		// assert_param(&param, hash.into(), ContractParameterType::H160);
@@ -1072,7 +1069,7 @@ mod tests {
 	}
 
 	#[test]
-	fn test_H256() {
+	fn test_h256() {
 		let hash = H256::from([0u8; 32]);
 		let param = ContractParameter::h256(&hash);
 		// assert_param(&param, hash.into(), ContractParameterType::H256);
@@ -1145,14 +1142,13 @@ mod tests {
 		let bool_param = ContractParameter::from(true);
 		// assert_param(&bool_param, true, ContractParameterType::Boolean);
 		assert_eq!(bool_param.typ, ContractParameterType::Boolean);
-		assert_eq!(
+		assert!(
 			bool_param
 				.value
 				.as_ref()
 				.expect("Parameter value should not be None")
 				.to_bool()
-				.expect("Should be able to convert to bool"),
-			true
+				.expect("Should be able to convert to bool")
 		);
 
 		let int_param = ContractParameter::from(10);
@@ -1220,7 +1216,7 @@ mod tests {
 		let map = param.value.as_ref().expect("Parameter value should not be None");
 
 		let map = map.to_map().expect("Should be able to convert to map");
-		let (key, val) = map.0.iter().next().expect("Map should not be empty in test");
+		let (key, _val) = map.0.iter().next().expect("Map should not be empty in test");
 		assert_eq!(key.typ, ContractParameterType::String);
 		assert_eq!(
 			key.value

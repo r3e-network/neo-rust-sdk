@@ -1,4 +1,5 @@
 use std::{collections::HashMap, fmt};
+use base64::Engine;
 
 /// This module defines the `StackItem` enum and `MapEntry` struct, which are used to represent items on the Neo virtual machine stack.
 /// `StackItem` is a recursive enum that can represent any type of value that can be stored on the stack, including arrays, maps, and custom types.
@@ -182,7 +183,7 @@ impl StackItem {
 	pub const INTEROP_INTERFACE_BYTE: u8 = 0x60;
 
 	pub fn new_byte_string(byte_array: Vec<u8>) -> Self {
-		let byte_string = base64::encode(byte_array);
+		let byte_string = base64::engine::general_purpose::STANDARD.encode(byte_array);
 		StackItem::ByteString { value: byte_string }
 	}
 
@@ -198,9 +199,12 @@ impl StackItem {
 	/// Returns the string value of a `StackItem::ByteString`, `StackItem::Buffer`, `StackItem::Integer`, or `StackItem::Boolean`.
 	pub fn as_string(&self) -> Option<String> {
 		match self {
-			StackItem::ByteString { value } | StackItem::Buffer { value } => {
-				Some(String::from_utf8_lossy(&base64::decode(value).unwrap()).to_string())
-			},
+				StackItem::ByteString { value } | StackItem::Buffer { value } => Some(
+					String::from_utf8_lossy(
+						&base64::engine::general_purpose::STANDARD.decode(value).unwrap(),
+					)
+					.to_string(),
+				),
 			StackItem::Integer { value } => Some(value.to_string()),
 			StackItem::Boolean { value } => Some(value.to_string()),
 			_ => None,
@@ -208,14 +212,15 @@ impl StackItem {
 	}
 
 	/// Returns the string representation of a `StackItem`.
+	#[allow(clippy::inherent_to_string)]
 	pub fn to_string(&self) -> String {
 		match self {
 			StackItem::Any => "Any".to_string(),
 			StackItem::Pointer { value: pointer } => format!("Pointer{{value={}}}", pointer),
 			StackItem::Boolean { value: boolean } => format!("Boolean{{value={}}}", boolean),
 			StackItem::Integer { value: integer } => format!("Integer{{value={}}}", integer),
-			StackItem::ByteString { value: byteString } => {
-				format!("ByteString{{value={:?}}}", byteString)
+			StackItem::ByteString { value: byte_string } => {
+				format!("ByteString{{value={:?}}}", byte_string)
 			},
 			StackItem::Buffer { value: buffer } => format!("Buffer{{value={:?}}}", buffer),
 			StackItem::Array { value: array } => {
@@ -252,8 +257,9 @@ impl StackItem {
 			// Some(hex::decode(value).unwrap()),
 			{
 				Some(
-					base64::decode(value.trim_end())
-						.expect(&format!("Failed to decode the string: {}", value)),
+					base64::engine::general_purpose::STANDARD
+						.decode(value.trim_end())
+						.unwrap_or_else(|_| panic!("Failed to decode the string: {}", value)),
 				)
 			},
 			//Some(value.trim_end().as_bytes().to_vec()),
@@ -300,9 +306,9 @@ impl StackItem {
 
 	/// Returns the `Address` value of a `StackItem::ByteString` or `StackItem::Buffer`.
 	pub fn as_address(&self) -> Option<Address> {
-		self.as_bytes().and_then(|mut bytes| {
+		self.as_bytes().map(|mut bytes| {
 			bytes.reverse();
-			Some(H160::from_slice(&bytes).to_address())
+			H160::from_slice(&bytes).to_address()
 		})
 	}
 
@@ -313,12 +319,12 @@ impl StackItem {
 
 	/// Returns the `H160` value of a `StackItem::ByteString` or `StackItem::Buffer`.
 	pub fn as_hash160(&self) -> Option<H160> {
-		self.as_bytes().and_then(|bytes| Some(H160::from_slice(&bytes)))
+		self.as_bytes().map(|bytes| H160::from_slice(&bytes))
 	}
 
 	/// Returns the `H256` value of a `StackItem::ByteString` or `StackItem::Buffer`.
 	pub fn as_hash256(&self) -> Option<H256> {
-		self.as_bytes().and_then(|bytes| Some(H256::from_slice(&bytes)))
+		self.as_bytes().map(|bytes| H256::from_slice(&bytes))
 	}
 
 	pub fn as_interop(&self, interface_name: &str) -> Option<StackItem> {

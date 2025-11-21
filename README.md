@@ -11,7 +11,7 @@ A comprehensive, production-ready Rust SDK for the Neo N3 blockchain platform. N
 
 ## 📊 Project Status
 
-- **Version**: 0.5.0 (Production Ready - Enterprise Features)
+- **Version**: 0.5.1 (Production Ready - Enterprise Features)
 - **Rust Version**: 1.70.0+
 - **Platform Support**: Windows, macOS, Linux
 - **Security**: All dependencies audited, 0 known vulnerabilities
@@ -29,7 +29,7 @@ A comprehensive, production-ready Rust SDK for the Neo N3 blockchain platform. N
 - 🪙 **Token Support** - Native NEP-17 token operations and custom token support
 - 🌐 **Network Support** - Mainnet, Testnet, and custom network configurations
 
-### New in v0.5.0 🚀
+### New in v0.5.x 🚀
 - 🌐 **WebSocket Support** - Real-time blockchain events with auto-reconnection
 - 🔑 **HD Wallet (BIP-39/44)** - Hierarchical deterministic wallets with mnemonic phrases
 - 🔮 **Transaction Simulation** - Preview effects and estimate gas before submission
@@ -49,12 +49,12 @@ Add NeoRust to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-neo3 = "0.5.0"
+neo3 = "0.5.1"
 ```
 
 ## Basic Usage
 
-### New Simplified API (v0.5.0+)
+### New Simplified API (v0.5.x+)
 
 ```rust
 use neo3::sdk::Neo;
@@ -215,7 +215,7 @@ cd neo-gui && npm install && cargo build
 ## Documentation
 
 - [Getting Started Guide](docs/guides/getting-started.md)
-- [API Documentation](https://docs.rs/neo3/0.5.0)
+- [API Documentation](https://docs.rs/neo3/0.5.1)
 - [WebSocket Guide](docs/guides/websocket.md)
 - [HD Wallet Guide](docs/guides/hd-wallet.md)
 - [Transaction Simulation Guide](docs/guides/transaction-simulation.md)
@@ -298,7 +298,7 @@ cargo doc --no-deps --all-features
 
 ## Feature Comparison
 
-| Feature | v0.4.x | v0.5.0 | Improvement |
+| Feature | v0.4.x | v0.5.x | Improvement |
 |---------|--------|--------|-------------|
 | **Connection Setup** | 5-10 lines | 1 line | 90% reduction |
 | **Balance Check** | Manual RPC + parsing | Single method | 70% reduction |
@@ -336,7 +336,7 @@ See the [full migration guide](docs/guides/migration-v0.5.md) for detailed instr
 
 ## Performance Metrics
 
-| Operation | v0.4.x | v0.5.0 | Improvement |
+| Operation | v0.4.x | v0.5.x | Improvement |
 |-----------|--------|--------|-------------|
 | **WebSocket Events** | N/A | <100ms | New |
 | **HD Account Derivation** | N/A | <10ms | New |

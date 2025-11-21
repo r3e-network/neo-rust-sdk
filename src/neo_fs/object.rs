@@ -92,7 +92,6 @@ impl Object {
 }
 
 /// Helper structs for multipart upload operations
-
 /// Represents an initialized multipart upload
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultipartUpload {

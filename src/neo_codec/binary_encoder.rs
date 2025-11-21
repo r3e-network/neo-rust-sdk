@@ -24,6 +24,12 @@ pub struct Encoder {
 	data: Vec<u8>,
 }
 
+impl Default for Encoder {
+	fn default() -> Self {
+		Self::new()
+	}
+}
+
 impl Encoder {
 	pub fn new() -> Self {
 		Self { data: Vec::new() }
@@ -94,7 +100,7 @@ impl Encoder {
 	}
 
 	pub fn write_var_string(&mut self, v: &str) {
-		self.write_var_bytes(v.as_bytes());
+		self.write_var_bytes(v.as_bytes()).expect("Failed to serialize string");
 	}
 
 	pub fn write_fixed_string(
@@ -108,7 +114,8 @@ impl Encoder {
 		}
 		let mut padded = vec![0; length];
 		padded[0..bytes.len()].copy_from_slice(bytes);
-		Ok(self.write_bytes(&padded))
+		self.write_bytes(&padded);
+		Ok(())
 	}
 
 	pub fn write_var_bytes(&mut self, bytes: &[u8]) -> Result<(), std::io::Error> {
@@ -244,31 +251,31 @@ mod tests {
 	fn test_write_var_int() {
 		let mut writer = Encoder::new();
 
-		writer.write_var_int(0);
+		writer.write_var_int(0).unwrap();
 		assert_eq!(writer.to_bytes(), vec![0]);
 
 		writer.reset();
-		writer.write_var_int(252);
+		writer.write_var_int(252).unwrap();
 		assert_eq!(writer.to_bytes(), vec![0xfc]);
 
 		writer.reset();
-		writer.write_var_int(253);
+		writer.write_var_int(253).unwrap();
 		assert_eq!(writer.to_bytes(), vec![0xfd, 0xfd, 0]);
 
 		writer.reset();
-		writer.write_var_int(65_534);
+		writer.write_var_int(65_534).unwrap();
 		assert_eq!(writer.to_bytes(), vec![0xfd, 0xfe, 0xff]);
 
 		writer.reset();
-		writer.write_var_int(65_536);
+		writer.write_var_int(65_536).unwrap();
 		assert_eq!(writer.to_bytes(), vec![0xfe, 0, 0, 1, 0]);
 
 		writer.reset();
-		writer.write_var_int(4_294_967_295);
+		writer.write_var_int(4_294_967_295).unwrap();
 		assert_eq!(writer.to_bytes(), vec![0xfe, 0xff, 0xff, 0xff, 0xff]);
 
 		writer.reset();
-		writer.write_var_int(4_294_967_296);
+		writer.write_var_int(4_294_967_296).unwrap();
 		assert_eq!(writer.to_bytes(), vec![0xff, 0, 0, 0, 0, 1, 0, 0, 0]);
 	}
 
@@ -277,12 +284,12 @@ mod tests {
 		let mut writer = Encoder::new();
 
 		let bytes = hex::decode("010203").unwrap();
-		writer.write_var_bytes(&bytes);
+		writer.write_var_bytes(&bytes).unwrap();
 		assert_eq!(writer.to_bytes(), hex::decode("03010203").unwrap());
 
 		writer.reset();
 		let bytes = "0010203010203010203010203010203010203010203010203010203010203010203102030102030102030102030102030102030102030102030102030102030102031020301020301020301020301020301020301020301020301020301020301020310203010203010203010203010203010203010203010203010203010203010203001020301020301020301020301020301020301020301020301020301020301020310203010203010203010203010203010203010203010203010203010203";
-		writer.write_var_bytes(&hex::decode(bytes.clone()).unwrap());
+		writer.write_var_bytes(&hex::decode(bytes).unwrap()).unwrap();
 		assert_eq!(writer.to_bytes(), hex::decode(format!("c2{}", bytes)).unwrap());
 	}
 
@@ -295,7 +302,7 @@ mod tests {
 		assert_eq!(writer.to_bytes(), hex::decode("0d68656c6c6f2c20776f726c6421").unwrap());
 		writer.reset();
 		let s = "hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!hello, world!";
-		writer.write_var_string(&s);
+		writer.write_var_string(s);
 		assert_eq!(
 			writer.to_bytes(),
 			[hex::decode("fd1502").unwrap(), s.as_bytes().to_vec()].concat()

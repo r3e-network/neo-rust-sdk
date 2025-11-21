@@ -479,7 +479,7 @@ mod tests {
 				.expect("Should be able to decode valid public key hex in test"),
 		)
 		.expect("Should be able to create public key from valid bytes in test");
-		let account = Account::multi_sig_from_public_keys(&mut vec![public_key], 1)
+		let account = Account::multi_sig_from_public_keys(&mut [public_key], 1)
 			.expect("Should be able to create multi-sig account from valid public key in test");
 		let nep6_account = account
 			.to_nep6_account()

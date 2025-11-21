@@ -63,6 +63,7 @@ impl<D: Sync + Send + PrehashSigner<Signature>> WalletSigner<D> {
 	/// # Returns
 	///
 	/// A `Result` containing the `p256::NistP256` of the transaction, or a `WalletError` on failure.
+	#[allow(dead_code)]
 	pub(crate) async fn sign_transaction<'a, P: JsonRpcProvider + 'static>(
 		&self,
 		tx: &Transaction<'a, P>,
@@ -124,11 +125,13 @@ impl<D: Sync + Send + PrehashSigner<Signature>> WalletSigner<D> {
 	/// # Returns
 	///
 	/// The `Address` of the wallet.
+	#[allow(dead_code)]
 	pub(crate) fn address(&self) -> Address {
 		self.address.clone()
 	}
 
 	/// Gets the wallet's chain id
+	#[allow(dead_code)]
 	fn network(&self) -> Option<u64> {
 		self.network
 	}
@@ -142,6 +145,7 @@ impl<D: Sync + Send + PrehashSigner<Signature>> WalletSigner<D> {
 	/// # Returns
 	///
 	/// The `WalletSigner` instance with the network ID set.
+	#[allow(dead_code)]
 	fn with_network<T: Into<u64>>(mut self, network: T) -> Self {
 		self.network = Some(network.into());
 		self

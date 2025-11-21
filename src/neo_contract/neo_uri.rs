@@ -79,7 +79,7 @@ impl<'a, P: JsonRpcProvider + 'static> NeoURI<'a, P> {
 
 				match kv[0] {
 					"asset" if neo_uri.token().is_none() => {
-						&neo_uri.set_token(H160::from_str(kv[1]).ok());
+						let _ = neo_uri.set_token(H160::from_str(kv[1]).ok());
 					},
 					"amount" if neo_uri.amount.is_none() => {
 						neo_uri.amount = Some(kv[1].parse().unwrap());
@@ -119,7 +119,7 @@ impl<'a, P: JsonRpcProvider + 'static> NeoURI<'a, P> {
 	pub async fn build_transfer_from(
 		&self,
 		sender: &Account,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let recipient = self
 			.recipient
 			.ok_or_else(|| ContractError::InvalidStateError("Recipient not set".to_string()))?;
@@ -178,9 +178,10 @@ impl<'a, P: JsonRpcProvider + 'static> NeoURI<'a, P> {
 			.to_bytes();
 
 		// Set up the TransactionBuilder
+		tx_builder.set_script(Some(script));
 		tx_builder
-			.set_script(Some(script))
-			.set_signers(vec![AccountSigner::called_by_entry(sender).unwrap().into()]);
+			.set_signers(vec![AccountSigner::called_by_entry(sender).unwrap().into()])
+			.map_err(|err| ContractError::RuntimeError(err.to_string()))?;
 
 		Ok(tx_builder)
 	}

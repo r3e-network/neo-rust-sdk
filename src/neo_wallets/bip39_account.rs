@@ -84,7 +84,7 @@ impl Bip39Account {
 		let seed = mnemonic.to_seed(password);
 
 		let mut hasher = Sha256::new();
-		hasher.update(&seed);
+		hasher.update(seed);
 		let private_key = hasher.finalize();
 
 		let key_pair = KeyPair::from_private_key(private_key.as_ref()).map_err(|e| {
@@ -128,7 +128,7 @@ impl Bip39Account {
 		let seed = mnemonic.to_seed(password);
 
 		let mut hasher = Sha256::new();
-		hasher.update(&seed);
+		hasher.update(seed);
 		let private_key = hasher.finalize();
 
 		let key_pair = KeyPair::from_private_key(private_key.as_ref()).map_err(|e| {

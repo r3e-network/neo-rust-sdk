@@ -9,13 +9,12 @@ pub mod transaction_simulator;
 pub mod websocket;
 
 use crate::{
-	neo_builder::{ScriptBuilder, TransactionBuilder},
 	neo_clients::{APITrait, HttpProvider, RpcClient},
 	neo_error::unified::NeoError,
-	neo_protocol::{Account, AccountTrait},
 	neo_types::{ContractParameter, ScriptHash, StackItem},
 	neo_wallets::wallet::Wallet,
 };
+use base64::Engine;
 use std::str::FromStr;
 use std::sync::Arc;
 use std::time::Duration;
@@ -42,9 +41,11 @@ use std::time::Duration;
 ///     Ok(())
 /// }
 /// ```
+#[derive(Debug)]
 pub struct Neo {
 	client: Arc<RpcClient<HttpProvider>>,
 	network: Network,
+	#[allow(dead_code)]
 	config: SdkConfig,
 }
 
@@ -231,19 +232,19 @@ impl Neo {
 				StackItem::Integer { value } => Some(*value),
 				StackItem::ByteString { value } => {
 					// Try to decode base64 and interpret as integer
-					base64::decode(value).ok().and_then(|bytes| {
+					base64::engine::general_purpose::STANDARD.decode(value).ok().map(|bytes| {
 						if bytes.is_empty() {
-							Some(0)
+							0
 						} else if bytes.len() <= 8 {
 							let mut array = [0u8; 8];
 							array[..bytes.len()].copy_from_slice(&bytes);
-							Some(i64::from_le_bytes(array))
+							i64::from_le_bytes(array)
 						} else {
 							// For larger values, just take the first 8 bytes
 							// This is a simplification and may not be accurate for very large values
 							let mut array = [0u8; 8];
 							array.copy_from_slice(&bytes[..8]);
-							Some(i64::from_le_bytes(array))
+							i64::from_le_bytes(array)
 						}
 					})
 				},
@@ -258,19 +259,19 @@ impl Neo {
 				StackItem::Integer { value } => Some(*value),
 				StackItem::ByteString { value } => {
 					// Try to decode base64 and interpret as integer
-					base64::decode(value).ok().and_then(|bytes| {
+					base64::engine::general_purpose::STANDARD.decode(value).ok().map(|bytes| {
 						if bytes.is_empty() {
-							Some(0)
+							0
 						} else if bytes.len() <= 8 {
 							let mut array = [0u8; 8];
 							array[..bytes.len()].copy_from_slice(&bytes);
-							Some(i64::from_le_bytes(array))
+							i64::from_le_bytes(array)
 						} else {
 							// For larger values, just take the first 8 bytes
 							// This is a simplification and may not be accurate for very large values
 							let mut array = [0u8; 8];
 							array.copy_from_slice(&bytes[..8]);
-							Some(i64::from_le_bytes(array))
+							i64::from_le_bytes(array)
 						}
 					})
 				},
@@ -302,10 +303,10 @@ impl Neo {
 	/// ```
 	pub async fn transfer(
 		&self,
-		from: &Wallet,
-		to: &str,
-		amount: u64,
-		token: Token,
+        _from: &Wallet,
+        _to: &str,
+        _amount: u64,
+        _token: Token,
 	) -> Result<TxHash, NeoError> {
 		// Implementation would handle transaction building and sending
 		todo!("Implement simplified transfer")
@@ -327,9 +328,9 @@ impl Neo {
 	/// ```
 	pub async fn deploy_contract(
 		&self,
-		deployer: &Wallet,
-		nef: Vec<u8>,
-		manifest: String,
+        _deployer: &Wallet,
+        _nef: Vec<u8>,
+        _manifest: String,
 	) -> Result<ScriptHash, NeoError> {
 		// Implementation would handle contract deployment
 		todo!("Implement contract deployment")
@@ -350,9 +351,9 @@ impl Neo {
 	/// ```
 	pub async fn invoke_read(
 		&self,
-		contract: &ScriptHash,
-		method: &str,
-		params: Vec<ContractParameter>,
+        _contract: &ScriptHash,
+        _method: &str,
+        _params: Vec<ContractParameter>,
 	) -> Result<serde_json::Value, NeoError> {
 		// Implementation would handle read-only invocation
 		todo!("Implement read-only invocation")
@@ -374,10 +375,10 @@ impl Neo {
 	/// ```
 	pub async fn invoke_write(
 		&self,
-		signer: &Wallet,
-		contract: &ScriptHash,
-		method: &str,
-		params: Vec<ContractParameter>,
+        _signer: &Wallet,
+        _contract: &ScriptHash,
+        _method: &str,
+        _params: Vec<ContractParameter>,
 	) -> Result<TxHash, NeoError> {
 		// Implementation would handle state-changing invocation
 		todo!("Implement write invocation")
@@ -392,8 +393,8 @@ impl Neo {
 	/// ```
 	pub async fn wait_for_confirmation(
 		&self,
-		tx_hash: &str,
-		timeout: Duration,
+        _tx_hash: &str,
+        _timeout: Duration,
 	) -> Result<(), NeoError> {
 		// Implementation would poll for transaction confirmation
 		todo!("Implement confirmation waiting")
@@ -422,6 +423,7 @@ impl Neo {
 }
 
 /// Builder for configuring the Neo SDK
+#[derive(Debug)]
 pub struct NeoBuilder {
 	network: Network,
 	config: SdkConfig,
@@ -499,6 +501,8 @@ impl NeoBuilder {
 }
 
 /// Quick transfer builder for simplified token transfers
+#[derive(Debug)]
+#[allow(dead_code)]
 pub struct Transfer {
 	from: Wallet,
 	to: String,
@@ -520,7 +524,7 @@ impl Transfer {
 	}
 
 	/// Execute the transfer
-	pub async fn execute(self, client: &RpcClient<HttpProvider>) -> Result<TxHash, NeoError> {
+    pub async fn execute(self, _client: &RpcClient<HttpProvider>) -> Result<TxHash, NeoError> {
 		// Implementation would build and send the transfer transaction
 		todo!("Implement transfer execution")
 	}

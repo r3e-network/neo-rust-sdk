@@ -81,8 +81,8 @@ impl ScriptHashExtension for H160 {
 
 	//Performs different behavior compared to from_str, should be noticed
 	fn from_hex(hex: &str) -> Result<Self, hex::FromHexError> {
-		if hex.starts_with("0x") {
-			let mut bytes = hex::decode(&hex[2..])?;
+		if let Some(stripped) = hex.strip_prefix("0x") {
+			let mut bytes = hex::decode(stripped)?;
 			bytes.reverse();
 			<Self as ScriptHashExtension>::from_slice(&bytes)
 				.map_err(|_| hex::FromHexError::InvalidHexCharacter { c: '0', index: 0 })
@@ -130,7 +130,7 @@ impl ScriptHashExtension for H160 {
 	}
 
 	fn to_hex_big_endian(&self) -> String {
-		let mut cloned = self.0.clone();
+		let mut cloned = self.0;
 		cloned.reverse();
 		"0x".to_string() + &hex::encode(cloned)
 	}
@@ -140,8 +140,7 @@ impl ScriptHashExtension for H160 {
 	}
 
 	fn to_le_vec(&self) -> Vec<u8> {
-		let vec = self.0.to_vec();
-		vec
+		self.0.to_vec()
 	}
 
 	fn from_script(script: &[u8]) -> Self {
@@ -187,7 +186,6 @@ mod tests {
 	use crate::{
 		neo_builder::InteropService,
 		neo_codec::{Encoder, NeoSerializable},
-		neo_config::TestConstants,
 		neo_types::op_code::OpCode,
 	};
 
@@ -286,7 +284,7 @@ mod tests {
 		);
 
 		let hash = H160::from_public_key(&hex::decode(public_key).unwrap()).unwrap();
-		let mut hash = hash.to_array();
+		let hash = hash.to_array();
 		let mut expected = hex::decode(&script).unwrap().sha256_ripemd160();
 		expected.reverse();
 		assert_eq!(hash, expected);

@@ -48,35 +48,35 @@ impl<'a, P: JsonRpcProvider + 'static> PolicyContract<'a, P> {
 
 	// State modifying methods
 
-	pub async fn set_fee_per_byte(&self, fee: i32) -> Result<TransactionBuilder<P>, ContractError> {
+	pub async fn set_fee_per_byte(&self, fee: i32) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		self.invoke_function("setFeePerByte", vec![fee.into()]).await
 	}
 
 	pub async fn set_exec_fee_factor(
 		&self,
 		fee: i32,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		self.invoke_function("setExecFeeFactor", vec![fee.into()]).await
 	}
 
 	pub async fn set_storage_price(
 		&self,
 		price: i32,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		self.invoke_function("setStoragePrice", vec![price.into()]).await
 	}
 
 	pub async fn block_account(
 		&self,
 		account: &H160,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		self.invoke_function("blockAccount", vec![account.into()]).await
 	}
 
 	pub async fn block_account_address(
 		&self,
 		address: &str,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let account = ScriptHash::from_address(address).unwrap();
 		self.block_account(&account).await
 	}
@@ -84,14 +84,14 @@ impl<'a, P: JsonRpcProvider + 'static> PolicyContract<'a, P> {
 	pub async fn unblock_account(
 		&self,
 		account: &H160,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		self.invoke_function("unblockAccount", vec![account.into()]).await
 	}
 
 	pub async fn unblock_account_address(
 		&self,
 		address: &str,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let account = ScriptHash::from_address(address).unwrap();
 		self.unblock_account(&account).await
 	}

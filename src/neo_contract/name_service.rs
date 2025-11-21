@@ -11,12 +11,12 @@ use crate::{
 	NNSName, ScriptHash, StackItem,
 };
 use async_trait::async_trait;
-use futures::FutureExt;
 use primitive_types::H160;
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
-enum RecordType {
+pub enum RecordType {
 	None = 0,
 	Txt = 1,
 	A = 2,
@@ -66,6 +66,7 @@ pub struct NeoNameService<'a, P: JsonRpcProvider> {
 	provider: Option<&'a RpcClient<P>>,
 }
 
+#[allow(dead_code)]
 impl<'a, P: JsonRpcProvider + 'static> NeoNameService<'a, P> {
 	const ADD_ROOT: &'static str = "addRoot";
 	const ROOTS: &'static str = "roots";
@@ -90,17 +91,20 @@ impl<'a, P: JsonRpcProvider + 'static> NeoNameService<'a, P> {
 		let provider = provider.ok_or(ContractError::ProviderNotSet(
 			"Provider is required for NeoNameService".to_string(),
 		))?;
-		Ok(Self { script_hash: provider.nns_resolver().clone(), provider: Some(provider) })
+		Ok(Self { script_hash: provider.nns_resolver(), provider: Some(provider) })
 	}
 
 	// Implementation
 
-	async fn add_root(&self, root: &str) -> Result<TransactionBuilder<P>, ContractError> {
+	pub async fn add_root(
+		&self,
+		root: &str,
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let args = vec![root.to_string().into()];
 		self.invoke_function(Self::ADD_ROOT, args).await
 	}
 
-	async fn get_roots(&self) -> Result<NeoIterator<String, P>, ContractError> {
+	pub async fn get_roots(&self) -> Result<NeoIterator<'_, String, P>, ContractError> {
 		let args = vec![];
 		self.call_function_returning_iterator(
 			Self::ROOTS,
@@ -110,11 +114,11 @@ impl<'a, P: JsonRpcProvider + 'static> NeoNameService<'a, P> {
 		.await
 	}
 
-	async fn get_symbol(&self) -> Result<String, ContractError> {
+	pub async fn get_symbol(&self) -> Result<String, ContractError> {
 		Ok("NNS".to_string())
 	}
 
-	async fn get_decimals(&self) -> Result<u8, ContractError> {
+	pub async fn get_decimals(&self) -> Result<u8, ContractError> {
 		Ok(0)
 	}
 
@@ -124,7 +128,7 @@ impl<'a, P: JsonRpcProvider + 'static> NeoNameService<'a, P> {
 		&self,
 		name: &str,
 		owner: H160,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		self.check_domain_name_availability(name, true).await?;
 
 		let args = vec![name.into(), owner.into()];
@@ -137,7 +141,7 @@ impl<'a, P: JsonRpcProvider + 'static> NeoNameService<'a, P> {
 		&self,
 		name: &str,
 		admin: H160,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		self.check_domain_name_availability(name, true).await?;
 
 		let args = vec![name.into(), admin.into()];
@@ -151,7 +155,7 @@ impl<'a, P: JsonRpcProvider + 'static> NeoNameService<'a, P> {
 		name: &str,
 		record_type: RecordType,
 		data: &str,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let args = vec![name.into(), (record_type as u8).into(), data.into()];
 
 		self.invoke_function(Self::SET_RECORD, args).await
@@ -163,7 +167,7 @@ impl<'a, P: JsonRpcProvider + 'static> NeoNameService<'a, P> {
 		&self,
 		name: &str,
 		record_type: RecordType,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let args = vec![name.into(), (record_type as u8).into()];
 		self.invoke_function(Self::DELETE_RECORD, args).await
 	}
@@ -176,7 +180,7 @@ impl<'a, P: JsonRpcProvider + 'static> NeoNameService<'a, P> {
 		&self,
 		name: &str,
 		years: u32,
-	) -> Result<TransactionBuilder<P>, ContractError> {
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		self.check_domain_name_availability(name, true).await?;
 
 		let args = vec![name.into(), years.into()];
@@ -201,7 +205,7 @@ impl<'a, P: JsonRpcProvider + 'static> NeoNameService<'a, P> {
 
 		let result = invoke_result
 			.stack
-			.get(0)
+			.first()
 			.ok_or(ContractError::InvalidResponse("Empty stack in response".to_string()))?
 			.clone();
 
