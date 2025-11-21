@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Fixed
+- Security: bumped `tracing-subscriber` to 0.3.20 to address RUSTSEC-2025-0055 (ANSI escape poisoning).
 
 ### DevOps
 
