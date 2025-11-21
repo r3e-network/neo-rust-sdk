@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - neo-cli now ships with a lightweight, dependency-free spinner/progress indicator (indicatif removed).
 - README refreshed with the new NeoRust logo and native-GUI-first positioning.
+- Native GUI now uses a vendored glow-only `eframe` build to drop the `wgpu/paste` advisory from audit noise.
 
 ### Fixed
 - Security: bumped `tracing-subscriber` to 0.3.20 to address RUSTSEC-2025-0055 (ANSI escape poisoning).
