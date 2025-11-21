@@ -1,18 +1,18 @@
 #[cfg(test)]
 mod tests {
-#![allow(
-    unused_imports,
-    unused_mut,
-    unused_variables,
-    unused_must_use,
-    non_snake_case,
-    clippy::needless_borrow,
-    clippy::get_first,
-    clippy::explicit_auto_deref,
-    clippy::useless_format,
-    clippy::useless_conversion,
-    clippy::unnecessary_operation
-)]
+	#![allow(
+		unused_imports,
+		unused_mut,
+		unused_variables,
+		unused_must_use,
+		non_snake_case,
+		clippy::needless_borrow,
+		clippy::get_first,
+		clippy::explicit_auto_deref,
+		clippy::useless_format,
+		clippy::useless_conversion,
+		clippy::unnecessary_operation
+	)]
 
 	use crate::{
 		builder::{
@@ -542,10 +542,7 @@ mod tests {
 		};
 		let mut tb = TransactionBuilder::with_client(&client);
 		let multi_sig_account = Account::multi_sig_from_public_keys(
-			&mut [
-				ACCOUNT2.get_public_key().unwrap(),
-				ACCOUNT1.get_public_key().unwrap(),
-			],
+			&mut [ACCOUNT2.get_public_key().unwrap(), ACCOUNT1.get_public_key().unwrap()],
 			1,
 		)
 		.unwrap();
@@ -2156,9 +2153,7 @@ mod tests {
 					"calculatenetworkfee.json",
 				)
 				.await
-				.mock_send_raw_transaction(RawTransaction {
-					hash: H256::zero(),
-				})
+				.mock_send_raw_transaction(RawTransaction { hash: H256::zero() })
 				.await
 				.mock_get_application_log(Some(ApplicationLog {
 					transaction_id: H256::from_str(
@@ -2197,8 +2192,7 @@ mod tests {
 			.set_signers(vec![AccountSigner::called_by_entry(&account1).unwrap().into()])
 			.expect("Failed to set signers in test - this should never fail with valid test data");
 
-		let mut tx =
-			tx_builder.sign().await.map_err(TransactionError::BuilderError).unwrap();
+		let mut tx = tx_builder.sign().await.map_err(TransactionError::BuilderError).unwrap();
 		let _ = tx.send_tx().await.map_err(TransactionError::from).unwrap();
 		let application_log = tx
 			.get_application_log(client.as_ref())
@@ -2280,9 +2274,7 @@ mod tests {
 					"calculatenetworkfee.json",
 				)
 				.await
-				.mock_send_raw_transaction(RawTransaction {
-					hash: H256::zero(),
-				})
+				.mock_send_raw_transaction(RawTransaction { hash: H256::zero() })
 				.await
 				.mock_get_application_log(Default::default())
 				.await

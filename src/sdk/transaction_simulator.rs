@@ -279,7 +279,7 @@ impl TransactionSimulator {
 	/// Cached results: <1ms
 	pub async fn simulate_transaction(
 		&mut self,
-        script: &[u8],
+		script: &[u8],
 		signers: Vec<Signer>,
 	) -> Result<SimulationResult, NeoError> {
 		// Check cache first
@@ -483,8 +483,8 @@ impl TransactionSimulator {
 		result: &crate::neo_types::InvocationResult,
 		_script: &[u8],
 	) -> Result<StateChanges, NeoError> {
-        let storage = HashMap::new();
-        let balances = HashMap::new();
+		let storage = HashMap::new();
+		let balances = HashMap::new();
 		let mut transfers = Vec::new();
 		let deployments = Vec::new();
 		let updates = Vec::new();
@@ -554,7 +554,7 @@ impl TransactionSimulator {
 			})?;
 
 		// Parse the result - stack is not optional
-            if let Some(_item) = result.stack.first() {
+		if let Some(_item) = result.stack.first() {
 			// Convert stack item to string
 			return Ok("TOKEN".to_string()); // Simplified - parse actual value
 		}

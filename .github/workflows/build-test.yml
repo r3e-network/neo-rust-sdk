@@ -132,6 +132,43 @@ jobs:
       working-directory: neo-gui
       run: npm run tauri build || true
 
+  # Native Rust GUI build (eframe/egui, optional)
+  native-gui:
+    name: Native GUI - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    continue-on-error: true
+    if: |
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && 
+       contains(github.event.pull_request.labels.*.name, 'gui'))
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Check for native GUI changes
+      id: native-changes
+      uses: dorny/paths-filter@v2
+      with:
+        filters: |
+          native:
+            - 'neo-gui-rs/**'
+            - '.github/workflows/**'
+
+    - name: Setup Rust
+      if: steps.native-changes.outputs.native == 'true'
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: rustfmt
+
+    - name: Build native GUI
+      if: steps.native-changes.outputs.native == 'true'
+      run: cargo build -p neo-gui-rs
+
   # Security audit (lightweight, runs on every PR)
   security:
     name: Security Audit

@@ -88,7 +88,7 @@ use crate::{
 	neo_builder::VerificationScript,
 	neo_clients::{public_key_to_address, APITrait, JsonRpcProvider, ProviderError, RpcClient},
 	neo_crypto::{private_key_from_wif, KeyPair, Secp256r1PublicKey, Secp256r1Signature},
-	neo_protocol::{get_nep2_from_private_key, get_private_key_from_nep2},
+	neo_protocol::{get_nep2_from_private_key, get_private_key_from_nep2, NEP2},
 	neo_types::{
 		deserialize_address_or_script_hash, serialize_address_or_script_hash, Address,
 		AddressOrScriptHash, ContractParameterType, ScriptHash,
@@ -96,6 +96,7 @@ use crate::{
 	neo_wallets::{NEP6Account, NEP6Contract, NEP6Parameter, Wallet},
 	vec_to_array32, Base64Encode, ScriptHashExtension,
 };
+use scrypt::Params;
 
 pub trait AccountTrait: Sized + PartialEq + Send + Sync + Debug + Clone {
 	type Error: Sync + Send + Debug + Sized;
@@ -577,6 +578,50 @@ impl PrehashSigner<Secp256r1Signature> for Account {
 }
 
 impl Account {
+	/// Decrypts the private key using explicit scrypt parameters.
+	pub fn decrypt_private_key_with_params(
+		&mut self,
+		password: &str,
+		params: &Params,
+	) -> Result<(), ProviderError> {
+		if self.key_pair.is_some() {
+			return Ok(());
+		}
+
+		let encrypted_private_key = self
+			.encrypted_private_key
+			.as_ref()
+			.ok_or(ProviderError::IllegalState("No encrypted private key present".to_string()))?;
+
+		let key_pair = NEP2::decrypt_with_params(password, encrypted_private_key, *params)
+			.map_err(|e| {
+				ProviderError::IllegalState(format!("Failed to decrypt private key: {e}"))
+			})?;
+
+		self.key_pair = Some(key_pair);
+		Ok(())
+	}
+
+	/// Encrypts the private key using explicit scrypt parameters.
+	pub fn encrypt_private_key_with_params(
+		&mut self,
+		password: &str,
+		params: &Params,
+	) -> Result<(), ProviderError> {
+		let key_pair = self.key_pair.as_ref().ok_or(ProviderError::IllegalState(
+			"The account does not hold a decrypted private key.".to_string(),
+		))?;
+
+		let encrypted_private_key = NEP2::encrypt_with_params(password, key_pair, *params)
+			.map_err(|e| {
+				ProviderError::IllegalState(format!("Failed to encrypt private key: {e}"))
+			})?;
+
+		self.encrypted_private_key = Some(encrypted_private_key);
+		self.key_pair = None;
+		Ok(())
+	}
+
 	pub fn to_nep6_account(&self) -> Result<NEP6Account, ProviderError> {
 		if self.key_pair.is_some() && self.encrypted_private_key.is_none() {
 			return Err(ProviderError::IllegalState(

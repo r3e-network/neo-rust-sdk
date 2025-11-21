@@ -48,7 +48,10 @@ impl<'a, P: JsonRpcProvider + 'static> PolicyContract<'a, P> {
 
 	// State modifying methods
 
-	pub async fn set_fee_per_byte(&self, fee: i32) -> Result<TransactionBuilder<'_, P>, ContractError> {
+	pub async fn set_fee_per_byte(
+		&self,
+		fee: i32,
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		self.invoke_function("setFeePerByte", vec![fee.into()]).await
 	}
 

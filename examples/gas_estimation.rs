@@ -72,9 +72,7 @@ async fn example_simple_transfer(
 	// Estimate gas consumption
 	let signers = vec![AccountSigner::called_by_entry(account)?.into()];
 
-	match GasEstimator::estimate_gas_realtime(client, &script, signers)
-	.await
-	{
+	match GasEstimator::estimate_gas_realtime(client, &script, signers).await {
 		Ok(gas) => {
 			println!("Estimated gas for NEO transfer: {} GAS", gas as f64 / 100_000_000.0);
 			println!(
@@ -127,24 +125,24 @@ async fn example_batch_estimation(
 
 	// Prepare multiple scripts for batch estimation
 	let scripts = vec![
-			(
-				ScriptBuilder::new()
-					.push_integer(BigInt::from(100))
-					.push_integer(BigInt::from(200))
-					.op_code(&[OpCode::Add])
-					.to_bytes(),
-				vec![],
-			),
-			(
-				ScriptBuilder::new()
-					.push_data("Test1".as_bytes().to_vec())
-					.push_data("Test2".as_bytes().to_vec())
-					.op_code(&[OpCode::Cat])
-					.to_bytes(),
-				vec![],
-			),
-			(ScriptBuilder::new().push_bool(true).op_code(&[OpCode::Not]).to_bytes(), vec![]),
-		];
+		(
+			ScriptBuilder::new()
+				.push_integer(BigInt::from(100))
+				.push_integer(BigInt::from(200))
+				.op_code(&[OpCode::Add])
+				.to_bytes(),
+			vec![],
+		),
+		(
+			ScriptBuilder::new()
+				.push_data("Test1".as_bytes().to_vec())
+				.push_data("Test2".as_bytes().to_vec())
+				.op_code(&[OpCode::Cat])
+				.to_bytes(),
+			vec![],
+		),
+		(ScriptBuilder::new().push_bool(true).op_code(&[OpCode::Not]).to_bytes(), vec![]),
+	];
 
 	// Convert to expected format
 	let scripts_ref: Vec<(&[u8], Vec<Signer>)> = scripts
@@ -178,8 +176,10 @@ async fn example_with_safety_margin(
 	println!("--- Example 4: Gas Estimation with Safety Margin ---");
 
 	// Build a script
-	let script =
-		ScriptBuilder::new().push_integer(BigInt::from(1000)).op_code(&[OpCode::Sqrt]).to_bytes();
+	let script = ScriptBuilder::new()
+		.push_integer(BigInt::from(1000))
+		.op_code(&[OpCode::Sqrt])
+		.to_bytes();
 
 	// Estimate without margin
 	let base_gas = GasEstimator::estimate_gas_realtime(client, &script, vec![]).await.unwrap_or(0);

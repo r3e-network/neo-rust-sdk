@@ -15,7 +15,7 @@ A comprehensive, production-ready Rust SDK for the Neo N3 blockchain platform. N
 
 ## 📊 Project Status
 
-- **Version**: 0.5.1 (Production Ready - Enterprise Features)
+- **Version**: 0.5.2 (Production Ready - Enterprise Features)
 - **Rust Version**: 1.70.0+
 - **Platform Support**: Windows, macOS, Linux
 - **Security**: All dependencies audited, 0 known vulnerabilities
@@ -45,7 +45,7 @@ A comprehensive, production-ready Rust SDK for the Neo N3 blockchain platform. N
 
 ### Applications
 - 🖥️ **CLI Tools** - Command-line interface for common blockchain operations
-- 🖼️ **GUI Application** - Desktop GUI application built with Tauri and React
+- 🖼️ **GUI Applications** - Native Rust desktop shell (`neo-gui-rs`) plus legacy React/Tauri app (`neo-gui`)
 
 ## Quick Start
 
@@ -53,7 +53,7 @@ Add NeoRust to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-neo3 = "0.5.1"
+neo3 = "0.5.2"
 ```
 
 ## Basic Usage
@@ -193,8 +193,9 @@ neo-cli wallet balance <address>
 neo-cli transaction send --to <address> --amount 10 --token NEO
 ```
 
-### GUI Application (`neo-gui`)
-Desktop application with modern React UI. **Note:** Requires GTK libraries on Linux.
+### GUI Applications
+- **neo-gui-rs**: Native Rust desktop shell built with eframe/egui (no Node toolchain required).
+- **neo-gui**: Legacy React/Tauri desktop application. **Note:** Requires GTK libraries on Linux.
 
 ## Building
 
@@ -203,7 +204,12 @@ Desktop application with modern React UI. **Note:** Requires GTK libraries on Li
 cargo build --workspace --exclude neo-gui
 ```
 
-### GUI Application (requires additional dependencies)
+### GUI Application (native Rust)
+```bash
+cargo run -p neo-gui-rs
+```
+
+### Legacy GUI Application (React/Tauri, requires additional dependencies)
 
 **Linux (Ubuntu/Debian):**
 ```bash
@@ -219,13 +225,14 @@ cd neo-gui && npm install && cargo build
 ## Documentation
 
 - [Getting Started Guide](docs/guides/getting-started.md)
-- [API Documentation](https://docs.rs/neo3/0.5.1)
+- [API Documentation](https://docs.rs/neo3/0.5.2)
 - [WebSocket Guide](docs/guides/websocket.md)
 - [HD Wallet Guide](docs/guides/hd-wallet.md)
 - [Transaction Simulation Guide](docs/guides/transaction-simulation.md)
 - [Examples](examples/)
 - [CLI Documentation](neo-cli/README.md)
-- [GUI Documentation](neo-gui/README.md)
+- [Native GUI (`neo-gui-rs`)](neo-gui-rs/README.md)
+- [Legacy GUI Documentation](neo-gui/README.md)
 - [Migration Guide v0.4 → v0.5](docs/guides/migration-v0.5.md)
 
 ## Examples

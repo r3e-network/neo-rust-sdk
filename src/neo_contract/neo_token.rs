@@ -116,7 +116,10 @@ impl<'a, P: JsonRpcProvider + 'static> NeoToken<'a, P> {
 		}
 	}
 
-	pub async fn is_candidate(&self, public_key: &Secp256r1PublicKey) -> Result<bool, ContractError> {
+	pub async fn is_candidate(
+		&self,
+		public_key: &Secp256r1PublicKey,
+	) -> Result<bool, ContractError> {
 		Ok(self
 			.get_candidates()
 			.await
@@ -140,7 +143,10 @@ impl<'a, P: JsonRpcProvider + 'static> NeoToken<'a, P> {
 		self.invoke_function("vote", params).await
 	}
 
-	pub async fn cancel_vote(&self, voter: &H160) -> Result<TransactionBuilder<'_, P>, ContractError> {
+	pub async fn cancel_vote(
+		&self,
+		voter: &H160,
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		self.vote(voter, None).await
 	}
 
@@ -199,11 +205,7 @@ impl<'a, P: JsonRpcProvider + 'static> NeoToken<'a, P> {
 				let public_key = items[2].clone();
 
 				if let StackItem::Any = public_key {
-					Ok(AccountState {
-						balance,
-						balance_height: update_height,
-						public_key: None,
-					})
+					Ok(AccountState { balance, balance_height: update_height, public_key: None })
 				} else {
 					let pubkey =
 						Secp256r1PublicKey::from_bytes(public_key.as_bytes().unwrap().as_slice())

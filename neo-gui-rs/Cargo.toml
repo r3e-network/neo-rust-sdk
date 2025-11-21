@@ -18,6 +18,6 @@ futures = "0.3"
 parking_lot = "0.12"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-tokio-util = { version = "0.7", features = ["sync"] }
 neo3 = { path = "..", default-features = false, features = ["futures"] }
 hex = "0.4"
+rust_decimal = { version = "1.36", default-features = false, features = ["std"] }

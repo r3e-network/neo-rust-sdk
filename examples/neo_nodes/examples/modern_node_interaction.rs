@@ -44,7 +44,7 @@ async fn example_failover_connection() -> Result<(), Box<dyn std::error::Error>>
 	let mut connected_client = None;
 	let mut connected_endpoint = String::new();
 
-	for endpoint in &endpoints {
+	for &endpoint in &endpoints {
 		print!("   Trying {endpoint}... ");
 		match HttpProvider::new(endpoint) {
 			Ok(provider) => {
@@ -70,8 +70,12 @@ async fn example_failover_connection() -> Result<(), Box<dyn std::error::Error>>
 		// Get node version
 		let version = client.get_version().await?;
 		println!("   Node version: {}", version.user_agent);
-		println!("   Protocol: {}", version.protocol.protocol);
-		println!("   Network: {}\n", version.protocol.network);
+		if let Some(proto) = version.protocol {
+			println!("   Protocol max traceable blocks: {}", proto.max_traceable_blocks);
+			println!("   Network: {}\n", proto.network);
+		} else {
+			println!("   Protocol info unavailable\n");
+		}
 	} else {
 		println!("   ⚠️ Could not connect to any endpoint\n");
 	}
@@ -117,7 +121,8 @@ async fn check_mempool(
 	client: &RpcClient<HttpProvider>,
 ) -> Result<String, Box<dyn std::error::Error>> {
 	let mempool = client.get_raw_mempool().await?;
-	Ok(format!("{} pending transactions", mempool.len()))
+	let total = mempool.verified.len() + mempool.unverified.len();
+	Ok(format!("{} pending transactions", total))
 }
 
 async fn check_connections(
@@ -128,7 +133,7 @@ async fn check_connections(
 }
 
 async fn check_sync_status(
-	client: &RpcClient<HttpProvider>,
+	_client: &RpcClient<HttpProvider>,
 ) -> Result<String, Box<dyn std::error::Error>> {
 	// In a real implementation, you would compare local height with peer heights
 	Ok("Synchronized".to_string())
@@ -142,57 +147,25 @@ async fn example_performance_metrics() -> Result<(), Box<dyn std::error::Error>>
 	let provider = HttpProvider::new("https://testnet1.neo.org:443")?;
 	let client = RpcClient::new(provider);
 
-	// Measure latency for different operations
-	let operations = vec![
-		(
-			"get_block_count",
-			measure_operation_latency(&client, |c| {
-				Box::pin(async move { c.get_block_count().await.map(|_| ()) })
-			})
-			.await,
-		),
-		(
-			"get_version",
-			measure_operation_latency(&client, |c| {
-				Box::pin(async move { c.get_version().await.map(|_| ()) })
-			})
-			.await,
-		),
-		(
-			"get_raw_mempool",
-			measure_operation_latency(&client, |c| {
-				Box::pin(async move { c.get_raw_mempool().await.map(|_| ()) })
-			})
-			.await,
-		),
-	];
+	let start = Instant::now();
+	client.get_block_count().await?;
+	let bc_time = start.elapsed();
+
+	let start = Instant::now();
+	client.get_version().await?;
+	let ver_time = start.elapsed();
+
+	let start = Instant::now();
+	client.get_raw_mempool().await?;
+	let mem_time = start.elapsed();
 
 	println!("   Operation Latencies:");
-	for (op_name, latency) in operations {
-		match latency {
-			Ok(duration) => println!("   • {}: {:?}", op_name, duration),
-			Err(e) => println!("   • {}: Error - {}", op_name, e),
-		}
-	}
+	println!("   • get_block_count: {:?}", bc_time);
+	println!("   • get_version: {:?}", ver_time);
+	println!("   • get_raw_mempool: {:?}", mem_time);
 
 	println!();
 	Ok(())
-}
-
-async fn measure_operation_latency<F, Fut>(
-	_client: &RpcClient<HttpProvider>,
-	operation: F,
-) -> Result<Duration, Box<dyn std::error::Error>>
-where
-	F: FnOnce(&RpcClient<HttpProvider>) -> Fut,
-	Fut: std::future::Future<Output = Result<(), Box<dyn std::error::Error>>>,
-{
-	let provider = HttpProvider::new("https://testnet1.neo.org:443")?;
-	let client = RpcClient::new(provider);
-
-	let start = Instant::now();
-	operation(&client).await?;
-	Ok(start.elapsed())
 }
 
 /// Example 4: Real-time blockchain monitoring
@@ -206,7 +179,7 @@ async fn example_blockchain_monitoring() -> Result<(), Box<dyn std::error::Error
 	println!("   Monitoring blockchain for 10 seconds...\n");
 
 	let start_height = client.get_block_count().await?;
-	let neo_token = ScriptHash::from_str("ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5")?;
+	let _neo_token = ScriptHash::from_str("ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5")?;
 
 	let start_time = Instant::now();
 	let mut last_height = start_height;
@@ -224,15 +197,17 @@ async fn example_blockchain_monitoring() -> Result<(), Box<dyn std::error::Error
 
 			println!("      • Hash: {}", block.hash);
 			println!("      • Time: {}", block.time);
-			println!("      • Transactions: {}", block.tx.len());
+			let tx_count = block.transactions.as_ref().map(|t| t.len()).unwrap_or(0);
+			println!("      • Transactions: {}", tx_count);
 
 			last_height = current_height;
 		}
 
 		// Check mempool periodically
 		let mempool = client.get_raw_mempool().await?;
-		if !mempool.is_empty() {
-			println!("   ⏳ Mempool: {} pending transactions", mempool.len());
+		let pending = mempool.unverified.len() + mempool.verified.len();
+		if pending > 0 {
+			println!("   ⏳ Mempool: {} pending transactions", pending);
 		}
 
 		// Sleep before next check

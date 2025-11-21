@@ -159,10 +159,7 @@ pub struct ContractABI {
 
 impl ContractABI {
 	pub fn new(methods: Option<Vec<ContractMethod>>, events: Option<Vec<ContractEvent>>) -> Self {
-		Self {
-			methods: methods.unwrap_or_default(),
-			events: events.unwrap_or_default(),
-		}
+		Self { methods: methods.unwrap_or_default(), events: events.unwrap_or_default() }
 	}
 
 	pub fn get_first_method(&self) -> Result<&ContractMethod, TypeError> {
@@ -223,13 +220,7 @@ impl ContractMethod {
 		return_type: ContractParameterType,
 		safe: bool,
 	) -> Self {
-		Self {
-			name,
-			parameters: parameters.unwrap_or_default(),
-			offset,
-			return_type,
-			safe,
-		}
+		Self { name, parameters: parameters.unwrap_or_default(), offset, return_type, safe }
 	}
 }
 

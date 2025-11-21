@@ -1,4 +1,4 @@
-# NeoRust WebSocket Guide (v0.5.1)
+# NeoRust WebSocket Guide (v0.5.2)
 
 Real-time blockchain events are available through `neo3::sdk::websocket`. The client handles reconnection and subscription tracking.
 

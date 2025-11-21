@@ -5,10 +5,7 @@ use primitive_types::H160;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-	crypto::Secp256r1PublicKey,
-	neo_crypto::utils::ToHexString,
-	neo_types::OpCode,
-	prelude::Bytes,
+	crypto::Secp256r1PublicKey, neo_crypto::utils::ToHexString, neo_types::OpCode, prelude::Bytes,
 };
 
 use crate::{
@@ -122,9 +119,7 @@ impl VerificationScript {
 
 		reader.reset();
 
-		if reader.read_push_int().unwrap() != m
-			|| reader.read_u8() != OpCode::Syscall.opcode()
-		{
+		if reader.read_push_int().unwrap() != m || reader.read_u8() != OpCode::Syscall.opcode() {
 			return false;
 		}
 

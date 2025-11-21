@@ -6,7 +6,7 @@
 	clippy::type_complexity
 )]
 //! ![Neo Logo](https://neo.org/images/neo-logo/NEO-logo.svg)
-//! # NeoRust SDK v0.5.1
+//! # NeoRust SDK v0.5.2
 //!
 //! A production-ready Rust SDK for the Neo N3 blockchain with enterprise-grade features.
 //!
@@ -41,13 +41,13 @@
 //!
 //! ```toml
 //! [dependencies]
-//! neo3 = { version = "0.5.1", features = ["futures", "ledger"] }
+//! neo3 = { version = "0.5.2", features = ["futures", "ledger"] }
 //! ```
 //!
 //! You can disable default features with:
 //!
 //! ```toml
-//! neo3 = { version = "0.5.1", default-features = false, features = ["futures"] }
+//! neo3 = { version = "0.5.2", default-features = false, features = ["futures"] }
 //! ```
 //!
 //! ## Overview

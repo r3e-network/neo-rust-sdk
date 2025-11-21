@@ -4,22 +4,16 @@ use crate::{
 	builder::Transaction, neo_clients::JsonRpcProvider, neo_wallets::WalletError, Address,
 	ScriptHashExtension,
 };
-use async_trait::async_trait;
-use coins_ledger::{
-	common::APDUCommand,
-	transports::{Ledger, LedgerAsync},
-};
-use p256::NistP256;
+use coins_ledger::transports::LedgerAsync;
 use primitive_types::{H160, H256};
 use sha2::Digest;
-use signature::hazmat::{PrehashSigner, PrehashVerifier};
 
 /// Neo N3 APDU commands for Ledger devices.
-pub mod apdu {
+mod apdu {
 	use coins_ledger::common::APDUCommand;
 
 	/// APDU command to get the Neo N3 address for a given derivation path.
-	pub fn get_address(derivation_path: &[u32], display: bool) -> APDUCommand {
+	pub(crate) fn get_address(derivation_path: &[u32], display: bool) -> APDUCommand {
 		let mut data = Vec::new();
 		data.push(derivation_path.len() as u8);
 
@@ -41,7 +35,7 @@ pub mod apdu {
 	}
 
 	/// APDU command to sign a Neo N3 transaction.
-	pub fn sign_tx(derivation_path: &[u32], tx_hash: &[u8]) -> APDUCommand {
+	pub(crate) fn sign_tx(derivation_path: &[u32], tx_hash: &[u8]) -> APDUCommand {
 		let mut data = Vec::new();
 		data.push(derivation_path.len() as u8);
 
@@ -65,7 +59,7 @@ pub mod apdu {
 	}
 
 	/// APDU command to sign a Neo N3 message.
-	pub fn sign_message(derivation_path: &[u32], message_hash: &[u8]) -> APDUCommand {
+	pub(crate) fn sign_message(derivation_path: &[u32], message_hash: &[u8]) -> APDUCommand {
 		let mut data = Vec::new();
 		data.push(derivation_path.len() as u8);
 

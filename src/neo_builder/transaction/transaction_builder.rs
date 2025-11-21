@@ -56,9 +56,7 @@ use getset::{CopyGetters, Getters, MutGetters, Setters};
 use once_cell::sync::Lazy;
 use primitive_types::H160;
 // Import from neo_types
-use crate::neo_types::{
-	Bytes, ContractParameter, InvocationResult, ScriptHash,
-};
+use crate::neo_types::{Bytes, ContractParameter, InvocationResult, ScriptHash};
 
 // Import transaction types from neo_builder
 use crate::neo_builder::{
@@ -555,9 +553,8 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 			// Otherwise, we continue with the transaction despite the fault
 		}
 
-		i64::from_str(&response.gas_consumed).map_err(|_| {
-			TransactionError::IllegalState("Failed to parse gas consumed".to_string())
-		})
+		i64::from_str(&response.gas_consumed)
+			.map_err(|_| TransactionError::IllegalState("Failed to parse gas consumed".to_string()))
 	}
 
 	async fn get_network_fee(&mut self) -> Result<i64, TransactionError> {
@@ -605,22 +602,22 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 					let account = account_signer.account();
 					let verification_script = if account.is_multi_sig() {
 						// Create a placeholder multi-signature verification script for fee estimation
-						self.create_placeholder_multi_sig_verification_script(account)
-							.map_err(|e| {
+						self.create_placeholder_multi_sig_verification_script(account).map_err(
+							|e| {
 								TransactionError::IllegalState(format!(
 									"Failed to create multi-sig verification script: {}",
 									e
 								))
-							})?
+							},
+						)?
 					} else {
 						// Create a placeholder single-signature verification script for fee estimation
-						self.create_placeholder_single_sig_verification_script()
-							.map_err(|e| {
-								TransactionError::IllegalState(format!(
-									"Failed to create single-sig verification script: {}",
-									e
-								))
-							})?
+						self.create_placeholder_single_sig_verification_script().map_err(|e| {
+							TransactionError::IllegalState(format!(
+								"Failed to create single-sig verification script: {}",
+								e
+							))
+						})?
 					};
 
 					// Add a witness with an empty signature and the verification script
@@ -1093,11 +1090,10 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 			None => return false, // If no client is available, we can't verify committee membership
 		};
 
-		let response =
-			match client.get_committee().await.map_err(TransactionError::ProviderError) {
-				Ok(response) => response,
-				Err(_) => return false, // If we can't get committee info, assume not allowed
-			};
+		let response = match client.get_committee().await.map_err(TransactionError::ProviderError) {
+			Ok(response) => response,
+			Err(_) => return false, // If we can't get committee info, assume not allowed
+		};
 
 		// Map the Vec<String> response to Vec<Hash160>
 		let committee: HashSet<H160> = response

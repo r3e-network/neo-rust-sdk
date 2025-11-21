@@ -190,9 +190,8 @@ mod tests {
 		let signature = key_pair.private_key().sign_tx(&message).unwrap();
 		let script =
 			format!("{}40{}", OpCode::PushData1.to_hex_string(), hex::encode(signature.to_bytes()));
-		let deserialized = InvocationScript::from_serialized_script(
-			hex::decode(format!("42{}", script)).unwrap(),
-		);
+		let deserialized =
+			InvocationScript::from_serialized_script(hex::decode(format!("42{}", script)).unwrap());
 		assert_eq!(deserialized.script, hex::decode(&script).unwrap());
 	}
 

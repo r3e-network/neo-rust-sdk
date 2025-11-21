@@ -1,8 +1,8 @@
 use std::hash::{Hash, Hasher};
 
+use base64::Engine;
 use getset::{CopyGetters, Getters, MutGetters, Setters};
 use primitive_types::U256;
-use base64::Engine;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 use serde_with::__private__::DeError;

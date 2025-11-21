@@ -10,7 +10,7 @@ author = "NeoRust Team"
 [files]
 # Main application file
 "src/main.rs" = '''
-//! Basic Neo dApp using NeoRust SDK v0.5.1
+//! Basic Neo dApp using NeoRust SDK v0.5.2
 //! 
 //! This template demonstrates:
 //! - Connection to Neo network
@@ -146,7 +146,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-neo3 = "0.5.1"
+neo3 = "0.5.2"
 tokio = { version = "1.45", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -212,7 +212,7 @@ Thumbs.db
 "README.md" = '''
 # {{project_name}}
 
-A Neo N3 dApp built with NeoRust SDK v0.5.1
+A Neo N3 dApp built with NeoRust SDK v0.5.2
 
 ## Features
 

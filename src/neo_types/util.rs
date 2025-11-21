@@ -5,8 +5,8 @@
 // for encoding data into Base58 and Base64 formats. These utilities are particularly useful in blockchain development,
 // where such conversions and encodings are frequently required.
 
-use primitive_types::{H160, H256, U256};
 use base64::Engine;
+use primitive_types::{H160, H256, U256};
 
 use crate::{prelude::ScriptHash, TypeError};
 

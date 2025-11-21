@@ -1,46 +1,54 @@
-<svg width="640" height="320" viewBox="0 0 640 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">NeoRust SDK Logo</title>
-  <desc id="desc">Geometric logo for NeoRust SDK combining Neo green with Rust-inspired shapes.</desc>
+<svg width="760" height="360" viewBox="0 0 760 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">NeoRust SDK</title>
+  <desc id="desc">A modern, minimal logo for the NeoRust SDK with a Neo-green core and Rust-inspired gear ring.</desc>
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop stop-color="#0f1724" offset="0%"/>
-      <stop stop-color="#111f32" offset="50%"/>
-      <stop stop-color="#0d1420" offset="100%"/>
+      <stop stop-color="#081323" offset="0%"/>
+      <stop stop-color="#0d1e32" offset="50%"/>
+      <stop stop-color="#0a1526" offset="100%"/>
     </linearGradient>
-    <linearGradient id="cube" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop stop-color="#3ad47a" offset="0%"/>
-      <stop stop-color="#24b15b" offset="100%"/>
+    <linearGradient id="core" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop stop-color="#1fe27c" offset="0%"/>
+      <stop stop-color="#11b86c" offset="100%"/>
     </linearGradient>
-    <linearGradient id="cubeShadow" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop stop-color="#1f8a46" offset="0%"/>
-      <stop stop-color="#0f5f30" offset="100%"/>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop stop-color="#3ef7b3" offset="0%"/>
+      <stop stop-color="#12c676" offset="100%"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop stop-color="#1a9e5b" offset="0%"/>
+      <stop stop-color="#0f7c4a" offset="100%"/>
     </linearGradient>
   </defs>
 
-  <rect width="640" height="320" rx="28" fill="url(#bg)"/>
+  <rect width="760" height="360" rx="28" fill="url(#bg)"/>
 
-  <!-- Outer ring -->
-  <circle cx="160" cy="160" r="110" fill="none" stroke="#1b8a52" stroke-width="16" opacity="0.4"/>
+  <!-- Gear ring with dashed teeth -->
+  <g transform="translate(90 60)">
+    <circle cx="140" cy="120" r="112" fill="none" stroke="url(#ring)" stroke-width="18" stroke-dasharray="18 12" stroke-linecap="round" opacity="0.9"/>
+    <circle cx="140" cy="120" r="78" fill="#0b1f2f" stroke="#143c2a" stroke-width="8"/>
 
-  <!-- Cube motif -->
-  <g transform="translate(80 70)">
-    <polygon points="120,0 220,60 220,180 120,240 20,180 20,60" fill="url(#cube)" opacity="0.95"/>
-    <polygon points="120,120 220,60 220,180 120,240" fill="url(#cubeShadow)" opacity="0.9"/>
-    <polygon points="120,120 20,60 20,180 120,240" fill="#0d6b3a" opacity="0.9"/>
-  </g>
+    <!-- Block and rust motif -->
+    <g transform="translate(70 52)">
+      <polygon points="70,0 140,38 140,118 70,156 0,118 0,38" fill="url(#core)" opacity="0.9"/>
+      <polygon points="70,78 140,38 140,118 70,156" fill="#0e7842" opacity="0.94"/>
+      <polygon points="70,78 0,38 0,118 70,156" fill="#095d31" opacity="0.9"/>
+      <circle cx="70" cy="78" r="20" fill="#0b1f2f" stroke="#3ef7b3" stroke-width="6"/>
+    </g>
 
-  <!-- NR monogram -->
-  <g transform="translate(115 115)">
-    <path d="M0 80 V0 H22 L70 55 V0 H92 V80 H70 L22 25 V80 Z" fill="#f5f7fa"/>
-    <rect x="110" y="0" width="18" height="80" fill="#f5f7fa"/>
-    <path d="M128 0 H176 c18 0 32 12 32 30 c0 10-4 18-11 23 L220 80 H196 L180 58 H146 V80 H128 Z M146 18 V40 H174 c7 0 12-4 12-10 c0-6-5-12-12-12 Z" fill="#f5f7fa"/>
+    <!-- NR monogram -->
+    <g transform="translate(90 86)">
+      <path d="M0 72 V0 H20 L64 46 V0 H84 V72 H64 L20 26 V72 Z" fill="#e9f3ed"/>
+      <rect x="102" y="0" width="16" height="72" fill="#e9f3ed"/>
+      <path d="M120 0 H166 c16 0 29 10 29 26 c0 9-4 16-10 20 L210 72 H188 L172 54 H140 V72 H120 Z M140 14 V36 H166 c7 0 12-4 12-10 c0-6-5-12-12-12 Z" fill="#e9f3ed"/>
+    </g>
   </g>
 
   <!-- Caption -->
-  <text x="350" y="150" font-family="Inter, 'Segoe UI', system-ui, -apple-system, sans-serif" font-size="34" font-weight="700" fill="#e5e9f0">
+  <text x="360" y="150" font-family="Inter, 'Segoe UI', 'Manrope', system-ui, -apple-system, sans-serif" font-size="36" font-weight="800" fill="#e7f3ee">
     NeoRust SDK
   </text>
-  <text x="350" y="188" font-family="Inter, 'Segoe UI', system-ui, -apple-system, sans-serif" font-size="18" font-weight="400" fill="#9fb4c7">
-    Fast, safe, and modern tooling for Neo N3
+  <text x="360" y="190" font-family="Inter, 'Segoe UI', 'Manrope', system-ui, -apple-system, sans-serif" font-size="20" font-weight="500" fill="#9fc6b8">
+    Native Rust tooling for Neo N3 · fast, safe, production ready
   </text>
 </svg>

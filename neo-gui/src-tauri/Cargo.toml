@@ -2,7 +2,7 @@
 
 [package]
 name = "neo-gui"
-version = "0.5.1"
+version = "0.5.2"
 edition = "2021"
 description = "Modern GUI application for the NeoRust SDK"
 authors = ["R3E Network (c) 2020-2025"]
@@ -20,7 +20,7 @@ path = "src/main.rs"
 tauri-build = { version = "2.0.4", features = [] }
 
 [dependencies]
-neo3 = { path = "../..", version = "0.5.1" }
+neo3 = { path = "../..", version = "0.5.2" }
 tauri = { version = "2.5.1", features = [
   "tray-icon",
   "image-ico",

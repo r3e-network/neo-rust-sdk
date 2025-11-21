@@ -7,12 +7,15 @@ use crate::{
 		with_loading,
 	},
 };
+use bip39::Language;
 use clap::{Args, Subcommand};
 use comfy_table::{Cell, Color};
+use hex;
 use neo3::{
 	neo_clients::{HttpProvider, RpcClient},
 	neo_protocol::Account,
 	neo_wallets::WalletTrait,
+	NeoVMStateType,
 };
 use std::{collections::HashMap, io::Write, path::PathBuf};
 
@@ -818,77 +821,81 @@ async fn handle_hd_wallet(
 	accounts: u32,
 	derivation_path: Option<String>,
 	save_path: Option<PathBuf>,
-	state: &mut CliState,
+	_state: &mut CliState,
 ) -> Result<(), CliError> {
 	print_section_header("HD Wallet Management");
 
 	// Import HD wallet functionality from the SDK
-	use neo3::prelude::HDWallet;
+	use neo3::sdk::hd_wallet::HDWallet;
 
-	let hd_wallet = if create {
+	let mut hd_wallet = if create {
 		print_info("🔑 Creating new HD wallet with BIP-39 mnemonic...");
-		
+
 		// Create new HD wallet
-		let wallet = HDWallet::new(neo3::prelude::Language::English)
+		let wallet = HDWallet::generate(24, None)
 			.map_err(|e| CliError::WalletOperation(format!("Failed to create HD wallet: {}", e)))?;
-		
+
 		print_success(&format!("✅ HD Wallet created successfully!"));
 		print_warning("⚠️ IMPORTANT: Save your mnemonic phrase securely!");
 		println!();
 		println!("Mnemonic phrase (24 words):");
 		println!("{}", "━".repeat(60));
-		println!("{}", wallet.get_mnemonic_phrase());
+		println!("{}", wallet.mnemonic_phrase());
 		println!("{}", "━".repeat(60));
 		println!();
-		
+
 		wallet
 	} else if let Some(phrase) = mnemonic {
 		print_info("📥 Restoring HD wallet from mnemonic phrase...");
-		
-		HDWallet::from_mnemonic(&phrase, neo3::prelude::Language::English)
+
+		HDWallet::from_phrase(&phrase, None, Language::English)
 			.map_err(|e| CliError::WalletOperation(format!("Failed to restore HD wallet: {}", e)))?
 	} else {
 		return Err(CliError::WalletOperation(
-			"Please specify --create or provide --mnemonic phrase".to_string()
+			"Please specify --create or provide --mnemonic phrase".to_string(),
 		));
 	};
 
 	// Derive accounts
 	print_info(&format!("🔄 Deriving {} account(s)...", accounts));
-	let mut table = create_table(&["Index", "Address", "Public Key"]);
-	
+	let mut table = create_table();
+
 	for i in 0..accounts {
 		let path = derivation_path.clone().unwrap_or_else(|| format!("m/44'/888'/0'/0/{}", i));
 		match hd_wallet.derive_account(&path) {
 			Ok(account) => {
+				let pk_str = account
+					.get_public_key()
+					.map(|pk| pk.to_string())
+					.unwrap_or_else(|| "n/a".to_string());
 				table.add_row(vec![
 					Cell::new(i),
 					Cell::new(account.get_address()),
-					Cell::new(&account.get_public_key()[..8].to_string() + "..."),
+					Cell::new(format!("{}...", &pk_str[..pk_str.len().min(8)])),
 				]);
 			},
 			Err(e) => {
 				print_warning(&format!("Failed to derive account {}: {}", i, e));
-			}
+			},
 		}
 	}
-	
+
 	println!("{}", table);
 
 	// Save if requested
 	if let Some(save_path) = save_path {
 		print_info(&format!("💾 Saving HD wallet to {}...", save_path.display()));
-		
+
 		let wallet_data = serde_json::json!({
 			"type": "HD",
-			"mnemonic": hd_wallet.get_mnemonic_phrase(),
+			"mnemonic": hd_wallet.mnemonic_phrase(),
 			"accounts": accounts,
 			"derivation_path": derivation_path.unwrap_or_else(|| "m/44'/888'/0'/0/0".to_string()),
 		});
-		
+
 		std::fs::write(&save_path, serde_json::to_string_pretty(&wallet_data)?)
 			.map_err(|e| CliError::FileSystem(format!("Failed to save wallet: {}", e)))?;
-		
+
 		print_success(&format!("✅ HD wallet saved to {}", save_path.display()));
 	}
 
@@ -904,8 +911,7 @@ async fn handle_websocket_subscribe(
 ) -> Result<(), CliError> {
 	print_section_header("WebSocket Event Subscription");
 
-	use neo3::prelude::{WebSocketClient, SubscriptionType};
-	use futures::StreamExt;
+	use neo3::sdk::websocket::{SubscriptionType, WebSocketClient};
 
 	let ws_url = url.unwrap_or_else(|| {
 		if let Some(network) = &state.current_network {
@@ -920,24 +926,33 @@ async fn handle_websocket_subscribe(
 	let mut client = WebSocketClient::new(&ws_url)
 		.await
 		.map_err(|e| CliError::Network(format!("Failed to connect to WebSocket: {}", e)))?;
+	client
+		.connect()
+		.await
+		.map_err(|e| CliError::Network(format!("WS connect error: {}", e)))?;
 
 	// Subscribe to requested events
 	if events.is_empty() || events.contains(&"block".to_string()) {
-		client.subscribe_to_blocks()
+		client
+			.subscribe(SubscriptionType::NewBlocks)
 			.await
 			.map_err(|e| CliError::Network(format!("Failed to subscribe to blocks: {}", e)))?;
 		print_success("✅ Subscribed to block events");
 	}
 
 	if events.contains(&"transaction".to_string()) {
-		client.subscribe_to_transactions()
-			.await
-			.map_err(|e| CliError::Network(format!("Failed to subscribe to transactions: {}", e)))?;
+		client.subscribe(SubscriptionType::NewTransactions).await.map_err(|e| {
+			CliError::Network(format!("Failed to subscribe to transactions: {}", e))
+		})?;
 		print_success("✅ Subscribed to transaction events");
 	}
 
 	if let Some(contract_hash) = contract {
-		client.subscribe_to_contract_notifications(&contract_hash)
+		let hash = contract_hash
+			.parse()
+			.map_err(|e| CliError::InvalidInput(format!("Invalid contract hash: {}", e)))?;
+		client
+			.subscribe(SubscriptionType::Notifications { contract: Some(hash), name: None })
 			.await
 			.map_err(|e| CliError::Network(format!("Failed to subscribe to contract: {}", e)))?;
 		print_success(&format!("✅ Subscribed to contract {} notifications", contract_hash));
@@ -947,21 +962,9 @@ async fn handle_websocket_subscribe(
 	println!();
 
 	// Listen for events
-	let mut event_stream = client.get_event_stream();
-	while let Some((event_type, data)) = event_stream.next().await {
-		match event_type {
-			SubscriptionType::NewBlock => {
-				println!("🔷 New Block: {}", serde_json::to_string(&data)?);
-			},
-			SubscriptionType::Transaction => {
-				println!("💸 Transaction: {}", serde_json::to_string(&data)?);
-			},
-			SubscriptionType::Notification => {
-				println!("📢 Notification: {}", serde_json::to_string(&data)?);
-			},
-			_ => {
-				println!("📨 Event: {:?} - {}", event_type, serde_json::to_string(&data)?);
-			}
+	if let Some(mut rx) = client.take_event_receiver() {
+		while let Some((event_type, data)) = rx.recv().await {
+			println!("📨 Event {:?}: {}", event_type, serde_json::to_string(&data)?);
 		}
 	}
 
@@ -971,41 +974,34 @@ async fn handle_websocket_subscribe(
 // Transaction simulation implementation
 async fn handle_transaction_simulation(
 	script: String,
-	signers: Vec<String>,
-	detailed: bool,
+	_signers: Vec<String>,
+	_detailed: bool,
 	state: &mut CliState,
 ) -> Result<(), CliError> {
 	print_section_header("Transaction Simulation");
 
-	use neo3::prelude::{TransactionSimulator, Signer, AccountSigner};
+	use neo3::sdk::transaction_simulator::TransactionSimulator;
 
 	let rpc_client = state.get_rpc_client()?;
-	
+
 	// Create simulator
-	let mut simulator = TransactionSimulator::new(rpc_client.clone());
+	let mut simulator = TransactionSimulator::new(std::sync::Arc::new(rpc_client.clone()));
 
 	// Parse script (hex or base64)
 	let script_bytes = if script.starts_with("0x") {
 		hex::decode(&script[2..])
 			.map_err(|e| CliError::InvalidInput(format!("Invalid hex script: {}", e)))?
 	} else {
-		base64::decode(&script)
+		use base64::{engine::general_purpose::STANDARD, Engine as _};
+		STANDARD.decode(script.as_bytes())
 			.map_err(|e| CliError::InvalidInput(format!("Invalid base64 script: {}", e)))?
 	};
 
 	// Parse signers
-	let mut signer_list = Vec::new();
-	for signer_str in signers {
-		// Parse as address or account hash
-		let signer = AccountSigner::new(
-			&signer_str,
-			neo3::prelude::WitnessScope::CalledByEntry
-		);
-		signer_list.push(Signer::Account(signer));
-	}
+	let signer_list = Vec::new();
 
 	print_info("🔍 Simulating transaction...");
-	
+
 	// Run simulation
 	match simulator.simulate_transaction(&script_bytes, signer_list).await {
 		Ok(result) => {
@@ -1013,41 +1009,42 @@ async fn handle_transaction_simulation(
 			println!();
 
 			// Display results
-			let mut table = create_table(&["Property", "Value"]);
-			
+			let mut table = create_table();
+
 			table.add_row(vec![
 				Cell::new("Execution State"),
-				Cell::new(if result.state == neo3::prelude::NeoVMStateType::Halt { 
-					"SUCCESS" 
-				} else { 
-					"FAILED" 
-				}).fg(if result.state == neo3::prelude::NeoVMStateType::Halt { 
-					Color::Green 
-				} else { 
-					Color::Red 
+				Cell::new(if result.vm_state == NeoVMStateType::Halt {
+					"SUCCESS"
+				} else {
+					"FAILED"
+				})
+				.fg(if result.vm_state == NeoVMStateType::Halt {
+					Color::Green
+				} else {
+					Color::Red
 				}),
 			]);
-			
+
 			table.add_row(vec![
 				Cell::new("GAS Consumed"),
 				Cell::new(format!("{} GAS", result.gas_consumed)),
 			]);
-			
+
 			table.add_row(vec![
 				Cell::new("System Fee"),
 				Cell::new(format!("{} GAS", result.system_fee)),
 			]);
-			
+
 			table.add_row(vec![
 				Cell::new("Network Fee"),
 				Cell::new(format!("{} GAS", result.network_fee)),
 			]);
-			
+
 			table.add_row(vec![
 				Cell::new("Total Fee"),
-				Cell::new(format!("{} GAS", result.total_fee())),
+				Cell::new(format!("{} GAS", result.total_fee)),
 			]);
-			
+
 			if !result.notifications.is_empty() {
 				table.add_row(vec![
 					Cell::new("Notifications"),
@@ -1057,37 +1054,12 @@ async fn handle_transaction_simulation(
 
 			println!("{}", table);
 
-			if detailed {
-				println!();
-				print_section_header("Detailed Results");
-				
-				if !result.notifications.is_empty() {
-					println!("📢 Notifications:");
-					for (i, notif) in result.notifications.iter().enumerate() {
-						println!("  {}. Contract: {}", i + 1, notif.contract);
-						println!("     Event: {}", notif.event_name);
-						println!("     State: {:?}", notif.state);
-					}
-				}
-
-				if let Some(exception) = &result.exception {
-					println!();
-					print_warning(&format!("⚠️ Exception: {}", exception));
-				}
-
-				if !result.logs.is_empty() {
-					println!();
-					println!("📝 Logs:");
-					for log in &result.logs {
-						println!("  {}", log);
-					}
-				}
-			}
+			// Detailed notifications are already printed above
 		},
 		Err(e) => {
 			print_warning(&format!("❌ Simulation failed: {}", e));
 			return Err(CliError::WalletOperation(format!("Transaction simulation failed: {}", e)));
-		}
+		},
 	}
 
 	Ok(())

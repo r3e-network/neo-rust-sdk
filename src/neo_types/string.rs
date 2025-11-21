@@ -1,7 +1,7 @@
+use base64::Engine;
 use bs58;
 use hex;
 use sha2::{Digest, Sha256};
-use base64::Engine;
 
 use neo3::prelude::ScriptHash;
 

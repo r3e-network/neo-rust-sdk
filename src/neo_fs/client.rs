@@ -247,7 +247,7 @@ impl NeoFSClient {
 		let request_body = json!({
 			"uploadId": upload.upload_id,
 			"partNumber": part.part_number,
-            "data": base64::engine::general_purpose::STANDARD.encode(&part.payload)
+			"data": base64::engine::general_purpose::STANDARD.encode(&part.payload)
 		});
 
 		let endpoint = format!("multipart/{}/parts", upload.upload_id);
@@ -376,7 +376,7 @@ impl NeoFSService for NeoFSClient {
 				"containerId": container_id.0,
 				"ownerId": owner_id.0,
 				"attributes": object.attributes,
-                "payload": base64::engine::general_purpose::STANDARD.encode(&object.payload)
+				"payload": base64::engine::general_purpose::STANDARD.encode(&object.payload)
 			}
 		});
 
@@ -407,9 +407,10 @@ impl NeoFSService for NeoFSClient {
 			let mut object = Object::new(container_id.clone(), OwnerId(owner_id.to_string()));
 
 			if let Some(payload_b64) = object_data.get("payload").and_then(|v| v.as_str()) {
-                object.payload = base64::engine::general_purpose::STANDARD.decode(payload_b64).map_err(|e| {
-					NeoFSError::UnexpectedResponse(format!("Invalid base64 payload: {}", e))
-				})?;
+				object.payload =
+					base64::engine::general_purpose::STANDARD.decode(payload_b64).map_err(|e| {
+						NeoFSError::UnexpectedResponse(format!("Invalid base64 payload: {}", e))
+					})?;
 			}
 
 			if let Some(attributes) = object_data.get("attributes").and_then(|v| v.as_object()) {
@@ -511,7 +512,7 @@ impl NeoFSService for NeoFSClient {
 			let signature = token_data
 				.get("signature")
 				.and_then(|v| v.as_str())
-                .map(|s| base64::engine::general_purpose::STANDARD.decode(s).unwrap_or_default())
+				.map(|s| base64::engine::general_purpose::STANDARD.decode(s).unwrap_or_default())
 				.unwrap_or_default();
 
 			Ok(SessionToken {

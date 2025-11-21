@@ -1,22 +1,21 @@
 use neo3::{
 	neo_protocol::{Account, AccountTrait},
 	neo_wallets::{Wallet, WalletBackup, WalletTrait},
+	ScryptParamsDef,
 };
 use serial_test::serial;
-use std::env;
 use tempfile::TempDir;
+
+fn fast_scrypt_params() -> ScryptParamsDef {
+	ScryptParamsDef { log_n: 10, r: 8, p: 1 }
+}
 
 #[tokio::test]
 #[serial]
 async fn test_complete_wallet_lifecycle() {
-	// Set faster scrypt parameters for testing BEFORE any wallet operations
-	env::set_var("NEORUST_TEST_MODE", "1");
-
-	// Small delay to ensure environment variable is set
-	std::thread::sleep(std::time::Duration::from_millis(10));
-
 	// 1. Create wallet with multiple accounts
 	let mut wallet = Wallet::new();
+	wallet.set_scrypt_params(fast_scrypt_params());
 	wallet.set_name("Integration Test Wallet".to_string());
 
 	let mut accounts = Vec::new();
@@ -79,21 +78,13 @@ async fn test_complete_wallet_lifecycle() {
 
 	assert!(test_wallet.verify_password(new_password), "New password should verify");
 	assert!(!test_wallet.verify_password(password), "Old password should not verify");
-
-	// Clean up test environment variable
-	env::remove_var("NEORUST_TEST_MODE");
 }
 
 #[tokio::test]
 #[serial]
 async fn test_wallet_security_edge_cases() {
-	// Set faster scrypt parameters for testing BEFORE any wallet operations
-	env::set_var("NEORUST_TEST_MODE", "1");
-
-	// Small delay to ensure environment variable is set
-	std::thread::sleep(std::time::Duration::from_millis(10));
-
 	let mut wallet = Wallet::new();
+	wallet.set_scrypt_params(fast_scrypt_params());
 	let account = Account::create().expect("Should create account");
 	wallet.add_account(account);
 
@@ -116,21 +107,13 @@ async fn test_wallet_security_edge_cases() {
 		test_wallet3.verify_password(special_password),
 		"Special character password should work"
 	);
-
-	// Clean up test environment variable
-	env::remove_var("NEORUST_TEST_MODE");
 }
 
 #[tokio::test]
 #[serial]
 async fn test_large_wallet_performance() {
-	// Set environment variable to enable faster scrypt parameters for testing BEFORE any wallet operations
-	env::set_var("NEORUST_TEST_MODE", "1");
-
-	// Small delay to ensure environment variable is set
-	std::thread::sleep(std::time::Duration::from_millis(10));
-
 	let mut wallet = Wallet::new();
+	wallet.set_scrypt_params(fast_scrypt_params());
 
 	// Create wallet with many accounts (reduced from 50 to 20 for more realistic testing)
 	let account_count = 20;
@@ -183,9 +166,6 @@ async fn test_large_wallet_performance() {
 
 	println!("Recovered {} accounts in {:?}", account_count + 1, recovery_time);
 	assert!(recovery_time.as_secs() < 2, "Recovery should complete within 2 seconds");
-
-	// Clean up test environment variable
-	env::remove_var("NEORUST_TEST_MODE");
 }
 
 #[tokio::test]
@@ -220,6 +200,7 @@ async fn test_concurrent_wallet_operations() {
 #[tokio::test]
 async fn test_backup_file_integrity() {
 	let mut wallet = Wallet::new();
+	wallet.set_scrypt_params(fast_scrypt_params());
 	let account = Account::create().expect("Should create account");
 	wallet.add_account(account);
 	wallet.encrypt_accounts("integrity_test_password");

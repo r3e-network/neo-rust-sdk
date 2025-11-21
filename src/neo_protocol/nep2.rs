@@ -664,12 +664,9 @@ mod tests {
 		// Use different parameters (log_n=13 for faster testing)
 		let params = Params::new(13, 8, 8, 32).unwrap();
 
-		let encrypted = NEP2::encrypt_with_params(
-			TestConstants::DEFAULT_ACCOUNT_PASSWORD,
-			&key_pair,
-			params,
-		)
-		.unwrap();
+		let encrypted =
+			NEP2::encrypt_with_params(TestConstants::DEFAULT_ACCOUNT_PASSWORD, &key_pair, params)
+				.unwrap();
 
 		// Decrypt with the same parameters
 		let decrypted_key_pair =

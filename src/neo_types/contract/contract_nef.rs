@@ -28,14 +28,7 @@ impl ContractNef {
 		script: String,
 		checksum: i64,
 	) -> Self {
-		Self {
-			magic,
-			compiler,
-			source: source.unwrap_or_default(),
-			tokens,
-			script,
-			checksum,
-		}
+		Self { magic, compiler, source: source.unwrap_or_default(), tokens, script, checksum }
 	}
 
 	pub fn get_first_token(&self) -> Result<&ContractMethodToken, TypeError> {

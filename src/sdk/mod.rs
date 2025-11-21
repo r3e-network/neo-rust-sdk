@@ -303,10 +303,10 @@ impl Neo {
 	/// ```
 	pub async fn transfer(
 		&self,
-        _from: &Wallet,
-        _to: &str,
-        _amount: u64,
-        _token: Token,
+		_from: &Wallet,
+		_to: &str,
+		_amount: u64,
+		_token: Token,
 	) -> Result<TxHash, NeoError> {
 		// Implementation would handle transaction building and sending
 		todo!("Implement simplified transfer")
@@ -328,9 +328,9 @@ impl Neo {
 	/// ```
 	pub async fn deploy_contract(
 		&self,
-        _deployer: &Wallet,
-        _nef: Vec<u8>,
-        _manifest: String,
+		_deployer: &Wallet,
+		_nef: Vec<u8>,
+		_manifest: String,
 	) -> Result<ScriptHash, NeoError> {
 		// Implementation would handle contract deployment
 		todo!("Implement contract deployment")
@@ -351,9 +351,9 @@ impl Neo {
 	/// ```
 	pub async fn invoke_read(
 		&self,
-        _contract: &ScriptHash,
-        _method: &str,
-        _params: Vec<ContractParameter>,
+		_contract: &ScriptHash,
+		_method: &str,
+		_params: Vec<ContractParameter>,
 	) -> Result<serde_json::Value, NeoError> {
 		// Implementation would handle read-only invocation
 		todo!("Implement read-only invocation")
@@ -375,10 +375,10 @@ impl Neo {
 	/// ```
 	pub async fn invoke_write(
 		&self,
-        _signer: &Wallet,
-        _contract: &ScriptHash,
-        _method: &str,
-        _params: Vec<ContractParameter>,
+		_signer: &Wallet,
+		_contract: &ScriptHash,
+		_method: &str,
+		_params: Vec<ContractParameter>,
 	) -> Result<TxHash, NeoError> {
 		// Implementation would handle state-changing invocation
 		todo!("Implement write invocation")
@@ -393,8 +393,8 @@ impl Neo {
 	/// ```
 	pub async fn wait_for_confirmation(
 		&self,
-        _tx_hash: &str,
-        _timeout: Duration,
+		_tx_hash: &str,
+		_timeout: Duration,
 	) -> Result<(), NeoError> {
 		// Implementation would poll for transaction confirmation
 		todo!("Implement confirmation waiting")
@@ -524,7 +524,7 @@ impl Transfer {
 	}
 
 	/// Execute the transfer
-    pub async fn execute(self, _client: &RpcClient<HttpProvider>) -> Result<TxHash, NeoError> {
+	pub async fn execute(self, _client: &RpcClient<HttpProvider>) -> Result<TxHash, NeoError> {
 		// Implementation would build and send the transfer transaction
 		todo!("Implement transfer execution")
 	}

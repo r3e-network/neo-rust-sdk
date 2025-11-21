@@ -27,6 +27,7 @@ use crate::{
 	},
 	neo_wallets::{NEP6Account, Nep6Wallet, WalletError, WalletTrait},
 };
+use scrypt::Params;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Wallet {
@@ -116,6 +117,22 @@ impl Wallet {
 	/// The current wallet version.
 	pub const CURRENT_VERSION: &'static str = "1.0";
 
+	fn effective_scrypt_params(&self) -> Params {
+		Params::new(self.scrypt_params.log_n, self.scrypt_params.r, self.scrypt_params.p, 32)
+			.unwrap_or_else(|e| {
+				eprintln!(
+					"Invalid scrypt params ({e}); falling back to Neo defaults for wallet operations"
+				);
+				Params::new(
+					NeoConstants::SCRYPT_LOG_N,
+					NeoConstants::SCRYPT_R,
+					NeoConstants::SCRYPT_P,
+					32,
+				)
+				.expect("Neo default scrypt parameters must be valid")
+			})
+	}
+
 	/// Creates a new wallet instance with a default account.
 	pub fn new() -> Self {
 		let account = match Account::create() {
@@ -167,11 +184,8 @@ impl Wallet {
 
 	/// Creates a wallet from a NEP6Wallet format.
 	pub fn from_nep6(nep6: Nep6Wallet) -> Result<Self, WalletError> {
-		let accounts = nep6
-			.accounts()
-			.iter()
-			.filter_map(|v| v.to_account().ok())
-			.collect::<Vec<_>>();
+		let accounts =
+			nep6.accounts().iter().filter_map(|v| v.to_account().ok()).collect::<Vec<_>>();
 
 		// Find default account or use first account
 		let default_account_address =
@@ -294,10 +308,12 @@ impl Wallet {
 	}
 
 	pub fn encrypt_accounts(&mut self, password: &str) {
+		let params = self.effective_scrypt_params();
+
 		for account in self.accounts.values_mut() {
 			// Only encrypt accounts that have a key pair
 			if account.key_pair().is_some() {
-				if let Err(e) = account.encrypt_private_key(password) {
+				if let Err(e) = account.encrypt_private_key_with_params(password, &params) {
 					eprintln!(
 						"Warning: Failed to encrypt private key for account {}: {}",
 						account.get_address(),
@@ -335,6 +351,8 @@ impl Wallet {
 	/// wallet.encrypt_accounts_parallel("strong_password");
 	/// ```
 	pub fn encrypt_accounts_parallel(&mut self, password: &str) {
+		let params = self.effective_scrypt_params();
+
 		// Collect errors in a thread-safe manner
 		let errors: Vec<(String, String)> = self
 			.accounts
@@ -342,7 +360,7 @@ impl Wallet {
 			.filter_map(|(_, account)| {
 				// Only encrypt accounts that have a key pair
 				if account.key_pair().is_some() {
-					match account.encrypt_private_key(password) {
+					match account.encrypt_private_key_with_params(password, &params) {
 						Err(e) => Some((account.get_address(), e.to_string())),
 						Ok(_) => None,
 					}
@@ -409,6 +427,8 @@ impl Wallet {
 	pub fn encrypt_accounts_batch_parallel(&mut self, password: &str, batch_size: usize) {
 		use std::sync::{Arc, Mutex};
 
+		let params = self.effective_scrypt_params();
+
 		// Collect accounts that need encryption along with their script hashes
 		let accounts_to_encrypt: Vec<(H160, Account)> = self
 			.accounts
@@ -426,7 +446,7 @@ impl Wallet {
 				.iter()
 				.map(|(hash, account)| {
 					let mut account_clone = account.clone();
-					match account_clone.encrypt_private_key(password) {
+					match account_clone.encrypt_private_key_with_params(password, &params) {
 						Ok(_) => (*hash, Ok(account_clone)),
 						Err(e) => (*hash, Err(format!("{}: {}", account.get_address(), e))),
 					}
@@ -522,6 +542,8 @@ impl Wallet {
 			return false;
 		}
 
+		let params = self.effective_scrypt_params();
+
 		// Try to decrypt any account with the provided password
 		for account in self.accounts.values() {
 			// Skip accounts that don't have an encrypted private key
@@ -536,7 +558,7 @@ impl Wallet {
 
 			// Try to decrypt the account's private key
 			let mut account_clone = account.clone();
-			match account_clone.decrypt_private_key(password) {
+			match account_clone.decrypt_private_key_with_params(password, &params) {
 				Ok(_) => return true, // Password decrypted successfully
 				Err(_) => continue,   // Try the next account
 			}
@@ -556,10 +578,12 @@ impl Wallet {
 			return Err(WalletError::AccountState("Invalid password".to_string()));
 		}
 
+		let params = self.effective_scrypt_params();
+
 		// First decrypt all accounts with the current password
 		for account in self.accounts.values_mut() {
 			if account.encrypted_private_key().is_some() && account.key_pair().is_none() {
-				if let Err(e) = account.decrypt_private_key(current_password) {
+				if let Err(e) = account.decrypt_private_key_with_params(current_password, &params) {
 					return Err(WalletError::DecryptionError(format!(
 						"Failed to decrypt account {}: {}",
 						account.get_address(),
@@ -605,6 +629,8 @@ impl Wallet {
 			return Err(WalletError::AccountState("Invalid password".to_string()));
 		}
 
+		let params = self.effective_scrypt_params();
+
 		// Collect accounts that need decryption
 		let accounts_to_decrypt: Vec<(H160, Account)> = self
 			.accounts
@@ -620,7 +646,7 @@ impl Wallet {
 			.into_par_iter()
 			.map(|(hash, account)| {
 				let mut account_clone = account.clone();
-				match account_clone.decrypt_private_key(current_password) {
+				match account_clone.decrypt_private_key_with_params(current_password, &params) {
 					Ok(_) => (hash, Ok(account_clone)),
 					Err(e) => (hash, Err(format!("{}: {}", account.get_address(), e))),
 				}
@@ -1042,7 +1068,12 @@ mod tests {
 		neo_config::TestConstants,
 		neo_protocol::{Account, AccountTrait},
 		neo_wallets::{Wallet, WalletTrait},
+		ScryptParamsDef,
 	};
+
+	fn apply_fast_scrypt(wallet: &mut Wallet) {
+		wallet.set_scrypt_params(ScryptParamsDef { log_n: 10, r: 8, p: 1 });
+	}
 
 	#[test]
 	fn test_is_default() {
@@ -1127,6 +1158,7 @@ mod tests {
 	#[test]
 	fn test_encrypt_wallet() {
 		let mut wallet: Wallet = Wallet::new();
+		apply_fast_scrypt(&mut wallet);
 		wallet.add_account(Account::create().expect("Should be able to create account in test"));
 
 		assert!(wallet.accounts()[0].key_pair().is_some());
@@ -1141,6 +1173,7 @@ mod tests {
 	#[test]
 	fn test_encrypt_wallet_parallel() {
 		let mut wallet: Wallet = Wallet::new();
+		apply_fast_scrypt(&mut wallet);
 		// Add multiple accounts to test parallel processing
 		for _ in 0..5 {
 			wallet
@@ -1165,6 +1198,7 @@ mod tests {
 	#[test]
 	fn test_encrypt_wallet_batch_parallel() {
 		let mut wallet: Wallet = Wallet::new();
+		apply_fast_scrypt(&mut wallet);
 		// Add many accounts to test batch processing
 		for _ in 0..10 {
 			wallet
@@ -1189,6 +1223,7 @@ mod tests {
 	#[test]
 	fn test_change_password_parallel() {
 		let mut wallet = Wallet::new();
+		apply_fast_scrypt(&mut wallet);
 		// Add multiple accounts
 		for _ in 0..5 {
 			wallet
@@ -1218,6 +1253,7 @@ mod tests {
 	#[test]
 	fn test_verify_password() {
 		let mut wallet = Wallet::new();
+		apply_fast_scrypt(&mut wallet);
 		let account = Account::create().unwrap();
 		wallet.add_account(account.clone());
 

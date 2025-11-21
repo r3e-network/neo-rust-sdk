@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+### Changed
+
+### Fixed
+
+### DevOps
+
+## [0.5.2] - 2025-11-21
+
+### Added
+- Native Rust desktop GUI (`neo-gui-rs`) built with eframe/egui, featuring RPC connectivity, status polling, and local account management.
+- HD wallet generation/import with derivation flows wired into the native GUI.
+- WebSocket monitor for NewBlocks events inside the native GUI.
+- Transaction simulator panel (invokescript dry-run) in the native GUI.
+- WebSocket subscriptions selectable (blocks, transactions, execution results) in the native GUI.
+- Draft transfer UI in the native wallet tab now validates inputs and runs an invoke-based estimation.
+- Fresh NeoRust brand mark for the SDK landing page and documentation.
+
+### Fixed
+- NEP-17 balance detection now matches canonical NEO/GAS script hashes instead of substring heuristics.
+- Unclaimed GAS refresh validates addresses and surfaces RPC errors in the native GUI.
+
+### DevOps
+- GitHub Actions now includes an optional job to build the native GUI across platforms when GUI files change.
+
 ## [0.5.1] - 2025-11-20
 
 ### Added

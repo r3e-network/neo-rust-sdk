@@ -678,10 +678,7 @@ impl<P: JsonRpcProvider> APITrait for RpcClient<P> {
 	/// Gets the wallet balance of the corresponding token.
 	/// - Parameter tokenHash: The token hash
 	/// - Returns: The request object
-	async fn get_wallet_balance(
-		&self,
-		token_hash: H160,
-	) -> Result<WalletBalance, ProviderError> {
+	async fn get_wallet_balance(&self, token_hash: H160) -> Result<WalletBalance, ProviderError> {
 		self.request("getwalletbalance", vec![token_hash.to_value()]).await
 	}
 

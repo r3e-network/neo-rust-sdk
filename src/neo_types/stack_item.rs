@@ -1,5 +1,5 @@
-use std::{collections::HashMap, fmt};
 use base64::Engine;
+use std::{collections::HashMap, fmt};
 
 /// This module defines the `StackItem` enum and `MapEntry` struct, which are used to represent items on the Neo virtual machine stack.
 /// `StackItem` is a recursive enum that can represent any type of value that can be stored on the stack, including arrays, maps, and custom types.
@@ -199,12 +199,12 @@ impl StackItem {
 	/// Returns the string value of a `StackItem::ByteString`, `StackItem::Buffer`, `StackItem::Integer`, or `StackItem::Boolean`.
 	pub fn as_string(&self) -> Option<String> {
 		match self {
-				StackItem::ByteString { value } | StackItem::Buffer { value } => Some(
-					String::from_utf8_lossy(
-						&base64::engine::general_purpose::STANDARD.decode(value).unwrap(),
-					)
-					.to_string(),
-				),
+			StackItem::ByteString { value } | StackItem::Buffer { value } => Some(
+				String::from_utf8_lossy(
+					&base64::engine::general_purpose::STANDARD.decode(value).unwrap(),
+				)
+				.to_string(),
+			),
 			StackItem::Integer { value } => Some(value.to_string()),
 			StackItem::Boolean { value } => Some(value.to_string()),
 			_ => None,

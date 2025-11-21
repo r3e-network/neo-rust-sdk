@@ -96,10 +96,7 @@ impl<'a, P: JsonRpcProvider + 'static> NeoNameService<'a, P> {
 
 	// Implementation
 
-	pub async fn add_root(
-		&self,
-		root: &str,
-	) -> Result<TransactionBuilder<'_, P>, ContractError> {
+	pub async fn add_root(&self, root: &str) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		let args = vec![root.to_string().into()];
 		self.invoke_function(Self::ADD_ROOT, args).await
 	}

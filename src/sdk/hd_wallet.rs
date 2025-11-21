@@ -138,7 +138,6 @@ impl DerivationPath {
 			index: parse_component(parts[4])?,
 		})
 	}
-
 }
 
 impl fmt::Display for DerivationPath {
@@ -234,15 +233,13 @@ impl HDWallet {
 		let mnemonic = Mnemonic::generate(entropy_bits).or_else(|e| {
 			// Fall back to deterministic entropy if randomness is unavailable
 			let fallback_entropy = vec![0u8; entropy_bits / 8];
-			Mnemonic::from_entropy(&fallback_entropy).map_err(|fallback_err| {
-				NeoError::Wallet {
-					message: format!(
-						"Failed to generate mnemonic ({}), fallback generation failed ({})",
-						e, fallback_err
-					),
-					source: Some(Box::new(e)),
-					recovery: ErrorRecovery::new(),
-				}
+			Mnemonic::from_entropy(&fallback_entropy).map_err(|fallback_err| NeoError::Wallet {
+				message: format!(
+					"Failed to generate mnemonic ({}), fallback generation failed ({})",
+					e, fallback_err
+				),
+				source: Some(Box::new(e)),
+				recovery: ErrorRecovery::new(),
 			})
 		})?;
 

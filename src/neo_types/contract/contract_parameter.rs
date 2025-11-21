@@ -317,9 +317,7 @@ impl From<Value> for ContractParameter {
 				}
 			},
 			Value::String(s) => Self::string(s),
-			Value::Array(a) => {
-				Self::array(a.into_iter().map(ContractParameter::from).collect())
-			},
+			Value::Array(a) => Self::array(a.into_iter().map(ContractParameter::from).collect()),
 			Value::Object(o) => Self::map(ContractParameterMap::from_map(
 				o.into_iter()
 					.map(|(k, v)| (ContractParameter::from(k), ContractParameter::from(v)))
@@ -407,10 +405,14 @@ impl From<ContractParameter> for Value {
 			Some(ParameterValue::H256(h)) => Value::String(h),
 			Some(ParameterValue::PublicKey(p)) => Value::String(p),
 			Some(ParameterValue::Signature(s)) => Value::String(s),
-			Some(ParameterValue::Array(a)) => Value::Array(a.into_iter().map(Value::from).collect()),
+			Some(ParameterValue::Array(a)) => {
+				Value::Array(a.into_iter().map(Value::from).collect())
+			},
 			Some(ParameterValue::Map(m)) => Value::Array(
 				m.0.iter()
-					.flat_map(|(key, value)| vec![Value::from(key.clone()), Value::from(value.clone())])
+					.flat_map(|(key, value)| {
+						vec![Value::from(key.clone()), Value::from(value.clone())]
+					})
 					.collect(),
 			),
 			Some(ParameterValue::Any) => Value::Null,
@@ -1025,14 +1027,12 @@ mod tests {
 		let param = ContractParameter::bool(false);
 		// assert_param(&param, false, ContractParameterType::Boolean);
 		assert_eq!(param.typ, ContractParameterType::Boolean);
-		assert!(
-			!param
-				.value
-				.as_ref()
-				.expect("Parameter value should not be None")
-				.to_bool()
-				.expect("Should be able to convert to bool")
-		);
+		assert!(!param
+			.value
+			.as_ref()
+			.expect("Parameter value should not be None")
+			.to_bool()
+			.expect("Should be able to convert to bool"));
 	}
 
 	#[test]
@@ -1142,14 +1142,12 @@ mod tests {
 		let bool_param = ContractParameter::from(true);
 		// assert_param(&bool_param, true, ContractParameterType::Boolean);
 		assert_eq!(bool_param.typ, ContractParameterType::Boolean);
-		assert!(
-			bool_param
-				.value
-				.as_ref()
-				.expect("Parameter value should not be None")
-				.to_bool()
-				.expect("Should be able to convert to bool")
-		);
+		assert!(bool_param
+			.value
+			.as_ref()
+			.expect("Parameter value should not be None")
+			.to_bool()
+			.expect("Should be able to convert to bool"));
 
 		let int_param = ContractParameter::from(10);
 		// assert_param(&int_param, 10, ContractParameterType::Integer);

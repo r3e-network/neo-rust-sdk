@@ -237,7 +237,7 @@ mockall = "0.13"
 "README.md" = '''
 # {{project_name}} - NEP-17 Token
 
-A NEP-17 compliant fungible token implementation using NeoRust SDK v0.5.1.
+A NEP-17 compliant fungible token implementation using NeoRust SDK v0.5.2.
 
 ## Features
 

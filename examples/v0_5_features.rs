@@ -1,4 +1,4 @@
-//! Example demonstrating new features in NeoRust v0.5.1
+//! Example demonstrating new features in NeoRust v0.5.2
 //!
 //! This example showcases the major features introduced in v0.5.x:
 //! - WebSocket real-time events
@@ -21,7 +21,7 @@ use tokio;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-	println!("🚀 NeoRust v0.5.1 Feature Demonstration\n");
+	println!("🚀 NeoRust v0.5.2 Feature Demonstration\n");
 
 	// ========================================
 	// 1. High-Level SDK API
@@ -139,18 +139,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("   Simulation Results:");
 	println!("   - Success: {}", simulation_result.success);
 	println!("   - VM State: {:?}", simulation_result.vm_state);
-		println!("   - Gas Consumed: {} GAS", simulation_result.gas_consumed as f64 / 100_000_000.0);
-		println!("   - Total Fee: {} GAS", simulation_result.total_fee as f64 / 100_000_000.0);
+	println!("   - Gas Consumed: {} GAS", simulation_result.gas_consumed as f64 / 100_000_000.0);
+	println!("   - Total Fee: {} GAS", simulation_result.total_fee as f64 / 100_000_000.0);
 
 	// Display warnings if any
 	if !simulation_result.warnings.is_empty() {
-			println!("\n   ⚠️ Warnings:");
-			for warning in &simulation_result.warnings {
-				println!("     - {:?}: {}", warning.level, warning.message);
-				if let Some(suggestion) = &warning.suggestion {
-					println!("       💡 {}", suggestion);
-				}
+		println!("\n   ⚠️ Warnings:");
+		for warning in &simulation_result.warnings {
+			println!("     - {:?}: {}", warning.level, warning.message);
+			if let Some(suggestion) = &warning.suggestion {
+				println!("       💡 {}", suggestion);
 			}
+		}
 	}
 
 	// Display optimization suggestions
@@ -212,7 +212,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// Summary
 	// ========================================
 	println!("✨ Summary");
-	println!("   NeoRust v0.5.1 provides:");
+	println!("   NeoRust v0.5.2 provides:");
 	println!("   ✅ 50-70% code reduction with high-level API");
 	println!("   ✅ Real-time events via WebSocket");
 	println!("   ✅ HD wallets with BIP-39/44 support");

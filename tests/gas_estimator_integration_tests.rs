@@ -44,19 +44,18 @@ mod gas_estimator_integration_tests {
 			.to_bytes();
 
 		// Create a test account (this would normally come from a wallet)
-		let test_account = <Account as AccountTrait>::from_wif("L1QqQJnpBwbsPGAuutuzPTac8piqvbR1HRjrY5qHup48TBCBFe4g")
-			.expect("Failed to create account");
-		
-		// Create signer
-		let signer = Signer::AccountSigner(AccountSigner::new(&test_account, WitnessScope::CalledByEntry));
-		
-		// Estimate gas
-		let estimated_gas = GasEstimator::estimate_gas_realtime(
-			&client,
-			&script,
-			vec![signer],
+		let test_account = <Account as AccountTrait>::from_wif(
+			"L1QqQJnpBwbsPGAuutuzPTac8piqvbR1HRjrY5qHup48TBCBFe4g",
 		)
-		.await;
+		.expect("Failed to create account");
+
+		// Create signer
+		let signer =
+			Signer::AccountSigner(AccountSigner::new(&test_account, WitnessScope::CalledByEntry));
+
+		// Estimate gas
+		let estimated_gas =
+			GasEstimator::estimate_gas_realtime(&client, &script, vec![signer]).await;
 
 		// For testnet, this might fail if the account doesn't exist
 		// but we're testing the estimation mechanism works

@@ -68,9 +68,7 @@ use crate::{
 };
 use p256::{
 	ecdsa::{signature::Signer, Signature, SigningKey, VerifyingKey},
-	elliptic_curve::{
-		sec1::{FromEncodedPoint, ToEncodedPoint},
-	},
+	elliptic_curve::sec1::{FromEncodedPoint, ToEncodedPoint},
 	EncodedPoint, FieldBytes, PublicKey, SecretKey,
 };
 use primitive_types::U256;

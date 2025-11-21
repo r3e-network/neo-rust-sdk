@@ -94,7 +94,7 @@ pub fn generate_project(
 
 /// Load a template from file
 fn load_template(template_type: &ProjectTemplate) -> Result<Template> {
-	let template_path = template_type.template_path();
+	let _template_path = template_type.template_path();
 
 	// For embedded templates, we'll use a match statement
 	// In production, these would be loaded from files

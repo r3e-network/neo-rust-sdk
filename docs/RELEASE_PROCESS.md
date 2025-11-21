@@ -18,12 +18,12 @@ This document describes the automated release process for NeoRust using GitHub A
 
 ```bash
 # Option 1: Use the automated script (Recommended)
-./scripts/prepare-release.sh 0.5.1
+./scripts/prepare-release.sh 0.5.2
 
 # Option 2: Manual process
 # 1. Update version numbers manually
-# 2. Create release branch: git checkout -b v0.5.1
-# 3. Push branch: git push origin v0.5.1
+# 2. Create release branch: git checkout -b v0.5.2
+# 3. Push branch: git push origin v0.5.2
 ```
 
 ### 3. Monitor the Automated Release
@@ -53,7 +53,7 @@ Pre-release versions use suffixes to indicate stability:
 - `beta` - Feature complete, testing and stabilization phase
 - `rc` - Release candidate, final testing before stable
 
-Examples: `0.5.1-alpha.1`, `0.5.1-beta.2`, `0.5.1-rc.1`
+Examples: `0.5.2-alpha.1`, `0.5.2-beta.2`, `0.5.2-rc.1`
 
 ### Release Channels
 
@@ -97,8 +97,8 @@ Examples: `0.5.1-alpha.1`, `0.5.1-beta.2`, `0.5.1-rc.1`
 #### 1. Version Tagging
 ```bash
 # Create and push version tag
-git tag -a v0.5.1 -m "Release version 0.5.1"
-git push origin v0.5.1
+git tag -a v0.5.2 -m "Release version 0.5.2"
+git push origin v0.5.2
 ```
 
 #### 2. Automated Release (GitHub Actions)
@@ -213,7 +213,7 @@ For critical security issues or major bugs:
 6. **Communication**: Immediate security advisory if needed
 
 ### Hotfix Version Numbers
-- Increment PATCH version: `0.5.1` → `0.5.2`
+- Increment PATCH version: `0.5.2` → `0.5.3`
 - For security fixes, consider pre-release: `0.5.2-security.1`
 
 ## 📊 Release Metrics
@@ -260,7 +260,7 @@ For critical security issues or major bugs:
 ### Release Scripts
 ```bash
 # Prepare release
-./scripts/prepare-release.sh 0.5.1
+./scripts/prepare-release.sh 0.5.2
 
 # Build release artifacts
 ./scripts/build-release.sh
