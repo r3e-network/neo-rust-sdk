@@ -5,6 +5,7 @@ use std::sync::Arc;
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedSender};
 use tokio::time::{sleep, Duration};
+use neo3::neo_clients::{HttpProvider, RpcClient};
 
 static VERSION: Lazy<String> = Lazy::new(|| "0.5.1".to_string());
 
@@ -50,6 +51,7 @@ struct AppState {
 	network: NetworkInfo,
 	wallet_status: String,
 	logs: Vec<String>,
+	client: Option<Arc<RpcClient<HttpProvider>>>,
 }
 
 struct NeoGuiApp {
@@ -225,13 +227,35 @@ fn spawn_background(
 						s.network.status = "Connecting...".to_string();
 						s.logs.push(format!("Connecting to {} [{}]", endpoint, network_type));
 					}
-					sleep(Duration::from_millis(500)).await;
+					let provider = match HttpProvider::new(&endpoint) {
+						Ok(p) => p,
+						Err(e) => {
+							let mut s = state.lock();
+							s.network.status = format!("Error: {}", e);
+							s.logs.push(format!("Connection failed: {}", e));
+							continue;
+						},
+					};
+					let client = RpcClient::new(provider);
+					// Probe the node
+					let status_result = client.get_block_count().await;
 					let mut s = state.lock();
-					s.network.connected = true;
-					s.network.endpoint = endpoint;
-					s.network.network_type = network_type;
-					s.network.status = "Connected".to_string();
-					s.logs.push("Connected.".to_string());
+					match status_result {
+						Ok(height) => {
+							s.network.connected = true;
+							s.network.endpoint = endpoint;
+							s.network.network_type = network_type;
+							s.network.status = format!("Connected · height {}", height);
+							s.logs.push(format!("Connected. Height: {}", height));
+							s.client = Some(Arc::new(client));
+						},
+						Err(e) => {
+							s.network.connected = false;
+							s.network.status = format!("Error: {}", e);
+							s.logs.push(format!("Connection failed: {}", e));
+							s.client = None;
+						},
+					}
 				},
 				Action::Disconnect => {
 					{
@@ -244,6 +268,7 @@ fn spawn_background(
 					s.network.connected = false;
 					s.network.status = "Disconnected".to_string();
 					s.logs.push("Disconnected.".to_string());
+					s.client = None;
 				},
 			}
 		}
