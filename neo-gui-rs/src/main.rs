@@ -6,6 +6,7 @@ use tokio::runtime::Runtime;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedSender};
 use tokio::time::{sleep, Duration};
 use neo3::neo_clients::{HttpProvider, RpcClient};
+use neo3::neo_protocol::{Account, AccountTrait};
 
 static VERSION: Lazy<String> = Lazy::new(|| "0.5.1".to_string());
 
@@ -56,6 +57,7 @@ struct AppState {
 	last_height: Option<u32>,
 	peer_count: Option<usize>,
 	version: Option<String>,
+	accounts: Vec<AccountInfo>,
 }
 
 struct NeoGuiApp {
@@ -70,6 +72,12 @@ struct NetworkInfo {
 	network_type: String,
 	connected: bool,
 	status: String,
+}
+
+#[derive(Clone)]
+struct AccountInfo {
+	address: String,
+	scripthash: String,
 }
 
 impl Default for NetworkInfo {
@@ -150,7 +158,7 @@ impl NeoGuiApp {
 		let tab = self.state.lock().current_tab;
 		match tab {
 			Tab::Dashboard => self.render_dashboard(ui),
-			Tab::Wallet => ui.label("Wallet • accounts, balances, transfers (placeholder)"),
+			Tab::Wallet => self.render_wallet(ui),
 			Tab::HdWallet => ui.label("HD Wallet • derive and manage accounts (placeholder)"),
 			Tab::Simulator => ui.label("Transaction Simulator • scripts and fee estimates (placeholder)"),
 			Tab::WebSocket => ui.label("WebSocket Monitor • real-time events (placeholder)"),
@@ -214,6 +222,48 @@ impl NeoGuiApp {
 
 	fn queue_action(&self, action: Action) {
 		let _ = self.tx.send(action);
+	}
+
+	fn render_wallet(&mut self, ui: &mut egui::Ui) {
+		ui.heading("Wallet");
+		ui.label("Local account management (offline key generation).");
+		ui.add_space(4.0);
+		if ui.button("Create new account").clicked() {
+			match Account::create() {
+				Ok(acc) => {
+					let info = AccountInfo {
+						address: acc.get_address(),
+						scripthash: format!("{}", acc.get_script_hash()),
+					};
+					let mut s = self.state.lock();
+					s.accounts.push(info.clone());
+					s.logs.push(format!("Created account {}", info.address));
+				},
+				Err(e) => {
+					let mut s = self.state.lock();
+					s.logs.push(format!("Account creation failed: {}", e));
+				},
+			}
+		}
+
+		ui.separator();
+		ui.label("Accounts");
+		egui::ScrollArea::vertical().max_height(220.0).show(ui, |ui| {
+			let accounts = self.state.lock().accounts.clone();
+			if accounts.is_empty() {
+				ui.label("No accounts created yet.");
+			} else {
+				for acc in accounts {
+					ui.group(|ui| {
+						ui.label(RichText::new(&acc.address).strong());
+						ui.monospace(acc.scripthash.clone());
+					});
+				}
+			}
+		});
+
+		ui.separator();
+		ui.label("Note: balances and transfers will be wired to the SDK in upcoming iterations.");
 	}
 }
 
