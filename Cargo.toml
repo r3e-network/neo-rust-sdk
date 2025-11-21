@@ -99,6 +99,9 @@ exclude = [
     "neo-gui"
 ]
 
+[patch.crates-io]
+eframe = { path = "vendor/eframe-0.27.2" }
+
 [dependencies]
 tokio = { version = "1.45", features = ["full"] }
 tungstenite = "0.23.0"
