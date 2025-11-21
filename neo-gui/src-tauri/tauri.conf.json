@@ -1,6 +1,6 @@
 {
   "productName": "Neo GUI",
-  "version": "0.4.2",
+  "version": "0.5.1",
   "identifier": "com.r3e.neo-gui",
   "build": {
     "beforeDevCommand": "npm run dev",
