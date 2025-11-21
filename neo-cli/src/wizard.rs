@@ -5,7 +5,6 @@
 use anyhow::{Context, Result};
 use colored::*;
 use dialoguer::{theme::ColorfulTheme, Confirm, Input, Select};
-use indicatif::{ProgressBar, ProgressStyle};
 use neo3::sdk::{Neo, Network};
 use std::time::Duration;
 
@@ -71,14 +70,7 @@ async fn connect_to_network() -> Result<()> {
 		.default(0)
 		.interact()?;
 
-	let pb = ProgressBar::new_spinner();
-	pb.set_style(
-		ProgressStyle::default_spinner()
-			.tick_chars("⣾⣽⣻⢿⡿⣟⣯⣷")
-			.template("{spinner:.green} {msg}")?,
-	);
-	pb.set_message("Connecting to network...");
-	pb.enable_steady_tick(Duration::from_millis(100));
+	let mut pb = crate::utils_core::create_spinner("Connecting to network...");
 
 	let neo = match network_choice {
 		0 => Neo::testnet().await.context("Failed to connect to TestNet")?,
@@ -248,14 +240,7 @@ async fn check_balance() -> Result<()> {
 		.default(0)
 		.interact()?;
 
-	let pb = ProgressBar::new_spinner();
-	pb.set_style(
-		ProgressStyle::default_spinner()
-			.tick_chars("⣾⣽⣻⢿⡿⣟⣯⣷")
-			.template("{spinner:.green} {msg}")?,
-	);
-	pb.set_message("Fetching balance...");
-	pb.enable_steady_tick(Duration::from_millis(100));
+	let mut pb = crate::utils_core::create_spinner("Fetching balance...");
 
 	// Connect to network
 	let neo = match network {
@@ -402,14 +387,7 @@ async fn generate_project() -> Result<()> {
 		.default("my-neo-project".to_string())
 		.interact()?;
 
-	let pb = ProgressBar::new_spinner();
-	pb.set_style(
-		ProgressStyle::default_spinner()
-			.tick_chars("⣾⣽⣻⢿⡿⣟⣯⣷")
-			.template("{spinner:.green} {msg}")?,
-	);
-	pb.set_message("Generating project...");
-	pb.enable_steady_tick(Duration::from_millis(100));
+	let mut pb = crate::utils_core::create_spinner("Generating project...");
 
 	// Simulate project generation
 	tokio::time::sleep(Duration::from_secs(2)).await;

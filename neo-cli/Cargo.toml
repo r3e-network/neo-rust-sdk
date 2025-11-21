@@ -40,7 +40,6 @@ url = "2.4"
 dialoguer = "0.11"
 anyhow = "1.0"
 thiserror = "1.0"
-indicatif = "0.17"
 primitive-types = "0.13"
 num-traits = "0.2"
 reqwest = { version = "0.11", features = ["json"] }

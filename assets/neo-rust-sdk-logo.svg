@@ -1,0 +1,62 @@
+<svg width="900" height="320" viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">NeoRust SDK</title>
+  <desc id="desc">Bold, pure Rust-inspired logo for the NeoRust SDK with Neo green accents.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop stop-color="#08131f" offset="0%"/>
+      <stop stop-color="#0c1c2d" offset="60%"/>
+      <stop stop-color="#0a1422" offset="100%"/>
+    </linearGradient>
+    <linearGradient id="core" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop stop-color="#18e58a" offset="0%"/>
+      <stop stop-color="#0fb86a" offset="100%"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop stop-color="#2be89f" offset="0%"/>
+      <stop stop-color="#0f8d5a" offset="100%"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop stop-color="#8af3bf" offset="0%"/>
+      <stop stop-color="#1acb7a" offset="100%"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="900" height="320" fill="url(#bg)" rx="18"/>
+
+  <g transform="translate(150 160)">
+    <circle r="120" fill="none" stroke="#0c9658" stroke-width="2" opacity="0.35" stroke-dasharray="10 12"/>
+    <circle r="104" fill="none" stroke="url(#ring)" stroke-width="10" opacity="0.6"/>
+    <circle r="88" fill="#0a1321" stroke="url(#ring)" stroke-width="3" opacity="0.8"/>
+    <circle r="76" fill="url(#core)" opacity="0.98" filter="url(#glow)"/>
+
+    <!-- Stylized N + R monogram -->
+    <path d="M-44 -60 h22 v120 h-22 z" fill="#0c1c2d" opacity="0.95"/>
+    <path d="M22 -60 h22 v120 h-22 z" fill="#0c1c2d" opacity="0.95"/>
+    <path d="M-24 -60 h26 l48 71 v-71 h20 v120 h-26 l-48 -70 v70 h-20z" fill="#06101d" opacity="0.8"/>
+    <path d="M12 12 h40 a26 26 0 0 1 0 52 h-24 l-16 24 h-20 l18-26 a18 18 0 0 0 2-8 v-42z" fill="#0a1321" opacity="0.92"/>
+    <path d="M-36 -50 h18 l54 78 v-78 h18 v98 h-22 l-50 -71 v71 h-18z" fill="#b5fde0" opacity="0.9"/>
+    <circle r="6" cx="44" cy="66" fill="#b5fde0"/>
+  </g>
+
+  <g transform="translate(320 110)" font-family="'Space Grotesk', 'Fira Sans', 'Inter', 'Segoe UI', sans-serif">
+    <text x="0" y="0" font-size="44" fill="#d7e8f5" letter-spacing="0.5">NeoRust SDK</text>
+    <text x="0" y="38" font-size="16" fill="#8fdab9" letter-spacing="1" font-weight="700">PURE RUST · NEO N3 · ZERO NODE TOOLING</text>
+
+    <g transform="translate(0 68)">
+      <rect width="120" height="6" rx="3" fill="url(#accent)"/>
+      <rect x="130" width="60" height="6" rx="3" fill="#134334" opacity="0.7"/>
+    </g>
+
+    <text x="0" y="112" font-size="15" fill="#b7c7d6">
+      <tspan x="0" dy="0">Native eframe/egui shell · connects directly to Neo RPC/WebSocket</tspan>
+      <tspan x="0" dy="20">Wallet + HD derivation · transaction simulation · live network telemetry</tspan>
+    </text>
+  </g>
+</svg>

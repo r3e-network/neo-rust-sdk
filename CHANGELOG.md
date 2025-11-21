@@ -10,8 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Transaction tracing and contract deployment examples now run against real TestNet RPC, loading actual NEF/manifest fixtures.
+- Native GUI analytics tab with block-height telemetry, peer counts, and recent activity feed.
+- Settings panel for the native GUI (theme toggle, poll cadence, log retention, endpoint presets).
 
 ### Changed
+- neo-cli now ships with a lightweight, dependency-free spinner/progress indicator (indicatif removed).
+- README refreshed with the new NeoRust logo and native-GUI-first positioning.
 
 ### Fixed
 - Security: bumped `tracing-subscriber` to 0.3.20 to address RUSTSEC-2025-0055 (ANSI escape poisoning).

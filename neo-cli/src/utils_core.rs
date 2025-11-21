@@ -2,9 +2,10 @@
 use colored::*;
 use comfy_table::{presets::UTF8_FULL, Attribute, Cell, Color, ContentArrangement, Table};
 use dialoguer::{theme::ColorfulTheme, Confirm, Input, Password, Select};
-use indicatif::{ProgressBar, ProgressStyle};
 use std::{
 	io::{self, Write},
+	sync::atomic::{AtomicBool, Ordering},
+	thread,
 	time::Duration,
 };
 
@@ -51,29 +52,14 @@ pub fn create_table() -> Table {
 
 /// Create a progress bar with custom style
 #[allow(dead_code)]
-pub fn create_progress_bar(len: u64, message: &str) -> ProgressBar {
-	let pb = ProgressBar::new(len);
-	pb.set_style(
-		ProgressStyle::default_bar()
-			.template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} {msg}")
-			.unwrap()
-			.progress_chars("█▉▊▋▌▍▎▏ "),
-	);
-	pb.set_message(message.to_string());
-	pb
+pub fn create_progress_bar(len: u64, message: &str) -> LightweightProgress {
+	LightweightProgress::new(len, message)
 }
 
 /// Create an indeterminate spinner
-pub fn create_spinner(message: &str) -> ProgressBar {
-	let pb = ProgressBar::new_spinner();
-	pb.set_style(
-		ProgressStyle::default_spinner()
-			.template("{spinner:.green} {msg}")
-			.unwrap()
-			.tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ "),
-	);
-	pb.set_message(message.to_string());
-	pb.enable_steady_tick(Duration::from_millis(120));
+pub fn create_spinner(message: &str) -> LightweightProgress {
+	let mut pb = LightweightProgress::new(0, message);
+	pb.enable_spinner();
 	pb
 }
 
@@ -120,6 +106,92 @@ pub fn prompt_select(message: &str, options: &[&str]) -> Result<usize, io::Error
 		.default(0)
 		.interact()
 		.map_err(|e| io::Error::other(e))
+}
+
+/// Minimal progress indicator to avoid heavy dependencies.
+pub struct LightweightProgress {
+	len: u64,
+	pos: u64,
+	message: String,
+	spinner: bool,
+	stop_flag: Option<std::sync::Arc<AtomicBool>>,
+	worker: Option<thread::JoinHandle<()>>,
+}
+
+impl LightweightProgress {
+	pub fn new(len: u64, message: &str) -> Self {
+		Self {
+			len,
+			pos: 0,
+			message: message.to_string(),
+			spinner: false,
+			stop_flag: None,
+			worker: None,
+		}
+	}
+
+	pub fn enable_spinner(&mut self) {
+		if self.spinner {
+			return;
+		}
+		self.spinner = true;
+		let message = self.message.clone();
+		let stop = std::sync::Arc::new(AtomicBool::new(false));
+		let stop_handle = stop.clone();
+		self.stop_flag = Some(stop);
+		self.worker = Some(thread::spawn(move || {
+			let frames = ['⠁', '⠂', '⠄', '⡀', '⢀', '⠠', '⠐', '⠈'];
+			let mut idx = 0;
+			while !stop_handle.load(Ordering::Relaxed) {
+				print!("\r{} {}", frames[idx], message);
+				let _ = io::stdout().flush();
+				idx = (idx + 1) % frames.len();
+				thread::sleep(Duration::from_millis(120));
+			}
+		}));
+	}
+
+	#[allow(dead_code)]
+	pub fn inc(&mut self, delta: u64) {
+		self.pos = self.pos.saturating_add(delta).min(self.len);
+		self.render();
+	}
+
+	pub fn finish_with_message(&mut self, msg: &str) {
+		self.message = msg.to_string();
+		self.pos = self.len;
+		self.stop_spinner();
+		if self.spinner {
+			print!("\r✔ {}", self.message);
+		} else {
+			self.render();
+		}
+		println!();
+	}
+
+	fn stop_spinner(&mut self) {
+		if let Some(flag) = self.stop_flag.take() {
+			flag.store(true, Ordering::Relaxed);
+		}
+		if let Some(handle) = self.worker.take() {
+			let _ = handle.join();
+		}
+	}
+
+	fn render(&mut self) {
+		if self.len > 0 {
+			print!("\r[{}/{}] {}", self.pos, self.len, self.message);
+		} else {
+			print!("\r{}", self.message);
+		}
+		let _ = io::stdout().flush();
+	}
+}
+
+impl Drop for LightweightProgress {
+	fn drop(&mut self) {
+		self.stop_spinner();
+	}
 }
 
 /// Display a formatted key-value pair
@@ -246,9 +318,9 @@ pub async fn with_loading<F, T>(message: &str, future: F) -> T
 where
 	F: std::future::Future<Output = T>,
 {
-	let spinner = create_spinner(message);
+	let mut spinner = create_spinner(message);
 	let result = future.await;
-	spinner.finish_with_message(format!("{} ✅", message));
+	spinner.finish_with_message(&format!("{} ✅", message));
 	result
 }
 

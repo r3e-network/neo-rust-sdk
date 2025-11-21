@@ -1,7 +1,7 @@
 # NeoRust
 
 <p align="center">
-  <img src="./assets/logo-neorust.svg" alt="NeoRust SDK logo" width="520">
+  <img src="./assets/neo-rust-sdk-logo.svg" alt="NeoRust SDK logo" width="520">
 </p>
 
 [![Build & Test](https://github.com/r3e-network/NeoRust/actions/workflows/build-test.yml/badge.svg)](https://github.com/r3e-network/NeoRust/actions/workflows/build-test.yml)
@@ -18,7 +18,7 @@ A comprehensive, production-ready Rust SDK for the Neo N3 blockchain platform. N
 - **Version**: 0.5.2 (Production Ready - Enterprise Features)
 - **Rust Version**: 1.70.0+
 - **Platform Support**: Windows, macOS, Linux
-- **Security**: All dependencies audited, 0 known vulnerabilities
+- **Security**: Dependencies audited; no known CVEs, with tracked unmaintained transitive crates only
 - **Coverage**: Comprehensive testing with property-based tests
 - **Production Readiness**: Enterprise-grade with WebSocket support, HD wallets, and transaction simulation
 - **Performance**: <100ms WebSocket latency, <10ms HD derivation, 50-70% code reduction
@@ -45,7 +45,7 @@ A comprehensive, production-ready Rust SDK for the Neo N3 blockchain platform. N
 
 ### Applications
 - 🖥️ **CLI Tools** - Command-line interface for common blockchain operations
-- 🖼️ **GUI Applications** - Native Rust desktop shell (`neo-gui-rs`) plus legacy React/Tauri app (`neo-gui`)
+- 🖼️ **GUI Applications** - Native Rust desktop shell (`neo-gui-rs`) is first-class; legacy React/Tauri app (`neo-gui`) remains for historical parity
 
 ## Quick Start
 

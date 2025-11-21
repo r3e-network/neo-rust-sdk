@@ -71,8 +71,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	};
 
 	// 6) Compute expected contract hash (simplified demo hash)
-	let expected_hash =
-		calculate_contract_hash(&deployer.get_script_hash(), &manifest_json)?;
+	let expected_hash = calculate_contract_hash(&deployer.get_script_hash(), &manifest_json)?;
 	println!("   🔑 Expected contract hash: {}", expected_hash.to_string());
 
 	// 7) (Optional) Build a transaction with signer; not signed/broadcast here

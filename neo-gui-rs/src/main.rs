@@ -1,4 +1,5 @@
 use eframe::{egui, egui::RichText};
+use egui_plot::{Line, Plot, PlotPoints};
 use neo3::neo_builder::ScriptBuilder;
 use neo3::neo_clients::{APITrait, HttpProvider, RpcClient};
 use neo3::neo_protocol::{Account, AccountTrait};
@@ -56,11 +57,15 @@ struct AppState {
 	network: NetworkInfo,
 	wallet_status: String,
 	logs: Vec<String>,
+	max_logs: usize,
+	height_history: Vec<(f64, f64)>,
 	client: Option<Arc<RpcClient<HttpProvider>>>,
 	poller_running: bool,
+	poll_interval_secs: u64,
 	last_height: Option<u32>,
 	peer_count: Option<usize>,
 	version: Option<String>,
+	dark_mode: bool,
 	accounts: Vec<AccountInfo>,
 	wif_input: String,
 	hd_wallet: Option<HDWallet>,
@@ -88,11 +93,15 @@ impl Default for AppState {
 			network: NetworkInfo::default(),
 			wallet_status: String::new(),
 			logs: Vec::new(),
+			max_logs: 250,
+			height_history: Vec::new(),
 			client: None,
 			poller_running: false,
+			poll_interval_secs: 5,
 			last_height: None,
 			peer_count: None,
 			version: None,
+			dark_mode: true,
 			accounts: Vec::new(),
 			wif_input: String::new(),
 			hd_wallet: None,
@@ -111,6 +120,27 @@ impl Default for AppState {
 			ws_subscription: "NewBlocks".to_string(),
 			transfer_to: String::new(),
 			transfer_amount: "1".to_string(),
+		}
+	}
+}
+
+impl AppState {
+	fn push_log(&mut self, msg: impl Into<String>) {
+		self.logs.push(msg.into());
+		if self.logs.len() > self.max_logs {
+			let overflow = self.logs.len().saturating_sub(self.max_logs);
+			if overflow > 0 {
+				self.logs.drain(0..overflow);
+			}
+		}
+	}
+
+	fn record_height(&mut self, height: u32) {
+		let x = self.height_history.len() as f64;
+		self.height_history.push((x, height as f64));
+		if self.height_history.len() > 64 {
+			let overflow = self.height_history.len() - 64;
+			self.height_history.drain(0..overflow);
 		}
 	}
 }
@@ -244,12 +274,8 @@ impl NeoGuiApp {
 			Tab::WebSocket => {
 				self.render_websocket(ui);
 			},
-			Tab::Analytics => {
-				ui.label("Analytics • charts and trends (placeholder)");
-			},
-			Tab::Settings => {
-				ui.label("Settings • network, theme, language (placeholder)");
-			},
+			Tab::Analytics => self.render_analytics(ui),
+			Tab::Settings => self.render_settings(ui),
 		}
 	}
 
@@ -336,7 +362,7 @@ impl NeoGuiApp {
 				let wif = state.wif_input.trim().to_string();
 				drop(state);
 				if wif.is_empty() {
-					self.state.lock().logs.push("WIF import: input is empty".to_string());
+					self.state.lock().push_log("WIF import: input is empty".to_string());
 				} else {
 					match Account::from_wif(&wif) {
 						Ok(acc) => {
@@ -350,11 +376,11 @@ impl NeoGuiApp {
 							};
 							let mut s = self.state.lock();
 							s.accounts.push(info.clone());
-							s.logs.push(format!("Imported account {}", info.address));
+							s.push_log(format!("Imported account {}", info.address));
 							s.wif_input.clear();
 						},
 						Err(e) => {
-							self.state.lock().logs.push(format!("WIF import failed: {}", e));
+							self.state.lock().push_log(format!("WIF import failed: {}", e));
 						},
 					}
 				}
@@ -375,11 +401,11 @@ impl NeoGuiApp {
 					};
 					let mut s = self.state.lock();
 					s.accounts.push(info.clone());
-					s.logs.push(format!("Created account {}", info.address));
+					s.push_log(format!("Created account {}", info.address));
 				},
 				Err(e) => {
 					let mut s = self.state.lock();
-					s.logs.push(format!("Account creation failed: {}", e));
+					s.push_log(format!("Account creation failed: {}", e));
 				},
 			}
 		}
@@ -483,10 +509,10 @@ impl NeoGuiApp {
 					s.hd_wallet = Some(wallet);
 					s.hd_mnemonic = phrase.clone();
 					s.hd_accounts.clear();
-					s.logs.push(format!("Generated HD wallet ({} words)", word_count));
+					s.push_log(format!("Generated HD wallet ({} words)", word_count));
 				},
 				Err(e) => {
-					self.state.lock().logs.push(format!("HD wallet generation failed: {}", e));
+					self.state.lock().push_log(format!("HD wallet generation failed: {}", e));
 				},
 			}
 		}
@@ -497,7 +523,7 @@ impl NeoGuiApp {
 				(s.hd_mnemonic_input.trim().to_string(), s.hd_passphrase.clone())
 			};
 			if mnemonic.is_empty() {
-				self.state.lock().logs.push("HD import failed: mnemonic is empty".to_string());
+				self.state.lock().push_log("HD import failed: mnemonic is empty".to_string());
 			} else {
 				let mut builder = HDWalletBuilder::new().mnemonic(mnemonic.clone());
 				if !passphrase.is_empty() {
@@ -510,10 +536,10 @@ impl NeoGuiApp {
 						s.hd_wallet = Some(wallet);
 						s.hd_mnemonic = phrase.clone();
 						s.hd_accounts.clear();
-						s.logs.push("Imported HD wallet mnemonic".to_string());
+						s.push_log("Imported HD wallet mnemonic".to_string());
 					},
 					Err(e) => {
-						self.state.lock().logs.push(format!("HD wallet import failed: {}", e));
+						self.state.lock().push_log(format!("HD wallet import failed: {}", e));
 					},
 				}
 			}
@@ -558,11 +584,11 @@ impl NeoGuiApp {
 								.push(format!("Derived account {} from {}", info.address, path));
 						},
 						Err(e) => {
-							state.logs.push(format!("Derivation failed: {}", e));
+							state.push_log(format!("Derivation failed: {}", e));
 						},
 					}
 				} else {
-					state.logs.push("No HD wallet loaded; generate/import first.".to_string());
+					state.push_log("No HD wallet loaded; generate/import first.".to_string());
 				}
 			}
 		}
@@ -715,6 +741,119 @@ impl NeoGuiApp {
 		ui.label("Result");
 		ui.code(result);
 	}
+
+	fn render_analytics(&mut self, ui: &mut egui::Ui) {
+		ui.heading("Analytics");
+		ui.label("Live telemetry from the connected node.");
+		ui.add_space(6.0);
+
+		let (history, last_height, peer_count, endpoint, ws_status, account_count, logs) = {
+			let s = self.state.lock();
+			(
+				s.height_history.clone(),
+				s.last_height,
+				s.peer_count,
+				format!("{} ({})", s.network.endpoint, s.network.network_type),
+				s.ws_status.clone(),
+				s.accounts.len(),
+				s.logs.clone(),
+			)
+		};
+
+		if history.is_empty() {
+			ui.label("Connect to a node to start collecting heights and peers.");
+		} else {
+			let points = PlotPoints::from_iter(history.iter().map(|(x, y)| [*x, *y]));
+			Plot::new("height_plot").height(220.0).allow_zoom(false).allow_drag(false).show(
+				ui,
+				|plot_ui| {
+					plot_ui.line(
+						Line::new(points)
+							.color(egui::Color32::from_rgb(34, 197, 94))
+							.name("Block height"),
+					);
+				},
+			);
+		}
+
+		ui.separator();
+		egui::Grid::new("analytics_grid")
+			.num_columns(2)
+			.spacing([12.0, 8.0])
+			.show(ui, |ui| {
+				ui.label("Endpoint");
+				ui.label(endpoint);
+				ui.end_row();
+
+				ui.label("Height / Peers");
+				let peers = peer_count.map(|p| p.to_string()).unwrap_or_else(|| "-".into());
+				let height_text =
+					last_height.map(|h| h.to_string()).unwrap_or_else(|| "N/A".into());
+				ui.label(format!("{} / {}", height_text, peers));
+				ui.end_row();
+
+				ui.label("Accounts loaded");
+				ui.label(format!("{}", account_count));
+				ui.end_row();
+
+				ui.label("WebSocket");
+				ui.label(ws_status);
+				ui.end_row();
+			});
+
+		ui.separator();
+		ui.label("Recent activity");
+		egui::ScrollArea::vertical().max_height(180.0).show(ui, |ui| {
+			if logs.is_empty() {
+				ui.label("No recent activity.");
+			} else {
+				for entry in logs.iter().rev().take(50) {
+					ui.label(entry);
+				}
+			}
+		});
+	}
+
+	fn render_settings(&mut self, ui: &mut egui::Ui) {
+		ui.heading("Settings");
+		ui.label("Theme, polling cadence, and log controls.");
+		ui.add_space(6.0);
+
+		let mut state = self.state.lock();
+		ui.checkbox(&mut state.dark_mode, "Use dark theme");
+		ui.add(
+			egui::Slider::new(&mut state.poll_interval_secs, 2..=30)
+				.text("Status poll interval (seconds)"),
+		);
+		ui.add(egui::Slider::new(&mut state.max_logs, 50..=500).text("Max activity log entries"));
+
+		ui.horizontal(|ui| {
+			if ui.button("Clear activity log").clicked() {
+				state.logs.clear();
+			}
+			if ui.button("Reset telemetry").clicked() {
+				state.height_history.clear();
+				state.last_height = None;
+			}
+		});
+
+		ui.separator();
+		ui.label("Endpoint presets");
+		ui.horizontal(|ui| {
+			if ui.button("TestNet preset").clicked() {
+				state.network.endpoint = "https://testnet1.neo.org:443".to_string();
+				state.network.network_type = "testnet".to_string();
+			}
+			if ui.button("MainNet preset").clicked() {
+				state.network.endpoint = "https://mainnet1.neo.org:443".to_string();
+				state.network.network_type = "mainnet".to_string();
+			}
+			if ui.button("Local node").clicked() {
+				state.network.endpoint = "http://localhost:10332".to_string();
+				state.network.network_type = "custom".to_string();
+			}
+		});
+	}
 }
 
 #[derive(Clone)]
@@ -743,14 +882,14 @@ fn spawn_background(
 					{
 						let mut s = state.lock();
 						s.network.status = "Connecting...".to_string();
-						s.logs.push(format!("Connecting to {} [{}]", endpoint, network_type));
+						s.push_log(format!("Connecting to {} [{}]", endpoint, network_type));
 					}
 					let provider = match HttpProvider::new(endpoint.as_str()) {
 						Ok(p) => p,
 						Err(e) => {
 							let mut s = state.lock();
 							s.network.status = format!("Error: {}", e);
-							s.logs.push(format!("Connection failed: {}", e));
+							s.push_log(format!("Connection failed: {}", e));
 							continue;
 						},
 					};
@@ -764,7 +903,7 @@ fn spawn_background(
 							s.network.endpoint = endpoint;
 							s.network.network_type = network_type;
 							s.network.status = format!("Connected · height {}", height);
-							s.logs.push(format!("Connected. Height: {}", height));
+							s.push_log(format!("Connected. Height: {}", height));
 							s.client = Some(Arc::new(client));
 							s.last_height = Some(height);
 							s.peer_count = None;
@@ -773,7 +912,7 @@ fn spawn_background(
 						Err(e) => {
 							s.network.connected = false;
 							s.network.status = format!("Error: {}", e);
-							s.logs.push(format!("Connection failed: {}", e));
+							s.push_log(format!("Connection failed: {}", e));
 							s.client = None;
 						},
 					}
@@ -797,7 +936,7 @@ fn spawn_background(
 						let mut s = state.lock();
 						s.ws_status = "Connecting...".to_string();
 						s.ws_events.clear();
-						s.logs.push(format!("WS connecting to {} ({})", url, subscription));
+						s.push_log(format!("WS connecting to {} ({})", url, subscription));
 					}
 					match WebSocketClient::new(&url).await {
 						Ok(mut client) => {
@@ -805,7 +944,7 @@ fn spawn_background(
 							if let Err(e) = connect_result {
 								let mut s = state.lock();
 								s.ws_status = format!("WS error: {}", e);
-								s.logs.push(format!("WS connect failed: {}", e));
+								s.push_log(format!("WS connect failed: {}", e));
 								continue;
 							}
 
@@ -821,12 +960,12 @@ fn spawn_background(
 									s.ws_status = format!("WS connected ({})", subscription);
 									s.ws_connected = true;
 									s.ws_client = Some(client);
-									s.logs.push(format!("WS subscribed to {}", subscription));
+									s.push_log(format!("WS subscribed to {}", subscription));
 								},
 								Err(e) => {
 									let mut s = state.lock();
 									s.ws_status = format!("WS subscribe failed: {}", e);
-									s.logs.push(format!("WS subscribe failed: {}", e));
+									s.push_log(format!("WS subscribe failed: {}", e));
 									continue;
 								},
 							}
@@ -855,14 +994,14 @@ fn spawn_background(
 						Err(e) => {
 							let mut s = state.lock();
 							s.ws_status = format!("WS error: {}", e);
-							s.logs.push(format!("WS client init failed: {}", e));
+							s.push_log(format!("WS client init failed: {}", e));
 						},
 					}
 				},
 				Action::WsDisconnect => {
 					let mut client = {
 						let mut s = state.lock();
-						s.logs.push("WS disconnecting...".to_string());
+						s.push_log("WS disconnecting...".to_string());
 						s.ws_status = "Disconnecting WS...".to_string();
 						s.ws_client.take()
 					};
@@ -872,20 +1011,20 @@ fn spawn_background(
 					let mut s = state.lock();
 					s.ws_connected = false;
 					s.ws_status = "WebSocket disconnected".to_string();
-					s.logs.push("WS disconnected".to_string());
+					s.push_log("WS disconnected".to_string());
 					s.ws_subscription = "NewBlocks".to_string();
 				},
 				Action::Disconnect => {
 					{
 						let mut s = state.lock();
 						s.network.status = "Disconnecting...".to_string();
-						s.logs.push("Disconnecting...".to_string());
+						s.push_log("Disconnecting...".to_string());
 					}
 					sleep(Duration::from_millis(300)).await;
 					let mut s = state.lock();
 					s.network.connected = false;
 					s.network.status = "Disconnected".to_string();
-					s.logs.push("Disconnected.".to_string());
+					s.push_log("Disconnected.".to_string());
 					s.client = None;
 					s.poller_running = false;
 					s.last_height = None;
@@ -913,13 +1052,13 @@ fn spawn_background(
 									{
 										existing.unclaimed_gas = Some(gas.unclaimed.clone());
 									}
-									s.logs.push(format!(
+									s.push_log(format!(
 										"Unclaimed GAS for {}: {}",
 										acc.address, gas.unclaimed
 									));
 								},
 								Err(e) => {
-									state.lock().logs.push(format!(
+									state.lock().push_log(format!(
 										"Failed to fetch GAS for {}: {}",
 										acc.address, e
 									));
@@ -927,7 +1066,7 @@ fn spawn_background(
 							}
 						}
 					} else {
-						state.lock().logs.push("Refresh failed: not connected".to_string());
+						state.lock().push_log("Refresh failed: not connected".to_string());
 					}
 				},
 				Action::FetchBalances => {
@@ -963,13 +1102,13 @@ fn spawn_background(
 											}
 										}
 									}
-									s.logs.push(format!(
+									s.push_log(format!(
 										"Fetched NEP-17 balances for {}",
 										acc.address
 									));
 								},
 								Err(e) => {
-									state.lock().logs.push(format!(
+									state.lock().push_log(format!(
 										"Balance fetch failed for {}: {}",
 										acc.address, e
 									));
@@ -977,21 +1116,21 @@ fn spawn_background(
 							}
 						}
 					} else {
-						state.lock().logs.push("Balance fetch failed: not connected".to_string());
+						state.lock().push_log("Balance fetch failed: not connected".to_string());
 					}
 				},
 				Action::Simulate { script_hex } => {
 					let client = { state.lock().client.clone() };
 					if client.is_none() {
 						let mut s = state.lock();
-						s.logs.push("Simulation failed: not connected".to_string());
+						s.push_log("Simulation failed: not connected".to_string());
 						continue;
 					}
 					let script_bytes = match hex::decode(script_hex.trim_start_matches("0x")) {
 						Ok(b) => b,
 						Err(e) => {
 							let mut s = state.lock();
-							s.logs.push(format!("Simulation failed: invalid hex - {}", e));
+							s.push_log(format!("Simulation failed: invalid hex - {}", e));
 							continue;
 						},
 					};
@@ -1003,19 +1142,19 @@ fn spawn_background(
 					let mut s = state.lock();
 					match response {
 						Ok(result) => {
-							s.logs.push("Simulation success".to_string());
+							s.push_log("Simulation success".to_string());
 							let summary = format!(
 								"State: {:?} · Gas: {} · Stack items: {}",
 								result.state,
 								result.gas_consumed,
 								result.stack.len()
 							);
-							s.logs.push(summary.clone());
+							s.push_log(summary.clone());
 							s.simulator_result = summary;
 						},
 						Err(e) => {
 							let msg = format!("Simulation error: {}", e);
-							s.logs.push(msg.clone());
+							s.push_log(msg.clone());
 							s.simulator_result = msg;
 						},
 					}
@@ -1025,7 +1164,7 @@ fn spawn_background(
 					let sender = match sender {
 						Some(acc) => acc,
 						None => {
-							state.lock().logs.push(
+							state.lock().push_log(
 								"Transfer draft failed: create or import an account first"
 									.to_string(),
 							);
@@ -1035,14 +1174,14 @@ fn spawn_background(
 					let value = match Decimal::from_str(&amount) {
 						Ok(v) => v,
 						Err(e) => {
-							state.lock().logs.push(format!("Invalid amount {}: {}", amount, e));
+							state.lock().push_log(format!("Invalid amount {}: {}", amount, e));
 							continue;
 						},
 					};
 					let _to_hash = match to.parse::<ScriptHash>() {
 						Ok(h) => h,
 						Err(e) => {
-							state.lock().logs.push(format!("Invalid recipient {}: {}", to, e));
+							state.lock().push_log(format!("Invalid recipient {}: {}", to, e));
 							continue;
 						},
 					};
@@ -1075,7 +1214,7 @@ fn spawn_background(
 					let to_hash = match to.parse::<ScriptHash>() {
 						Ok(h) => h,
 						Err(e) => {
-							state.lock().logs.push(format!("Invalid recipient {}: {}", to, e));
+							state.lock().push_log(format!("Invalid recipient {}: {}", to, e));
 							continue;
 						},
 					};
@@ -1105,7 +1244,7 @@ fn spawn_background(
 						match client.invoke_script(hex::encode(script), vec![]).await {
 							Ok(result) => {
 								let mut s = state.lock();
-								s.logs.push(format!(
+								s.push_log(format!(
 									"Draft transfer {} GAS -> {} | state={:?} gas={} stack={}",
 									amount,
 									to,
@@ -1115,7 +1254,7 @@ fn spawn_background(
 								));
 							},
 							Err(e) => {
-								state.lock().logs.push(format!("Draft invoke failed: {}", e));
+								state.lock().push_log(format!("Draft invoke failed: {}", e));
 							},
 						}
 					} else {
@@ -1132,7 +1271,11 @@ fn spawn_background(
 
 async fn status_poller(client: Arc<RpcClient<HttpProvider>>, state: Arc<Mutex<AppState>>) {
 	loop {
-		sleep(Duration::from_secs(5)).await;
+		let wait_secs = {
+			let s = state.lock();
+			s.poll_interval_secs.max(1)
+		};
+		sleep(Duration::from_secs(wait_secs)).await;
 		let connected = {
 			let s = state.lock();
 			s.network.connected
@@ -1147,14 +1290,15 @@ async fn status_poller(client: Arc<RpcClient<HttpProvider>>, state: Arc<Mutex<Ap
 				let changed = s.last_height.map(|h| h != height).unwrap_or(true);
 				s.last_height = Some(height);
 				s.network.status = format!("Connected · height {}", height);
+				s.record_height(height);
 				if changed {
-					s.logs.push(format!("Height: {}", height));
+					s.push_log(format!("Height: {}", height));
 				}
 			},
 			Err(e) => {
 				let mut s = state.lock();
 				s.network.status = format!("Error: {}", e);
-				s.logs.push(format!("Status poll failed: {}", e));
+				s.push_log(format!("Status poll failed: {}", e));
 			},
 		}
 
@@ -1166,7 +1310,7 @@ async fn status_poller(client: Arc<RpcClient<HttpProvider>>, state: Arc<Mutex<Ap
 			},
 			Err(e) => {
 				let mut s = state.lock();
-				s.logs.push(format!("Version fetch failed: {}", e));
+				s.push_log(format!("Version fetch failed: {}", e));
 			},
 		}
 
@@ -1178,7 +1322,7 @@ async fn status_poller(client: Arc<RpcClient<HttpProvider>>, state: Arc<Mutex<Ap
 			},
 			Err(e) => {
 				let mut s = state.lock();
-				s.logs.push(format!("Peers fetch failed: {}", e));
+				s.push_log(format!("Peers fetch failed: {}", e));
 			},
 		}
 	}
@@ -1188,6 +1332,13 @@ async fn status_poller(client: Arc<RpcClient<HttpProvider>>, state: Arc<Mutex<Ap
 
 impl eframe::App for NeoGuiApp {
 	fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+		let dark_mode = { self.state.lock().dark_mode };
+		if dark_mode {
+			ctx.set_visuals(egui::Visuals::dark());
+		} else {
+			ctx.set_visuals(egui::Visuals::light());
+		}
+
 		egui::TopBottomPanel::top("top_bar").show(ctx, |ui| {
 			ui.horizontal(|ui| {
 				ui.heading(RichText::new("NeoRust Native GUI").strong());
