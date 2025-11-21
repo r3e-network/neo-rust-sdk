@@ -100,8 +100,8 @@ exclude = [
 ]
 
 [dependencies]
-tokio = { version = "1.45", features = ["full"] }
-tungstenite = "0.23.0"
+tokio = { version = "1.48", features = ["full"] }
+tungstenite = "0.28.0"
 tokio-tungstenite = { version = "0.23.1", features = ["native-tls", "connect"] }
 futures = { version = "0.3.28", default-features = false, features = ["std"] }
 futures-core = "0.3.28"
@@ -111,19 +111,19 @@ futures-channel = "0.3.28"
 futures-locks = { version = "0.7.1", default-features = false }
 futures-timer = { version = "3.0.2", default-features = false, features = ["wasm-bindgen"] }
 pin-project = "1.1"
-reqwest = { version = "0.12.5", default-features = false, features = ["json", "blocking"] }
+reqwest = { version = "0.12.18", default-features = false, features = ["json", "blocking"] }
 url = { version = "2.4", default-features = false }
 wiremock = "0.6"
 
 # crypto
 elliptic-curve = { version = "0.13.5", default-features = false }
-generic-array = { version = "0.14.7", default-features = false }
+generic-array = { version = "0.14.9", default-features = false }
 k256 = { version = "0.13.1", default-features = false, features = ["ecdsa", "std"] }
 sha2 = { version = "0.10.7", default-features = false }
 tiny-keccak = { version = "2.0.2", default-features = false }
 spki = { version = "0.7.2", default-features = false }
 hmac = "0.12.1"
-base64 = "0.21.7"
+base64 = "0.22.1"
 
 # serde
 serde = { version = "1.0", features = ["derive"] }
@@ -133,36 +133,36 @@ serde_json = { version = "1.0", features = ["raw_value"] }
 proc-macro2 = "1.0"
 quote = "1.0"
 syn = { version = "2.0", features = ["extra-traits"] }
-async-trait = "0.1.73"
+async-trait = "0.1.89"
 auto_impl = "1.1"
 
 # misc
-bytes = "1.4"
-criterion = "0.5"
+bytes = "1.11"
+criterion = "0.7"
 dunce = "1.0"
 eyre = "0.6"
 hex = { package = "const-hex", version = "1.6", features = ["hex"] }
-hex-literal = "0.4"
-home = "0.5.5"
+hex-literal = "1.1"
+home = "0.5.12"
 once_cell = "1.18"
-rand = "0.8"
-rayon = "1.7"
-regex = "1.9"
+rand = "0.9"
+rayon = "1.11"
+regex = "1.12"
 semver = "1.0"
-tempfile = "3.8"
-thiserror = "1.0"
-toml = "0.8"
+tempfile = "3.23"
+thiserror = "2.0"
+toml = "0.9"
 walkdir = "2.3"
 
 # tracing
 tracing = "0.1.37"
-tracing-subscriber = { version = "0.3.17", default-features = false, features = ["fmt", "std"] }
+tracing-subscriber = { version = "0.3.20", default-features = false, features = ["fmt", "std"] }
 tracing-futures = "0.2.5"
 
 # wasm
 # instant = "0.1.12"  # REMOVED: Unmaintained (RUSTSEC-2024-0384)
 web-time = "1.1.0"  # Modern replacement for instant with better WASM support
-serde_with = "3.3.0"
+serde_with = "3.16.0"
 serde_derive = "1.0.188"
 # For base64 encoding
 bs58 = "0.5.1"
@@ -172,7 +172,7 @@ block-modes = "0.9.1"
 sha3 = "0.10.8"
 # For JSON manipulation
 # json = "0.12"  # REMOVED: Unmaintained and vulnerable (RUSTSEC-2022-0081)
-rust_decimal = "1.0"
+rust_decimal = "1.39"
 # JSON encode
 
 ripemd = "0.1.3"
@@ -184,57 +184,57 @@ p256 = "0.13.2"
 num-bigint = "0.4"
 # Byte array utils
 byte-slice-cast = "1.2"
-primitive-types = "0.13.0"
+primitive-types = "0.13.1"
 # Serialization
 # bincode = "1.3"
 # rust-crypto = "0.2"  # REMOVED: Vulnerable (RUSTSEC-2022-0011) - replaced with ring and other secure alternatives
 lazy_static = "1.4.0"
 num-traits = "0.2.16"
-chrono = { version = "0.4.31", features = ["serde"] }
-strum = "0.26.3"
-strum_macros = "0.26.4"
-num_enum =   "0.7.0"
-derive_more = { version = "1.0.0", features = ["full"] }
-indexmap = "2.0.0"
-getset = "0.1.2"
+chrono = { version = "0.4.42", features = ["serde"] }
+strum = "0.27.2"
+strum_macros = "0.27.2"
+num_enum =   "0.7.5"
+derive_more = { version = "2.0.1", features = ["full"] }
+indexmap = "2.12.1"
+getset = "0.1.6"
 educe = "0.6.0"
 byteorder = "1.4.3"
 serde-big-array = "0.5.1"
 blake2 = { version = "0.10.6", default-features = false }
-ethereum-types = "0.15.0"
-serde_bytes = "0.11.12"
+ethereum-types = "0.16.0"
+serde_bytes = "0.11.19"
 
 scrypt = "0.11.0"
-rust_decimal_macros = "1.33"
+rust_decimal_macros = "1.39"
 open-fastrlp = { version = "0.1.4", features = ["std", "derive", "ethereum-types"] }
 rlp = { version = "0.6.1", features = ["derive"] }
-typenum =   "1.14"
+typenum =   "1.19"
 signature   = "2.1.0"
-rand_core = "0.6.4"
+rand_core = "0.9.3"
 num-integer =  "0.1.45"
 #openssl = "0.10"
 
-log = "0.4.14"
+log = "0.4.28"
 ecb = "0.1.2"
 cipher = { version = "0.4.4", features = [] }
 http = "1.1.0"
-jsonwebtoken = "9.2.0"
+jsonwebtoken = "10.2.0"
 
 uint = { git = "https://github.com/paritytech/parity-common", package = "uint", version = "0.10.0", default-features = false }
-impl-codec = { version = "0.6", default-features = false, optional = true }
+impl-codec = { version = "0.7", default-features = false, optional = true }
 impl-serde = { version = "0.5.0", default-features = false, optional = true }
 scale-info = { version = ">=1.0, <3", features = ["derive"], default-features = false, optional = true }
 ring = { version = "0.17.12", features = [] }
 
 # ledger
-coins-ledger = { version = "0.12.0", default-features = false, optional = true }
+coins-ledger = { version = "0.13.0", default-features = false, optional = true }
 protobuf = { version = "3.7.2", optional = true }
 # yubi - conditional compilation for release builds
 yubihsm = { version = "0.42", features = ["http", "usb"], optional = true }
-block-padding = "0.3.3"
+block-padding = "0.4.1"
 async-stream = "0.3.5"
 
-bip39 = { version = "2.1.0", features = ["rand"] }
+bip39 = { version = "2.2.0", features = ["rand"] }
 
 # SGX dependencies (optional) - only available when building for SGX target
 # These are commented out by default as they require special SGX environment
@@ -248,11 +248,11 @@ bip39 = { version = "2.1.0", features = ["rand"] }
 [dev-dependencies]
 mockall = "0.13.0"
 tracing = "0.1"
-tracing-subscriber = "0.3.18"
-criterion = { version = "0.5", features = ["html_reports"] }
-tempfile = "3.0"
+tracing-subscriber = "0.3.20"
+criterion = { version = "0.7", features = ["html_reports"] }
+tempfile = "3.23"
 serial_test = "3.2.0"
-proptest = "1.5"
+proptest = "1.9"
 
 [[bench]]
 name = "crypto_benchmarks"
