@@ -225,7 +225,7 @@ function Sidebar({ onClose }: { onClose?: () => void }) {
                   <p className='text-sm font-medium text-gray-900'>
                     Neo N3 SDK
                   </p>
-                  <p className='text-xs text-gray-600'>v0.4.1</p>
+                  <p className='text-xs text-gray-600'>v0.5.1</p>
                 </div>
               </div>
             </div>
