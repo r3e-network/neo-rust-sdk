@@ -79,6 +79,7 @@ struct NetworkInfo {
 struct AccountInfo {
 	address: String,
 	scripthash: String,
+	wif: Option<String>,
 }
 
 impl Default for NetworkInfo {
@@ -245,6 +246,7 @@ impl NeoGuiApp {
 							let info = AccountInfo {
 								address: acc.get_address(),
 								scripthash: format!("{}", acc.get_script_hash()),
+								wif: Some(wif.clone()),
 							};
 							let mut s = self.state.lock();
 							s.accounts.push(info.clone());
@@ -269,6 +271,7 @@ impl NeoGuiApp {
 					let info = AccountInfo {
 						address: acc.get_address(),
 						scripthash: format!("{}", acc.get_script_hash()),
+						wif: acc.key_pair().and_then(|kp| kp.private_key.to_wif().ok()),
 					};
 					let mut s = self.state.lock();
 					s.accounts.push(info.clone());
@@ -292,6 +295,10 @@ impl NeoGuiApp {
 					ui.group(|ui| {
 						ui.label(RichText::new(&acc.address).strong());
 						ui.monospace(acc.scripthash.clone());
+						if let Some(wif) = &acc.wif {
+							ui.label("WIF:");
+							ui.monospace(wif);
+						}
 					});
 				}
 			}
