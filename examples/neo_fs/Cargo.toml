@@ -15,6 +15,9 @@ ledger = ["neo3/ledger"]
 neo3 = { path = "../../", package = "neo3", features = [] }
 tokio = { version = "1.32", features = ["full"] }
 anyhow = "1.0.75"
+uuid = { version = "1.8", features = ["v4"] }
+rand = "0.8"
+reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
 
 [[example]]
 name = "neo_fs_basic_usage"

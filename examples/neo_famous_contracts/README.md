@@ -95,21 +95,9 @@ let value = result.stack
 
 ## 🏗️ Development Notes
 
-### **Simplified Examples**
-Some examples (flamingo_finance, grandshare, neoburger_neo, neocompound) have been simplified to basic structures because:
-
-1. **API Evolution**: Original contract-specific APIs are no longer available in the public SDK
-2. **Compilation**: Modern examples prioritize working code that compiles successfully
-3. **Educational Value**: Simplified examples focus on demonstrating correct API usage patterns
-
-### **Extension Guidelines**
-
-To extend these examples with real contract functionality:
-
-1. **Contract Hashes**: Replace placeholder hashes with actual deployed contract addresses
-2. **Method Names**: Use actual contract method names from the contract manifests
-3. **Parameters**: Construct proper ContractParameter objects for method calls
-4. **Error Handling**: Add comprehensive error handling for production use
+- Examples use live MainNet/TestNet contract hashes where available (e.g., Flamingo Finance).
+- Validate contract hashes/methods against current deployments before broadcasting transactions.
+- Add proper signing/broadcast logic when moving from read-only queries to state-changing calls.
 
 ## 🧪 Testing
 

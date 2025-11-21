@@ -15,6 +15,8 @@ use super::SgxError;
 #[cfg(not(feature = "sgx"))]
 use k256::ecdsa::{Signature, SigningKey, VerifyingKey};
 #[cfg(not(feature = "sgx"))]
+use k256::{EncodedPoint, PublicKey};
+#[cfg(not(feature = "sgx"))]
 use sha2::{Digest, Sha256};
 
 /// SGX-compatible cryptographic operations
@@ -215,6 +217,57 @@ impl SgxCrypto {
 		}
 
 		Ok(buffer)
+	}
+
+	/// Generate an ECDSA P-256 keypair and return (private, uncompressed public) bytes.
+	pub fn generate_keypair(&self) -> Result<([u8; 32], [u8; 64]), SgxError> {
+		#[cfg(feature = "sgx")]
+		{
+			let ecc_handle = unsafe { sgx_ecc256_open_context() };
+			if ecc_handle.is_null() {
+				return Err(SgxError::CryptoError("Failed to open ECC context".into()));
+			}
+
+			let mut private = sgx_ec256_private_t::default();
+			let mut public = sgx_ec256_public_t::default();
+
+			let status =
+				unsafe { sgx_ecc256_create_key_pair(&mut private, &mut public, ecc_handle) };
+
+			unsafe {
+				sgx_ecc256_close_context(ecc_handle);
+			}
+
+			if status != sgx_status_t::SGX_SUCCESS {
+				return Err(SgxError::CryptoError("Failed to generate keypair".into()));
+			}
+
+			let mut priv_bytes = [0u8; 32];
+			priv_bytes.copy_from_slice(&private.r);
+
+			let mut pub_bytes = [0u8; 64];
+			pub_bytes[..32].copy_from_slice(&public.gx);
+			pub_bytes[32..].copy_from_slice(&public.gy);
+
+			Ok((priv_bytes, pub_bytes))
+		}
+
+		#[cfg(not(feature = "sgx"))]
+		{
+			use rand_core::OsRng;
+			let signing_key = SigningKey::random(&mut OsRng);
+			let verify_key: VerifyingKey = signing_key.verifying_key();
+			let encoded: EncodedPoint = PublicKey::from(&verify_key).to_encoded_point(false);
+			let bytes = encoded.as_bytes();
+			if bytes.len() != 65 || bytes[0] != 0x04 {
+				return Err(SgxError::CryptoError("Unexpected public key encoding".into()));
+			}
+			let mut pub_bytes = [0u8; 64];
+			pub_bytes.copy_from_slice(&bytes[1..]); // skip 0x04 prefix
+
+			let priv_bytes: [u8; 32] = signing_key.to_bytes().into();
+			Ok((priv_bytes, pub_bytes))
+		}
 	}
 }
 

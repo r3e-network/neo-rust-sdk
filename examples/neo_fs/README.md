@@ -4,41 +4,41 @@ These examples show how to use the NeoFS functionality in NeoRust.
 
 ## Available Examples
 
-1. **Basic Usage**: Shows how to create containers, upload/download objects, and manage access control.
-2. **Multipart Upload**: Demonstrates how to upload large files in multiple parts.
+1. **Basic Usage** (`basic_usage.rs`): Builds real NeoFS container/object payloads, probes the TestNet gateway, and optionally lists containers when `NEOFS_WALLET` is set.
+2. **Multipart Upload** (`multipart_upload.rs`): Plans a multipart upload locally (splitting a payload into parts), validates assembly, and optionally exercises the initiate call.
 
 ## Running the Examples
 
-> **Important Note**: The NeoFS module requires gRPC implementation which is planned for a future release.
-> These examples demonstrate the API design and usage patterns that will be available once
-> the gRPC backend is integrated. The current implementation returns NotImplemented errors
-> as documented placeholders.
+> **Note**: NeoFS REST/gRPC endpoints may require valid auth/session tokens. The examples
+> run in a safe "probe" mode by default and will not panic if the remote returns an error.
 
-To run an example:
+To run the examples:
 
 ```bash
-# Make sure you have a wallet file available
 cargo run --example neo_fs_basic_usage
 
-# Or for the multipart upload example
 cargo run --example neo_fs_multipart_upload
-```
 
-You'll need to have a wallet file available and may need to adjust the paths in the examples to point to your specific wallet file.
+# Optional: supply your wallet address to attempt authenticated calls
+NEOFS_WALLET=NdemoAddressHere cargo run --example neo_fs_basic_usage
+```
 
 ## Example Output
 
-Since NeoFS requires gRPC implementation (planned for future release), you'll see output like:
+With no `NEOFS_WALLET` set, you’ll see a gateway probe and payload previews:
 
 ```
-Creating container...
-Error creating container: Not implemented: create_container: This method requires gRPC implementation
+🌐 Endpoint: https://rest.testnet.fs.neo.org
+🔐 Auth: not provided (read-only probe)
+🧱 Container request payload:
+{ ... }
+🔎 Probing NeoFS REST gateway...
+   ✅ Gateway responded with HTTP 200
+ℹ️ Set NEOFS_WALLET to attempt authenticated container listing.
 ```
-
-This is expected behavior until the full gRPC implementation is added.
 
 ## Requirements
 
 - NeoRust SDK
-- A Neo wallet with funds (for uploading to mainnet/testnet)
-- Network connectivity to NeoFS nodes
+- Network connectivity to NeoFS TestNet gateway
+- Optional `NEOFS_WALLET` for authenticated operations

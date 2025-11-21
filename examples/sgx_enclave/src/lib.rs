@@ -152,16 +152,8 @@ pub extern "C" fn neo_generate_keypair(
         Err(_) => return sgx_status_t::SGX_ERROR_UNEXPECTED,
     };
     
-    // Generate random private key
-    let priv_key = match crypto.random_bytes(32) {
-        Ok(key) => key,
-        Err(_) => return sgx_status_t::SGX_ERROR_UNEXPECTED,
-    };
-    
-    // In production, derive public key from private key using secp256r1
-    // For now, generate random public key as placeholder
-    let pub_key = match crypto.random_bytes(64) {
-        Ok(key) => key,
+    let (priv_key, pub_key) = match crypto.generate_keypair() {
+        Ok(pair) => pair,
         Err(_) => return sgx_status_t::SGX_ERROR_UNEXPECTED,
     };
     
