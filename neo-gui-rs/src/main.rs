@@ -1,5 +1,9 @@
 use eframe::{egui, egui::RichText};
+use parking_lot::Mutex;
 use once_cell::sync::Lazy;
+use std::sync::Arc;
+use tokio::runtime::Runtime;
+use tokio_stream::wrappers::ReceiverStream;
 
 static VERSION: Lazy<String> = Lazy::new(|| "0.5.1".to_string());
 
@@ -12,13 +16,12 @@ fn main() -> eframe::Result<()> {
 	eframe::run_native(
 		"NeoRust GUI (Native)",
 		native_options,
-		Box::new(|_cc| Box::new(NeoGuiApp::default())),
+		Box::new(|_cc| {
+			let rt = Runtime::new().expect("Failed to build tokio runtime");
+			let state = Arc::new(Mutex::new(AppState::default()));
+			Box::new(NeoGuiApp { state, rt })
+		}),
 	)
-}
-
-#[derive(Default)]
-struct NeoGuiApp {
-	current_tab: Tab,
 }
 
 #[derive(Copy, Clone)]
@@ -38,11 +41,25 @@ impl Default for Tab {
 	}
 }
 
+#[derive(Default)]
+struct AppState {
+	current_tab: Tab,
+	network_status: String,
+	wallet_status: String,
+}
+
+struct NeoGuiApp {
+	state: Arc<Mutex<AppState>>,
+	rt: Runtime,
+}
+
 impl NeoGuiApp {
 	fn render_sidebar(&mut self, ui: &mut egui::Ui) {
 		ui.heading(RichText::new("NeoRust SDK").strong());
 		ui.label(format!("Native GUI · v{}", *VERSION));
 		ui.separator();
+		ui.label("Network endpoint");
+		ui.text_edit_singleline(&mut self.state.lock().network_status);
 
 		self.tab_button(ui, Tab::Dashboard, "Dashboard");
 		self.tab_button(ui, Tab::Wallet, "Wallet");
@@ -54,19 +71,27 @@ impl NeoGuiApp {
 
 		ui.separator();
 		ui.label("Status");
-		ui.small("Network: Not connected");
-		ui.small("Wallet: Not connected");
+		let (net, wal) = {
+			let state = self.state.lock();
+			(state.network_status.clone(), state.wallet_status.clone())
+		};
+		ui.small(format!("Network: {}", net));
+		ui.small(format!("Wallet: {}", wal));
 	}
 
 	fn tab_button(&mut self, ui: &mut egui::Ui, tab: Tab, label: &str) {
-		let selected = matches!(self.current_tab, t if t as u8 == tab as u8);
+		let selected = {
+			let state = self.state.lock();
+			matches!(state.current_tab, t if t as u8 == tab as u8)
+		};
 		if ui.selectable_label(selected, label).clicked() {
-			self.current_tab = tab;
+			self.state.lock().current_tab = tab;
 		}
 	}
 
 	fn render_content(&mut self, ui: &mut egui::Ui) {
-		match self.current_tab {
+		let tab = self.state.lock().current_tab;
+		match tab {
 			Tab::Dashboard => ui.label("Dashboard • metrics and quick actions (placeholder)"),
 			Tab::Wallet => ui.label("Wallet • accounts, balances, transfers (placeholder)"),
 			Tab::HdWallet => ui.label("HD Wallet • derive and manage accounts (placeholder)"),
