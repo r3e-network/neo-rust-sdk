@@ -80,6 +80,7 @@ struct AccountInfo {
 	address: String,
 	scripthash: String,
 	wif: Option<String>,
+	unclaimed_gas: Option<String>,
 }
 
 impl Default for NetworkInfo {
@@ -213,6 +214,14 @@ impl NeoGuiApp {
 		});
 
 		ui.separator();
+		ui.horizontal(|ui| {
+			if ui.button("Refresh balances").clicked() {
+				self.queue_action(Action::RefreshBalances);
+			}
+			ui.label("Refreshes unclaimed GAS for local accounts (requires connection).");
+		});
+
+		ui.separator();
 		ui.label("Activity");
 		egui::ScrollArea::vertical().max_height(200.0).show(ui, |ui| {
 			let logs = self.state.lock().logs.clone();
@@ -299,6 +308,9 @@ impl NeoGuiApp {
 							ui.label("WIF:");
 							ui.monospace(wif);
 						}
+						if let Some(gas) = &acc.unclaimed_gas {
+							ui.label(format!("Unclaimed GAS: {}", gas));
+						}
 					});
 				}
 			}
@@ -313,6 +325,7 @@ impl NeoGuiApp {
 enum Action {
 	Connect { endpoint: String, network_type: String },
 	Disconnect,
+	RefreshBalances,
 }
 
 fn spawn_background(
@@ -389,6 +402,38 @@ fn spawn_background(
 					s.client = None;
 					s.poller_running = false;
 					s.last_height = None;
+				},
+				Action::RefreshBalances => {
+					let client = { state.lock().client.clone() };
+					let accounts = { state.lock().accounts.clone() };
+					if let Some(client) = client {
+						for mut acc in accounts {
+							match client.get_unclaimed_gas(acc.address.clone().into()).await {
+								Ok(gas) => {
+									let mut s = state.lock();
+									if let Some(existing) = s
+										.accounts
+										.iter_mut()
+										.find(|a| a.address == acc.address)
+									{
+										existing.unclaimed_gas = Some(gas.unclaimed.clone());
+									}
+									s.logs.push(format!(
+										"Unclaimed GAS for {}: {}",
+										acc.address, gas.unclaimed
+									));
+								},
+								Err(e) => {
+									state
+										.lock()
+										.logs
+										.push(format!("Failed to fetch GAS for {}: {}", acc.address, e));
+								},
+							}
+						}
+					} else {
+						state.lock().logs.push("Refresh failed: not connected".to_string());
+					}
 				},
 			}
 		}
