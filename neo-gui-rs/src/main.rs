@@ -81,6 +81,8 @@ struct AccountInfo {
 	scripthash: String,
 	wif: Option<String>,
 	unclaimed_gas: Option<String>,
+	neo_balance: Option<String>,
+	gas_balance: Option<String>,
 }
 
 impl Default for NetworkInfo {
@@ -218,6 +220,9 @@ impl NeoGuiApp {
 			if ui.button("Refresh balances").clicked() {
 				self.queue_action(Action::RefreshBalances);
 			}
+			if ui.button("Fetch NEP-17 balances").clicked() {
+				self.queue_action(Action::FetchBalances);
+			}
 			ui.label("Refreshes unclaimed GAS for local accounts (requires connection).");
 		});
 
@@ -311,6 +316,12 @@ impl NeoGuiApp {
 						if let Some(gas) = &acc.unclaimed_gas {
 							ui.label(format!("Unclaimed GAS: {}", gas));
 						}
+						if let Some(neo) = &acc.neo_balance {
+							ui.label(format!("NEO: {}", neo));
+						}
+						if let Some(gas) = &acc.gas_balance {
+							ui.label(format!("GAS: {}", gas));
+						}
 					});
 				}
 			}
@@ -326,6 +337,7 @@ enum Action {
 	Connect { endpoint: String, network_type: String },
 	Disconnect,
 	RefreshBalances,
+	FetchBalances,
 }
 
 fn spawn_background(
@@ -433,6 +445,48 @@ fn spawn_background(
 						}
 					} else {
 						state.lock().logs.push("Refresh failed: not connected".to_string());
+					}
+				},
+				Action::FetchBalances => {
+					let client = { state.lock().client.clone() };
+					let accounts = { state.lock().accounts.clone() };
+					if let Some(client) = client {
+						for acc in accounts {
+							let script_hash = match acc.address.parse::<neo3::neo_types::ScriptHash>() {
+								Ok(h) => h,
+								Err(e) => {
+									state
+										.lock()
+										.logs
+										.push(format!("Invalid address {}: {}", acc.address, e));
+									continue;
+								},
+							};
+							match client.get_nep17_balances(script_hash.0).await {
+								Ok(balances) => {
+									let mut s = state.lock();
+									if let Some(existing) = s.accounts.iter_mut().find(|a| a.address == acc.address) {
+										for bal in &balances.balance {
+											if bal.asset_hash.to_string().to_lowercase().contains("neo") {
+												existing.neo_balance = Some(bal.amount.clone());
+											}
+											if bal.asset_hash.to_string().to_lowercase().contains("gas") {
+												existing.gas_balance = Some(bal.amount.clone());
+											}
+										}
+									}
+									s.logs.push(format!("Fetched NEP-17 balances for {}", acc.address));
+								},
+								Err(e) => {
+									state
+										.lock()
+										.logs
+										.push(format!("Balance fetch failed for {}: {}", acc.address, e));
+								},
+							}
+						}
+					} else {
+						state.lock().logs.push("Balance fetch failed: not connected".to_string());
 					}
 				},
 			}
