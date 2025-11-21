@@ -112,7 +112,7 @@ pub fn address_to_script_hash(address: &str) -> Result<ScriptHash, ProviderError
 /// Convert a script hash to hex format.
 pub fn script_hash_to_hex(script_hash: &ScriptHash) -> String {
 	let bytes: [u8; 20] = script_hash.to_fixed_bytes();
-	hex::hex::encode(bytes)
+	hex::encode(bytes)
 }
 
 /// Convert a script hash in hex format to a ScriptHash.
@@ -123,7 +123,7 @@ pub fn script_hash_from_hex(hex: &str) -> Result<ScriptHash, ProviderError> {
 /// Convert an address to hex format.
 pub fn address_to_hex(address: &str) -> Result<String, ProviderError> {
 	let script_hash = H160::from_address(address)?;
-	Ok(hex::hex::encode(script_hash.to_fixed_bytes()))
+	Ok(hex::encode(script_hash.to_fixed_bytes()))
 }
 
 /// Convert a hex format script hash to an address.
