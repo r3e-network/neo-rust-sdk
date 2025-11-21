@@ -68,6 +68,7 @@ resolver = "2"
 members = [
     ".",
     "neo-cli",
+    "neo-gui-rs",
     "examples/basic",
     "examples/intermediate", 
     "examples/advanced",
