@@ -1,5 +1,9 @@
 # NeoRust
 
+<p align="center">
+  <img src="./assets/logo-neorust.svg" alt="NeoRust SDK logo" width="520">
+</p>
+
 [![Build & Test](https://github.com/r3e-network/NeoRust/actions/workflows/build-test.yml/badge.svg)](https://github.com/r3e-network/NeoRust/actions/workflows/build-test.yml)
 [![Release](https://github.com/r3e-network/NeoRust/actions/workflows/release.yml/badge.svg)](https://github.com/r3e-network/NeoRust/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
