@@ -134,8 +134,11 @@ mod tests {
 	use crate::{Http, Provider};
 
 	#[tokio::test]
-	#[ignore = "requires local Anvil dev chain"]
 	async fn test_snapshot() {
+		if std::env::var("NEO_ENABLE_DEV_RPC_TESTS").is_err() {
+			return;
+		}
+
 		let anvil = Anvil::new().spawn();
 		let provider = Provider::<Http>::try_from(anvil.endpoint()).unwrap();
 		let client = DevRpcMiddleware::new(provider);

@@ -1,4 +1,5 @@
-# NeoRust API Documentation v0.4.4
+# NeoRust API Documentation (historical v0.4.4)
+> This document reflects the v0.4.4 API surface. For the latest (v0.5.2) APIs and examples, refer to the root README and current guides.
 
 ## Table of Contents
 1. [Core Components](#core-components)

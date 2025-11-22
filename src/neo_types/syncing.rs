@@ -1,10 +1,7 @@
 //! Types for `neo_syncing` RPC call
 
 use crate::neo_types::{
-	deserialize_u64,
-	deserialize_u64_option,
-	serialize_u64,
-	serialize_u64_option,
+	deserialize_u64, deserialize_u64_option, serialize_u64, serialize_u64_option,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 

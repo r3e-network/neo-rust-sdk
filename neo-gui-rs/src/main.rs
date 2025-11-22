@@ -35,8 +35,9 @@ fn main() -> eframe::Result<()> {
 	)
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 enum Tab {
+	#[default]
 	Dashboard,
 	Wallet,
 	HdWallet,
@@ -44,12 +45,6 @@ enum Tab {
 	WebSocket,
 	Analytics,
 	Settings,
-}
-
-impl Default for Tab {
-	fn default() -> Self {
-		Tab::Dashboard
-	}
 }
 
 struct AppState {
@@ -1160,7 +1155,7 @@ fn spawn_background(
 					}
 				},
 				Action::DraftTransfer { to, amount } => {
-					let sender = { state.lock().accounts.get(0).cloned() };
+				let sender = state.lock().accounts.first().cloned();
 					let sender = match sender {
 						Some(acc) => acc,
 						None => {

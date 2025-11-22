@@ -5,7 +5,7 @@ use std::{
 
 use primitive_types::U256;
 
-use crate::{JsonRpcError, ProviderError};
+use crate::neo_clients::{JsonRpcError, ProviderError, RpcError};
 
 use super::WsError;
 
@@ -44,7 +44,7 @@ pub enum WsClientError {
 	TooManyReconnects,
 }
 
-impl crate::RpcError for WsClientError {
+impl RpcError for WsClientError {
 	fn as_error_response(&self) -> Option<&JsonRpcError> {
 		if let WsClientError::JsonRpcError(err) = self {
 			Some(err)
@@ -63,6 +63,26 @@ impl crate::RpcError for WsClientError {
 
 impl From<WsClientError> for ProviderError {
 	fn from(src: WsClientError) -> Self {
-		ProviderError::JsonRpcClientError(Box::new(src))
+		match src {
+			WsClientError::JsonRpcError(err) => ProviderError::JsonRpcError(err),
+			WsClientError::JsonError(err) => ProviderError::SerdeJson(err),
+			WsClientError::InternalError(err) => ProviderError::CustomError(err.to_string()),
+			WsClientError::UnexpectedClose => {
+				ProviderError::CustomError("Websocket closed unexpectedly".into())
+			},
+			WsClientError::DeadChannel => {
+				ProviderError::CustomError("Unexpected internal channel closure".into())
+			},
+			WsClientError::UnexpectedBinary(data) => ProviderError::CustomError(format!(
+				"Websocket responded with unexpected binary data ({} bytes)",
+				data.len()
+			)),
+			WsClientError::UnknownSubscription(id) => {
+				ProviderError::CustomError(format!("Unknown subscription id: {id:?}"))
+			},
+			WsClientError::TooManyReconnects => {
+				ProviderError::CustomError("Reconnect limit reached".into())
+			},
+		}
 	}
 }

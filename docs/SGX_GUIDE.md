@@ -1,8 +1,9 @@
-# SGX Support Guide - NeoRust v0.4.4
+# SGX Support Guide - NeoRust (updated for v0.5.2)
+> Note: This guide originated with v0.4.4; the SGX/no_std feature set remains the same. Use the latest published crate version in the snippets below.
 
 ## Overview
 
-NeoRust v0.4.4 introduces Intel SGX (Software Guard Extensions) support, enabling blockchain operations to run in secure enclaves with hardware-based security. This feature provides `no_std` compatibility and enhanced security for sensitive operations like key management and transaction signing.
+NeoRust v0.5.2 continues to support Intel SGX (Software Guard Extensions), enabling blockchain operations to run in secure enclaves with hardware-based security. This feature provides `no_std` compatibility and enhanced security for sensitive operations like key management and transaction signing.
 
 ## Table of Contents
 
@@ -83,7 +84,7 @@ chmod +x sgx_linux_x64_sdk_2.19.100.3.bin
 ```toml
 # Cargo.toml
 [dependencies]
-neo3 = { version = "0.4.4", features = ["sgx", "no_std"] }
+neo3 = { version = "0.5.2", features = ["sgx", "no_std"] }
 
 [target.'cfg(target_env = "sgx")'.dependencies]
 sgx_tstd = { git = "https://github.com/apache/teaclave-sgx-sdk.git", rev = "v2.0.0" }

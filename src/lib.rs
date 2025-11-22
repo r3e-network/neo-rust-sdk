@@ -5,6 +5,7 @@
 	clippy::module_inception,
 	clippy::type_complexity
 )]
+#![allow(unexpected_cfgs)]
 //! ![Neo Logo](https://neo.org/images/neo-logo/NEO-logo.svg)
 //! # NeoRust SDK v0.5.2
 //!
@@ -551,28 +552,26 @@ pub mod prelude;
 mod tests {
 	use super::prelude::*;
 	use primitive_types::H160;
-	use std::str::FromStr;
+	use std::{str::FromStr, sync::Arc};
+	use tokio::sync::Mutex;
 
 	use crate::{
 		builder::{AccountSigner, ScriptBuilder, TransactionBuilder},
-		neo_clients::{APITrait, HttpProvider, RpcClient},
+		neo_clients::{APITrait, HttpProvider, MockClient, RpcClient},
+		neo_config::TestConstants,
 		neo_protocol::{Account, AccountTrait},
 	};
 
 	#[cfg(test)]
 	#[tokio::test]
-	#[ignore] // Ignoring this test as it requires a live Neo N3 node and real tokens
 	async fn test_create_and_send_transaction() -> Result<(), Box<dyn std::error::Error>> {
-		// Initialize the JSON-RPC provider - using TestNet for safer testing
-		let http_provider = HttpProvider::new("https://testnet1.neo.org:443")?;
-		let rpc_client = RpcClient::new(http_provider);
+		let (use_live_network, rpc_client, _mock_server) = setup_test_client().await?;
 
 		// Create accounts for the sender and recipient
-		let sender = Account::from_wif("L1WMhxazScMhUrdv34JqQb1HFSQmWeN2Kpc1R9JGKwL7CDNP21uR")?;
-		let recipient = Account::from_address("NbTiM6h8r99kpRtb428XcsUk1TzKed2gTc")?;
+		let sender = Account::create()?;
+		let recipient = Account::create()?;
 
-		// Use the correct GAS token hash for Neo N3 TestNet
-		let gas_token_hash = "d2a4cff31913016155e38e474a2c06d08be276cf"; // GAS token on Neo N3
+		let gas_token_hash = TestConstants::GAS_TOKEN_HASH;
 
 		// Create a new TransactionBuilder
 		let mut tx_builder = TransactionBuilder::with_client(&rpc_client);
@@ -597,19 +596,58 @@ mod tests {
 			))
 			.set_signers(vec![AccountSigner::called_by_entry(&sender)?.into()])
 			.map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?
-			.valid_until_block(rpc_client.get_block_count().await? + 5760)?; // Valid for ~1 day
+			.valid_until_block(if use_live_network {
+				rpc_client.get_block_count().await? + 5760
+			} else {
+				100
+			})?; // Valid for ~1 day or a small mock block window
 
 		// Sign the transaction
 		let signed_tx = tx_builder.sign().await?;
 
-		// For testing purposes, we'll just verify that we can create and sign the transaction
-		// without actually sending it to the network
-		println!("Transaction created and signed successfully");
-		println!("Transaction size: {} bytes", signed_tx.size());
-		println!("System fee: {} GAS", signed_tx.sys_fee as f64 / 100_000_000.0);
-		println!("Network fee: {} GAS", signed_tx.net_fee as f64 / 100_000_000.0);
+		if !use_live_network {
+			assert_eq!(signed_tx.sys_fee, 30);
+			assert_eq!(signed_tx.net_fee, 1_230_610);
+		}
 
 		Ok(())
+	}
+
+	async fn setup_test_client(
+	) -> Result<(bool, RpcClient<HttpProvider>, Option<Arc<Mutex<MockClient>>>), Box<dyn std::error::Error>>
+	{
+		if let Ok(url) = std::env::var("NEO_LIVE_RPC_URL") {
+			let http_provider = HttpProvider::new(url.as_str())?;
+			return Ok((true, RpcClient::new(http_provider), None));
+		}
+
+		let mock_server = Arc::new(Mutex::new(MockClient::new().await));
+		{
+			let mut mock = mock_server.lock().await;
+			mock.mock_response_with_file_ignore_param(
+				"invokescript",
+				"invokescript_necessary_mock.json",
+			)
+			.await;
+			mock.mock_response_with_file_ignore_param(
+				"calculatenetworkfee",
+				"calculatenetworkfee.json",
+			)
+			.await;
+			mock.mock_response_with_file_ignore_param(
+				"sendrawtransaction",
+				"sendrawtransaction.json",
+			)
+			.await;
+			mock.mount_mocks().await;
+		}
+
+		let rpc_client = {
+			let mock = mock_server.lock().await;
+			mock.into_client()
+		};
+
+		Ok((false, rpc_client, Some(mock_server)))
 	}
 }
 

@@ -1,11 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::neo_types::{
-	deserialize_h256,
-	deserialize_h256_option,
-	serialize_h256,
-	serialize_h256_option,
-	H256,
+	deserialize_h256, deserialize_h256_option, serialize_h256, serialize_h256_option, H256,
 };
 
 /// Lightweight transaction hash provider used for block equality checks.
@@ -23,7 +19,7 @@ impl TXTrait for H256 {
 }
 
 /// Basic N3 block model used by the legacy WebSocket transport.
-#[derive(Serialize, Deserialize, Clone, Hash, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(dead_code)]
 pub(crate) struct Block<TX, W> {
 	/// The hash of the block.

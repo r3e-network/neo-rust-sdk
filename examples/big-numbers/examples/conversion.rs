@@ -1,3 +1,4 @@
+use neo3::prelude::U256;
 /// Neo N3 Big Number Conversion Example
 ///
 /// This example demonstrates how to convert between different number types
@@ -7,7 +8,6 @@ use neo3::{
 	neo_clients::{APITrait, HttpProvider, RpcClient},
 	neo_types::ScriptHash,
 };
-use neo3::prelude::U256;
 use std::str::FromStr;
 
 #[tokio::main]
@@ -59,46 +59,49 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("   🔢 From u64::MAX: {from_u64}");
 	println!("   🔢 From 42u32: {from_u32}");
 
-	// 3. Real Neo N3 network data conversion
+	// 3. Real Neo N3 network data conversion (env-gated)
 	println!("\n3️⃣ Real Neo N3 Network Data Conversion");
 
-	// Connect to TestNet
-	let provider = HttpProvider::new("https://testnet1.neo.org:443/")?;
-	let client = RpcClient::new(provider);
+	if let Ok(rpc_url) = std::env::var("NEO_RPC_URL") {
+		let provider = HttpProvider::new(rpc_url.as_str())?;
+		let client = RpcClient::new(provider);
 
-	if let Ok(_block_count) = client.get_block_count().await {
-		println!("   ✅ Connected to TestNet");
+		if let Ok(_block_count) = client.get_block_count().await {
+			println!("   ✅ Connected to Neo RPC");
 
-		// Get GAS total supply and convert to different formats
-		let gas_hash = ScriptHash::from_str("d2a4cff31913016155e38e474a2c06d08be276cf")?;
+			// Get GAS total supply and convert to different formats
+			let gas_hash = ScriptHash::from_str("d2a4cff31913016155e38e474a2c06d08be276cf")?;
 
-		match client.invoke_function(&gas_hash, "totalSupply".to_string(), vec![], None).await {
-			Ok(result) => {
-				if let Some(stack_item) = result.stack.first() {
-					if let Some(total_supply) = stack_item.as_int() {
-						let supply_u256 = U256::from(total_supply as u64);
+			match client.invoke_function(&gas_hash, "totalSupply".to_string(), vec![], None).await {
+				Ok(result) => {
+					if let Some(stack_item) = result.stack.first() {
+						if let Some(total_supply) = stack_item.as_int() {
+							let supply_u256 = U256::from(total_supply as u64);
 
-						println!("   ⛽ GAS Total Supply Conversions:");
-						println!("       Raw value: {supply_u256}");
-						println!("       As u64: {}", supply_u256.as_u64());
-						println!("       As string: {supply_u256}");
-						println!(
-							"       Human readable: {} GAS",
-							convert_to_token_amount(supply_u256, 8)
-						);
+							println!("   ⛽ GAS Total Supply Conversions:");
+							println!("       Raw value: {supply_u256}");
+							println!("       As u64: {}", supply_u256.as_u64());
+							println!("       As string: {supply_u256}");
+							println!(
+								"       Human readable: {} GAS",
+								convert_to_token_amount(supply_u256, 8)
+							);
 
-						// Convert to different bases
-						println!("       Hex: 0x{supply_u256:x}");
-						println!("       Scientific: {:.2e}", supply_u256.as_u64() as f64);
+							// Convert to different bases
+							println!("       Hex: 0x{supply_u256:x}");
+							println!("       Scientific: {:.2e}", supply_u256.as_u64() as f64);
 
-						// Convert to bytes for storage/transmission
-						let bytes = supply_u256.to_big_endian();
-						println!("       As bytes (first 8): {:?}...", &bytes[0..8]);
+							// Convert to bytes for storage/transmission
+							let bytes = supply_u256.to_big_endian();
+							println!("       As bytes (first 8): {:?}...", &bytes[0..8]);
+						}
 					}
-				}
-			},
-			Err(e) => println!("   ❌ Failed to get total supply: {e}"),
+				},
+				Err(e) => println!("   ❌ Failed to get total supply: {e}"),
+			}
 		}
+	} else {
+		println!("   ℹ️ Set NEO_RPC_URL to run the live network conversion (skipped).");
 	}
 
 	// 4. Safe conversion patterns

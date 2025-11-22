@@ -75,6 +75,19 @@
 use lazy_static::lazy_static;
 
 use crate::config::NeoConstants;
+
+/// Common interface for JSON-RPC transport errors so callers can inspect structured responses.
+pub trait RpcError: std::error::Error + Send + Sync {
+	/// Returns the underlying JSON-RPC error if available.
+	fn as_error_response(&self) -> Option<&rpc::JsonRpcError> {
+		None
+	}
+
+	/// Returns the underlying serde_json error if available.
+	fn as_serde_error(&self) -> Option<&serde_json::Error> {
+		None
+	}
+}
 pub use api_trait::*;
 pub use cache::{Cache, CacheConfig, CacheStats, RpcCache};
 pub use circuit_breaker::{
@@ -161,7 +174,7 @@ mod test_provider {
 		}
 
 		#[cfg(feature = "ws")]
-		pub async fn ws(&self) -> RpcClient<crate::Ws> {
+		pub async fn ws(&self) -> RpcClient<Ws> {
 			let url = format!(
 				"wss://{}.infura.neo.io/ws/v3/{}",
 				self.network,

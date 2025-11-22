@@ -2,7 +2,7 @@
 
 ## 🎉 **STATUS: FULLY RESOLVED**
 
-All major GitHub workflow issues have been successfully resolved. The NeoRust project is now **production-ready for v0.4.1 release**.
+All major GitHub workflow issues have been successfully resolved. This document captured the v0.4.1 state; the current SDK release is v0.5.2 (see main README).
 
 ## ✅ **What We Fixed**
 
@@ -77,7 +77,7 @@ We created comprehensive local CI scripts to catch issues before pushing:
 - **CLI Integration Tests**: Some tests fail due to CLI interface changes
 - **Clippy Warnings**: Minor style warnings that don't affect functionality
 
-## 🚀 **Ready for v0.4.1 Release**
+## 🚀 **Ready for v0.4.1 Release (historical)**
 
 The project is now **production-ready** with:
 - ✅ **Zero security vulnerabilities**

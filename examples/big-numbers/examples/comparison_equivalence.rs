@@ -1,3 +1,4 @@
+use neo3::prelude::U256;
 /// Neo N3 Big Number Comparison and Equivalence Example
 ///
 /// This example demonstrates how to compare and check equivalence of large numbers
@@ -6,7 +7,6 @@ use neo3::{
 	neo_clients::{APITrait, HttpProvider, RpcClient},
 	neo_types::ScriptHash,
 };
-use neo3::prelude::U256;
 use std::str::FromStr;
 
 #[tokio::main]
@@ -56,49 +56,53 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		println!("   ❌ Insufficient balance for transfer");
 	}
 
-	// 3. Real Neo N3 network token balance comparison
+	// 3. Real Neo N3 network token balance comparison (env-gated)
 	println!("\n3️⃣ Real Neo N3 Network Balance Comparison");
 
-	// Connect to TestNet
-	let provider = HttpProvider::new("https://testnet1.neo.org:443/")?;
-	let client = RpcClient::new(provider);
+	if let Ok(rpc_url) = std::env::var("NEO_RPC_URL") {
+		let provider = HttpProvider::new(rpc_url.as_str())?;
+		let client = RpcClient::new(provider);
 
-	if let Ok(block_count) = client.get_block_count().await {
-		println!("   ✅ Connected to TestNet (Block: {block_count})");
+		if let Ok(block_count) = client.get_block_count().await {
+			println!("   ✅ Connected to TestNet (Block: {block_count})");
 
-		// Get GAS total supply from network
-		let gas_hash = ScriptHash::from_str("d2a4cff31913016155e38e474a2c06d08be276cf")?;
+			// Get GAS total supply from network
+			let gas_hash = ScriptHash::from_str("d2a4cff31913016155e38e474a2c06d08be276cf")?;
 
-		match client.invoke_function(&gas_hash, "totalSupply".to_string(), vec![], None).await {
-			Ok(result) => {
-				if let Some(stack_item) = result.stack.first() {
-					if let Some(total_supply) = stack_item.as_int() {
-						let supply_u256 = U256::from(total_supply as u64);
-						println!(
-							"   ⛽ Actual GAS Total Supply: {}",
-							format_token_amount(supply_u256)
-						);
+			match client.invoke_function(&gas_hash, "totalSupply".to_string(), vec![], None).await {
+				Ok(result) => {
+					if let Some(stack_item) = result.stack.first() {
+						if let Some(total_supply) = stack_item.as_int() {
+							let supply_u256 = U256::from(total_supply as u64);
+							println!(
+								"   ⛽ Actual GAS Total Supply: {}",
+								format_token_amount(supply_u256)
+							);
 
-						// Compare with our calculated amounts
-						if supply_u256 > gas_amount {
-							println!("   📊 Actual supply is larger than our test amount");
-						}
+							// Compare with our calculated amounts
+							if supply_u256 > gas_amount {
+								println!("   📊 Actual supply is larger than our test amount");
+							}
 
-						// Check if supply exceeds certain thresholds
-						let billion_tokens =
-							U256::from(1_000_000_000u64) * U256::from(100_000_000u64);
-						let million_tokens = U256::from(1_000_000u64) * U256::from(100_000_000u64);
+							// Check if supply exceeds certain thresholds
+							let billion_tokens =
+								U256::from(1_000_000_000u64) * U256::from(100_000_000u64);
+							let million_tokens =
+								U256::from(1_000_000u64) * U256::from(100_000_000u64);
 
-						if supply_u256 >= billion_tokens {
-							println!("   🔥 Supply exceeds 1 billion tokens");
-						} else if supply_u256 >= million_tokens {
-							println!("   💰 Supply exceeds 1 million tokens");
+							if supply_u256 >= billion_tokens {
+								println!("   🔥 Supply exceeds 1 billion tokens");
+							} else if supply_u256 >= million_tokens {
+								println!("   💰 Supply exceeds 1 million tokens");
+							}
 						}
 					}
-				}
-			},
-			Err(e) => println!("   ❌ Failed to get total supply: {e}"),
+				},
+				Err(e) => println!("   ❌ Failed to get total supply: {e}"),
+			}
 		}
+	} else {
+		println!("   ℹ️ Set NEO_RPC_URL to run the live network comparison (skipped).");
 	}
 
 	// 4. Cryptographic hash comparisons

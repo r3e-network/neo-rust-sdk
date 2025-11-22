@@ -99,10 +99,10 @@ impl HDPath {
 	pub fn to_vec(&self) -> Vec<u32> {
 		match self {
 			HDPath::LedgerLive(index) => {
-				vec![44 + 0x80000000, 888 + 0x80000000, 0 + 0x80000000, 0, *index]
+				vec![44 + 0x80000000, 888 + 0x80000000, 0x80000000, 0, *index]
 			},
 			HDPath::Legacy(index) => {
-				vec![44 + 0x80000000, 888 + 0x80000000, 0 + 0x80000000, *index]
+				vec![44 + 0x80000000, 888 + 0x80000000, 0x80000000, *index]
 			},
 			HDPath::Custom(path) => path.clone(),
 		}

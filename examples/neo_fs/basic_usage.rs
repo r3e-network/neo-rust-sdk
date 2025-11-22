@@ -5,8 +5,7 @@ use neo3::neo_fs::{
 	container::Container,
 	object::Object,
 	types::{ContainerId, OwnerId},
-	NeoFSService,
-	ObjectType,
+	NeoFSService, ObjectType,
 };
 use reqwest::Client;
 use std::env;

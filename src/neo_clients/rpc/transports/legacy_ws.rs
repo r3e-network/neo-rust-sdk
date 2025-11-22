@@ -19,12 +19,12 @@ use serde_json::value::RawValue;
 use thiserror::Error;
 use tracing::trace;
 
-use crate::{
-	errors::ProviderError,
-	neo_clients::{JsonRpcClient, PubsubClient},
+use crate::neo_clients::{
 	rpc::transports::common::{JsonRpcError, Params, Request, Response},
+	JsonRpcProvider, ProviderError, PubsubClient, RpcClient, RpcError,
 };
 
+#[allow(unused_macros)]
 macro_rules! if_wasm {
     ($($item:item)*) => {$(
         #[cfg(target_arch = "wasm32")]
@@ -77,7 +77,7 @@ if_not_wasm! {
 	type WsError = tungstenite::Error;
 	type WsStreamItem = Result<Message, WsError>;
 	use super::Authorization;
-	use tracing::{debug, error, warn};
+	use tracing::{error, warn};
 	use http::Request as HttpRequest;
 	use tungstenite::client::IntoClientRequest;
 }
@@ -122,9 +122,14 @@ impl Debug for Ws {
 impl Ws {
 	/// Initializes a new WebSocket Client, given a Stream/Sink Websocket implementer.
 	/// The websocket connection must be initiated separately.
-	pub fn new<S: 'static>(ws: S) -> Self
+	pub fn new<S>(ws: S) -> Self
 	where
-		S: Send + Sync + Stream<Item = WsStreamItem> + Sink<Message, Error = WsError> + Unpin,
+		S: Send
+			+ Sync
+			+ Stream<Item = WsStreamItem>
+			+ Sink<Message, Error = WsError>
+			+ Unpin
+			+ 'static,
 	{
 		let (sink, stream) = mpsc::unbounded();
 		// Spawn the server
@@ -175,14 +180,14 @@ impl Ws {
 
 #[cfg_attr(target_arch = "wasm32", async_trait(? Send))]
 #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
-impl JsonRpcClient for Ws {
+impl JsonRpcProvider for Ws {
 	type Error = ClientError;
 
-	async fn fetch<T: Serialize + Send + Sync, R: DeserializeOwned>(
-		&self,
-		method: &str,
-		params: T,
-	) -> Result<R, ClientError> {
+	async fn fetch<T, R>(&self, method: &str, params: T) -> Result<R, ClientError>
+	where
+		T: Debug + Serialize + Send + Sync,
+		R: DeserializeOwned,
+	{
 		let next_id = self.id.fetch_add(1, Ordering::SeqCst);
 
 		// send the message
@@ -232,7 +237,6 @@ where
 {
 	/// Instantiates the Websocket Server
 	fn new(ws: S, requests: mpsc::UnboundedReceiver<Instruction>) -> Self {
-		env_logger::init();
 		Self {
 			// Fuse the 2 steams together, so that we can `select` them in the
 			// Stream implementation
@@ -263,7 +267,7 @@ where
 					break;
 				}
 
-				if let Err(e) = self.tick().await {
+				if let Err(_e) = self.tick().await {
 					// error!("Received a WebSocket error: {:?}", e);
 					self.close_all_subscriptions();
 					break;
@@ -500,7 +504,7 @@ pub enum ClientError {
 	RequestError(#[from] http::Error),
 }
 
-impl crate::neo_clients::RpcError for ClientError {
+impl RpcError for ClientError {
 	fn as_error_response(&self) -> Option<&super::JsonRpcError> {
 		if let ClientError::JsonRpcError(err) = self {
 			Some(err)
@@ -519,17 +523,40 @@ impl crate::neo_clients::RpcError for ClientError {
 
 impl From<ClientError> for ProviderError {
 	fn from(src: ClientError) -> Self {
-		ProviderError::JsonRpcClientError(Box::new(src))
+		match src {
+			ClientError::JsonRpcError(err) => ProviderError::JsonRpcError(err),
+			ClientError::JsonError(err) => ProviderError::SerdeJson(err),
+			ClientError::UnexpectedBinary(data) => ProviderError::CustomError(format!(
+				"Unexpected binary response: {}",
+				hex::encode(data)
+			)),
+			ClientError::ChannelError(msg) => ProviderError::CustomError(msg),
+			ClientError::Canceled(err) => ProviderError::CustomError(err.to_string()),
+			ClientError::TungsteniteError(err) => ProviderError::CustomError(err.to_string()),
+			#[cfg(not(target_arch = "wasm32"))]
+			ClientError::WsClosed(frame) => ProviderError::CustomError(format!("{frame:?}")),
+			#[cfg(target_arch = "wasm32")]
+			ClientError::WsClosed => ProviderError::CustomError("Websocket closed".into()),
+			ClientError::UnexpectedClose => {
+				ProviderError::CustomError("WebSocket connection closed unexpectedly".into())
+			},
+			#[cfg(not(target_arch = "wasm32"))]
+			ClientError::WsAuth(err) => ProviderError::CustomError(err.to_string()),
+			#[cfg(not(target_arch = "wasm32"))]
+			ClientError::UriError(err) => ProviderError::CustomError(err.to_string()),
+			#[cfg(not(target_arch = "wasm32"))]
+			ClientError::RequestError(err) => ProviderError::CustomError(err.to_string()),
+		}
 	}
 }
 
-#[cfg(all(test, feature = "legacy-ws", not(target_arch = "wasm32")))]
+#[allow(unexpected_cfgs)]
+#[cfg(all(test, feature = "legacy-ws", feature = "container-tests", not(target_arch = "wasm32")))]
 mod tests {
+	use super::{Ws, WsServer};
+	use crate::{neo_types::block::Block, prelude::U256};
 	use futures_channel::mpsc;
 	use futures_util::StreamExt;
-	use neo_types::block::Block;
-	use neo3::neo_clients::rpc::transports::legacy_ws::Ws;
-	use neo3::prelude::U256;
 	use testcontainers_modules::anvil::Anvil;
 
 	#[tokio::test]
@@ -545,7 +572,7 @@ mod tests {
 
 	#[tokio::test]
 	async fn subscription() {
-		use neo_types::TxHash;
+		use crate::neo_types::TxHash;
 
 		let anvil = Anvil::default().block_time(1u64).spawn();
 		let ws = Ws::connect(anvil.ws_endpoint()).await.unwrap();
@@ -577,20 +604,20 @@ mod tests {
 	}
 }
 
-impl crate::Provider<Ws> {
+impl RpcClient<Ws> {
 	/// Direct connection to a websocket endpoint
 	#[cfg(not(target_arch = "wasm32"))]
 	pub async fn connect(
 		url: impl tokio_tungstenite::tungstenite::client::IntoClientRequest + Unpin,
 	) -> Result<Self, ProviderError> {
-		let ws = crate::Ws::connect(url).await?;
+		let ws = Ws::connect(url).await?;
 		Ok(Self::new(ws))
 	}
 
 	/// Direct connection to a websocket endpoint
 	#[cfg(target_arch = "wasm32")]
 	pub async fn connect(url: &str) -> Result<Self, ProviderError> {
-		let ws = crate::Ws::connect(url).await?;
+		let ws = Ws::connect(url).await?;
 		Ok(Self::new(ws))
 	}
 
@@ -600,7 +627,7 @@ impl crate::Provider<Ws> {
 		url: impl tokio_tungstenite::tungstenite::client::IntoClientRequest + Unpin,
 		auth: Authorization,
 	) -> Result<Self, ProviderError> {
-		let ws = crate::Ws::connect_with_auth(url, auth).await?;
+		let ws = Ws::connect_with_auth(url, auth).await?;
 		Ok(Self::new(ws))
 	}
 }

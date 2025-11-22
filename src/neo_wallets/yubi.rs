@@ -1,17 +1,13 @@
 //! Helpers for creating wallets for YubiHSM2
+#[allow(unused_imports)]
+use crate::{
+	neo_clients::public_key_to_address, neo_crypto::Secp256r1PublicKey, neo_error::WalletError,
+	neo_wallets::WalletSigner, Address,
+};
 #[cfg(feature = "yubi")]
 use elliptic_curve::sec1::{FromEncodedPoint, ToEncodedPoint};
 #[cfg(feature = "yubi")]
 use p256::{NistP256, PublicKey};
-#[cfg(feature = "yubi")]
-use signature::Verifier;
-#[allow(unused_imports)]
-use crate::{
-	neo_crypto::Secp256r1PublicKey,
-	neo_error::WalletError,
-	neo_wallets::WalletSigner,
-	Address,
-};
 #[cfg(feature = "yubi")]
 use yubihsm::{
 	asymmetric::Algorithm::EcP256, ecdsa::Signer as YubiSigner, object, object::Label, Capability,
@@ -130,7 +126,7 @@ impl From<YubiSigner<NistP256>> for WalletSigner<YubiSigner<NistP256>> {
 		// The first byte can be either 0x02 or 0x03 for compressed public keys
 		debug_assert!(public_key[0] == 0x02 || public_key[0] == 0x03);
 
-		let secp_public_key = match Secp256r1PublicKey::from_bytes(&public_key) {
+		let secp_public_key = match Secp256r1PublicKey::from_bytes(public_key) {
 			Ok(key) => key,
 			Err(_) => {
 				eprintln!("Warning: Failed to convert YubiSigner public key to Secp256r1PublicKey, using zero address as fallback");
@@ -151,6 +147,8 @@ mod tests {
 	use std::str::FromStr;
 
 	use super::*;
+	#[cfg(feature = "mock-hsm")]
+	use signature::Verifier;
 
 	#[cfg(feature = "mock-hsm")]
 	#[tokio::test]

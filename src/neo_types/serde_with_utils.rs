@@ -308,9 +308,9 @@ where
 {
 	let opt: Option<String> = Option::deserialize(deserializer)?;
 	match opt {
-		Some(s) => parse_string_u64(&s)
-			.map(Some)
-			.map_err(|e| serde::de::Error::custom(format!("Failed to parse u64 from '{}': {}", s, e))),
+		Some(s) => parse_string_u64(&s).map(Some).map_err(|e| {
+			serde::de::Error::custom(format!("Failed to parse u64 from '{}': {}", s, e))
+		}),
 		None => Ok(None),
 	}
 }
@@ -1155,10 +1155,7 @@ mod test {
 
 	#[derive(Clone, Default, Debug, Serialize, Deserialize, PartialEq, Eq)]
 	struct OptionalHeights {
-		#[serde(
-			serialize_with = "serialize_u64",
-			deserialize_with = "deserialize_u64"
-		)]
+		#[serde(serialize_with = "serialize_u64", deserialize_with = "deserialize_u64")]
 		current: u64,
 		#[serde(
 			serialize_with = "serialize_u64_option",

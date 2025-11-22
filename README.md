@@ -85,6 +85,47 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
+### Choose Your Transport (HTTP / WS / IPC / Mock)
+
+```rust
+use neo3::neo_clients::{HttpProvider, RpcClient};
+
+// 1) HTTP (default, no extra feature flags)
+let http = HttpProvider::new("https://testnet1.neo.org:443")?;
+let client = RpcClient::new(http);
+
+// 2) Modern WebSocket client (enable the `ws` feature)
+#[cfg(feature = "ws")]
+{
+    use neo3::neo_clients::rpc::transports::Ws;
+    let ws = Ws::connect("wss://testnet1.neo.org:443/ws").await?;
+    let client = RpcClient::new(ws);
+}
+
+// 3) IPC (enable the `ipc` feature)
+#[cfg(feature = "ipc")]
+{
+    use neo3::neo_clients::rpc::transports::Ipc;
+    let ipc = Ipc::connect("/tmp/neo.ipc").await?;
+    let client = RpcClient::new(ipc);
+}
+
+// 4) Offline-friendly mock (great for tests/CI)
+use neo3::neo_clients::MockClient;
+let mut mock = MockClient::new().await;
+mock.mock_get_block_count(1_000).await;
+mock.mount_mocks().await;
+let client = RpcClient::new(HttpProvider::new(mock.url())?);
+```
+
+### Feature Flags
+
+- `ws`: enable the modern WebSocket transport
+- `ipc`: enable IPC (Unix domain sockets / Windows named pipes)
+- `legacy-ws`: legacy WebSocket compatibility layer (fallback)
+- `ledger`, `yubi`: opt into hardware wallet support
+- `no_std`, `sgx`: specialized environments
+
 ### WebSocket Real-time Events
 
 ```rust
@@ -247,6 +288,7 @@ Explore our comprehensive examples:
 - **Advanced Features**: Multi-sig wallets, hardware wallet integration
 - **DeFi Integration**: Interact with popular Neo DeFi protocols
 - **Neo X**: Cross-chain bridge operations
+- **Live RPC (optional)**: Set `NEO_RPC_URL` to point examples at your preferred node; otherwise they run offline-friendly paths.
 
 See the [examples directory](examples/) for full code samples.
 

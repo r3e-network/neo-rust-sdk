@@ -18,9 +18,9 @@ use manager::{RequestManager, SharedChannelMap};
 pub use types::ConnectionDetails;
 use types::*;
 
+use crate::neo_clients::{JsonRpcProvider, ProviderError, PubsubClient, RpcClient};
 #[cfg(not(target_arch = "wasm32"))]
 use crate::Authorization;
-use crate::{JsonRpcClient, ProviderError, PubsubClient};
 
 mod backend;
 
@@ -111,12 +111,12 @@ impl fmt::Debug for WsClient {
 
 #[cfg_attr(target_arch = "wasm32", async_trait(? Send))]
 #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
-impl JsonRpcClient for WsClient {
+impl JsonRpcProvider for WsClient {
 	type Error = WsClientError;
 
 	async fn fetch<T, R>(&self, method: &str, params: T) -> Result<R, WsClientError>
 	where
-		T: Serialize + Send + Sync,
+		T: Debug + Serialize + Send + Sync,
 		R: DeserializeOwned,
 	{
 		let params = to_raw_value(&params)?;
@@ -147,7 +147,7 @@ impl PubsubClient for WsClient {
 	}
 }
 
-impl crate::Provider<WsClient> {
+impl RpcClient<WsClient> {
 	/// Direct connection to a websocket endpoint. Defaults to 5 reconnects.
 	///
 	/// # Examples
@@ -155,10 +155,9 @@ impl crate::Provider<WsClient> {
 	/// Connect to server via URL
 	///
 	/// ```
-	/// use neo_clients::{Ws, Provider};
-	/// use neo_clients::Middleware;
+	/// use neo_clients::{Ws, RpcClient};
 	/// # async fn t() {
-	///     let ws = Provider::<Ws>::connect("ws://localhost:8545").await.unwrap();
+	///     let ws = RpcClient::<Ws>::connect("ws://localhost:8545").await.unwrap();
 	///     let _num = ws.get_block_number().await.unwrap();
 	/// # }
 	/// ```
@@ -166,16 +165,16 @@ impl crate::Provider<WsClient> {
 	/// Connect with authentication, see also [Self::connect_with_auth]
 	///
 	/// ```
-	/// use neo_clients::{Ws, Provider, Middleware, ConnectionDetails, Authorization };
+	/// use neo_clients::{Ws, RpcClient, ConnectionDetails, Authorization };
 	/// # async fn t() {
 	///     let auth = Authorization::basic("user", "pass");
 	///     let opts = ConnectionDetails::new("ws://localhost:8545", Some(auth));
-	///     let ws = Provider::<Ws>::connect(opts).await.unwrap();
+	///     let ws = RpcClient::<Ws>::connect(opts).await.unwrap();
 	///     let _num = ws.get_block_number().await.unwrap();
 	/// # }
 	/// ```
 	pub async fn connect(url: impl Into<ConnectionDetails>) -> Result<Self, ProviderError> {
-		let ws = crate::Ws::connect(url).await?;
+		let ws = WsClient::connect(url).await?;
 		Ok(Self::new(ws))
 	}
 
@@ -185,7 +184,7 @@ impl crate::Provider<WsClient> {
 		url: impl Into<ConnectionDetails>,
 		reconnects: usize,
 	) -> Result<Self, ProviderError> {
-		let ws = crate::Ws::connect_with_reconnects(url, reconnects).await?;
+		let ws = WsClient::connect_with_reconnects(url, reconnects).await?;
 		Ok(Self::new(ws))
 	}
 
@@ -196,7 +195,7 @@ impl crate::Provider<WsClient> {
 		auth: Authorization,
 	) -> Result<Self, ProviderError> {
 		let conn = ConnectionDetails::new(url, Some(auth));
-		let ws = crate::Ws::connect(conn).await?;
+		let ws = WsClient::connect(conn).await?;
 		Ok(Self::new(ws))
 	}
 

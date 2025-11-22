@@ -1,4 +1,4 @@
-# NeoRust v0.4.2 - Complete Neo N3 Development Suite
+# NeoRust v0.5.2 - Complete Neo N3 Development Suite
 
 <div align="center">
   <h1>🚀 NeoRust - Production-Ready Neo N3 SDK</h1>
@@ -23,6 +23,7 @@
 - 💻 **Powerful CLI** - Professional command-line interface
 - 📚 **Comprehensive SDK** - Production-ready Rust library
 - 🔧 **Developer Tools** - Everything you need to build on Neo
+- 🌐 **Flexible Transports** - HTTP by default, opt-in WebSocket/IPC support, and mockable clients for tests/CI
 
 ## 🎯 Three Ways to Use NeoRust
 
@@ -78,15 +79,16 @@ cargo build --release
 
 ```toml
 [dependencies]
-neo3 = "0.4.2"
+neo3 = "0.5.2"
 ```
 
 ```rust,no_run
 use neo3::prelude::*;
+use neo3::neo_clients::{HttpProvider, RpcClient};
 
 async fn example() -> Result<(), Box<dyn std::error::Error>> {
-    // Connect to Neo N3
-    let provider = HttpProvider::new("https://testnet1.neo.coz.io:443")?;
+    // Connect to Neo N3 over HTTP (enable the `ws` or `ipc` features to swap transports)
+    let provider = HttpProvider::new("https://testnet1.neo.org:443")?;
     let client = RpcClient::new(provider);
     
     // Create wallet
@@ -99,6 +101,32 @@ async fn example() -> Result<(), Box<dyn std::error::Error>> {
     println!("Block height: {}", block_count);
     
     Ok(())
+}
+```
+
+### Transport Options
+
+```rust
+use neo3::neo_clients::{HttpProvider, RpcClient};
+
+// HTTP (default, no feature flags)
+let http = HttpProvider::new("https://testnet1.neo.org:443")?;
+let client = RpcClient::new(http);
+
+// WebSocket (enable the `ws` feature)
+#[cfg(feature = "ws")]
+{
+    use neo3::neo_clients::rpc::transports::Ws;
+    let ws = Ws::connect("wss://testnet1.neo.org:443/ws").await?;
+    let client = RpcClient::new(ws);
+}
+
+// IPC (enable the `ipc` feature)
+#[cfg(feature = "ipc")]
+{
+    use neo3::neo_clients::rpc::transports::Ipc;
+    let ipc = Ipc::connect("/tmp/neo.ipc").await?;
+    let client = RpcClient::new(ipc);
 }
 ```
 
@@ -213,7 +241,7 @@ cargo build --release
 #### For Integration (SDK)
 ```toml
 [dependencies]
-neo3 = "0.4.2"
+neo3 = "0.5.2"
 ```
 
 ### Step 2: Create Your First Wallet
@@ -439,6 +467,7 @@ neo-cli contract invoke --hash "0x..." --method "test" --network testnet
 - **[Advanced Examples](./examples/advanced/)**: Complex integration patterns
 - **[Best Practices](./examples/best-practices/)**: Production-ready patterns
 - **[Performance Optimization](./examples/performance/)**: High-performance techniques
+- **Live RPC toggle**: Set `NEO_RPC_URL` to point examples at a live node; otherwise they follow offline-friendly paths where applicable.
 
 ## 🌐 Community & Support
 

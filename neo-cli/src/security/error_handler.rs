@@ -208,16 +208,24 @@ impl ErrorHandler {
 		F: Fn() -> Fut,
 		Fut: Future<Output = Result<T, CliError>>,
 	{
-		let mut breakers = self.circuit_breakers.lock().unwrap();
-		let breaker = breakers
-			.entry(name.to_string())
-			.or_insert_with(|| CircuitBreaker::new(threshold, timeout));
+		{
+			let mut breakers = self.circuit_breakers.lock().unwrap();
+			let breaker = breakers
+				.entry(name.to_string())
+				.or_insert_with(|| CircuitBreaker::new(threshold, timeout));
 
-		if !breaker.is_closed() {
-			return Err(CliError::Network(format!("Circuit breaker {} is open", name)));
+			if !breaker.is_closed() {
+				return Err(CliError::Network(format!("Circuit breaker {} is open", name)));
+			}
 		}
 
-		match operation().await {
+		let result = operation().await;
+
+		let mut breakers = self.circuit_breakers.lock().unwrap();
+		let breaker =
+			breakers.entry(name.to_string()).or_insert_with(|| CircuitBreaker::new(threshold, timeout));
+
+		match result {
 			Ok(result) => {
 				breaker.on_success();
 				Ok(result)

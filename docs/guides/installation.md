@@ -13,7 +13,7 @@ Add NeoRust to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-neo3 = "0.4.2"
+neo3 = "0.5.2"
 ```
 
 Note: The crate is published as `neo3` but is imported as `neo` in code:
@@ -27,15 +27,17 @@ use neo3::prelude::*;
 NeoRust provides several features to customize functionality:
 
 - `futures`: Enables async/futures support (recommended)
+- `ws`: Enables the modern WebSocket transport
+- `ipc`: Enables IPC (Unix domain sockets / Windows named pipes) transport
 - `ledger`: Enables hardware wallet support via Ledger devices
-- `aws`: Enables AWS KMS integration
-- `mock-hsm`: Enables mock hardware security module for development/testing
+- `yubi` / `mock-hsm`: YubiHSM support and its mock for testing
+- `legacy-ws`: Compatibility WebSocket transport (fallback)
 
 Example of enabling specific features:
 
 ```toml
 [dependencies]
-neo3 = { version = "0.4.2", features = ["futures", "ledger"] }
+neo3 = { version = "0.5.2", features = ["futures", "ws", "ledger"] }
 ```
 
 ### Development vs Production Features
@@ -44,21 +46,21 @@ For development and testing, you can enable mock functionality:
 
 ```toml
 [dependencies]
-neo3 = { version = "0.4.2", features = ["futures", "mock-hsm"] }
+neo3 = { version = "0.5.2", features = ["futures", "mock-hsm"] }
 ```
 
 For production builds, avoid mock features:
 
 ```toml
 [dependencies]
-neo3 = { version = "0.4.2", features = ["futures", "ledger", "aws"] }
+neo3 = { version = "0.5.2", features = ["futures", "ws", "ipc", "ledger"] }
 ```
 
 You can disable default features with:
 
 ```toml
 [dependencies]
-neo3 = { version = "0.4.2", default-features = false, features = ["futures"] }
+neo3 = { version = "0.5.2", default-features = false, features = ["futures"] }
 ```
 
 ## Build Configuration

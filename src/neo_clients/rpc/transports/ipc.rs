@@ -1,6 +1,7 @@
 use std::{
 	cell::RefCell,
 	convert::Infallible,
+	fmt::Debug,
 	hash::BuildHasherDefault,
 	io,
 	path::Path,
@@ -14,10 +15,7 @@ use std::{
 use async_trait::async_trait;
 use bytes::{Buf, BytesMut};
 use futures_channel::mpsc;
-use futures_util::{
-	io::{ReadHalf, WriteHalf},
-	stream::StreamExt,
-};
+use futures_util::stream::StreamExt;
 use primitive_types::U256;
 use serde::{de::DeserializeOwned, Serialize};
 use serde_json::{value::RawValue, Deserializer};
@@ -30,12 +28,7 @@ use tokio::{
 
 use hashers::fx_hash::FxHasher64;
 
-use crate::neo_clients::{
-	rpc::connections::JsonRpcProvider,
-	JsonRpcClient,
-	ProviderError,
-	PubsubClient,
-};
+use crate::neo_clients::{JsonRpcProvider, ProviderError, PubsubClient, RpcError};
 
 use super::common::{JsonRpcError, Params, Request, Response};
 
@@ -55,6 +48,7 @@ mod imp {
 	pub(super) type ReadHalf<'a> = tokio::io::ReadHalf<&'a mut UnixStream>;
 	pub(super) type WriteHalf<'a> = tokio::io::WriteHalf<&'a mut UnixStream>;
 
+	#[allow(dead_code)]
 	pub(super) async fn connect(path: impl AsRef<std::path::Path>) -> std::io::Result<Stream> {
 		UnixStream::connect(path).await
 	}
@@ -68,7 +62,9 @@ mod imp {
 #[doc(hidden)]
 mod imp {
 	use std::{
+		io,
 		ops::{Deref, DerefMut},
+		path::Path,
 		pin::Pin,
 		task::{Context, Poll},
 		time::Duration,
@@ -228,6 +224,10 @@ mod imp {
 			self.poll_flush(cx)
 		}
 	}
+
+	pub(super) fn split(stream: &mut Stream) -> (ReadHalf<'_>, WriteHalf<'_>) {
+		stream.split()
+	}
 }
 
 #[cfg_attr(unix, doc = "A JSON-RPC Client over Unix IPC.")]
@@ -286,14 +286,14 @@ impl Ipc {
 }
 
 #[async_trait]
-impl JsonRpcClient for Ipc {
+impl JsonRpcProvider for Ipc {
 	type Error = IpcError;
 
-	async fn fetch<T: Serialize + Send + Sync, R: DeserializeOwned>(
-		&self,
-		method: &str,
-		params: T,
-	) -> Result<R, IpcError> {
+	async fn fetch<T, R>(&self, method: &str, params: T) -> Result<R, IpcError>
+	where
+		T: Debug + Serialize + Send + Sync,
+		R: DeserializeOwned,
+	{
 		let next_id = self.id.fetch_add(1, Ordering::SeqCst);
 
 		// Create the request and initialize the response channel
@@ -359,17 +359,18 @@ async fn run_ipc_server(mut stream: Stream, request_rx: mpsc::UnboundedReceiver<
 
 	// split the stream and run two independent concurrently (local), thereby
 	// allowing reads and writes to occurr concurrently
-	let (reader, writer) = stream.split();
+	let (reader, writer) = split(&mut stream);
 	let read = shared.handle_ipc_reads(reader);
 	let write = shared.handle_ipc_writes(writer, request_rx);
 
 	// run both loops concurrently, until either encounts an error
-	if let Err(e) = futures_util::try_join!(read, write) {
-		match e {
+	match futures_util::try_join!(read, write) {
+		Err(e) => match e {
 			IpcError::ServerExit => {},
 			err => tracing::error!(?err, "exiting IPC server due to error"),
-		}
-	}
+		},
+		Ok(_) => unreachable!("IPC read/write futures are infallible"),
+	};
 }
 
 struct Shared {
@@ -469,7 +470,7 @@ impl Shared {
 
 		// a failure to send the response indicates that the pending request has
 		// been dropped in the mean time
-		let _ = response_tx.send(result.map_err(Into::into));
+		let _ = response_tx.send(result);
 	}
 
 	/// Sends notification through the channel based on the ID of the subscription.
@@ -524,11 +525,18 @@ pub enum IpcError {
 
 impl From<IpcError> for ProviderError {
 	fn from(src: IpcError) -> Self {
-		ProviderError::JsonRpcClientError(Box::new(src))
+		match src {
+			IpcError::JsonRpcError(err) => ProviderError::JsonRpcError(err),
+			IpcError::JsonError(err) => ProviderError::SerdeJson(err),
+			IpcError::IoError(err) => ProviderError::CustomError(err.to_string()),
+			IpcError::ChannelError(msg) => ProviderError::CustomError(msg),
+			IpcError::RequestCancelled(err) => ProviderError::CustomError(err.to_string()),
+			IpcError::ServerExit => ProviderError::CustomError("The IPC server has exited".into()),
+		}
 	}
 }
 
-impl crate::neo_clients::RpcError for IpcError {
+impl RpcError for IpcError {
 	fn as_error_response(&self) -> Option<&super::JsonRpcError> {
 		if let IpcError::JsonRpcError(err) = self {
 			Some(err)
@@ -545,17 +553,19 @@ impl crate::neo_clients::RpcError for IpcError {
 	}
 }
 
-#[cfg(all(test, feature = "ipc", not(target_arch = "wasm32")))]
+#[allow(unexpected_cfgs)]
+#[cfg(all(test, feature = "ipc", feature = "container-tests", not(target_arch = "wasm32")))]
 mod tests {
 	use std::time::Duration;
 
 	use tempfile::NamedTempFile;
 
-	use futures_channel::mpsc;
+	use super::Ipc;
+	use crate::{
+		neo_types::{block::Block, TxHash},
+		prelude::U256,
+	};
 	use futures_util::StreamExt;
-	use neo_types::{block::Block, TxHash};
-	use neo3::neo_clients::rpc::transports::ipc::Ipc;
-	use neo3::prelude::U256;
 	use testcontainers_modules::geth::{Geth, GethInstance};
 
 	async fn connect() -> (Ipc, GethInstance) {

@@ -387,7 +387,7 @@ mod tests {
 			help: "Test gauge metric".to_string(),
 			metric_type: MetricType::Gauge,
 			labels: HashMap::from([("env".to_string(), "test".to_string())]),
-			value: MetricValue::Gauge(3.14),
+			value: MetricValue::Gauge(std::f64::consts::PI),
 			timestamp: Instant::now(),
 		});
 

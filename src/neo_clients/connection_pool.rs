@@ -289,6 +289,9 @@ impl ConnectionPool {
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use crate::{neo_clients::MockClient, neo_protocol::NeoVersion};
+	use std::sync::Arc;
+	use tokio::sync::Mutex;
 
 	#[tokio::test]
 	async fn test_pool_creation() {
@@ -301,10 +304,20 @@ mod tests {
 	}
 
 	#[tokio::test]
-	#[ignore = "requires live RPC endpoint"]
 	async fn test_pool_stats() {
+		let mock = Arc::new(Mutex::new(MockClient::new().await));
+		{
+			let mut guard = mock.lock().await;
+			guard.mock_get_version(NeoVersion::default()).await;
+			guard.mount_mocks().await;
+		}
+
+		let endpoint = {
+			let guard = mock.lock().await;
+			guard.url().to_string()
+		};
 		let config = PoolConfig { max_connections: 2, ..Default::default() };
-		let pool = ConnectionPool::new("https://testnet.neo.org:443".to_string(), config);
+		let pool = ConnectionPool::new(endpoint, config);
 
 		// Execute a simple operation
 		let _result = pool

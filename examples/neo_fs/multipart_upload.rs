@@ -27,8 +27,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 	let container_id = ContainerId(Uuid::new_v4().to_string());
 	let owner_id = OwnerId(wallet.unwrap_or_else(|| "owner-demo-address".into()));
-	let object =
-		Object::new(container_id.clone(), owner_id.clone()).with_payload(vec![0u8; 256]);
+	let object = Object::new(container_id.clone(), owner_id.clone()).with_payload(vec![0u8; 256]);
 
 	// Prepare a 256KB payload and split into 64KB parts
 	let total_size = 256 * 1024;

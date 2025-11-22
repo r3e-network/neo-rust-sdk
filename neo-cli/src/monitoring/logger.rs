@@ -331,7 +331,7 @@ impl AuditLogger {
 		};
 
 		let json = serde_json::to_string(&entry)
-			.map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+			.map_err(std::io::Error::other)?;
 
 		let mut file = OpenOptions::new().create(true).append(true).open(&self.file_path)?;
 

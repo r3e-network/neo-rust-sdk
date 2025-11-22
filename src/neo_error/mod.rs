@@ -87,6 +87,9 @@ pub enum WalletError {
 	#[error("Recovery operation failed: {0}")]
 	RecoveryFailed(String),
 
+	#[error("YubiHSM error: {0}")]
+	YubiHsmError(String),
+
 	#[error("Invalid wallet format: {0}")]
 	InvalidFormat(String),
 

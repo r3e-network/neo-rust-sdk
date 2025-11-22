@@ -1,8 +1,9 @@
-# Rate Limiting Guide - NeoRust v0.4.4
+# Rate Limiting Guide - NeoRust (historical v0.4.4)
+> Authored for v0.4.4; APIs remain available, but the current SDK release is v0.5.2. See the main README/crate docs for any updates.
 
 ## Overview
 
-NeoRust v0.4.4 introduces a sophisticated rate limiting system based on the token bucket algorithm, designed to protect Neo N3 nodes from being overwhelmed while maintaining optimal throughput for your applications.
+NeoRust introduced a sophisticated rate limiting system based on the token bucket algorithm, designed to protect Neo N3 nodes from being overwhelmed while maintaining optimal throughput for your applications.
 
 ## Why Rate Limiting?
 

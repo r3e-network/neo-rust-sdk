@@ -115,6 +115,11 @@ To use **MainNet**, update RPC endpoints in examples:
 - **MainNet RPC**: `https://mainnet1.neo.org:443/`
 - **Explorer**: [MainNet Neotube](https://neotube.io/)
 
+Environment toggles:
+- Set `NEO_RPC_URL` to point examples at a specific node (otherwise they use TestNet defaults or skip live calls when possible).
+- Some examples include mock/offline paths; they will print a hint when a live RPC URL is required.
+- Feature flags: enable `ws` for WebSocket transport and `ipc` for IPC transport when running examples that use those clients.
+
 ## 🔧 **Troubleshooting**
 
 ### **Common Issues**

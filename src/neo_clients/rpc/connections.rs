@@ -20,3 +20,6 @@ pub trait JsonRpcProvider: Debug + Send + Sync {
 		T: Debug + Serialize + Send + Sync,
 		R: DeserializeOwned + Send;
 }
+
+/// Backwards-compatible alias for `JsonRpcProvider`.
+pub use JsonRpcProvider as JsonRpcClient;

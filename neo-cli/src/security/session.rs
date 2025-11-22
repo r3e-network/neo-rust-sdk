@@ -84,10 +84,13 @@ impl Session {
 }
 
 /// Session manager for handling user sessions
+type AuthCallbackMap =
+	Arc<RwLock<HashMap<String, Box<dyn Fn(&Session) -> bool + Send + Sync>>>>;
+
 pub struct SessionManager {
 	sessions: Arc<RwLock<HashMap<String, Session>>>,
 	config: SessionConfig,
-	auth_callbacks: Arc<RwLock<HashMap<String, Box<dyn Fn(&Session) -> bool + Send + Sync>>>>,
+	auth_callbacks: AuthCallbackMap,
 }
 
 impl SessionManager {
@@ -144,12 +147,10 @@ impl SessionManager {
 		}
 
 		// Check idle timeout
-		if session.is_idle(self.config.idle_timeout) {
-			if self.config.require_reauth {
-				return Err(CliError::Security(
-					"Session idle, re-authentication required".to_string(),
-				));
-			}
+		if session.is_idle(self.config.idle_timeout) && self.config.require_reauth {
+			return Err(CliError::Security(
+				"Session idle, re-authentication required".to_string(),
+			));
 		}
 
 		// Update activity

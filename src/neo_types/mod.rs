@@ -105,7 +105,7 @@ pub mod serde_with_utils;
 
 mod address;
 mod address_or_scripthash;
-mod block;
+pub mod block;
 mod bytes;
 mod numeric;
 mod op_code;
