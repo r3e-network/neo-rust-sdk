@@ -6,7 +6,7 @@ use neo3::{
 	neo_clients::{APITrait, HttpProvider, RpcClient},
 	neo_types::ScriptHash,
 };
-use primitive_types::U256;
+use neo3::prelude::U256;
 use std::str::FromStr;
 
 #[tokio::main]

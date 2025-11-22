@@ -4,7 +4,6 @@ use crate::{
 	neo_types::{AddressExtension, ContractABI},
 	prelude::*,
 };
-use ethereum_types::H160;
 use std::{collections::HashMap, str::FromStr};
 
 #[cfg(test)]

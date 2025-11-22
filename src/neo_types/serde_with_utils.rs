@@ -298,6 +298,29 @@ where
 	})
 }
 
+pub fn serialize_u64_option<S>(item: &Option<u64>, serializer: S) -> Result<S::Ok, S::Error>
+where
+	S: Serializer,
+{
+	match item {
+		Some(value) => serialize_u64(value, serializer),
+		None => serializer.serialize_none(),
+	}
+}
+
+pub fn deserialize_u64_option<'de, D>(deserializer: D) -> Result<Option<u64>, D::Error>
+where
+	D: Deserializer<'de>,
+{
+	let opt: Option<String> = Option::deserialize(deserializer)?;
+	match opt {
+		Some(s) => parse_string_u64(&s)
+			.map(Some)
+			.map_err(|e| serde::de::Error::custom(format!("Failed to parse u64 from '{}': {}", s, e))),
+		None => Ok(None),
+	}
+}
+
 pub fn deserialize_script_hash<'de, D>(deserializer: D) -> Result<ScriptHash, D::Error>
 where
 	D: Deserializer<'de>,

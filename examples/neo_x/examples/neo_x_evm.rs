@@ -1,4 +1,4 @@
-use primitive_types::U256;
+use neo3::prelude::U256;
 
 /// Example demonstrating Neo X EVM compatibility layer with real interactions.
 /// Neo X provides full EVM compatibility while maintaining connection to Neo N3.
@@ -360,8 +360,7 @@ fn encode_transfer(recipient: &str, amount: U256) -> Vec<u8> {
 	data.extend_from_slice(&[0u8; 12]);
 	data.extend_from_slice(&recipient_bytes);
 	// Amount (32 bytes)
-	let mut amount_bytes = [0u8; 32];
-	amount.to_big_endian(&mut amount_bytes);
+	let amount_bytes = amount.to_big_endian();
 	data.extend_from_slice(&amount_bytes);
 	data
 }

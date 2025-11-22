@@ -1,6 +1,11 @@
 //! Types for `neo_syncing` RPC call
 
-use ethereum_types::U64;
+use crate::neo_types::{
+	deserialize_u64,
+	deserialize_u64_option,
+	serialize_u64,
+	serialize_u64_option,
+};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// Structure used in `neo_syncing` RPC
@@ -67,69 +72,86 @@ impl<'de> Deserialize<'de> for SyncingStatus {
 /// Struct to track progress of node syncing
 pub struct SyncProgress {
 	/// Current block number we've processed
-	pub current_block: U64,
+	#[serde(deserialize_with = "deserialize_u64", serialize_with = "serialize_u64")]
+	pub current_block: u64,
 
 	/// Highest known block number on the chain
-	pub highest_block: U64,
+	#[serde(deserialize_with = "deserialize_u64", serialize_with = "serialize_u64")]
+	pub highest_block: u64,
 
 	/// Block number we started syncing from
-	pub starting_block: U64,
+	#[serde(deserialize_with = "deserialize_u64", serialize_with = "serialize_u64")]
+	pub starting_block: u64,
 
 	/// Number of state entries pulled so far (optional)
 	#[serde(default, skip_serializing_if = "Option::is_none")]
-	pub pulled_states: Option<U64>,
+	#[serde(deserialize_with = "deserialize_u64_option", serialize_with = "serialize_u64_option")]
+	pub pulled_states: Option<u64>,
 
 	/// Total number of known state entries (optional)
 	#[serde(default, skip_serializing_if = "Option::is_none")]
-	pub known_states: Option<U64>,
+	#[serde(deserialize_with = "deserialize_u64_option", serialize_with = "serialize_u64_option")]
+	pub known_states: Option<u64>,
 
 	/// Bytes of bytecodes healed
 	#[serde(default, skip_serializing_if = "Option::is_none")]
-	pub healed_bytecode_bytes: Option<U64>,
+	#[serde(deserialize_with = "deserialize_u64_option", serialize_with = "serialize_u64_option")]
+	pub healed_bytecode_bytes: Option<u64>,
 
 	/// Number of bytecode entries healed
 	#[serde(default, skip_serializing_if = "Option::is_none")]
-	pub healed_bytecodes: Option<U64>,
+	#[serde(deserialize_with = "deserialize_u64_option", serialize_with = "serialize_u64_option")]
+	pub healed_bytecodes: Option<u64>,
 
 	/// Bytes of trie nodes healed
 	#[serde(default, skip_serializing_if = "Option::is_none")]
-	pub healed_trienode_bytes: Option<U64>,
+	#[serde(deserialize_with = "deserialize_u64_option", serialize_with = "serialize_u64_option")]
+	pub healed_trienode_bytes: Option<u64>,
 
 	/// Number of trie nodes healed
 	#[serde(default, skip_serializing_if = "Option::is_none")]
-	pub healed_trienodes: Option<U64>,
+	#[serde(deserialize_with = "deserialize_u64_option", serialize_with = "serialize_u64_option")]
+	pub healed_trienodes: Option<u64>,
 
 	/// Bytecode entries currently healing
 	#[serde(default, skip_serializing_if = "Option::is_none")]
-	pub healing_bytecode: Option<U64>,
+	#[serde(deserialize_with = "deserialize_u64_option", serialize_with = "serialize_u64_option")]
+	pub healing_bytecode: Option<u64>,
 
 	/// Trie nodes currently healing
 	#[serde(default, skip_serializing_if = "Option::is_none")]
-	pub healing_trienodes: Option<U64>,
+	#[serde(deserialize_with = "deserialize_u64_option", serialize_with = "serialize_u64_option")]
+	pub healing_trienodes: Option<u64>,
 
 	/// Bytes of account data synced
 	#[serde(default, skip_serializing_if = "Option::is_none")]
-	pub synced_account_bytes: Option<U64>,
+	#[serde(deserialize_with = "deserialize_u64_option", serialize_with = "serialize_u64_option")]
+	pub synced_account_bytes: Option<u64>,
 
 	/// Accounts synced
 	#[serde(default, skip_serializing_if = "Option::is_none")]
-	pub synced_accounts: Option<U64>,
+	#[serde(deserialize_with = "deserialize_u64_option", serialize_with = "serialize_u64_option")]
+	pub synced_accounts: Option<u64>,
 
 	/// Bytes of bytecode synced
 	#[serde(default, skip_serializing_if = "Option::is_none")]
-	pub synced_bytecode_bytes: Option<U64>,
+	#[serde(deserialize_with = "deserialize_u64_option", serialize_with = "serialize_u64_option")]
+	pub synced_bytecode_bytes: Option<u64>,
 
 	/// Bytecode entries synced
 	#[serde(default, skip_serializing_if = "Option::is_none")]
-	pub synced_bytecodes: Option<U64>,
+	#[serde(deserialize_with = "deserialize_u64_option", serialize_with = "serialize_u64_option")]
+	pub synced_bytecodes: Option<u64>,
 
 	/// Storage entries synced
 	#[serde(default, skip_serializing_if = "Option::is_none")]
-	pub synced_storage: Option<U64>,
+	#[serde(deserialize_with = "deserialize_u64_option", serialize_with = "serialize_u64_option")]
+	pub synced_storage: Option<u64>,
 
 	/// Bytes of storage synced
 	#[serde(default, skip_serializing_if = "Option::is_none")]
-	pub synced_storage_bytes: Option<U64>,
+	#[serde(deserialize_with = "deserialize_u64_option", serialize_with = "serialize_u64_option")]
+	pub synced_storage_bytes: Option<u64>,
 }
 
 #[cfg(test)]

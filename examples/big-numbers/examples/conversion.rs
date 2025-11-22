@@ -7,7 +7,7 @@ use neo3::{
 	neo_clients::{APITrait, HttpProvider, RpcClient},
 	neo_types::ScriptHash,
 };
-use primitive_types::U256;
+use neo3::prelude::U256;
 use std::str::FromStr;
 
 #[tokio::main]
@@ -92,8 +92,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 						println!("       Scientific: {:.2e}", supply_u256.as_u64() as f64);
 
 						// Convert to bytes for storage/transmission
-						let mut bytes = [0u8; 32];
-						supply_u256.to_big_endian(&mut bytes);
+						let bytes = supply_u256.to_big_endian();
 						println!("       As bytes (first 8): {:?}...", &bytes[0..8]);
 					}
 				}

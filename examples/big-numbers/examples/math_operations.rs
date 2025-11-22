@@ -1,6 +1,6 @@
 use std::ops::{Div, Mul};
 
-use primitive_types::U256;
+use neo3::prelude::U256;
 
 /// `U256` implements traits in `std::ops`, that means it supports arithmetic operations
 /// using standard Rust operators `+`, `-`. `*`, `/`, `%`, along with additional utilities to

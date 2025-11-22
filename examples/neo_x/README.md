@@ -62,9 +62,8 @@ The Neo X examples follow these modern NeoRust SDK patterns:
 
 ### **Standard Imports**
 ```rust
-use neo3::prelude::*;
+use neo3::prelude::*; // H160/H256/U256 are re-exported here
 use neo3::neo_clients::APITrait;
-use primitive_types::H160; // For EVM addresses
 use std::str::FromStr;
 ```
 
