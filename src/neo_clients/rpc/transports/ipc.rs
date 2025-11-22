@@ -14,7 +14,10 @@ use std::{
 use async_trait::async_trait;
 use bytes::{Buf, BytesMut};
 use futures_channel::mpsc;
-use futures_util::stream::StreamExt;
+use futures_util::{
+	io::{ReadHalf, WriteHalf},
+	stream::StreamExt,
+};
 use primitive_types::U256;
 use serde::{de::DeserializeOwned, Serialize};
 use serde_json::{value::RawValue, Deserializer};
@@ -27,7 +30,12 @@ use tokio::{
 
 use hashers::fx_hash::FxHasher64;
 
-use crate::{errors::ProviderError, JsonRpcClient, PubsubClient};
+use crate::neo_clients::{
+	rpc::connections::JsonRpcProvider,
+	JsonRpcClient,
+	ProviderError,
+	PubsubClient,
+};
 
 use super::common::{JsonRpcError, Params, Request, Response};
 
@@ -40,7 +48,21 @@ type Subscription = mpsc::UnboundedSender<Box<RawValue>>;
 
 #[cfg(unix)]
 #[doc(hidden)]
-mod imp {}
+mod imp {
+	use tokio::net::UnixStream;
+
+	pub(super) type Stream = UnixStream;
+	pub(super) type ReadHalf<'a> = tokio::io::ReadHalf<&'a mut UnixStream>;
+	pub(super) type WriteHalf<'a> = tokio::io::WriteHalf<&'a mut UnixStream>;
+
+	pub(super) async fn connect(path: impl AsRef<std::path::Path>) -> std::io::Result<Stream> {
+		UnixStream::connect(path).await
+	}
+
+	pub(super) fn split(stream: &mut Stream) -> (ReadHalf<'_>, WriteHalf<'_>) {
+		tokio::io::split(stream)
+	}
+}
 
 #[cfg(windows)]
 #[doc(hidden)]
@@ -506,7 +528,7 @@ impl From<IpcError> for ProviderError {
 	}
 }
 
-impl crate::RpcError for IpcError {
+impl crate::neo_clients::RpcError for IpcError {
 	fn as_error_response(&self) -> Option<&super::JsonRpcError> {
 		if let IpcError::JsonRpcError(err) = self {
 			Some(err)
@@ -523,18 +545,23 @@ impl crate::RpcError for IpcError {
 	}
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "ipc", not(target_arch = "wasm32")))]
 mod tests {
 	use std::time::Duration;
 
 	use tempfile::NamedTempFile;
 
+	use futures_channel::mpsc;
+	use futures_util::StreamExt;
 	use neo_types::{block::Block, TxHash};
+	use neo3::neo_clients::rpc::transports::ipc::Ipc;
+	use neo3::prelude::U256;
+	use testcontainers_modules::geth::{Geth, GethInstance};
 
 	async fn connect() -> (Ipc, GethInstance) {
 		let temp_file = NamedTempFile::new().unwrap();
 		let path = temp_file.into_temp_path().to_path_buf();
-		let geth = Geth::new().block_time(1u64).ipc_path(&path).spawn();
+		let geth = Geth::default().block_time(1u64).ipc_path(&path).spawn();
 
 		// [Windows named pipes](https://learn.microsoft.com/en-us/windows/win32/ipc/named-pipes)
 		// are located at `\\<machine_address>\pipe\<pipe_name>`.

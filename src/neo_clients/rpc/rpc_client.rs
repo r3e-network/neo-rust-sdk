@@ -1219,7 +1219,7 @@ impl<P: JsonRpcProvider> RpcClient<P> {
 }
 
 #[cfg(all(feature = "ipc", any(unix, windows)))]
-impl RpcClient<crate::Ipc> {
+impl RpcClient<crate::neo_clients::Ipc> {
 	#[cfg_attr(unix, doc = "Connects to the Unix socket at the provided path.")]
 	#[cfg_attr(windows, doc = "Connects to the named pipe at the provided path.\n")]
 	#[cfg_attr(
@@ -1227,7 +1227,7 @@ impl RpcClient<crate::Ipc> {
 		doc = r"Note: the path must be the fully qualified, like: `\\.\pipe\<name>`."
 	)]
 	pub async fn connect_ipc(path: impl AsRef<std::path::Path>) -> Result<Self, ProviderError> {
-		let ipc = crate::Ipc::connect(path).await?;
+		let ipc = crate::neo_clients::Ipc::connect(path).await?;
 		Ok(Self::new(ipc))
 	}
 }

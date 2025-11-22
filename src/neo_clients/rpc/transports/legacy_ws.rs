@@ -21,8 +21,8 @@ use tracing::trace;
 
 use crate::{
 	errors::ProviderError,
+	neo_clients::{JsonRpcClient, PubsubClient},
 	rpc::transports::common::{JsonRpcError, Params, Request, Response},
-	JsonRpcClient, PubsubClient,
 };
 
 macro_rules! if_wasm {
@@ -500,7 +500,7 @@ pub enum ClientError {
 	RequestError(#[from] http::Error),
 }
 
-impl crate::RpcError for ClientError {
+impl crate::neo_clients::RpcError for ClientError {
 	fn as_error_response(&self) -> Option<&super::JsonRpcError> {
 		if let ClientError::JsonRpcError(err) = self {
 			Some(err)
@@ -523,13 +523,18 @@ impl From<ClientError> for ProviderError {
 	}
 }
 
-#[cfg(all(test, not(target_arch = "wasm32")))]
+#[cfg(all(test, feature = "legacy-ws", not(target_arch = "wasm32")))]
 mod tests {
+	use futures_channel::mpsc;
+	use futures_util::StreamExt;
 	use neo_types::block::Block;
+	use neo3::neo_clients::rpc::transports::legacy_ws::Ws;
+	use neo3::prelude::U256;
+	use testcontainers_modules::anvil::Anvil;
 
 	#[tokio::test]
 	async fn request() {
-		let anvil = Anvil::new().block_time(1u64).spawn();
+		let anvil = Anvil::default().block_time(1u64).spawn();
 		let ws = Ws::connect(anvil.ws_endpoint()).await.unwrap();
 
 		let block_num: U256 = ws.request("neo_blockNumber", ()).await.unwrap();
@@ -542,7 +547,7 @@ mod tests {
 	async fn subscription() {
 		use neo_types::TxHash;
 
-		let anvil = Anvil::new().block_time(1u64).spawn();
+		let anvil = Anvil::default().block_time(1u64).spawn();
 		let ws = Ws::connect(anvil.ws_endpoint()).await.unwrap();
 
 		// Subscribing requires sending the sub request and then subscribing to
@@ -563,7 +568,7 @@ mod tests {
 
 	#[tokio::test]
 	async fn deserialization_fails() {
-		let anvil = Anvil::new().block_time(1u64).spawn();
+		let anvil = Anvil::default().block_time(1u64).spawn();
 		let (ws, _) = tokio_tungstenite::connect_async(anvil.ws_endpoint()).await.unwrap();
 		let malformed_data = String::from("not a valid message");
 		let (_, stream) = mpsc::unbounded();
