@@ -3,8 +3,10 @@ use neo3::neo_fs::{
 		NeoFSAuth, NeoFSClient, NeoFSConfig, DEFAULT_TESTNET_HTTP_GATEWAY, DEFAULT_TESTNET_REST_API,
 	},
 	container::Container,
-	object::{Object, ObjectType},
+	object::Object,
 	types::{ContainerId, OwnerId},
+	NeoFSService,
+	ObjectType,
 };
 use reqwest::Client;
 use std::env;

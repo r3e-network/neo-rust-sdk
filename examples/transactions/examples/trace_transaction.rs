@@ -1,6 +1,6 @@
 use eyre::Result;
 use neo3::neo_clients::{APITrait, HttpProvider, RpcClient};
-use primitive_types::H256;
+use neo3::prelude::H256;
 use std::env;
 
 /// Fetch a transaction and its execution log from TestNet.
@@ -30,7 +30,7 @@ async fn main() -> Result<()> {
 	println!("📄 Fetching application log...");
 	match client.get_application_log(hash).await {
 		Ok(log) => {
-			println!("   • VM state: {}", log.executions[0].vm_state);
+			println!("   • VM state: {}", log.executions[0].state);
 			println!("   • Gas consumed: {}", log.executions[0].gas_consumed);
 			println!("   • Notifications: {}", log.executions[0].notifications.len());
 			if let Some(stack) = log.executions[0].stack.first() {
