@@ -16,7 +16,7 @@ use tracing::error;
 /// A transport implementation supporting pub sub subscriptions.
 pub trait PubsubClient: JsonRpcProvider {
 	/// The type of stream this transport returns
-	type NotificationStream: futures_core::Stream<Item = Box<RawValue>> + Send + Unpin;
+	type NotificationStream: Stream<Item = Box<RawValue>> + Send + Unpin;
 
 	/// Add a subscription to this transport
 	fn subscribe<T: Into<U256>>(&self, id: T) -> Result<Self::NotificationStream, Self::Error>;

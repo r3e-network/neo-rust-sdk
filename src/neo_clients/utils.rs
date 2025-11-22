@@ -38,7 +38,7 @@ where
 }
 
 /// Create a stream that emits items at a fixed interval. Used for rate control
-pub fn interval(duration: Duration) -> impl futures_core::stream::Stream<Item = ()> + Send + Unpin {
+pub fn interval(duration: Duration) -> impl stream::Stream<Item = ()> + Send + Unpin {
 	stream::unfold((), move |_| Delay::new(duration).map(|_| Some(((), ())))).map(drop)
 }
 
