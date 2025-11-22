@@ -6,7 +6,12 @@ use p256::{NistP256, PublicKey};
 #[cfg(feature = "yubi")]
 use signature::Verifier;
 #[allow(unused_imports)]
-use crate::{neo_crypto::Secp256r1PublicKey, neo_error::WalletError, neo_wallets::WalletSigner};
+use crate::{
+	neo_crypto::Secp256r1PublicKey,
+	neo_error::WalletError,
+	neo_wallets::WalletSigner,
+	Address,
+};
 #[cfg(feature = "yubi")]
 use yubihsm::{
 	asymmetric::Algorithm::EcP256, ecdsa::Signer as YubiSigner, object, object::Label, Capability,
