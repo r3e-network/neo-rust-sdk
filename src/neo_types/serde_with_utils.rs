@@ -1159,6 +1159,38 @@ mod test {
 		println!("{json_string}");
 	}
 
+	#[derive(Clone, Default, Debug, Serialize, Deserialize, PartialEq, Eq)]
+	struct OptionalHeights {
+		#[serde(
+			serialize_with = "serialize_u64",
+			deserialize_with = "deserialize_u64"
+		)]
+		current: u64,
+		#[serde(
+			serialize_with = "serialize_u64_option",
+			deserialize_with = "deserialize_u64_option",
+			default,
+			skip_serializing_if = "Option::is_none"
+		)]
+		highest: Option<u64>,
+	}
+
+	#[test]
+	fn test_u64_hex_and_option_roundtrip() {
+		let payload = OptionalHeights { current: 0x10, highest: Some(0x20) };
+		let json = serde_json::to_string(&payload).unwrap();
+		assert!(json.contains("16")); // decimal output
+
+		let parsed: OptionalHeights = serde_json::from_str(&json).unwrap();
+		assert_eq!(parsed, payload);
+
+		// hex inputs should also deserialize
+		let hex_json = r#"{"current":"0x10","highest":"0x20"}"#;
+		let parsed_hex: OptionalHeights = serde_json::from_str(hex_json).unwrap();
+		assert_eq!(parsed_hex.current, 16);
+		assert_eq!(parsed_hex.highest, Some(32));
+	}
+
 	#[test]
 	fn test_serialize_bytes() {
 		#[derive(Clone, Default, Debug, Serialize, Deserialize)]
