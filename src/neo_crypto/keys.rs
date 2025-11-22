@@ -76,7 +76,6 @@ use rand_core::OsRng;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use signature::{hazmat::PrehashSigner, Verifier};
 
-#[cfg_attr(feature = "substrate", serde(crate = "serde_substrate"))]
 #[derive(Debug, Clone)]
 pub struct Secp256r1PublicKey {
 	inner: PublicKey,

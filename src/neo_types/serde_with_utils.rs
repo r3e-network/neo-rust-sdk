@@ -17,9 +17,6 @@ use serde::{
 	Deserialize, Deserializer, Serialize, Serializer,
 };
 
-#[cfg(feature = "substrate")]
-use serde_big_array_substrate::big_array;
-
 use crate::{
 	builder::WitnessScope,
 	crypto::{Secp256r1PrivateKey, Secp256r1PublicKey},
@@ -30,9 +27,6 @@ use crate::{
 	},
 	Address, AddressOrScriptHash, ContractParameter, ScriptHash, ScriptHashExtension,
 };
-#[cfg(feature = "substrate")]
-use serde_substrate as serde;
-
 pub fn serialize_h160_without_0x<S>(h160: &H160, serializer: S) -> Result<S::Ok, S::Error>
 where
 	S: Serializer,

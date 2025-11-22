@@ -407,18 +407,18 @@
 //! For detailed information, consult the documentation of each module.
 
 // Production-ready Neo N3 SDK - warnings are treated as errors in CI
-#![cfg_attr(feature = "sgx", no_std)]
-#![cfg_attr(feature = "sgx", feature(rustc_private))]
+#![cfg_attr(all(feature = "sgx", target_env = "sgx"), no_std)]
+#![cfg_attr(all(feature = "sgx", target_env = "sgx"), feature(rustc_private))]
 #![allow(elided_lifetimes_in_paths, missing_docs, missing_debug_implementations)]
 #![warn(unreachable_pub)]
 #![doc(test(no_crate_inject, attr(deny(rust_2018_idioms), allow(dead_code, unused_variables))))]
 
-// SGX support
-#[cfg(feature = "sgx")]
+// SGX support (only when building for the SGX target)
+#[cfg(all(feature = "sgx", target_env = "sgx"))]
 extern crate sgx_tstd as std;
 
-// Required for no_std
-#[cfg(feature = "no_std")]
+// Required for no_std when targeting SGX
+#[cfg(all(feature = "sgx", target_env = "sgx"))]
 extern crate alloc;
 
 // For macro expansions only, not public API.
@@ -440,7 +440,7 @@ pub mod neo_contract;
 pub mod neo_crypto;
 pub mod neo_fs;
 pub mod neo_protocol;
-#[cfg(any(feature = "sgx", feature = "no_std"))]
+#[cfg(all(feature = "sgx", target_env = "sgx"))]
 pub mod neo_sgx;
 pub mod neo_wallets;
 pub mod neo_x;
