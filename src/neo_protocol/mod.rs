@@ -52,9 +52,11 @@ pub use account::*;
 pub use nep2::*;
 pub use protocol_error::*;
 pub use responses::*;
+pub use test_node::*;
 
 mod account;
 mod nep2;
 mod protocol_error;
 mod responses;
 mod role;
+mod test_node;

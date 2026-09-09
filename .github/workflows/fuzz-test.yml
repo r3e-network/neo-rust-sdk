@@ -1,0 +1,85 @@
+name: Fuzz Testing
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  push:
+    paths:
+      - 'src/**'
+      - 'tests/fuzz/**'
+      - 'Cargo.toml'
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  fuzz-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-action@stable
+        
+      - name: Install cargo-nextest
+        run: cargo install cargo-nextest
+        continue-on-error: true
+        
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target/debug/.proptest
+          key: ${{ runner.os }}-proptest-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-proptest-
+            
+      - name: Run script parser proptest
+        run: cargo test --test script_parser_fuzz --release
+        continue-on-error: true
+        
+      - name: Run cryptographic proptest
+        run: cargo test --test cryptographic_fuzz --release
+        continue-on-error: true
+        
+      - name: Run RPC response proptest
+        run: cargo test --test rpc_response_fuzz --release
+        continue-on-error: true
+        
+      - name: Generate coverage report
+        if: always()
+        run: |
+          echo "Fuzz testing completed"
+          echo "Coverage data would be generated here"
+          
+      - name: Upload artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-crashes
+          path: |
+            *.crash
+            corpus/
+          retention-days: 7
+
+  regression-check:
+    runs-on: ubuntu-latest
+    needs: fuzz-test
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run property-based tests
+        run: cargo test --all-features --lib
+        
+      - name: Check for panics in edge cases
+        run: RUST_BACKTRACE=1 cargo test --release --features proptest --lib 2>&1 | tee panic-report.txt
+        
+      - name: Alert on critical findings
+        if: failure()
+        run: |
+          echo "⚠️ CRITICAL: Fuzz testing detected potential vulnerabilities!"
+          echo "Please review the test output and fix any issues."

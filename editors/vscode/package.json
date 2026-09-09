@@ -1,0 +1,68 @@
+{
+  "name": "neo-rust-sdk",
+  "displayName": "Neo Rust SDK",
+  "description": "Snippets, language support, and syntax highlighting for building Neo N3 dApps with the Neo Rust SDK (neo3 crate).",
+  "version": "3.2.0",
+  "publisher": "neo-rust",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Snippets",
+    "Programming Languages",
+    "Linters"
+  ],
+  "keywords": [
+    "neo",
+    "neo3",
+    "blockchain",
+    "rust",
+    "smart-contracts",
+    "nep-17",
+    "nep-11"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/R3E-Network/NeoRust.git",
+    "directory": "editors/vscode"
+  },
+  "homepage": "https://github.com/R3E-Network/NeoRust/tree/master/editors/vscode",
+  "bugs": {
+    "url": "https://github.com/R3E-Network/NeoRust/issues"
+  },
+  "galleryBanner": {
+    "color": "#00e599",
+    "theme": "dark"
+  },
+  "activationEvents": [],
+  "contributes": {
+    "snippets": [
+      {
+        "language": "rust",
+        "path": "./snippets/rust.json"
+      }
+    ],
+    "languages": [
+      {
+        "id": "neo-contract",
+        "aliases": [
+          "Neo Contract",
+          "neo-contract"
+        ],
+        "extensions": [
+          ".neo",
+          ".neomanifest"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "neo-contract",
+        "scopeName": "source.neo",
+        "path": "./syntaxes/neo-contract.tmLanguage.json"
+      }
+    ]
+  }
+}

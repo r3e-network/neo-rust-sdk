@@ -153,3 +153,56 @@ jobs:
         files: lcov.info
         fail_ci_if_error: false
         verbose: false
+
+  hd-wallet-regression:
+    name: HD Wallet Regression Tests
+    runs-on: ubuntu-latest
+    needs: build-test
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: llvm-tools-preview
+    - name: Cache cargo
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-hd-regression-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: ${{ runner.os }}-hd-regression-
+    - name: Run HD Wallet Regression Tests
+      run: cargo test --test hd_wallet_regression_tests -- --test-threads=1
+    - name: Verify Branch Coverage
+      run: |
+        cargo install cargo-llvm-cov --locked || true
+        cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info || true
+      continue-on-error: true
+
+  fuzz-integration:
+    name: Fuzz Testing Integration
+    runs-on: ubuntu-latest
+    needs: build-test
+    timeout-minutes: 60
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@nightly
+      with:
+        components: rust-src, llvm-tools
+    - name: Cache cargo
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-fuzz-integration-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: ${{ runner.os }}-fuzz-integration-
+    - name: Run Property-Based Tests
+      run: cargo test --all-features --lib

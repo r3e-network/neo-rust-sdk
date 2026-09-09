@@ -1148,12 +1148,11 @@ mod tests {
 
 		let result = tb.sign().await;
 		assert!(result.is_err());
-		assert_eq!(
-			result,
-			Err(BuilderError::IllegalState(
-				"Transactions with multi-sig signers cannot be signed automatically.".to_string(),
-			))
-		);
+		// Now multisig signing requires collected signatures; without them it fails
+		assert!(matches!(result, Err(BuilderError::SignerConfiguration(_))));
+		if let Err(BuilderError::SignerConfiguration(msg)) = result {
+			assert!(msg.contains("requires 1 signatures but only 0"));
+		}
 	}
 
 	#[tokio::test]

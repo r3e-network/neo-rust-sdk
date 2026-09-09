@@ -44,7 +44,7 @@
 /// It uses generics to allow for different types of JSON-RPC providers.
 use std::{
 	cell::RefCell,
-	collections::HashSet,
+	collections::{HashMap, HashSet},
 	fmt::Debug,
 	hash::{Hash, Hasher},
 	iter::Iterator,
@@ -72,7 +72,7 @@ use crate::neo_builder::{
 use crate::{
 	neo_clients::{APITrait, JsonRpcProvider, RpcClient},
 	neo_config::{NeoConstants, NEOCONFIG},
-	neo_crypto::{utils::ToHexString, Secp256r1PublicKey},
+	neo_crypto::{utils::ToHexString, Secp256r1PublicKey, Secp256r1Signature},
 	neo_protocol::AccountTrait,
 };
 
@@ -102,6 +102,7 @@ pub struct TransactionBuilder<'a, P: JsonRpcProvider + 'static> {
 	fee_consumer: Option<Box<dyn Fn(i64, i64)>>,
 	fee_error: Option<TransactionError>,
 	allows_transmission_on_fault: Option<bool>,
+	multi_sig_signatures: HashMap<H160, Vec<(Secp256r1PublicKey, Secp256r1Signature)>>,
 }
 
 impl<'a, P: JsonRpcProvider + 'static> Debug for TransactionBuilder<'a, P> {
@@ -138,6 +139,7 @@ impl<'a, P: JsonRpcProvider + 'static> Clone for TransactionBuilder<'a, P> {
 			fee_consumer: None,
 			fee_error: None,
 			allows_transmission_on_fault: self.allows_transmission_on_fault,
+			multi_sig_signatures: self.multi_sig_signatures.clone(),
 		}
 	}
 }
@@ -217,6 +219,7 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 			fee_consumer: None,
 			fee_error: None,
 			allows_transmission_on_fault: None,
+			multi_sig_signatures: HashMap::new(),
 		}
 	}
 
@@ -254,6 +257,7 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 			fee_consumer: None,
 			fee_error: None,
 			allows_transmission_on_fault: None,
+			multi_sig_signatures: HashMap::new(),
 		}
 	}
 
@@ -271,6 +275,52 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	/// This overrides any global `NEOCONFIG` setting for this builder instance.
 	pub fn disallow_transmission_on_fault(&mut self) -> &mut Self {
 		self.allows_transmission_on_fault = Some(false);
+		self
+	}
+
+	/// Registers a collected signature from one participant of a multi-sig signer.
+	///
+	/// Call this method once for each signature collected from different participants
+	/// before calling `sign()`. The `signer_hash` must match the hash of the multisig account.
+	///
+	/// # Arguments
+	///
+	/// * `signer_hash` - The script hash of the multisig account
+	/// * `public_key` - The public key that produced the signature
+	/// * `signature` - The signature over the transaction hash data
+	///
+	/// # Returns
+	///
+	/// A mutable reference to the `TransactionBuilder` for method chaining.
+	pub fn add_multi_sig_signature(
+		&mut self,
+		signer_hash: &H160,
+		public_key: Secp256r1PublicKey,
+		signature: Secp256r1Signature,
+	) -> &mut Self {
+		self.multi_sig_signatures
+			.entry(*signer_hash)
+			.or_default()
+			.push((public_key, signature));
+		self
+	}
+
+	/// Registers all collected signatures for a multi-sig signer at once, replacing any previously stored.
+	///
+	/// # Arguments
+	///
+	/// * `signer_hash` - The script hash of the multisig account
+	/// * `signatures` - Vector of (public_key, signature) pairs collected from participants
+	///
+	/// # Returns
+	///
+	/// A mutable reference to the `TransactionBuilder` for method chaining.
+	pub fn set_multi_sig_signatures(
+		&mut self,
+		signer_hash: &H160,
+		signatures: Vec<(Secp256r1PublicKey, Secp256r1Signature)>,
+	) -> &mut Self {
+		self.multi_sig_signatures.insert(*signer_hash, signatures);
 		self
 	}
 
@@ -860,6 +910,57 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 		signer.get_type() == SignerType::AccountSigner
 	}
 
+	/// Creates a multi-sig witness from collected signatures.
+	///
+	/// This helper validates that enough valid participant signatures are present
+	/// to meet the threshold requirement, then constructs the witness.
+	fn create_multi_sig_witness_for_account(
+		account: &Account,
+		collected: &[(Secp256r1PublicKey, Secp256r1Signature)],
+	) -> Result<Witness, BuilderError> {
+		let threshold_u32 = account.get_signing_threshold().map_err(|e| {
+			BuilderError::SignerConfiguration(format!(
+				"Cannot derive multi-sig signing threshold: {}",
+				e
+			))
+		})?;
+		let threshold = u8::try_from(threshold_u32).map_err(|_| {
+			BuilderError::SignerConfiguration(
+				"Multi-sig signing threshold out of range for u8".to_string(),
+			)
+		})?;
+
+		let verification_script = account.verification_script().as_ref().ok_or_else(|| {
+			BuilderError::SignerConfiguration(
+				"Multi-sig account has no verification script; cannot derive participant public keys."
+					.to_string(),
+			)
+		})?;
+		let public_keys = verification_script.get_public_keys().map_err(|e| {
+			BuilderError::SignerConfiguration(format!(
+				"Failed to read multi-sig participant public keys: {}",
+				e
+			))
+		})?;
+
+		// Only signatures produced by an actual participant count toward the threshold.
+		let signatures: Vec<(Secp256r1PublicKey, Secp256r1Signature)> = collected
+			.iter()
+			.filter(|(pk, _)| public_keys.iter().any(|participant| participant == pk))
+			.cloned()
+			.collect();
+
+		if signatures.len() < threshold as usize {
+			return Err(BuilderError::SignerConfiguration(format!(
+				"Multi-sig witness requires {} signatures but only {} valid participant signatures were collected.",
+				threshold,
+				signatures.len()
+			)));
+		}
+
+		Witness::create_multi_sig_witness(threshold, signatures, public_keys)
+	}
+
 	/// Signs the transaction with the provided signers.
 	///
 	/// This method creates an unsigned transaction, signs it with the appropriate signers,
@@ -934,6 +1035,9 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	/// }
 	/// ```
 	pub async fn sign(&mut self) -> Result<Transaction<'_, P>, BuilderError> {
+		// Collect multi-sig signatures upfront to avoid borrow conflicts
+		let multi_sig_signatures_snapshot = self.multi_sig_signatures.clone();
+		
 		let mut unsigned_tx = self.get_unsigned_tx().await?;
 		let tx_bytes = unsigned_tx.get_hash_data().await?;
 
@@ -945,10 +1049,10 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 				})?;
 				let acc = &account_signer.account;
 				if acc.is_multi_sig() {
-					return Err(BuilderError::IllegalState(
-						"Transactions with multi-sig signers cannot be signed automatically."
-							.to_string(),
-					));
+					let signer_hash = *signer.get_signer_hash();
+					let collected = multi_sig_signatures_snapshot.get(&signer_hash).cloned().unwrap_or_default();
+					witnesses_to_add.push(Self::create_multi_sig_witness_for_account(acc, &collected)?);
+					continue;
 				}
 				let key_pair = acc.key_pair().as_ref().ok_or_else(|| {
                     BuilderError::InvalidConfiguration(
@@ -1345,4 +1449,147 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 	//
 	// 	Ok(result.stack[0].as_int().unwrap() as u64)
 	// }
+}
+
+#[cfg(test)]
+mod multisig_tests {
+	use super::*;
+	use crate::neo_crypto::KeyPair;
+
+	#[test]
+	fn test_create_multi_sig_witness_for_account_success() {
+		// Create 3 key pairs
+		let key_pair1 = KeyPair::new_random();
+		let key_pair2 = KeyPair::new_random();
+		let key_pair3 = KeyPair::new_random();
+
+		let mut public_keys = vec![
+			key_pair1.public_key(),
+			key_pair2.public_key(),
+			key_pair3.public_key(),
+		];
+
+		// Create a 2-of-3 multisig account
+		let threshold = 2u32;
+		let account = Account::multi_sig_from_public_keys(&mut public_keys, threshold).unwrap();
+
+		// Sign a test message with 2 key pairs (meeting threshold)
+		let message = vec![0u8; 32];
+		let sig1 = key_pair1.private_key_ref().unwrap().sign_tx(&message).unwrap();
+		let sig2 = key_pair2.private_key_ref().unwrap().sign_tx(&message).unwrap();
+
+		let collected = vec![
+			(key_pair1.public_key(), sig1),
+			(key_pair2.public_key(), sig2),
+		];
+
+		// This should succeed
+		let result = TransactionBuilder::<crate::neo_clients::HttpProvider>::create_multi_sig_witness_for_account(
+			&account,
+			&collected,
+		);
+		assert!(result.is_ok(), "Multi-sig witness creation should succeed with enough signatures");
+
+		let witness = result.unwrap();
+		// Verify the witness has a verification script
+		assert!(!witness.verification.script().is_empty());
+	}
+
+	#[test]
+	fn test_create_multi_sig_witness_for_account_below_threshold() {
+		// Create 3 key pairs
+		let key_pair1 = KeyPair::new_random();
+		let key_pair2 = KeyPair::new_random();
+		let key_pair3 = KeyPair::new_random();
+
+		let mut public_keys = vec![
+			key_pair1.public_key(),
+			key_pair2.public_key(),
+			key_pair3.public_key(),
+		];
+
+		// Create a 2-of-3 multisig account
+		let threshold = 2u32;
+		let account = Account::multi_sig_from_public_keys(&mut public_keys, threshold).unwrap();
+
+		// Sign with only 1 key pair (below threshold)
+		let message = vec![0u8; 32];
+		let sig1 = key_pair1.private_key_ref().unwrap().sign_tx(&message).unwrap();
+
+		let collected = vec![(key_pair1.public_key(), sig1)];
+
+		// This should fail
+		let result = TransactionBuilder::<crate::neo_clients::HttpProvider>::create_multi_sig_witness_for_account(
+			&account,
+			&collected,
+		);
+		assert!(result.is_err(), "Multi-sig witness creation should fail below threshold");
+
+		let err = result.unwrap_err();
+		assert!(matches!(err, BuilderError::SignerConfiguration(_)));
+	}
+
+	#[test]
+	fn test_create_multi_sig_witness_ignores_non_participant_signatures() {
+		// Create 3 participant key pairs
+		let key_pair1 = KeyPair::new_random();
+		let key_pair2 = KeyPair::new_random();
+		let key_pair3 = KeyPair::new_random();
+
+		// Create an outsider key pair (not a participant)
+		let outsider_key_pair = KeyPair::new_random();
+
+		let mut public_keys = vec![
+			key_pair1.public_key(),
+			key_pair2.public_key(),
+			key_pair3.public_key(),
+		];
+
+		// Create a 2-of-3 multisig account
+		let threshold = 2u32;
+		let account = Account::multi_sig_from_public_keys(&mut public_keys, threshold).unwrap();
+
+		// Sign with 1 participant and 1 outsider
+		let message = vec![0u8; 32];
+		let sig1 = key_pair1.private_key_ref().unwrap().sign_tx(&message).unwrap();
+		let outsider_sig = outsider_key_pair.private_key_ref().unwrap().sign_tx(&message).unwrap();
+
+		let collected = vec![
+			(key_pair1.public_key(), sig1),
+			(outsider_key_pair.public_key(), outsider_sig),
+		];
+
+		// This should fail because only 1 valid participant signature (outsider doesn't count)
+		let result = TransactionBuilder::<crate::neo_clients::HttpProvider>::create_multi_sig_witness_for_account(
+			&account,
+			&collected,
+		);
+		assert!(result.is_err(), "Should reject non-participant signatures");
+	}
+
+	#[test]
+	fn test_add_multi_sig_signature_and_set_multi_sig_signatures() {
+		let mut builder: TransactionBuilder<crate::neo_clients::HttpProvider> = TransactionBuilder::new();
+		
+		let key_pair = KeyPair::new_random();
+		let message = vec![0u8; 32];
+		let signature = key_pair.private_key_ref().unwrap().sign_tx(&message).unwrap();
+		
+		let signer_hash = H160::random();
+		
+		// Test add_multi_sig_signature
+		builder.add_multi_sig_signature(&signer_hash, key_pair.public_key(), signature.clone());
+		assert_eq!(builder.multi_sig_signatures.get(&signer_hash).unwrap().len(), 1);
+		
+		// Add another signature
+		let key_pair2 = KeyPair::new_random();
+		let signature2 = key_pair2.private_key_ref().unwrap().sign_tx(&message).unwrap();
+		builder.add_multi_sig_signature(&signer_hash, key_pair2.public_key(), signature2);
+		assert_eq!(builder.multi_sig_signatures.get(&signer_hash).unwrap().len(), 2);
+		
+		// Test set_multi_sig_signatures (should replace)
+		let new_signatures = vec![(key_pair.public_key(), signature)];
+		builder.set_multi_sig_signatures(&signer_hash, new_signatures);
+		assert_eq!(builder.multi_sig_signatures.get(&signer_hash).unwrap().len(), 1);
+	}
 }

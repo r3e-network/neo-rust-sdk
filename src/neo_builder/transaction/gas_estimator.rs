@@ -1,6 +1,6 @@
 use crate::{
-	neo_builder::{Signer, TransactionError},
-	neo_clients::{APITrait, ProviderError},
+	neo_builder::{transaction::TransactionBuilder, Signer, TransactionError},
+	neo_clients::{APITrait, JsonRpcProvider, ProviderError},
 };
 
 /// Enhanced gas estimation utilities for Neo N3 transactions
@@ -152,9 +152,40 @@ pub trait TransactionBuilderGasExt {
 	async fn estimate_gas_with_margin(&self, margin_percent: u8) -> Result<i64, TransactionError>;
 }
 
+impl<'a, P: JsonRpcProvider + 'static> TransactionBuilderGasExt for TransactionBuilder<'a, P> {
+	async fn estimate_gas_realtime(&self) -> Result<i64, TransactionError> {
+		let client = self.client.ok_or_else(|| {
+			TransactionError::IllegalState("Client is not set. Use with_client() to configure.".to_string())
+		})?;
+		
+		let script = self.script().as_ref().ok_or(TransactionError::NoScript)?;
+		if script.is_empty() {
+			return Err(TransactionError::EmptyScript);
+		}
+		
+		GasEstimator::estimate_gas_realtime(client, script, self.signers().clone()).await
+	}
+	
+	async fn estimate_gas_with_margin(&self, margin_percent: u8) -> Result<i64, TransactionError> {
+		let client = self.client.ok_or_else(|| {
+			TransactionError::IllegalState("Client is not set. Use with_client() to configure.".to_string())
+		})?;
+		
+		let script = self.script().as_ref().ok_or(TransactionError::NoScript)?;
+		if script.is_empty() {
+			return Err(TransactionError::EmptyScript);
+		}
+		
+		GasEstimator::estimate_gas_with_margin(client, script, self.signers().clone(), margin_percent).await
+	}
+}
+
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use crate::neo_clients::{HttpProvider, MockClient};
+	use std::sync::Arc;
+	use tokio::sync::Mutex;
 
 	#[test]
 	fn test_calculate_estimation_accuracy() {
@@ -169,5 +200,76 @@ mod tests {
 
 		// Edge case: actual is 0
 		assert_eq!(GasEstimator::calculate_estimation_accuracy(100, 0), 0.0);
+	}
+
+	#[tokio::test]
+	async fn test_gas_ext_without_client_returns_error() {
+		let builder: TransactionBuilder<HttpProvider> = TransactionBuilder::default();
+		
+		// Should error because no client is set
+		let result = builder.estimate_gas_realtime().await;
+		assert!(result.is_err());
+		assert!(matches!(result, Err(TransactionError::IllegalState(_))));
+	}
+
+	#[tokio::test]
+	async fn test_gas_ext_without_script_returns_error() {
+		let mock_provider = Arc::new(Mutex::new(MockClient::new().await));
+		let client = {
+			let guard = mock_provider.lock().await;
+			Arc::new(guard.into_client())
+		};
+		
+		let builder = TransactionBuilder::with_client(&client);
+		
+		// Should error because no script is set
+		let result = builder.estimate_gas_realtime().await;
+		assert!(result.is_err());
+		assert!(matches!(result, Err(TransactionError::NoScript)));
+	}
+
+	#[tokio::test]
+	async fn test_gas_ext_with_empty_script_returns_error() {
+		let mock_provider = Arc::new(Mutex::new(MockClient::new().await));
+		let client = {
+			let guard = mock_provider.lock().await;
+			Arc::new(guard.into_client())
+		};
+		
+		let mut builder = TransactionBuilder::with_client(&client);
+		builder.set_script(Some(vec![]));
+		
+		// Should error because script is empty
+		let result = builder.estimate_gas_realtime().await;
+		assert!(result.is_err());
+		assert!(matches!(result, Err(TransactionError::EmptyScript)));
+	}
+
+	#[tokio::test]
+	async fn test_gas_ext_with_mock_invokescript() {
+		let mock_provider = Arc::new(Mutex::new(MockClient::new().await));
+		{
+			let mut guard = mock_provider.lock().await;
+			guard.mock_response_with_file_ignore_param("invokescript", "invokescript_necessary_mock.json").await;
+			guard.mount_mocks().await;
+		}
+		
+		let client = {
+			let guard = mock_provider.lock().await;
+			Arc::new(guard.into_client())
+		};
+		
+		let mut builder = TransactionBuilder::with_client(&client);
+		builder.set_script(Some(vec![1, 2, 3]));
+		
+		// Should succeed with mock returning gas_consumed: "30"
+		let result = builder.estimate_gas_realtime().await;
+		assert!(result.is_ok());
+		assert_eq!(result.unwrap(), 30);
+		
+		// Test with margin
+		let result_with_margin = builder.estimate_gas_with_margin(10).await;
+		assert!(result_with_margin.is_ok());
+		assert_eq!(result_with_margin.unwrap(), 33); // 30 + 10% = 33
 	}
 }

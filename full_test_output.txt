@@ -1,0 +1,157 @@
+﻿cargo :     Blocking waiting for file lock on package cache
+At line:1 char:27
++ cd "d:\Git\neo-rust-sdk"; cargo test --workspace --doc 2>&1 | Out-Fil ...
++                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (    Blocking wa...n package cache:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    Blocking waiting for file lock on package cache
+   Compiling neo3 v3.2.0 (D:\Git\neo-rust-sdk)
+warning: fields `id` and `nft_ownership` are never read
+   --> src\neo_protocol\test_node.rs:422:9
+    |
+420 | struct ContractState {
+    |        ------------- fields in this struct
+421 |     /// Contract ID
+422 |     pub id: i64,
+    |         ^^
+...
+430 |     pub nft_ownership: HashMap<(H160, u64), H160>,
+    |         ^^^^^^^^^^^^^
+    |
+    = note: `ContractState` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead 
+code analysis
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling neo_crypto v0.1.0 (D:\Git\neo-rust-sdk\examples\neo_crypto)
+warning: `neo3` (lib) generated 1 warning
+    Finished `test` profile [optimized + debuginfo] target(s) in 14.26s
+   Doc-tests neo3
+
+running 224 tests
+test src\lib.rs - (line 341) - compile ... ok
+test src\lib.rs - prelude (line 624) - compile ... ok
+test src\neo_builder\mod.rs - neo_builder (line 39) - compile ... ok
+test src\lib.rs - (line 142) - compile ... ok
+test src\lib.rs - (line 173) - compile ... ok
+test src\lib.rs - (line 261) - compile ... ok
+test src\lib.rs - (line 195) - compile ... ok
+test src\lib.rs - (line 298) - compile ... ok
+test src\lib.rs - (line 20) - compile ... ok
+test src\neo_builder\script\script_reader.rs - neo_builder::script::script_reader::ScriptReader::get_prefix_size (line 124) - compile ... ok
+test src\neo_builder\transaction\signers\mod.rs - neo_builder::transaction::signers (line 22) - compile ... ok
+test src\neo_builder\transaction\signers\mod.rs - neo_builder::transaction::signers (line 56) - compile ... ok
+test src\neo_builder\transaction\signers\mod.rs - neo_builder::transaction::signers (line 41) - compile ... ok
+test src\neo_builder\script\mod.rs - neo_builder::script (line 25) ... ok
+test src\lib.rs - prelude (line 594) ... ok
+test src\lib.rs - (line 134) ... ok
+test src\lib.rs - prelude (line 602) ... ok
+test src\neo_builder\transaction\transaction.rs - neo_builder::transaction::transaction::Transaction (line 45) - compile ... ok
+test src\neo_builder\script\script_builder.rs - neo_builder::script::script_builder::ScriptBuilder (line 29) ... ok
+test src\neo_builder\script\script_builder.rs - neo_builder::script::script_builder::ScriptBuilder::push_data (line 437) ... ok
+test src\neo_builder\transaction\transaction.rs - neo_builder::transaction::transaction::Transaction<'a,T>::send_tx (line 376) - compile ... ok
+test src\neo_builder\transaction\transaction.rs - neo_builder::transaction::transaction::Transaction<'a,T>::get_application_log (line 614) - compile ... ok
+test src\neo_builder\script\script_builder.rs - neo_builder::script::script_builder::ScriptBuilder::op_code_with_arg (line 100) ... ok
+test src\neo_builder\script\script_builder.rs - neo_builder::script::script_builder::ScriptBuilder::contract_call (line 129) ... ok
+test src\neo_builder\script\script_builder.rs - neo_builder::script::script_builder::ScriptBuilder::op_code (line 73) ... ok
+test src\neo_builder\script\script_builder.rs - neo_builder::script::script_builder::ScriptBuilder::build_contract_call_and_unwrap_iterator (line 660) ... ok
+test src\neo_builder\script\script_builder.rs - neo_builder::script::script_builder::ScriptBuilder::new (line 52) ... ok
+test src\neo_builder\script\script_builder.rs - neo_builder::script::script_builder::ScriptBuilder::push_bool (line 476) ... ok
+test src\neo_builder\transaction\transaction.rs - neo_builder::transaction::transaction::Transaction<'a,T>::track_tx (line 484) - compile ... ok
+test src\neo_builder\script\script_builder.rs - neo_builder::script::script_builder::ScriptBuilder::len (line 752) ... ok
+test src\neo_builder\script\script_builder.rs - neo_builder::script::script_builder::ScriptBuilder::push_integer (line 318) ... ok
+test src\neo_builder\script\script_builder.rs - neo_builder::script::script_builder::ScriptBuilder::build_contract_script (line 609) ... ok
+test src\neo_builder\transaction\signers\mod.rs - neo_builder::transaction::signers (line 17) ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder (line 23) - compile ... ok
+test src\neo_builder\script\script_builder.rs - neo_builder::script::script_builder::ScriptBuilder::push_opcode_bytes (line 400) ... ok
+test src\neo_builder\script\script_builder.rs - neo_builder::script::script_builder::ScriptBuilder::push_param (line 251) ... ok
+test src\neo_builder\script\script_builder.rs - neo_builder::script::script_builder::ScriptBuilder::push_params (line 217) ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder (line 23) - compile ... ok
+test src\neo_builder\script\script_builder.rs - neo_builder::script::script_builder::ScriptBuilder::sys_call (line 179) ... ok
+test src\neo_builder\script\script_reader.rs - neo_builder::script::script_reader::ScriptReader::get_interop_service_code (line 24) ... ok
+test src\neo_builder\script\script_reader.rs - neo_builder::script::script_reader::ScriptReader::convert_to_op_code_string (line 50) has been running for over 60 seconds
+test src\neo_builder\script\script_reader.rs - neo_builder::script::script_reader::ScriptReader::convert_to_op_code_string (line 50) ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::Hash (line 23) - compile ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::RefCell (line 23) - compile ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::HashMap (line 23) - compile ... ok
+test src\neo_clients\mod.rs - neo_clients (line 53) ... ignored
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::FromStr (line 23) - compile ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder (line 23) - compile ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::Hasher (line 23) - compile ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::Debug (line 23) - compile ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::HashSet (line 23) - compile ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::Iterator (line 23) - compile ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::TransactionBuilder<'a,P>::is_ready (line 585) - compile ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::TransactionBuilder<'a,P>::build (line 485) - compile ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::TransactionBuilder<'a,P>::do_if_sender_cannot_cover_fees (line 1371) - compile ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::TransactionBuilder<'a,P>::sign (line 985) - compile ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::TransactionBuilder<'a,P>::valid_until_block (line 400) - compile ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::TransactionBuilder<'a,P>::validate (line 528) - compile ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::TransactionBuilder<'a,P>::with_client (line 238) - compile ... ok
+test src\neo_clients\rpc\mod.rs - neo_clients::rpc (line 17) - compile ... ok
+test src\neo_clients\rpc\rpc_client.rs - neo_clients::rpc::rpc_client::RpcClient (line 91) - compile ... ok
+test src\neo_clients\rpc\transports\http_provider.rs - neo_clients::rpc::transports::http_provider::ClientError (line 67) - compile ... ok
+test src\neo_clients\rpc\transports\http_provider.rs - neo_clients::rpc::transports::http_provider::HttpProvider (line 30) - compile ... ok
+test src\neo_clients\mod.rs - neo_clients (line 28) - compile ... ok
+test src\neo_clients\rpc\transports\rw.rs - neo_clients::rpc::transports::rw::RwClient<Read,Write>::new (line 31) - compile ... ok
+test src\neo_clients\utils.rs - neo_clients::utils::NeoHttpClient (line 27) - compile ... ok
+test src\neo_clients\rpc\transports\ws\mod.rs - neo_clients::rpc::transports::ws::RpcClient<WsClient>::connect (line 165) - compile ... ok
+test src\neo_clients\rpc\transports\ws\mod.rs - neo_clients::rpc::transports::ws::RpcClient<WsClient>::connect (line 152) - compile ... ok
+test src\neo_contract\account_events.rs - neo_contract::account_events (line 24) - compile ... ok
+test src\neo_builder\transaction\witness_rule\mod.rs - neo_builder::transaction::witness_rule (line 16) ... ok
+test src\neo_contract\events.rs - neo_contract::events (line 22) - compile ... ok
+test src\neo_contract\mod.rs - neo_contract (line 84) - compile ... ok
+test src\neo_contract\mod.rs - neo_contract (line 45) - compile ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::TransactionBuilder<'a,P>::new (line 202) ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::TransactionBuilder<'a,P>::add_attributes (line 1163) ... ok
+test src\neo_builder\transaction\witness_rule\mod.rs - neo_builder::transaction::witness_rule (line 29) ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::TransactionBuilder<'a,P>::set_signers (line 1120) ... ok
+test src\neo_builder\transaction\witness_rule\mod.rs - neo_builder::transaction::witness_rule (line 21) ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::TransactionBuilder<'a,P>::version (line 339) ... ok
+test src\neo_builder\transaction\transaction_builder.rs - neo_builder::transaction::transaction_builder::TransactionBuilder<'a,P>::nonce (line 368) ... ok
+test src\neo_crypto\crypto_lib.rs - neo_crypto::crypto_lib::recover_secp256k1 (line 143) - compile ... ok
+test src\neo_builder\transaction\witness_rule\mod.rs - neo_builder::transaction::witness_rule (line 41) ... ok
+test src\neo_clients\rpc\transports\http_provider.rs - neo_clients::rpc::transports::http_provider::HttpProvider::new_with_client (line 364) ... ok
+test src\neo_clients\rpc\transports\retry.rs - neo_clients::rpc::transports::retry::RetryClient<T>::new (line 84) ... ok
+test src\neo_clients\rpc\transports\retry.rs - neo_clients::rpc::transports::retry::RetryClient (line 41) ... ok
+test src\neo_clients\rpc\transports\http_provider.rs - neo_clients::rpc::transports::http_provider::HttpProvider::new_with_auth (line 337) ... ok
+test src\neo_clients\utils.rs - neo_clients::utils::ProviderResult (line 43) ... ok
+test src\neo_clients\rpc\transports\http_provider.rs - neo_clients::rpc::transports::http_provider::HttpProvider::new (line 303) ... ok
+test src\neo_codec\binary_encoder.rs - neo_codec::binary_encoder::Serialize (line 9) ... ok
+test src\neo_codec\binary_decoder.rs - neo_codec::binary_decoder::Setters (line 9) ... ok
+test src\neo_codec\binary_decoder.rs - neo_codec::binary_decoder (line 9) ... ok
+test src\neo_codec\binary_decoder.rs - neo_codec::binary_decoder::Getters (line 9) ... ok
+test src\neo_crypto\base58_helper.rs - neo_crypto::base58_helper::base58check_encode (line 22) ... ok
+test src\neo_crypto\base58_helper.rs - neo_crypto::base58_helper::calculate_checksum (line 77) ... ok
+test src\neo_crypto\base58_helper.rs - neo_crypto::base58_helper::try_base58check_decode (line 41) ... ok
+test src\neo_crypto\crypto_lib.rs - neo_crypto::crypto_lib::verify_with_ed25519 (line 95) - compile ... ok
+test src\neo_crypto\mod.rs - neo_crypto (line 25) - compile ... ok
+test src\neo_crypto\mod.rs - neo_crypto (line 40) - compile ... ok
+test src\neo_crypto\mod.rs - neo_crypto (line 55) - compile ... ok
+test src\neo_crypto\crypto_lib.rs - neo_crypto::crypto_lib::blake2b_512 (line 66) ... ok
+test src\neo_fs\mod.rs - neo_fs (line 39) - compile ... ok
+test src\neo_crypto\crypto_lib.rs - neo_crypto::crypto_lib::sha3_512 (line 39) ... ok
+test src\neo_protocol\mod.rs - neo_protocol (line 23) - compile ... ok
+test src\neo_protocol\mod.rs - neo_protocol (line 38) - compile ... ok
+test src\neo_protocol\test_node.rs - neo_protocol::test_node (line 20) - compile ... ok
+test src\neo_protocol\test_node.rs - neo_protocol::test_node (line 40) - compile ... ok
+test src\neo_protocol\test_node.rs - neo_protocol::test_node (line 64) - compile ... ok
+test src\neo_crypto\keys.rs - neo_crypto::keys (line 34) ... ok
+test src\neo_protocol\account.rs - neo_protocol::account (line 18) ... ok
+test src\neo_error\unified.rs - neo_error::unified::ProvideErrorMetadata (line 232) ... ok
+test src\neo_types\mod.rs - neo_types (line 45) - compile ... ok
+test src\neo_types\mod.rs - neo_types (line 27) - compile ... ok
+test src\neo_types\serde_with_utils.rs - neo_types::serde_with_utils (line 24) - compile ... ok
+test src\neo_protocol\nep2.rs - neo_protocol::nep2::NEP2::decrypt (line 222) ... ok
+test src\neo_types\address.rs - neo_types::address::AddressExtension::address_to_script_hash (line 35) ... ok
+test src\neo_types\address_or_scripthash.rs - neo_types::address_or_scripthash::AddressOrScriptHash::address (line 135) ... ok
+test src\neo_protocol\nep2.rs - neo_protocol::nep2::NEP2::decrypt_with_params (line 255) ... ok
+test src\neo_types\address.rs - neo_types::address::AddressExtension::random (line 76) ... ok
+test src\neo_protocol\nep2.rs - neo_protocol::nep2 (line 19) ... ok
+test src\neo_protocol\nep2.rs - neo_protocol::nep2::NEP2::encrypt_with_params (line 137) ... ok
+test src\neo_protocol\nep2.rs - neo_protocol::nep2::NEP2::encrypt (line 105) ... ok
+test src\neo_protocol\nep2.rs - neo_protocol::nep2 (line 37) has been running for over 60 seconds
+test src\neo_protocol\nep2.rs - neo_protocol::nep2 (line 37) ... ok
+test src\neo_types\address.rs - neo_types::address::AddressExtension::hex_to_script_hash (line 63) ... ok
+test src\neo_types\address.rs - neo_types::address::AddressExtension::script_to_script_hash (line 50) ... ok
+test src\neo_types\address_or_scripthash.rs - neo_types::address_or_scripthash::AddressOrScriptHash::from (line 74) ... ok

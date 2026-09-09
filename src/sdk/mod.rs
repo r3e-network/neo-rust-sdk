@@ -83,6 +83,7 @@
 //!   bridging Neo N3 ↔ Neo X (EVM).
 //! - `websocket` — push-based event subscriptions (requires `ws` feature).
 
+pub mod fee;
 pub mod hd_wallet;
 mod retry;
 pub mod transaction_simulator;
@@ -94,6 +95,8 @@ pub mod unified;
 #[cfg(feature = "ws")]
 pub mod websocket;
 
+use crate::sdk::fee::{resolve_fee_adjustment, FeePolicy};
+pub use self::fee::{FeeAdjustment, FeePriority};
 use self::retry::{retry_network, DEFAULT_RETRY_DELAY};
 use crate::{
 	neo_clients::{APITrait, HttpProvider, RpcCache, RpcClient},
@@ -139,6 +142,12 @@ pub struct Neo {
 	endpoint: String,
 	cache: Option<RpcCache>,
 	config: SdkConfig,
+	/// Fee strategy applied to transactions built by the send flow.
+	///
+	/// Defaults to dynamic [`GasEstimator`](crate::neo_builder::transaction::GasEstimator)-backed
+	/// estimation with a [`FeePriority::Medium`] margin; override via
+	/// [`NeoBuilder::fee_policy`] or [`Neo::with_fee_policy`].
+	fee_policy: FeePolicy,
 }
 
 /// Network configuration
@@ -591,7 +600,7 @@ async fn send_tx_with_retry<'a>(
 /// identical script construction, validity window, and send semantics. The
 /// 4th transfer argument carries `memo` when supplied (the receiving contract
 /// sees it); otherwise `any` is passed.
-async fn build_and_send_transfer(
+pub async fn build_and_send_transfer(
 	client: &RpcClient<HttpProvider>,
 	from_account: &crate::neo_protocol::Account,
 	to: &str,
@@ -599,6 +608,8 @@ async fn build_and_send_transfer(
 	token: Token,
 	memo: Option<&str>,
 	max_attempts: u32,
+	fee_policy: FeePolicy,
+	sponsor: Option<ScriptHash>,
 ) -> Result<TxHash, NeoError> {
 	use crate::neo_builder::{AccountSigner, CallFlags, ScriptBuilder, TransactionBuilder};
 	use crate::neo_types::ScriptHashExtension;
@@ -645,18 +656,47 @@ async fn build_and_send_transfer(
 	let signer = AccountSigner::called_by_entry(from_account)
 		.map_err(|e| NeoError::transaction("Failed to create signer", e))?;
 
+	// When a sponsor is supplied, build a gas-less signer set: the sponsor is
+	// placed first as the fee-payer (`None` scope) and the sender follows as
+	// `CalledByEntry`. A placeholder relayer witness is prepared for the sponsor
+	// to complete off-chain. Non-sponsored transfers keep their existing single
+	// signer, so this is purely additive.
+	let signers: Vec<crate::builder::Signer> = if let Some(sponsor_hash) = sponsor {
+		use crate::neo_contract::gasless::{build_sponsored_signers, setup_relayer_witness_for_tx};
+
+		// Prepare the placeholder relayer witness (sponsor signs off-chain).
+		let _relayer_witness = setup_relayer_witness_for_tx(sponsor_hash);
+		build_sponsored_signers(from_account, sponsor_hash)
+			.map_err(|e| NeoError::transaction("Failed to build sponsored signers", e))?
+	} else {
+		vec![signer.into()]
+	};
+
 	let current_height =
 		retry_network("fetch current block height", max_attempts, DEFAULT_RETRY_DELAY, || async {
 			client.get_block_count().await
 		})
 		.await?;
 
+	let script = sb.to_bytes();
+
+	// A sponsored transaction has its fees covered by the sponsor, so estimate
+	// with a fixed (non-priority) policy; otherwise use the caller's policy.
+	let effective_fee_policy = if sponsor.is_some() { FeePolicy::default() } else { fee_policy };
+
+	// Estimate fees dynamically (priority-aware) via the GasEstimator before
+	// signing. When estimation is unavailable this degrades to a zero
+	// adjustment, preserving the builder's existing fee behaviour.
+	let adjustment = resolve_fee_adjustment(client, &script, &signers, &effective_fee_policy).await;
+
 	let mut tb = TransactionBuilder::with_client(client);
-	tb.extend_script(sb.to_bytes());
-	tb.set_signers(vec![signer.into()])
+	tb.extend_script(script);
+	tb.set_signers(signers)
 		.map_err(|e| NeoError::transaction("Failed to set signers", e))?;
 	tb.valid_until_block(current_height + 5760)
 		.map_err(|e| NeoError::transaction("Invalid valid-until-block", e))?;
+	tb.set_additional_system_fee(adjustment.additional_system_fee);
+	tb.set_additional_network_fee(adjustment.additional_network_fee);
 
 	let mut tx = tb
 		.sign()
@@ -778,6 +818,40 @@ impl Neo {
 	#[must_use]
 	pub fn builder() -> NeoBuilder {
 		NeoBuilder::default()
+	}
+
+	/// Create a new instance with an overridden fee policy.
+	///
+	/// Returns a copy of this SDK instance with the supplied fee policy replacing
+	/// the existing one. The underlying client, network, and config remain unchanged.
+	///
+	/// # Examples
+	///
+	/// ```no_run
+	/// use neo3::sdk::{Neo, fee::{FeePolicy, FeePriority}};
+	///
+	/// # #[tokio::main]
+	/// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+	/// let neo = Neo::testnet().await?;
+	///
+	/// // High-priority dynamic estimation.
+	/// let aggressive = neo.with_fee_policy(FeePolicy::dynamic(FeePriority::High));
+	///
+	/// // Fixed additional fees (bypasses estimation).
+	/// let offline = neo.with_fee_policy(FeePolicy::fixed(1000, 500));
+	/// # Ok(())
+	/// # }
+	/// ```
+	#[must_use]
+	pub fn with_fee_policy(&self, fee_policy: FeePolicy) -> Self {
+		Self {
+			client: self.client.clone(),
+			network: self.network.clone(),
+			endpoint: self.endpoint.clone(),
+			cache: None,
+			config: self.config.clone(),
+			fee_policy,
+		}
 	}
 
 	/// Get the balance of an address
@@ -1000,6 +1074,8 @@ impl Neo {
 			token,
 			None,
 			max_attempts,
+			self.fee_policy,
+			None, // No sponsor by default for backwards compatibility
 		)
 		.await?;
 
@@ -1307,12 +1383,26 @@ impl Neo {
 		)
 		.await?;
 
+		let script = sb.to_bytes();
+		let signers = vec![signer_obj.into()];
+
+		// Estimate fees dynamically (priority-aware) via GasEstimator before signing.
+		let adjustment = resolve_fee_adjustment(
+			self.client.as_ref(),
+			&script,
+			&signers,
+			&self.fee_policy,
+		)
+		.await;
+
 		let mut tb = TransactionBuilder::with_client(self.client.as_ref());
-		tb.extend_script(sb.to_bytes());
-		tb.set_signers(vec![signer_obj.into()])
+		tb.extend_script(script);
+		tb.set_signers(signers)
 			.map_err(|e| NeoError::transaction("Failed to set signer", e))?;
 		tb.valid_until_block(current_height + 2400)
 			.map_err(|e| NeoError::transaction("Invalid valid-until-block", e))?;
+		tb.set_additional_system_fee(adjustment.additional_system_fee);
+		tb.set_additional_network_fee(adjustment.additional_network_fee);
 
 		let mut tx = tb
 			.sign()
@@ -1492,11 +1582,12 @@ impl Neo {
 pub struct NeoBuilder {
 	network: Network,
 	config: SdkConfig,
+	fee_policy: FeePolicy,
 }
 
 impl Default for NeoBuilder {
 	fn default() -> Self {
-		Self { network: Network::TestNet, config: SdkConfig::default() }
+		Self { network: Network::TestNet, config: SdkConfig::default(), fee_policy: FeePolicy::default() }
 	}
 }
 
@@ -1558,6 +1649,17 @@ impl NeoBuilder {
 		self
 	}
 
+	/// Set the fee estimation policy.
+	///
+	/// By default dynamic gas estimation is used with a Medium priority margin.
+	/// Use this to switch to a different priority (Low/Medium/High) or to lock
+	/// fixed additional fees that will be applied on top of the builder's estimates.
+	#[must_use]
+	pub fn fee_policy(mut self, fee_policy: FeePolicy) -> Self {
+		self.fee_policy = fee_policy;
+		self
+	}
+
 	/// Build the Neo SDK instance
 	pub async fn build(self) -> Result<Neo, NeoError> {
 		let endpoint = match &self.network {
@@ -1596,7 +1698,14 @@ impl NeoBuilder {
 
 		let cache = self.config.cache_enabled.then(RpcCache::new_rpc_cache);
 
-		Ok(Neo { client, network: self.network, endpoint, cache, config: self.config })
+		Ok(Neo {
+			client,
+			network: self.network,
+			endpoint,
+			cache,
+			config: self.config,
+			fee_policy: self.fee_policy,
+		})
 	}
 }
 
@@ -1609,18 +1718,26 @@ pub struct Transfer {
 	amount: u64,
 	token: Token,
 	memo: Option<String>,
+	sponsor: Option<ScriptHash>,
 }
 
 impl Transfer {
 	/// Create a new transfer
 	pub fn new(from: Wallet, to: impl Into<String>, amount: u64, token: Token) -> Self {
-		Self { from, to: to.into(), amount, token, memo: None }
+		Self { from, to: to.into(), amount, token, memo: None, sponsor: None }
 	}
 
 	/// Add an optional memo to the transfer
 	#[must_use]
 	pub fn with_memo(mut self, memo: impl Into<String>) -> Self {
 		self.memo = Some(memo.into());
+		self
+	}
+
+	/// Optionally configure a sponsor (paymaster) address for gasless transaction
+	#[must_use]
+	pub fn with_sponsor(mut self, sponsor: ScriptHash) -> Self {
+		self.sponsor = Some(sponsor);
 		self
 	}
 
@@ -1641,6 +1758,8 @@ impl Transfer {
 			// attempt still benefits from retry-aware height fetch and
 			// already-known-transaction handling in the send path.
 			1,
+			FeePolicy::default(), // Default policy for the Transfer builder
+			self.sponsor,
 		)
 		.await
 	}

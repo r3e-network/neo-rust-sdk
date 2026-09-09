@@ -18,6 +18,7 @@ pub trait NonFungibleTokenTrait<'a, P: JsonRpcProvider>: TokenTrait<'a, P> + Sen
 	const TRANSFER: &'static str = "transfer";
 	const TOKENS: &'static str = "tokens";
 	const PROPERTIES: &'static str = "properties";
+	const TOKEN_URI: &'static str = "tokenURI";
 
 	// Token methods
 
@@ -328,10 +329,20 @@ pub trait NonFungibleTokenTrait<'a, P: JsonRpcProvider>: TokenTrait<'a, P> + Sen
 		.await
 	}
 
+	async fn token_uri(&mut self, token_id: Bytes) -> Result<String, ContractError> {
+		self.throw_if_divisible_nft().await?;
+
+		self.call_function_returning_string(
+			<NftContract<P> as NonFungibleTokenTrait<P>>::TOKEN_URI,
+			vec![token_id.into()],
+		)
+		.await
+	}
+
 	async fn properties(
 		&mut self,
 		token_id: Bytes,
-	) -> Result<HashMap<String, String>, ContractError> {
+	) -> Result<HashMap<String, StackItem>, ContractError> {
 		let invocation_result = self
 			.call_invoke_function(
 				<NftContract<P> as NonFungibleTokenTrait<P>>::PROPERTIES,
@@ -348,17 +359,12 @@ pub trait NonFungibleTokenTrait<'a, P: JsonRpcProvider>: TokenTrait<'a, P> + Sen
 			ContractError::UnexpectedReturnType(stack_item.to_string() + StackItem::MAP_VALUE)
 		})?;
 
-		map.iter()
-			.map(|(k, v)| {
-				let key = k
-					.as_string()
-					.ok_or_else(|| ContractError::UnexpectedReturnType("String".to_string()))?;
-				let value = v
-					.as_string()
-					.ok_or_else(|| ContractError::UnexpectedReturnType("String".to_string()))?;
-				Ok((key, value))
-			})
-			.collect()
+		Ok(map.into_iter().map(|(k, v)| {
+			let key = k
+				.as_string()
+				.ok_or_else(|| ContractError::UnexpectedReturnType("String".to_string()));
+			Ok((key?, v.clone()))
+		}).collect::<Result<HashMap<String, StackItem>, ContractError>>()?)
 	}
 
 	async fn custom_properties(

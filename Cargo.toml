@@ -1,12 +1,12 @@
 [package]
 name = "neo3"
-version = "3.1.0"
+version = "3.3.0"
 edition = "2021"
 rust-version = "1.95"
 authors = ["R3E Network <jimmy@r3e.network> (c) 2020-2026"]
 license = "MIT OR Apache-2.0"
 publish = ["crates-io"]
-description = "Production-ready Rust SDK for Neo N3 blockchain with high-level API, unified error handling, enterprise features, and comprehensive optimization (v3.1.0)"
+description = "Production-ready Rust SDK for Neo N3 blockchain with high-level API, unified error handling, enterprise features, and comprehensive optimization (v3.3.0)"
 documentation = "https://docs.rs/neo3"
 repository = "https://github.com/r3e-network/neo-rust-sdk"
 homepage = "https://github.com/r3e-network/neo-rust-sdk"
@@ -110,18 +110,26 @@ auto_impl = "1.1"
 
 # misc
 bytes = "1.4"
-hex = { package = "const-hex", version = "1.6", features = ["hex"] }
+hex = { package = "const-hex", version = "1.6" }
 hex-literal = "1.1"
 once_cell = "1.21"
 rand = "0.9.3"
 rayon = "1.7"
-# tempfile: moved to [dev-dependencies]
 thiserror = "2.0.17"
 
-# tracing
+# cfg-if for conditional compilation
+cfg-if = "1.0"
+
 tracing = "0.1.44"
-tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "std"] }
+tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "std", "json", "registry"] }
 tracing-futures = "0.2.5"
+
+# OpenTelemetry / OTLP export (optional, gated behind the `otlp` feature to keep
+# the default build lean and avoid pulling heavy gRPC/tower dependencies).
+opentelemetry = { version = "0.27", optional = true }
+opentelemetry_sdk = { version = "0.27", features = ["trace", "rt-tokio"], optional = true }
+opentelemetry-otlp = { version = "0.27", features = ["trace", "tonic"], optional = true }
+tracing-opentelemetry = { version = "0.28", optional = true }
 
 # wasm
 # instant = "0.1.12"  # REMOVED: Unmaintained (RUSTSEC-2024-0384)
@@ -154,6 +162,15 @@ num_enum =   "0.7.6"
 derive_more = { version = "2.1.1", features = ["full"] }
 getset = "0.1.2"
 rustc-hash = { version = "2.1", optional = true }
+
+# Zeroize for secure memory handling
+zeroize = "1.7"
+# Ring for ECDSA cryptography (SGX quote verification)
+ring = "0.17"
+# X.509 certificate parsing (SGX DCAP attestation)
+x509-cert = { version = "0.2", optional = true }
+der = { version = "0.7", features = ["alloc"], optional = true }
+const-oid = { version = "0.9", optional = true }
 
 scrypt = "0.11.0"
 signature   = "2.1.0"
@@ -199,18 +216,19 @@ tokio = { version = "1.45", default-features = false, features = ["sync", "macro
 mockall = "0.14.0"
 tracing = "0.1"
 tracing-subscriber = "0.3.23"
-criterion = { version = "0.8", features = ["html_reports"] }
+criterion = { version = "0.5", features = ["html_reports"] }
 tempfile = "3.27"
 serial_test = "3.5.0"
 proptest = "1.11"
 env_logger = "0.11"
+cargo-nextest = "0.9"
+insta = "1.32"
+proptest-derive = "0.4"
+# Required for SGX certificate chain tests (keygen/signing/verification)
+ring = "0.17"
 
 [[bench]]
 name = "crypto_benchmarks"
-harness = false
-
-[[bench]]
-name = "script_builder_benchmarks"
 harness = false
 
 [[bench]]
@@ -218,8 +236,29 @@ name = "gas_estimator_benchmarks"
 harness = false
 
 [[bench]]
+name = "script_builder_benchmarks"
+harness = false
+
+[[bench]]
 name = "wallet_benchmarks"
 harness = false
+
+[[bench]]
+name = "production_benchmarks"
+harness = false
+
+# Explicitly register fuzz tests (not auto-discovered by Cargo)
+[[test]]
+name = "script_parser_fuzz"
+path = "tests/fuzz/script_parser_fuzz.rs"
+
+[[test]]
+name = "cryptographic_fuzz"
+path = "tests/fuzz/cryptographic_fuzz.rs"
+
+[[test]]
+name = "rpc_response_fuzz"
+path = "tests/fuzz/rpc_response_fuzz.rs"
 
 [features]
 futures = []
@@ -235,17 +274,30 @@ ipc = ["dep:rustc-hash"]
 init = []
 legacy-ws = ["dep:tokio-tungstenite"]
 ws = ["dep:tokio-tungstenite"]
+# Real OTLP trace export via OpenTelemetry. Non-default: pulls in tonic/gRPC and
+# the opentelemetry stack. Enable with `--features otlp`.
+otlp = [
+    "dep:opentelemetry",
+    "dep:opentelemetry_sdk",
+    "dep:opentelemetry-otlp",
+    "dep:tracing-opentelemetry",
+]
+# Prometheus metrics export via an HTTP `/metrics` endpoint. Purely additive;
+# reuses tokio + serde_json already in the dependency tree (no new deps).
+metrics-prometheus = []
+# OpenTelemetry OTLP trace/metrics export. Alias that pulls in the existing
+# `otlp` feature stack (opentelemetry / opentelemetry_sdk / opentelemetry-otlp /
+# tracing-opentelemetry, all already declared as optional deps).
+metrics-otlp = ["otlp"]
 # Note: use `yubi` feature to enable YubiHSM support (activates `dep:yubihsm`)
 
 # SGX support for secure enclave execution
 # Note: SGX dependencies must be manually uncommented above when building for SGX
 sgx = [
-    "no_std"
-    # Uncomment these when SGX dependencies are enabled:
-    # "sgx_tstd",
-    # "sgx_types", 
-    # "sgx_trts",
-    # "sgx_tcrypto",
+    "no_std",
+    "dep:x509-cert",
+    "dep:der",
+    "dep:const-oid"
 ]
 
 # no_std support for embedded and SGX environments

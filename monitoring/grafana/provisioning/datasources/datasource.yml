@@ -19,3 +19,13 @@ datasources:
     access: proxy
     url: http://loki:3100
     editable: true
+
+  # Optional: Grafana Tempo backend for OTLP traces emitted by the SDK
+  # (`--features metrics-otlp`). Only resolves when a `tempo` service is added
+  # to docker-compose.yml (see monitoring/tempo/tempo-config.yml). Coexists with
+  # Jaeger; use whichever backend the OTEL collector is configured to export to.
+  - name: Tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    editable: true

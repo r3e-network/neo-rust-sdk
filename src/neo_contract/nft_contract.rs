@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use primitive_types::H160;
+use std::collections::HashMap;
 
 use crate::{
 	neo_clients::{JsonRpcProvider, RpcClient},
@@ -7,7 +8,7 @@ use crate::{
 		traits::{NonFungibleTokenTrait, SmartContractTrait, TokenTrait},
 		ContractError,
 	},
-	neo_types::NNSName,
+	neo_types::{Bytes, NNSName, StackItem},
 };
 
 #[derive(Debug)]
@@ -84,4 +85,55 @@ impl<'a, P: JsonRpcProvider> SmartContractTrait<'a> for NftContract<'a, P> {
 }
 
 #[async_trait]
-impl<'a, P: JsonRpcProvider> NonFungibleTokenTrait<'a, P> for NftContract<'a, P> {}
+impl<'a, P: JsonRpcProvider> NonFungibleTokenTrait<'a, P> for NftContract<'a, P> {
+	const TOKEN_URI: &'static str = "tokenURI";
+
+	async fn owner_of(&mut self, token_id: Bytes) -> Result<H160, ContractError> {
+		self.throw_if_divisible_nft().await?;
+
+		self.call_function_returning_script_hash(
+			<NftContract<P> as NonFungibleTokenTrait<P>>::OWNER_OF,
+			vec![token_id.into()],
+		)
+		.await
+	}
+
+	async fn token_uri(&mut self, token_id: Bytes) -> Result<String, ContractError> {
+		self.throw_if_divisible_nft().await?;
+
+		self.call_function_returning_string(
+			Self::TOKEN_URI,
+			vec![token_id.into()],
+		)
+		.await
+	}
+
+	async fn properties(&mut self, token_id: Bytes) -> Result<HashMap<String, StackItem>, ContractError> {
+		self.custom_properties(token_id).await
+	}
+
+	async fn custom_properties(&mut self, token_id: Bytes) -> Result<HashMap<String, StackItem>, ContractError> {
+		let invocation_result = self.call_invoke_function(
+			<NftContract<P> as NonFungibleTokenTrait<P>>::PROPERTIES,
+			vec![token_id.into()],
+			vec![],
+		).await?;
+		self.throw_if_fault_state(&invocation_result)?;
+
+		let stack_item = invocation_result
+			.get_first_stack_item()
+			.map_err(|e| ContractError::InvalidResponse(e.to_string()))?;
+		let map = stack_item.as_map().ok_or_else(|| {
+			ContractError::UnexpectedReturnType(stack_item.to_string() + StackItem::MAP_VALUE)
+		})?;
+
+		map.into_iter()
+			.map(|(k, v)| {
+				let key = k
+					.as_string()
+					.ok_or_else(|| ContractError::UnexpectedReturnType("String".to_string()))?;
+				Ok((key, v.clone()))
+			})
+			.collect()
+	}
+}

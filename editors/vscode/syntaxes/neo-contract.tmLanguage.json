@@ -1,0 +1,147 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Neo Contract",
+  "scopeName": "source.neo",
+  "patterns": [
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#types"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#numbers"
+    }
+  ],
+  "repository": {
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.neo",
+          "match": "\\b(if|else|while|for|loop|match|return|break|continue)\\b"
+        },
+        {
+          "name": "storage.type.struct.neo",
+          "match": "\\bstruct\\b"
+        },
+        {
+          "name": "storage.type.enum.neo",
+          "match": "\\benum\\b"
+        },
+        {
+          "name": "storage.type.trait.neo",
+          "match": "\\btrait\\b"
+        },
+        {
+          "name": "storage.type.impl.neo",
+          "match": "\\bimpl\\b"
+        },
+        {
+          "name": "keyword.other.module.neo",
+          "match": "\\b(mod|pub|crate|use)\\b"
+        },
+        {
+          "name": "keyword.other.contract.callflags",
+          "match": "\\b(CallFlags::(None|ReadOnly|ReadWrite|Storages)|CallFlags::All)\\b"
+        },
+        {
+          "name": "constant.language.token.neo",
+          "match": "\\bToken::(NEO|GAS|Custom)\\b"
+        },
+        {
+          "name": "keyword.other.fee.priority",
+          "match": "\\bFeePriority::(Low|Medium|High)\\b"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "support.type.primitive.neo",
+          "match": "\\b(u64|i64|u32|i32|Bytes|ScriptHash|H160|H256|ContractParameter|Vec<String>)\\b"
+        },
+        {
+          "name": "support.class.contract.neo",
+          "match": "\\b(NftContract|FungibleTokenContract|NonFungibleTokenTrait|Balance|Token|Wallet|SessionSigner|SessionKeyConfig|ContractEventQuery|AccountEventQuery|RelayerClient|GaslessConfig)\\b"
+        },
+        {
+          "name": "variable.parameter.address.neo",
+          "match": "\\b(owner|to|from|account|address|contract_hash|token_id)\\b"
+        },
+        {
+          "name": "variable.parameter.method.neo",
+          "match": "\\b(balanceOf|owner_of|transfer|tokens_of|deploy|invoke|get_balance)\\b"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.neo",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "entity.name.tag.tabstop.rust",
+              "match": "\\$\\d+(?:\\{[^}]+\\})?"
+            },
+            {
+              "name": "constant.character.escape.neo",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.interpolated.rust",
+          "begin": "r?(\"",
+          "end": "\"\\w*",
+          "patterns": [
+            {
+              "name": "constant.character.escape.neo",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.neo",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.block.neo",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.integer.base.gas",
+          "match": "\\b(\\d+_?){8}\\b"
+        },
+        {
+          "name": "constant.numeric.decimal.gas",
+          "match": "(\\d+)\\.\\d+$"
+        },
+        {
+          "name": "constant.numeric.integer.u64",
+          "match": "\\b\\d+\\b"
+        },
+        {
+          "name": "constant.hex.script-hash",
+          "match": "\\b0x[a-fA-F0-9]{40}\\b"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,242 @@
+{
+  "Neo connect to network": {
+    "prefix": "neo-connect",
+    "scope": "rust",
+    "body": [
+      "use neo3::prelude::*;",
+      "",
+      "// Connect to a Neo N3 endpoint. Use `Neo::testnet()`, `Neo::mainnet()`,",
+      "// or `Neo::connect(url)` for a custom/private node.",
+      "let neo = Neo::${1|testnet,mainnet|}().await?;",
+      "let height = neo.get_block_height().await?;",
+      "println!(\"connected, tip = {height}\");",
+      "$0"
+    ],
+    "description": "Connect to Neo N3 via the high-level SDK (Neo::testnet/mainnet)."
+  },
+  "Neo connect to custom RPC": {
+    "prefix": "neo-connect-url",
+    "scope": "rust",
+    "body": [
+      "use neo3::prelude::*;",
+      "",
+      "// Connect to any RPC endpoint (private nodes, load balancers, sandboxes).",
+      "let neo = Neo::connect(\"${1:https://my-node.example.com:443}\").await?;",
+      "$0"
+    ],
+    "description": "Connect to a custom Neo N3 RPC endpoint with Neo::connect(url)."
+  },
+  "Neo create new wallet": {
+    "prefix": "neo-wallet-new",
+    "scope": "rust",
+    "body": [
+      "use neo3::prelude::*;",
+      "use neo3::neo_wallets::{Wallet, WalletTrait};",
+      "",
+      "// Create an in-memory wallet and add a fresh account.",
+      "let mut wallet = Wallet::new();",
+      "let account = wallet.create_account()?;",
+      "println!(\"new account: {}\", account.get_address());",
+      "$0"
+    ],
+    "description": "Create a new in-memory wallet and generate an account."
+  },
+  "Neo open encrypted wallet file": {
+    "prefix": "neo-wallet-load",
+    "scope": "rust",
+    "body": [
+      "use std::path::Path;",
+      "use neo3::neo_wallets::Wallet;",
+      "",
+      "// Open a NEP-6 wallet file, decrypting accounts with the password.",
+      "let wallet = Wallet::open_wallet(Path::new(\"${1:wallet.json}\"), \"${2:password}\")?;",
+      "$0"
+    ],
+    "description": "Open (load) an encrypted NEP-6 wallet file from disk."
+  },
+  "Neo NEP-17 balance query": {
+    "prefix": "neo-balance",
+    "scope": "rust",
+    "body": [
+      "use neo3::prelude::*;",
+      "",
+      "// High-level balance: NEO (indivisible), GAS (8 decimals), plus NEP-17 tokens.",
+      "let balance = neo.get_balance(\"${1:NbTiM6h8r99kpRtb428XcsUk1TzKed2gTc}\").await?;",
+      "println!(\"NEO: {}  GAS: {}\", balance.neo, balance.gas);",
+      "for token in &balance.tokens {",
+      "\tprintln!(\"{}: {}\", token.symbol, token.amount);",
+      "}",
+      "$0"
+    ],
+    "description": "Query NEO/GAS and NEP-17 token balances for an address."
+  },
+  "Neo send NEP-17 transfer": {
+    "prefix": "neo-send",
+    "scope": "rust",
+    "body": [
+      "use neo3::prelude::*;",
+      "",
+      "// Transfer a native or custom NEP-17 token from a wallet to an address.",
+      "// `amount` is in the token's base units (GAS has 8 decimals).",
+      "let tx_hash = neo",
+      "\t.transfer(&${1:wallet}, \"${2:NbTiM6h8r99kpRtb428XcsUk1TzKed2gTc}\", ${3:100_000_000}, Token::${4|GAS,NEO|})",
+      "\t.await?;",
+      "println!(\"sent: {tx_hash}\");",
+      "$0"
+    ],
+    "description": "Send a NEP-17 transfer (NEO/GAS/custom) via Neo::transfer."
+  },
+  "Neo deploy contract": {
+    "prefix": "neo-deploy",
+    "scope": "rust",
+    "body": [
+      "use std::fs;",
+      "use neo3::prelude::*;",
+      "",
+      "// Deploy a smart contract from its compiled NEF bytes and manifest JSON.",
+      "let nef_bytes = fs::read(\"${1:contract.nef}\")?;",
+      "let manifest = fs::read_to_string(\"${2:contract.manifest.json}\")?;",
+      "let contract_hash = neo.deploy_contract(&${3:wallet}, nef_bytes, manifest).await?;",
+      "println!(\"deployed at: {contract_hash}\");",
+      "$0"
+    ],
+    "description": "Deploy a smart contract with NEF bytes and manifest via Neo::deploy_contract."
+  },
+  "Neo invoke contract (read + write)": {
+    "prefix": "neo-invoke",
+    "scope": "rust",
+    "body": [
+      "use neo3::prelude::*;",
+      "",
+      "let contract = ScriptHash::from_address(\"${1:contract-address}\")?;",
+      "",
+      "// Read-only invocation (no transaction, no signing).",
+      "let result = neo",
+      "\t.invoke_read(&contract, \"${2:balanceOf}\", vec![ContractParameter::h160(&owner)])",
+      "\t.await?;",
+      "",
+      "// State-changing invocation (builds, signs, and broadcasts a transaction).",
+      "let tx_hash = neo",
+      "\t.invoke_write(&${3:wallet}, &contract, \"${4:transfer}\", vec![$5])",
+      "\t.await?;",
+      "$0"
+    ],
+    "description": "Invoke a contract read-only (invoke_read) and state-changing (invoke_write)."
+  },
+  "Neo NEP-11 NFT owner_of / transfer": {
+    "prefix": "neo-nft",
+    "scope": "rust",
+    "body": [
+      "use neo3::prelude::*;",
+      "use neo3::neo_contract::NftContract;",
+      "",
+      "// NEP-11 non-fungible token contract bound to an RPC client.",
+      "let mut nft = NftContract::new(&${1:contract_hash}, Some(&${2:client}));",
+      "let token_id: Bytes = ${3:token_id}.to_vec();",
+      "",
+      "// Who owns this token?",
+      "let owner = nft.owner_of(token_id.clone()).await?;",
+      "println!(\"owner: {owner}\");",
+      "",
+      "// Transfer the token to a new owner.",
+      "let builder = nft.transfer(&${4:to_account}, token_id, None).await?;",
+      "$0"
+    ],
+    "description": "NEP-11 NFT: query owner_of and transfer via NftContract."
+  },
+  "Neo NEP-27 contract event query": {
+    "prefix": "neo-events-contract",
+    "scope": "rust",
+    "body": [
+      "use neo3::prelude::*;",
+      "",
+      "// NEP-27 contract event query: scan a block range for a contract's events.",
+      "let events = ContractEventQuery::new(${1:contract_hash})",
+      "\t.event_name(\"${2:Transfer}\")",
+      "\t.block_range(${3:from_block}, ${4:to_block})",
+      "\t.limit(${5:100})",
+      "\t.execute(&${6:client})",
+      "\t.await?;",
+      "for event in events {",
+      "\tprintln!(\"{event:?}\");",
+      "}",
+      "$0"
+    ],
+    "description": "Query contract events over a block range with ContractEventQuery (NEP-27)."
+  },
+  "Neo NEP-91 account event query": {
+    "prefix": "neo-events-account",
+    "scope": "rust",
+    "body": [
+      "use neo3::prelude::*;",
+      "",
+      "// NEP-91 account event query: track events involving an account,",
+      "// optionally scoped to a single contract.",
+      "let events = AccountEventQuery::new(${1:account_hash})",
+      "\t.contract(${2:contract_hash})",
+      "\t.from_block(${3:from_block})",
+      "\t.to_block(${4:to_block})",
+      "\t.limit(${5:100})",
+      "\t.execute(&${6:client})",
+      "\t.await?;",
+      "for event in events {",
+      "\tprintln!(\"{event:?}\");",
+      "}",
+      "$0"
+    ],
+    "description": "Query account-related events with AccountEventQuery (NEP-91)."
+  },
+  "Neo session key signer": {
+    "prefix": "neo-session",
+    "scope": "rust",
+    "body": [
+      "use neo3::prelude::*;",
+      "",
+      "// Temporary, limited-permission session key derived from a parent key.",
+      "let config = SessionKeyConfig::transfer_only(${1:expiry_block}, ${2:1_000_000_000});",
+      "let mut signer = SessionSigner::new(${3:session_pubkey}, ${4:parent_key}, config)",
+      "\t.with_current_block(${5:current_block});",
+      "",
+      "if !signer.is_expired() {",
+      "\tlet signature = signer.sign_transaction(&${6:tx_hash}).await?;",
+      "\tprintln!(\"session-signed: {signature:?}\");",
+      "}",
+      "$0"
+    ],
+    "description": "Create a limited-permission SessionSigner from a SessionKeyConfig."
+  },
+  "Neo gas-less relayer (sponsored tx)": {
+    "prefix": "neo-gasless",
+    "scope": "rust",
+    "body": [
+      "use neo3::neo_contract::gasless::{GaslessConfig, RelayerClient, RelayerPolicy};",
+      "use neo3::prelude::*;",
+      "",
+      "// Sponsored (\"gas-less\") transaction: the sponsor pays the fees.",
+      "let policy = RelayerPolicy::new().with_max_fee(${1:100_000_000});",
+      "let config = GaslessConfig::new(${2:sponsor_hash}).with_policy(policy);",
+      "let relayer = RelayerClient::new(config.clone());",
+      "",
+      "let sponsored = relayer",
+      "\t.build_sponsored_call(&${3:contract}, \"${4:transfer}\", vec![$5], &${6:user_account}, &config)",
+      "\t.await?;",
+      "println!(\"sponsored script bytes: {}\", sponsored.script.len());",
+      "$0"
+    ],
+    "description": "Build a sponsored (gas-less) contract call with RelayerClient."
+  },
+  "Neo dynamic fee policy": {
+    "prefix": "neo-fee",
+    "scope": "rust",
+    "body": [
+      "use neo3::prelude::*;",
+      "use neo3::sdk::fee::{FeePolicy, FeePriority};",
+      "",
+      "// Bias transaction fees for faster mempool inclusion, or pin a fixed override.",
+      "let policy = FeePolicy::dynamic(FeePriority::${1|Low,Medium,High|});",
+      "let neo = neo.with_fee_policy(policy);",
+      "$0"
+    ],
+    "description": "Apply a dynamic priority-aware FeePolicy (FeePriority) to the SDK client."
+  }
+}

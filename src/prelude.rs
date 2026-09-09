@@ -133,3 +133,21 @@ pub use crate::neo_crypto::utils::{FromBase64String, FromHexString, ToHexString}
 // `Neo::from_env()`, `Neo::connect(url)` — see the crate-level docs for
 // guidance on when to use this layer versus the lower-level `providers::RpcClient`.
 pub use crate::sdk::{Balance, Neo, NeoBuilder, Network, SdkConfig, Token};
+
+// === Smart Contracts & NFT Support ===
+// Common contract interfaces including NEP-11 NFT standard support.
+pub use crate::neo_contract::{NftContract, NonFungibleTokenTrait};
+
+// NEP-27 contract event query builder
+pub use crate::neo_contract::{ContractEventQuery, ContractEventResult};
+
+// NEP-91 account event query builder
+pub use crate::neo_contract::{AccountEventQuery, AccountEventResult};
+
+// Session Key Management
+// Temporary, limited-permission keys for enterprise/multi-sig delegation
+pub use crate::neo_wallets::{SessionKeyConfig, SessionSigner, CallFlagsWrapper};
+
+// Test Node Emulator
+// In-process mock RPC server for deterministic testing and simulation
+pub use crate::neo_protocol::{TestNode, TestNodeConfig, TestNodeError, TestBlock, TestTransaction};

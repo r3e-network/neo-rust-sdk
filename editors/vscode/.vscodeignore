@@ -1,0 +1,19 @@
+# Generated
+.vscode
+node_modules
+dist
+
+# Git
+.git
+.gitignore
+
+# Build artifacts
+*.vsix
+
+# Editor
+.idea
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,73 @@
+name: Benchmark Trend Report
+# Monthly performance trend report (v3.3.0 Phase 5 acceptance criterion:
+# "Add monthly cron job to publish trend reports").
+#
+# Runs the full Criterion suite on a schedule, renders a monthly report from
+# the report template, and uploads it as a build artifact. Also runnable on
+# demand via workflow_dispatch.
+
+on:
+  schedule:
+    # 06:00 UTC on the 1st of every month.
+    - cron: "0 6 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  trend:
+    name: Monthly Criterion Trend
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-bench-trend-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-bench-trend-
+
+      - name: Install cargo-criterion
+        run: cargo install cargo-criterion --locked || true
+
+      - name: Run full benchmark suite (save monthly baseline)
+        run: |
+          MONTH_TAG="$(date -u +%Y-%m)"
+          echo "MONTH_TAG=$MONTH_TAG" >> "$GITHUB_ENV"
+          cargo bench --benches -- --save-baseline "monthly-$MONTH_TAG" --noplot
+
+      - name: Render monthly report
+        run: |
+          REPORT="benchmark-report-${MONTH_TAG}.md"
+          python3 scripts/render_monthly_report.py \
+            --baseline "monthly-${MONTH_TAG}" \
+            --criterion-dir target/criterion \
+            --template docs/templates/monthly-benchmark-report.md \
+            --month "${MONTH_TAG}" \
+            --output "$REPORT"
+          cat "$REPORT" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload monthly report + reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-trend-${{ env.MONTH_TAG }}
+          path: |
+            benchmark-report-*.md
+            target/criterion/**/report/**
+          if-no-files-found: ignore
+          retention-days: 400

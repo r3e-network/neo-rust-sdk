@@ -485,6 +485,7 @@ pub mod neo_fs;
 pub mod neo_protocol;
 #[cfg(all(feature = "sgx", target_env = "sgx"))]
 pub mod neo_sgx;
+pub mod sgx; // SGX quote verifier (v3.2.0)
 pub mod neo_wallets;
 pub mod neo_x;
 

@@ -26,3 +26,7 @@ path = "03_check_balance.rs"
 [[example]]
 name = "04_send_transaction"
 path = "04_send_transaction.rs"
+
+[[example]]
+name = "nep91_basic"
+path = "nep91_basic.rs"

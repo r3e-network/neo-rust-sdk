@@ -1,0 +1,34 @@
+﻿cargo :    Compiling neo3 v3.2.0 (D:\Git\neo-rust-sdk)
+At line:1 char:27
++ ... \neo-rust-sdk"; cargo test --doc neo_protocol::test_node 2>&1 | Out-F ...
++                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (   Compiling ne...t\neo-rust-sdk):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: fields `id` and `nft_ownership` are never read
+   --> src\neo_protocol\test_node.rs:422:9
+    |
+420 | struct ContractState {
+    |        ------------- fields in this struct
+421 |     /// Contract ID
+422 |     pub id: i64,
+    |         ^^
+...
+430 |     pub nft_ownership: HashMap<(H160, u64), H160>,
+    |         ^^^^^^^^^^^^^
+    |
+    = note: `ContractState` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead 
+code analysis
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `neo3` (lib) generated 1 warning
+    Finished `test` profile [optimized + debuginfo] target(s) in 12.32s
+   Doc-tests neo3
+
+running 3 tests
+test src\neo_protocol\test_node.rs - neo_protocol::test_node (line 20) - compile ... ok
+test src\neo_protocol\test_node.rs - neo_protocol::test_node (line 40) - compile ... ok
+test src\neo_protocol\test_node.rs - neo_protocol::test_node (line 64) - compile ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 218 filtered out; finished in 0.48s
+

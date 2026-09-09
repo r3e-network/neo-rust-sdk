@@ -1,0 +1,51 @@
+﻿cargo :    Compiling neo3 v3.2.0 (D:\Git\neo-rust-sdk)
+At line:1 char:27
++ ... \neo-rust-sdk"; cargo test --lib neo_protocol::test_node 2>&1 | Out-F ...
++                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (   Compiling ne...t\neo-rust-sdk):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: variable does not need to be mutable
+   --> src\neo_protocol\test_node.rs:862:13
+    |
+862 |         let mut node = TestNode::builder().with_initial_height(0).build_with_node();
+    |             ----^^^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `id` and `nft_ownership` are never read
+   --> src\neo_protocol\test_node.rs:422:9
+    |
+420 | struct ContractState {
+    |        ------------- fields in this struct
+421 |     /// Contract ID
+422 |     pub id: i64,
+    |         ^^
+...
+430 |     pub nft_ownership: HashMap<(H160, u64), H160>,
+    |         ^^^^^^^^^^^^^
+    |
+    = note: `ContractState` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead 
+code analysis
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `neo3` (lib test) generated 2 warnings (run `cargo fix --lib -p neo3 --tests` to apply 1 suggestion)
+    Finished `test` profile [optimized + debuginfo] target(s) in 19.49s
+     Running unittests src\lib.rs (target\debug\deps\neo3-f74095f163c37535.exe)
+
+running 10 tests
+test neo_protocol::test_node::tests::test_testnode_chain_settings ... ok
+test neo_protocol::test_node::tests::test_testnode_block_height ... ok
+test neo_protocol::test_node::tests::test_testnode_builder_pattern ... ok
+test neo_protocol::test_node::tests::test_testnode_fault_injection ... ok
+test neo_protocol::test_node::tests::test_testnode_block_creation ... ok
+test neo_protocol::test_node::tests::test_testnode_multi_account_balances ... ok
+test neo_protocol::test_node::tests::test_testnode_transaction_handling ... ok
+test neo_protocol::test_node::tests::test_testnode_state_snapshot ... ok
+test neo_protocol::test_node::tests::test_testnode_token_balance ... ok
+test neo_protocol::test_node::tests::test_testnode_response_delay ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 650 filtered out; finished in 0.11s
+

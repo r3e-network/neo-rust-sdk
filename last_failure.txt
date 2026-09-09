@@ -1,0 +1,106 @@
+﻿
+> [2m2026-09-07T13:14:28.428877Z[0m [33m WARN[0m [2mneo3::neo_contract::traits::smart_contract[0m[2m:[0m 
+Failed to fetch contract manifest; returning default [3merror[0m[2m=[0mProvider not set: Provider is required to 
+fetch contract manifest
+  test neo_contract::tests::tests::test_nep11_properties_with_mock_provider ... ok
+> [2m2026-09-07T13:14:28.428977Z[0m [33m WARN[0m [2mneo3::neo_contract::traits::smart_contract[0m[2m:[0m 
+Failed to resolve contract name; returning contract hash [3merror[0m[2m=[0mProvider not set: Provider is required 
+to fetch contract manifest [3mfallback[0m[2m=[0m5555555555555555555555555555555555555555
+  test neo_contract::tests::tests::test_nep11_tokens_of_with_mock_iterator ... ok
+  [2m2026-09-07T13:14:28.429016Z[0m [35mTRACE[0m [1mrpc[0m[1m{[0m[3mmethod[0m[2m=[0m"getcontractstate" 
+[3mparams_type[0m[2m=[0m"alloc::vec::Vec<alloc::string::String>"[1m}[0m[2m:[0m 
+[2mneo3::neo_clients::rpc::rpc_client[0m[2m:[0m 
+[3mrx_type[0m[2m=[0m"neo3::neo_types::contract::contract_state::ContractState"
+> [2m2026-09-07T13:14:28.429033Z[0m [33m WARN[0m [2mneo3::neo_contract::traits::smart_contract[0m[2m:[0m 
+Failed to resolve contract name; returning contract hash [3merror[0m[2m=[0mInvalid response: Contract manifest is 
+missing name [3mfallback[0m[2m=[0m3535353535353535353535353535353535353535
+  test neo_contract::tests::tests::test_nep11_transfer_builds_transaction ... ok
+  test neo_contract::tests::tests::test_nft_properties_basic ... ok
+  [2m2026-09-07T13:14:28.429140Z[0m [34mDEBUG[0m [2mhyper_util::client::legacy::connect::http[0m[2m:[0m 
+connected to 127.0.0.1:56091
+  [2m2026-09-07T13:14:28.429155Z[0m [35mTRACE[0m [1mrpc[0m[1m{[0m[3mmethod[0m[2m=[0m"getcontractstate" 
+[3mparams_type[0m[2m=[0m"alloc::vec::Vec<alloc::string::String>"[1m}[0m[2m:[0m 
+[2mneo3::neo_clients::rpc::rpc_client[0m[2m:[0m 
+[3mrx_type[0m[2m=[0m"neo3::neo_types::contract::contract_state::ContractState"
+  test neo_contract::tests::tests::test_nft_owner_of ... ok
+> test neo_protocol::test_node::tests::test_testnode_transaction_handling ... FAILED
+  test neo_types::address_or_scripthash::tests::test_from_address_panics_on_invalid_address - should panic ... ok
+  test neo_types::address_or_scripthash::tests::test_from_bytes_panics_on_invalid_length_instead_of_zero_hash - should 
+panic ... ok
+  test neo_types::address_or_scripthash::tests::test_try_from_bytes_rejects_invalid_length ... ok
+  test neo_types::address_or_scripthash::tests::test_try_script_hash_rejects_invalid_address ... ok
+  test neo_types::contract::contract_parameter::tests::contract_parameter_to_value_is_structured_json ... ok
+> [2m2026-09-07T13:14:28.447491Z[0m [33m WARN[0m [2mneo3::neo_types::contract::contract_parameter[0m[2m:[0m 
+Failed to convert NEF file to contract parameter via safe path; falling back to legacy serializer 
+[3merror[0m[2m=[0mInvalid encoding Invalid checksum
+  test neo_types::contract::contract_parameter::tests::test_array_from_array ... ok
+> [2m2026-09-07T13:14:28.447524Z[0m [33m WARN[0m [2mneo3::neo_types::contract::nef_file[0m[2m:[0m Failed to 
+serialize NEF via safe path; falling back to legacy encoder [3merror[0m[2m=[0mInvalid encoding Invalid checksum
+  test neo_types::contract::contract_parameter::tests::test_array_from_empty ... ok
+  test neo_types::contract::contract_parameter::tests::test_bool ... ok
+  test neo_types::contract::contract_parameter::tests::test_bytes_equals ... ok
+  test neo_types::contract::contract_parameter::tests::test_bytes_from_bytes ... ok
+  test neo_types::contract::contract_parameter::tests::test_bytes_from_hex_string ... ok
+> [2m2026-09-07T13:14:28.448793Z[0m [33m WARN[0m [2mneo3::neo_types::contract::nef_file[0m[2m:[0m Failed to 
+serialize NEF via safe path; falling back to legacy encoder [3merror[0m[2m=[0mInvalid encoding Invalid checksum
+  test neo_types::contract::invocation_result::tests::deserialize_empty_state_is_none ... ok
+> [2m2026-09-07T13:14:28.448829Z[0m [33m WARN[0m [2mneo3::neo_types::contract::nef_file[0m[2m:[0m Failed to 
+serialize NEF via safe path; falling back to legacy encoder [3merror[0m[2m=[0mInvalid encoding Invalid checksum
+  test neo_types::contract::invocation_result::tests::deserialize_missing_state_defaults_to_none ... ok
+  test neo_types::contract::invocation_result::tests::non_halt_states_are_treated_as_faults ... ok
+  test neo_types::contract::nef_file::tests::test_deserialize_preserves_checksum_and_roundtrips ... ok
+  test neo_types::contract::nef_file::tests::test_method_token_size_matches_serialized_length ... ok
+  test neo_clients::rpc::transports::retry::tests::retries_truncated_response_then_succeeds ... ok
+> [2m2026-09-07T13:14:28.484707Z[0m [33m WARN[0m [2mneo3::sdk::retry[0m[2m:[0m sdk operation failed; retrying 
+[3mattempt[0m[2m=[0m1 [3mmax_attempts[0m[2m=[0m2 [3mcontext[0m[2m=[0mrate limited 
+[3merror[0m[2m=[0m(code: 429, message: too many requests) [3mretry_delay[0m[2m=[0m2s
+  test neo_wallets::wallet::wallet::tests::test_verify_password ... ok
+  test sdk::retry::tests::backoff_grows_exponentially_and_stays_bounded ... ok
+> [2m2026-09-07T13:14:28.485012Z[0m [33m WARN[0m [2mneo3::sdk::retry[0m[2m:[0m sdk operation failed; retrying 
+[3mattempt[0m[2m=[0m1 [3mmax_attempts[0m[2m=[0m2 [3mcontext[0m[2m=[0mfetch block 
+[3merror[0m[2m=[0m(code: 429, message: too many requests) [3mretry_delay[0m[2m=[0m1ms
+  test sdk::retry::tests::returns_first_success_without_extra_attempts ... ok
+  test sdk::retry::tests::stops_after_a_deterministic_provider_error ... ok
+  test sdk::tests::config_setter_replaces_entire_config ... ok
+  test sdk::tests::connect_with_malformed_url_returns_network_error ... ok
+  test sdk::tests::decimal_amount_deserialization_validates_raw_value ... ok
+> [2m2026-09-07T13:14:28.503242Z[0m [33m WARN[0m [2mneo3::sdk[0m[2m:[0m send_tx failed; retrying 
+[3mattempt[0m[2m=[0m1 [3mmax_attempts[0m[2m=[0m2 [3mcontext[0m[2m=[0mbroadcast test transaction 
+[3merror[0m[2m=[0mHTTP status server error (503 Service Unavailable) [3mretry_delay[0m[2m=[0m0ns
+  test neo_wallets::wallet::wallet::tests::test_change_password_parallel ... ok
+  [2m2026-09-07T13:14:28.508495Z[0m [35mTRACE[0m [1mrpc[0m[1m{[0m[3mmethod[0m[2m=[0m"getblockcount" 
+[3mparams_type[0m[2m=[0m"alloc::vec::Vec<u32>"[1m}[0m[2m:[0m [2mhyper_util::client::legacy::pool[0m[2m:[0m 
+checkout waiting for idle connection: ("http", 127.0.0.1:56114)
+  [2m2026-09-07T13:14:28.508526Z[0m [34mDEBUG[0m [1mrpc[0m[1m{[0m[3mmethod[0m[2m=[0m"getblockcount" 
+[3mparams_type[0m[2m=[0m"alloc::vec::Vec<u32>"[1m}[0m[2m:[0m [2mreqwest::connect[0m[2m:[0m starting new 
+connection: http://127.0.0.1:56114/
+  [2m2026-09-07T13:14:28.508556Z[0m [35mTRACE[0m [1mrpc[0m[1m{[0m[3mmethod[0m[2m=[0m"getblockcount" 
+[3mparams_type[0m[2m=[0m"alloc::vec::Vec<u32>"[1m}[0m[2m:[0m 
+[2mhyper_util::client::legacy::connect::http[0m[2m:[0m Http::connect; scheme=Some("http"), host=Some("127.0.0.1"), 
+port=Some(Port(56114))
+  [2m2026-09-07T13:14:28.508580Z[0m [34mDEBUG[0m [1mrpc[0m[1m{[0m[3mmethod[0m[2m=[0m"getblockcount" 
+[3mparams_type[0m[2m=[0m"alloc::vec::Vec<u32>"[1m}[0m[2m:[0m 
+[2mhyper_util::client::legacy::connect::http[0m[2m:[0m connecting to 127.0.0.1:56114
+> [2m2026-09-07T13:14:28.518568Z[0m [33m WARN[0m [2mneo3::sdk[0m[2m:[0m send_tx failed; retrying 
+[3mattempt[0m[2m=[0m1 [3mmax_attempts[0m[2m=[0m2 [3mcontext[0m[2m=[0mbroadcast test transaction 
+[3merror[0m[2m=[0mHTTP status server error (503 Service Unavailable) [3mretry_delay[0m[2m=[0m0ns
+  test sdk::tests::token_contract_hash_returns_native_hashes ... ok
+  test sdk::transaction_simulator::tests::test_cache_key_covers_signers ... ok
+  test sdk::transaction_simulator::tests::test_extract_token_symbol_reads_first_stack_item ... ok
+  test sdk::transaction_simulator::tests::test_extract_token_symbol_rejects_non_string_items ... ok
+  test sdk::transaction_simulator::tests::test_gas_consumed_decimal_string_converts_to_base_units ... ok
+> failures:
+  
+  ---- neo_protocol::test_node::tests::test_testnode_transaction_handling stdout ----
+  
+  thread 'neo_protocol::test_node::tests::test_testnode_transaction_handling' (67968) panicked at 
+src\neo_protocol\test_node.rs:927:48:
+  called `Result::unwrap()` on an `Err` value: UnknownBlock
+> failures:
+      neo_protocol::test_node::tests::test_testnode_transaction_handling
+  
+> test result: FAILED. 649 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.80s
+  
+> error: test failed, to rerun pass `-p neo3 --lib`
+
+

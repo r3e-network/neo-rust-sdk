@@ -1,0 +1,28 @@
+﻿
+> error[E0502]: cannot borrow `ledger` as immutable because it is also borrowed as mutable
+     --> src\neo_protocol\test_node.rs:577:30
+      |
+  577 |         ledger.blocks.insert(ledger.block_height, block.clone());
+      |         ------        ------ ^^^^^^ immutable borrow occurs here
+      |         |             |
+> error[E0502]: cannot borrow `ledger` as immutable because it is also borrowed as mutable
+     --> src\neo_protocol\test_node.rs:578:50
+      |
+  578 |         ledger.blocks_by_hash.insert(block_hash, ledger.block_height);
+      |         ------                ------             ^^^^^^ immutable borrow occurs here
+      |         |                     |
+> error[E0502]: cannot borrow `ledger` as immutable because it is also borrowed as mutable
+     --> src\neo_protocol\test_node.rs:588:53
+      |
+  588 |         if let Some(block) = ledger.blocks.get_mut(&ledger.block_height) {
+      |                              ------        -------  ^^^^^^ immutable borrow occurs here
+      |                              |             |
+> error[E0308]: mismatched types
+     --> src\neo_protocol\test_node.rs:626:13
+      |
+  617 |                 contract_storage.insert((item.key.clone(), key.to_owned()), item.value.clone());
+      |                 ----------------        ---------------------------------- this argument has type `(Vec<u8>, 
+H160)`...
+      |                 |
+
+

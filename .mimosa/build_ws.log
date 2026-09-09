@@ -1,0 +1,16 @@
+﻿cargo :    Compiling neo3 v3.1.0 (D:\Git\neo-rust-sdk)
+At line:1 char:26
++ ... o-rust-sdk; cargo build --workspace --message-format short 2>&1 | Out ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (   Compiling ne...t\neo-rust-sdk) 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   Compiling neo_crypto v0.1.0 (D:\Git\neo-rust-sdk\examples\neo_crypto)
+   Compiling neo_x_examples v0.1.0 (D:\Git\neo-rust-sdk\examples\neo_x)
+   Compiling standalone-examples v0.1.0 
+(D:\Git\neo-rust-sdk\examples\standalone)
+   Compiling neo-cli v3.1.0 (D:\Git\neo-rust-sdk\neo-cli)
+   Compiling message_signing_example v0.1.0 
+(D:\Git\neo-rust-sdk\examples\message_signing)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 30.41s

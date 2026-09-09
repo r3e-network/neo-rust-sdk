@@ -114,6 +114,11 @@ const config = {
             position: 'left',
           },
           {
+            to: '/playground',
+            label: '🎮 Playground',
+            position: 'left',
+          },
+          {
             type: 'dropdown',
             label: '🛠️ Tools',
             position: 'left',

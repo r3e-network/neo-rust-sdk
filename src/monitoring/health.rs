@@ -209,6 +209,35 @@ pub fn update_health(name: &str, status: HealthStatus, message: Option<String>) 
 	}
 }
 
+/// Return the overall aggregated health status across every registered check.
+///
+/// Returns [`HealthStatus::Healthy`] when the registry has not been initialized
+/// so that a not-yet-configured process still reports liveness.
+#[must_use]
+pub fn overall_status() -> HealthStatus {
+	match HEALTH_REGISTRY.get() {
+		Some(registry) => registry.overall_status(),
+		None => HealthStatus::Healthy,
+	}
+}
+
+/// Return a clone of every registered [`HealthCheck`].
+#[must_use]
+pub fn all_checks() -> Vec<HealthCheck> {
+	match HEALTH_REGISTRY.get() {
+		Some(registry) => registry.get_all(),
+		None => Vec::new(),
+	}
+}
+
+/// Report the current process memory usage as a percentage (0-100).
+///
+/// Returns `None` on platforms where this cannot be determined.
+#[must_use]
+pub fn memory_usage_percent() -> Option<u64> {
+	current_memory_usage_percent()
+}
+
 /// Register a custom health check
 pub fn register_health_check(name: String, initial_status: HealthStatus) {
 	if let Some(registry) = HEALTH_REGISTRY.get() {

@@ -5,6 +5,11 @@ edition = "2021"
 publish = false
 description = "Advanced Neo N3 examples for enterprise applications"
 
+[dependencies]
+neo3 = { path = "../../", features = ["default"] }
+tokio = { version = "1.50", features = ["full"] }
+primitive-types = { version = "0.14.0", features = ["serde"] }
+
 [[example]]
 name = "defi_swap"
 path = "defi_swap.rs"

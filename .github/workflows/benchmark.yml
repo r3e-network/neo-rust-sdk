@@ -1,0 +1,118 @@
+name: Benchmarks
+# Statistical performance benchmarking with regression detection.
+#
+# Establishes a per-commit performance baseline using Criterion, then compares
+# the current revision against the previous commit / PR base. A benchmark that
+# regresses by more than the configured threshold (default 5%) fails the job.
+#
+# Local usage mirrors CI:
+#   cargo criterion                         # all suites, HTML reports
+#   cargo bench -- --save-baseline main     # save a named baseline
+#   cargo bench -- --baseline main          # compare against it
+# See docs/BENCHMARKING.md for the full guide.
+
+on:
+  pull_request:
+    branches: [main, master, develop]
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      regression_threshold:
+        description: "Max allowed slowdown (percent) before the gate fails"
+        required: false
+        default: "5"
+
+concurrency:
+  group: bench-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  # Keep benchmark builds reproducible and comparable across the two runs.
+  CARGO_INCREMENTAL: 0
+  # Default regression gate: fail if any benchmark is >5% slower than baseline.
+  REGRESSION_THRESHOLD: ${{ github.event.inputs.regression_threshold || '5' }}
+
+jobs:
+  benchmark:
+    name: Criterion Benchmarks & Regression Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout (full history for base comparison)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-bench-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-bench-
+
+      - name: Install cargo-criterion
+        run: cargo install cargo-criterion --locked || true
+
+      - name: Determine baseline commit
+        id: baseline
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          else
+            # push / manual: compare against the immediate parent commit
+            BASE_SHA="$(git rev-parse HEAD^ 2>/dev/null || git rev-parse HEAD)"
+          fi
+          echo "sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
+          echo "Baseline commit: $BASE_SHA"
+
+      - name: Benchmark baseline (previous commit)
+        run: |
+          set -e
+          CURRENT_SHA="$(git rev-parse HEAD)"
+          echo "::group::Checkout baseline ${{ steps.baseline.outputs.sha }}"
+          git checkout --quiet --detach "${{ steps.baseline.outputs.sha }}"
+          echo "::endgroup::"
+          # If the baseline predates the benches, this is allowed to be empty.
+          cargo bench --benches -- --save-baseline base --noplot || true
+          echo "::group::Restore current $CURRENT_SHA"
+          git checkout --quiet --detach "$CURRENT_SHA"
+          echo "::endgroup::"
+
+      - name: Benchmark current revision
+        run: cargo bench --benches -- --save-baseline current --noplot
+
+      - name: Regression gate (>${{ env.REGRESSION_THRESHOLD }}% = fail)
+        run: |
+          python3 scripts/check_bench_regression.py \
+            --baseline base \
+            --current current \
+            --threshold "${REGRESSION_THRESHOLD}" \
+            --criterion-dir target/criterion \
+            --markdown "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Criterion reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: criterion-reports
+          path: |
+            target/criterion/**/report/**
+            target/criterion/**/*/estimates.json
+          if-no-files-found: ignore
+          retention-days: 30
+
+  # Monthly scheduled trend report is handled by benchmark-trend.yml (cron).
+  # This job intentionally stays PR/push focused for fast regression feedback.

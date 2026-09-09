@@ -116,10 +116,13 @@
 //! }
 //! ```
 
+pub use account_events::{AccountEventQuery, AccountEventResult};
 pub use contract_error::*;
 pub use contract_management::*;
+pub use events::*;
 pub use famous::*;
 pub use fungible_token_contract::*;
+pub use gasless::*;
 pub use gas_token::*;
 pub use iterator::*;
 pub use name_service::*;
@@ -132,10 +135,13 @@ pub use role_management::*;
 pub use traits::*;
 pub use treasury::*;
 
+mod account_events;
 mod contract_error;
 mod contract_management;
+mod events;
 mod famous;
 mod fungible_token_contract;
+pub mod gasless;
 mod gas_token;
 mod iterator;
 mod name_service;
