@@ -17,6 +17,12 @@ ignore = [
     # No patched rsa 0.9.x version exists yet.
     # Tracked: https://rustsec.org/advisories/RUSTSEC-2023-0071
     "RUSTSEC-2023-0071",
+    
+    # RUSTSEC-2024-0436: `paste` unmaintained. Compile-time-only proc-macro pulled
+    # transitively by alloy-primitives (Neo X EVM bridge). No runtime exposure.
+    # Remove once alloy-primitives drops the paste dependency.
+    # Tracked: https://rustsec.org/advisories/RUSTSEC-2024-0436
+    "RUSTSEC-2024-0436",
 ]
 
 # This section is considered when running `cargo deny check bans`.
