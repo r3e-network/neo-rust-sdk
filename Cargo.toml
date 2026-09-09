@@ -82,7 +82,7 @@ exclude = [
 ]
 
 [dependencies]
-tokio-tungstenite = { version = "0.29.0", features = ["native-tls", "connect"], optional = true }
+tokio-tungstenite = { version = "0.30.0", features = ["native-tls", "connect"], optional = true }
 futures = { version = "0.3.32", default-features = false, features = ["std"] }
 futures-util = "0.3.28"
 futures-channel = "0.3.28"
@@ -92,14 +92,14 @@ reqwest = { version = "0.12.5", default-features = false, features = ["json", "b
 url = { version = "2.5", default-features = false }
 
 # crypto
-elliptic-curve = { version = "0.13.5", default-features = false }
-k256 = { version = "0.13.1", default-features = false, features = ["ecdsa", "std", "ecdsa-core"] }
+elliptic-curve = { version = "0.14.1", default-features = false }
+k256 = { version = "0.14.0", default-features = false, features = ["ecdsa", "std", "ecdsa-core"] }
 sha2 = { version = "0.11", default-features = false }
 sha3 = { version = "0.10.8", default-features = false, features = ["std"] }
 blake2 = { version = "0.10.6", default-features = false, features = ["std"] }
 ed25519-dalek = { version = "2.1.1", default-features = false, features = ["std", "rand_core"] }
 hmac = "0.13.0"
-base64 = "0.22.1"
+base64 = "0.23.1"
 
 # serde
 serde = { version = "1.0", features = ["derive"] }
@@ -113,7 +113,7 @@ bytes = "1.4"
 hex = { package = "const-hex", version = "1.6" }
 hex-literal = "1.1"
 once_cell = "1.21"
-rand = "0.9.3"
+rand = "0.10.2"
 rayon = "1.7"
 thiserror = "2.0.17"
 
@@ -126,17 +126,17 @@ tracing-futures = "0.2.5"
 
 # OpenTelemetry / OTLP export (optional, gated behind the `otlp` feature to keep
 # the default build lean and avoid pulling heavy gRPC/tower dependencies).
-opentelemetry = { version = "0.27", optional = true }
-opentelemetry_sdk = { version = "0.27", features = ["trace", "rt-tokio"], optional = true }
-opentelemetry-otlp = { version = "0.27", features = ["trace", "tonic"], optional = true }
-tracing-opentelemetry = { version = "0.28", optional = true }
+opentelemetry = { version = "0.32", optional = true }
+opentelemetry_sdk = { version = "0.32", features = ["trace", "rt-tokio"], optional = true }
+opentelemetry-otlp = { version = "0.32", features = ["trace", "tonic"], optional = true }
+tracing-opentelemetry = { version = "0.33", optional = true }
 
 # wasm
 # instant = "0.1.12"  # REMOVED: Unmaintained (RUSTSEC-2024-0384)
 serde_with = "3.18.0"
 # For base64 encoding
 bs58 = "0.5.1"
-aes = "0.8.3"
+aes = "0.9.3"
 # For JSON manipulation
 # json = "0.12"  # REMOVED: Unmaintained and vulnerable (RUSTSEC-2022-0081)
 # JSON encode
@@ -144,9 +144,9 @@ aes = "0.8.3"
 ripemd = "0.2.0"
 
 # Data structures
-p256 = "0.13.2"
+p256 = "0.14.0"
 # Big integer math
-num-bigint = { version = "0.4", features = ["serde"] }
+num-bigint = { version = "0.5", features = ["serde"] }
 # Byte array utils
 byte-slice-cast = "1.2"
 primitive-types = { version = "0.14.0", features = ["serde"] }
@@ -168,21 +168,21 @@ zeroize = "1.7"
 # Ring for ECDSA cryptography (SGX quote verification)
 ring = "0.17"
 # X.509 certificate parsing (SGX DCAP attestation)
-x509-cert = { version = "0.2", optional = true }
-der = { version = "0.7", features = ["alloc"], optional = true }
-const-oid = { version = "0.9", optional = true }
+x509-cert = { version = "0.3", optional = true }
+der = { version = "0.8", features = ["alloc"], optional = true }
+const-oid = { version = "0.10", optional = true }
 
-scrypt = "0.11.0"
-signature   = "2.1.0"
-rand_core = "0.9.3"
+scrypt = "0.12.0"
+signature   = "3.0.0"
+rand_core = "0.10.1"
 # NEP-2 requires NFC-normalized (UTF-8) passphrases
 unicode-normalization = "0.1.25"
 #openssl = "0.10"
 
 # log removed: use `tracing` exclusively for structured logging
-ecb = "0.1.2"
+ecb = "0.2.1"
 http = "1.4.0"
-jsonwebtoken = { version = "10.3.0", default-features = false, features = ["rust_crypto"] }
+jsonwebtoken = { version = "11.0.0", default-features = false, features = ["rust_crypto"] }
 
 # ledger
 coins-ledger = { version = "0.13.0", default-features = false, optional = true }
@@ -213,17 +213,17 @@ tokio = { version = "1.45", default-features = false, features = ["sync", "macro
 
 
 [dev-dependencies]
-mockall = "0.14.0"
+mockall = "0.15.0"
 tracing = "0.1"
 tracing-subscriber = "0.3.23"
-criterion = { version = "0.5", features = ["html_reports"] }
+criterion = { version = "0.8", features = ["html_reports"] }
 tempfile = "3.27"
-serial_test = "3.5.0"
+serial_test = "4.0.1"
 proptest = "1.11"
 env_logger = "0.11"
 cargo-nextest = "0.9"
 insta = "1.32"
-proptest-derive = "0.4"
+proptest-derive = "0.8"
 # Required for SGX certificate chain tests (keygen/signing/verification)
 ring = "0.17"
 
