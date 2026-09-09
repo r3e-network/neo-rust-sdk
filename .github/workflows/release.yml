@@ -184,7 +184,7 @@ jobs:
 
       - name: Setup Rust 1.96.0
         id: rust
-        uses: dtolnay/rust-toolchain@1.96.0
+        uses: dtolnay/rust-toolchain@1.120.0
         with:
           components: rustfmt, clippy
 
