@@ -37,7 +37,7 @@ jobs:
       with:
         components: rustfmt, clippy
     - name: Cache cargo
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: |
           ~/.cargo/registry/index/
@@ -65,7 +65,7 @@ jobs:
     - name: Setup Rust
       uses: dtolnay/rust-toolchain@stable
     - name: Cache cargo
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: |
           ~/.cargo/registry/index/
@@ -89,7 +89,7 @@ jobs:
     - name: Setup Rust
       uses: dtolnay/rust-toolchain@stable
     - name: Cache cargo
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: |
           ~/.cargo/registry/index/
@@ -133,7 +133,7 @@ jobs:
       with:
         components: llvm-tools-preview
     - name: Cache cargo
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: |
           ~/.cargo/registry/index/
