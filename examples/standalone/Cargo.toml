@@ -11,7 +11,7 @@ neo3 = { path = "../..", features = ["futures"] }
 # These are already transitive deps of neo3; we list them so the example bins
 # can reference them directly without neo3 having to re-export every crate.
 tokio = { version = "1", features = ["full"] }
-num-bigint = "0.4"
+num-bigint = "0.5"
 bip39 = { version = "2.2.2", features = ["rand"] }
 serde_json = "1"
 tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt", "std"] }
