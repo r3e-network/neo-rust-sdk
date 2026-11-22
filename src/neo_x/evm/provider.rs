@@ -82,10 +82,10 @@ impl<'a, P: JsonRpcProvider + 'static> NeoXProvider<'a, P> {
 	/// Returns ContractError if the RPC call fails or if no provider is configured
 	pub async fn chain_id(&self) -> Result<u64, ContractError> {
 		// Prefer standard EVM RPC if evm_provider is available
-		if let Some(evm) = &self.evm_provider {
-			if let Ok(id) = evm.get_chain_id().await {
-				return Ok(id);
-			}
+		if let Some(evm) = &self.evm_provider
+			&& let Ok(id) = evm.get_chain_id().await
+		{
+			return Ok(id);
 		}
 
 		let provider = self.provider.ok_or_else(|| {

@@ -15,8 +15,8 @@ fn test_script_parsing_no_panics_with_random_data() {
 		// Exercise real opcode parsing - try each byte as potential opcode
 		let result = parse_as_opcodes(&script);
 
-		// Should always return Result, never panic
-		let _ = result;
+		// Should always return Result, never panic.
+		// Valid opcodes parse to Ok; invalid bytes to Err — both acceptable.		let _ = result;
 	});
 }
 

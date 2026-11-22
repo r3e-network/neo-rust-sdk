@@ -180,11 +180,7 @@ impl DerivationPath {
 impl fmt::Display for DerivationPath {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		let format_component = |n: u32| -> String {
-			if n >= 0x80000000 {
-				format!("{}'", n - 0x80000000)
-			} else {
-				format!("{}", n)
-			}
+			if n >= 0x80000000 { format!("{}'", n - 0x80000000) } else { format!("{}", n) }
 		};
 
 		write!(
@@ -291,7 +287,7 @@ impl HDWallet {
 					recovery: ErrorRecovery::new()
 						.suggest("Use 12 words for standard security")
 						.suggest("Use 24 words for maximum security"),
-				})
+				});
 			},
 		};
 
@@ -383,7 +379,7 @@ impl HDWallet {
 		let derivation_path = DerivationPath::from_string(path)?;
 		let derived_key = self.derive_key(&derivation_path)?;
 
-		use crate::neo_crypto::{wif_from_private_key, Secp256r1PrivateKey};
+		use crate::neo_crypto::{Secp256r1PrivateKey, wif_from_private_key};
 
 		let private_key =
 			Secp256r1PrivateKey::from_bytes(&derived_key.key).map_err(|e| NeoError::Wallet {
@@ -459,8 +455,8 @@ impl HDWallet {
 	/// Convert key bytes to WIF format
 	/// Export wallet to encrypted JSON
 	pub fn export_encrypted(&self, password: &str) -> Result<String, NeoError> {
-		use base64::engine::general_purpose;
 		use base64::Engine;
+		use base64::engine::general_purpose;
 		use rand::RngCore;
 		use scrypt::Params;
 
@@ -544,10 +540,10 @@ impl HDWallet {
 
 	/// Import wallet from encrypted JSON
 	pub fn import_encrypted(json: &str, password: &str) -> Result<Self, NeoError> {
-		use aes::cipher::{block_padding::Pkcs7, BlockDecryptMut, KeyInit};
-		use base64::engine::general_purpose;
+		use aes::cipher::{BlockDecryptMut, KeyInit, block_padding::Pkcs7};
 		use base64::Engine;
-		use scrypt::{scrypt, Params};
+		use base64::engine::general_purpose;
+		use scrypt::{Params, scrypt};
 
 		type Aes256EcbDec = ecb::Decryptor<aes::Aes256>;
 

@@ -135,8 +135,8 @@ mod tests {
 	use super::retry;
 	use std::{
 		sync::{
-			atomic::{AtomicUsize, Ordering},
 			Arc,
+			atomic::{AtomicUsize, Ordering},
 		},
 		time::Duration,
 	};

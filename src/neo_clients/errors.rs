@@ -1,6 +1,6 @@
 use std::{fmt::Debug, sync::Arc};
 
-use crate::{crypto::CryptoError, neo_clients::JsonRpcError, TypeError};
+use crate::{TypeError, crypto::CryptoError, neo_clients::JsonRpcError};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -35,8 +35,9 @@ pub enum ProviderError {
 	#[error("unsupported node client")]
 	UnsupportedNodeClient,
 	/// Signer is not available to this provider.
-	#[error("Attempted to sign a transaction with no available signer. Hint: did you mean to use a SignerMiddleware?"
-    )]
+	#[error(
+		"Attempted to sign a transaction with no available signer. Hint: did you mean to use a SignerMiddleware?"
+	)]
 	SignerUnavailable,
 	#[error("Illegal state: {0}")]
 	IllegalState(String),

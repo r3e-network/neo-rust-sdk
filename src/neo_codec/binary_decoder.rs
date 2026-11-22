@@ -1,6 +1,6 @@
 use crate::{
-	codec::{CodecError, NeoSerializable},
 	OpCode,
+	codec::{CodecError, NeoSerializable},
 };
 /// This module provides a binary decoder that can read various types of data from a byte slice.
 ///
@@ -334,7 +334,7 @@ impl<'a> Decoder<'a> {
 			_ => {
 				return Err(CodecError::InvalidEncoding(
 					"Couldn't parse PUSHINT OpCode".to_string(),
-				))
+				));
 			},
 		};
 

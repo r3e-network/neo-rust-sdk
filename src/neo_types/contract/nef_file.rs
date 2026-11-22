@@ -4,10 +4,10 @@ use primitive_types::H160;
 // use tokio::io::AsyncReadExt;
 
 use crate::{
+	TypeError,
 	codec::{CodecError, Decoder, Encoder, NeoSerializable, VarSizeTrait},
 	crypto::HashableForVec,
 	neo_types::StringExt,
-	TypeError,
 };
 use neo3::prelude::{Bytes, ContractParameter, StackItem};
 /*

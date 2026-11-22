@@ -96,9 +96,9 @@ pub fn init_with_config(
 
 	#[cfg(feature = "otlp")]
 	{
+		use tracing_subscriber::Layer;
 		use tracing_subscriber::layer::SubscriberExt;
 		use tracing_subscriber::util::SubscriberInitExt;
-		use tracing_subscriber::Layer;
 
 		let filter = tracing_subscriber::filter::LevelFilter::from_level(level);
 		let fmt_layer: Box<dyn Layer<tracing_subscriber::Registry> + Send + Sync> = match format {
@@ -571,7 +571,8 @@ mod tests {
 	fn resolve_otlp_endpoint_trims_and_rejects_blank() {
 		assert_eq!(resolve_otlp_endpoint("  http://c:4317  "), Some("http://c:4317".to_string()));
 		// Blank configured + no env var (cleared) => None.
-		std::env::remove_var("OTEL_EXPORTER_OTLP_ENDPOINT");
+		// SAFETY: test-only; no other thread reads the environment here.
+		unsafe { std::env::remove_var("OTEL_EXPORTER_OTLP_ENDPOINT") };
 		assert_eq!(resolve_otlp_endpoint("   "), None);
 	}
 

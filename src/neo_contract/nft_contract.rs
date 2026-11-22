@@ -5,8 +5,8 @@ use std::collections::HashMap;
 use crate::{
 	neo_clients::{JsonRpcProvider, RpcClient},
 	neo_contract::{
-		traits::{NonFungibleTokenTrait, SmartContractTrait, TokenTrait},
 		ContractError,
+		traits::{NonFungibleTokenTrait, SmartContractTrait, TokenTrait},
 	},
 	neo_types::{Bytes, NNSName, StackItem},
 };

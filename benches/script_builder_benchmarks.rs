@@ -23,7 +23,7 @@
 use std::str::FromStr;
 use std::time::Duration;
 
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 use neo3::{
 	neo_builder::{AccountSigner, ScriptBuilder, Signer, TransactionBuilder},
 	neo_clients::HttpProvider,
@@ -111,8 +111,7 @@ fn bench_transaction_assembly(c: &mut Criterion) {
 				builder.set_additional_system_fee(1_000_000);
 				builder.set_additional_network_fee(500_000);
 				builder.valid_until_block(1_000_000).unwrap();
-				std::hint::black_box(builder);
-			},
+				std::hint::black_box(builder);			},
 			criterion::BatchSize::SmallInput,
 		)
 	});

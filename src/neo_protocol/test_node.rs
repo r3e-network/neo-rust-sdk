@@ -26,11 +26,11 @@
 //!     let mut node = TestNode::builder()
 //!         .with_initial_height(1000)
 //!         .build_with_node();
-//!
+//!     
 //!     // Get current block count (returns deterministic value)
 //!     let height = node.get_block_count().await?;
 //!     println!("Starting block height: {}", height);
-//!
+//!     
 //!     Ok(())
 //! }
 //! ```
@@ -44,17 +44,17 @@
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     let mut node = TestNode::builder().build_with_node();
-//!
+//!     
 //!     // Configure to return FAULT state for specific transaction
 //!     let tx_hash = H256::from_low_u64_le(12345);
 //!     node.inject_fault(tx_hash, TestNodeError::InsufficientFunds);
-//!
+//!     
 //!     // Subsequent calls will fail with injected error
 //!     match node.get_transaction(tx_hash).await {
 //!         Err(e) => println!("Got expected error: {}", e),
 //!         _ => panic!("Expected error but got success"),
 //!     }
-//!
+//!     
 //!     Ok(())
 //! }
 //! ```
@@ -70,27 +70,27 @@
 //!     let mut node = TestNode::builder()
 //!         .with_initial_height(0)
 //!         .build_with_node();
-//!
+//!     
 //!     // Setup initial state
 //!     let account = H160::from_low_u64_le(100);
 //!     node.set_token_balance(&account, U256::from(1000)).await;
-//!
+//!     
 //!     // Advance chain
 //!     node.mine_block().await?;
 //!     node.mine_block().await?;
-//!
+//!     
 //!     // Take a snapshot before important operation
 //!     let snapshot = node.take_snapshot()?;
-//!
+//!     
 //!     // Perform operations
 //!     node.set_token_balance(&account, U256::from(500)).await;
 //!     node.mine_block().await?;
-//!
+//!     
 //!     // Restore previous state
 //!     node.restore_snapshot(&snapshot)?;
-//!
+//!     
 //!     assert_eq!(node.get_token_balance(&account).await, Some(U256::from(1000)));
-//!
+//!     
 //!     Ok(())
 //! }
 //! ```
@@ -457,12 +457,18 @@ pub struct ContractStorageItem {
 /// Contract state map
 #[derive(Clone, Default)]
 struct ContractState {
+	/// Contract ID (part of the snapshot model; not read on the hot path).
+	#[allow(dead_code)]
+	pub id: i64,
 	/// Contract hash
 	pub hash: H160,
 	/// Storage items
 	pub storage: HashMap<H160, ContractStorageItem>,
 	/// NEP-17 token balances
 	pub token_balances: HashMap<H160, U256>,
+	/// NEP-11 NFT ownership (part of the snapshot model; not read on the hot path).
+	#[allow(dead_code)]
+	pub nft_ownership: HashMap<(H160, u64), H160>,
 }
 
 // =============================================================================
@@ -638,10 +644,10 @@ impl TestNode {
 	///     let mut node = TestNode::builder()
 	///         .with_initial_height(0)
 	///         .build_with_node();
-	///
+	///     
 	///     let block = node.mine_block().await?;
 	///     println!("Mined block {} at height {}", block.hash, block.index);
-	///
+	///     
 	///     Ok(())
 	/// }
 	/// ```
@@ -711,10 +717,10 @@ impl TestNode {
 	///     let node = TestNode::builder()
 	///         .with_initial_height(0)
 	///         .build_with_node();
-	///
+	///     
 	///     // Mine initial block first
 	///     node.mine_block().await?;
-	///
+	///     
 	///     // Create and add transaction
 	///     let tx = TestTransaction {
 	///         hash: H256::from_low_u64_le(1),
@@ -725,9 +731,9 @@ impl TestNode {
 	///         attributes: vec![],
 	///         witnesses: vec![],
 	///     };
-	///
+	///     
 	///     node.add_transaction(tx).await?;
-	///
+	///     
 	///     Ok(())
 	/// }
 	/// ```
@@ -770,20 +776,20 @@ impl TestNode {
 	/// #[tokio::main]
 	/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	///     let mut node = TestNode::builder().build_with_node();
-	///
+	///     
 	///     // Setup some state
 	///     node.mine_block().await?;
-	///
+	///     
 	///     // Take snapshot
 	///     let snapshot = node.take_snapshot()?;
-	///
+	///     
 	///     // Modify state
 	///     node.mine_block().await?;
-	///
+	///     
 	///     // Restore
 	///     node.restore_snapshot(&snapshot)?;
 	///     assert_eq!(node.get_block_count().await?, 1);
-	///
+	///     
 	///     Ok(())
 	/// }
 	/// ```
@@ -846,15 +852,15 @@ impl TestNode {
 	/// #[tokio::main]
 	/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	///     let mut node = TestNode::builder().build_with_node();
-	///
+	///     
 	///     let snapshot = node.take_snapshot()?;
-	///
+	///     
 	///     // Perform operations
 	///     node.mine_block().await?;
-	///
+	///     
 	///     // Restore to previous state
 	///     node.restore_snapshot(&snapshot)?;
-	///
+	///     
 	///     Ok(())
 	/// }
 	/// ```
@@ -895,9 +901,11 @@ impl TestNode {
 			// Reinitialize basic contract structure
 			let contract_hash = H160::from_low_u64_le(1);
 			let mut contract = ContractState {
+				id: 1,
 				hash: contract_hash,
 				storage: HashMap::new(),
 				token_balances: HashMap::new(),
+				nft_ownership: HashMap::new(),
 			};
 
 			// Restore balances
@@ -931,12 +939,12 @@ impl TestNode {
 	/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	///     let node = TestNode::new();
 	///     let account = H160::from_low_u64_le(123);
-	///
+	///     
 	///     node.set_token_balance(&account, U256::from(1000)).await;
-	///
+	///     
 	///     let balance = node.get_token_balance(&account).await;
 	///     assert_eq!(balance, Some(U256::from(1000)));
-	///
+	///     
 	///     Ok(())
 	/// }
 	/// ```
@@ -945,9 +953,11 @@ impl TestNode {
 
 		let mut contracts = self.contracts.write().unwrap();
 		let contract = contracts.entry(contract_hash).or_insert_with(|| ContractState {
+			id: 1,
 			hash: contract_hash,
 			storage: HashMap::new(),
 			token_balances: HashMap::new(),
+			nft_ownership: HashMap::new(),
 		});
 
 		contract.token_balances.insert(*account, amount);
@@ -973,14 +983,14 @@ impl TestNode {
 	/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	///     let node = TestNode::new();
 	///     let account = H160::from_low_u64_le(456);
-	///
+	///     
 	///     // Query non-existent balance
 	///     assert_eq!(node.get_token_balance(&account).await, None);
-	///
+	///     
 	///     // After setting balance
 	///     node.set_token_balance(&account, U256::from(5000)).await;
 	///     assert_eq!(node.get_token_balance(&account).await, Some(U256::from(5000)));
-	///
+	///     
 	///     Ok(())
 	/// }
 	/// ```
@@ -1011,14 +1021,14 @@ impl TestNode {
 	/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	///     let node = TestNode::new();
 	///     let tx_hash = H256::from_low_u64_le(42);
-	///
+	///     
 	///     // Inject insufficient funds error
 	///     node.inject_fault(tx_hash, TestNodeError::InsufficientFunds);
-	///
+	///     
 	///     // Later queries will fail
 	///     let result = node.get_transaction(tx_hash).await;
 	///     assert!(matches!(result, Err(TestNodeError::InsufficientFunds)));
-	///
+	///     
 	///     Ok(())
 	/// }
 	/// ```
@@ -1120,27 +1130,25 @@ impl TestNode {
 	/// # Example
 	/// ```rust,no_run
 	/// use neo3::neo_protocol::TestNode;
-	/// use std::sync::Arc;
 	///
 	/// #[tokio::main]
 	/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-	///     let node = Arc::new(TestNode::builder()
+	///     let mut node = TestNode::builder()
 	///         .with_initial_height(100)
-	///         .build_with_node());
-	///
+	///         .build_with_node();
+	///     
 	///     // Start mining blocks in background
-	///     let miner = Arc::clone(&node);
-	///     let _handle = tokio::spawn(async move {
+	///     let handle = tokio::spawn(async move {
 	///         for _ in 0..10 {
-	///             miner.mine_block().await.unwrap();
+	///             node.mine_block().await.unwrap();
 	///             tokio::time::sleep(std::time::Duration::from_millis(50)).await;
 	///         }
 	///     });
-	///
+	///     
 	///     // Wait for block 105
 	///     let block = node.wait_for_block(105, 1000).await?;
 	///     println!("Reached block {}", block.index);
-	///
+	///     
 	///     Ok(())
 	/// }
 	/// ```
@@ -1182,16 +1190,16 @@ impl TestNode {
 	///     let mut node = TestNode::builder()
 	///         .with_initial_height(1000)
 	///         .build_with_node();
-	///
+	///     
 	///     // Mine some blocks
 	///     node.mine_block().await?;
 	///     node.mine_block().await?;
 	///     assert_eq!(node.get_block_count().await?, 1002);
-	///
+	///     
 	///     // Reset to initial state
 	///     node.reset_chain().await?;
 	///     assert_eq!(node.get_block_count().await?, 1000);
-	///
+	///     
 	///     Ok(())
 	/// }
 	/// ```
@@ -1276,9 +1284,7 @@ pub trait MockRPCProvider: Send + Sync {
 		method: &str,
 		params: &[Value],
 	) -> Result<Value, TestNodeError>;
-	// Retain the released trait signature for downstream implementors.
-	#[allow(clippy::ptr_arg)]
-	async fn send_raw_transaction(&self, tx: &Vec<u8>) -> Result<H256, TestNodeError>;
+	async fn send_raw_transaction(&self, tx: &[u8]) -> Result<H256, TestNodeError>;
 }
 
 #[async_trait::async_trait]
@@ -1319,7 +1325,7 @@ impl MockRPCProvider for TestNode {
 		}))
 	}
 
-	async fn send_raw_transaction(&self, _tx: &Vec<u8>) -> Result<H256, TestNodeError> {
+	async fn send_raw_transaction(&self, _tx: &[u8]) -> Result<H256, TestNodeError> {
 		// Generates a deterministic transaction hash and returns it.
 		// In a full implementation, this would broadcast to validators.
 		Ok(H256::from_low_u64_le(rand::random::<u64>()))
@@ -1935,7 +1941,7 @@ mod tests {
 		assert_eq!(result["state"], "HALT");
 
 		// And: send_raw_transaction returns a hash
-		let tx_hash = provider.send_raw_transaction(&vec![1, 2, 3]).await.unwrap();
+		let tx_hash = provider.send_raw_transaction(&[1, 2, 3]).await.unwrap();
 		assert_ne!(tx_hash, H256::zero());
 	}
 

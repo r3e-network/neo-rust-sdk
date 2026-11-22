@@ -521,10 +521,14 @@ impl Into<AccountSigner> for Signer {
 		match self {
 			Signer::AccountSigner(account_signer) => account_signer,
 			Signer::ContractSigner(_) => {
-				panic!("Cannot convert ContractSigner into AccountSigner. Use Signer::to_account_signer() instead.")
+				panic!(
+					"Cannot convert ContractSigner into AccountSigner. Use Signer::to_account_signer() instead."
+				)
 			},
 			Signer::TransactionSigner(_) => {
-				panic!("Cannot convert TransactionSigner into AccountSigner. Use Signer::to_account_signer() instead.")
+				panic!(
+					"Cannot convert TransactionSigner into AccountSigner. Use Signer::to_account_signer() instead."
+				)
 			},
 		}
 	}
@@ -572,10 +576,14 @@ impl Into<ContractSigner> for &mut Signer {
 		match self {
 			Signer::ContractSigner(contract_signer) => contract_signer.clone(),
 			Signer::AccountSigner(_) => {
-				panic!("Cannot convert AccountSigner into ContractSigner. Use Signer::to_contract_signer() instead.")
+				panic!(
+					"Cannot convert AccountSigner into ContractSigner. Use Signer::to_contract_signer() instead."
+				)
 			},
 			Signer::TransactionSigner(_) => {
-				panic!("Cannot convert TransactionSigner into ContractSigner. Use Signer::to_contract_signer() instead.")
+				panic!(
+					"Cannot convert TransactionSigner into ContractSigner. Use Signer::to_contract_signer() instead."
+				)
 			},
 		}
 	}
@@ -587,10 +595,14 @@ impl Into<ContractSigner> for Signer {
 		match self {
 			Signer::ContractSigner(contract_signer) => contract_signer,
 			Signer::AccountSigner(_) => {
-				panic!("Cannot convert AccountSigner into ContractSigner. Use Signer::to_contract_signer() instead.")
+				panic!(
+					"Cannot convert AccountSigner into ContractSigner. Use Signer::to_contract_signer() instead."
+				)
 			},
 			Signer::TransactionSigner(_) => {
-				panic!("Cannot convert TransactionSigner into ContractSigner. Use Signer::to_contract_signer() instead.")
+				panic!(
+					"Cannot convert TransactionSigner into ContractSigner. Use Signer::to_contract_signer() instead."
+				)
 			},
 		}
 	}
@@ -654,6 +666,7 @@ mod tests {
 	use primitive_types::H160;
 
 	use crate::{
+		ScriptHash, ScriptHashExtension,
 		builder::{
 			AccountSigner, BuilderError, ContractSigner, SignerTrait, TransactionError,
 			TransactionSigner, WitnessAction, WitnessCondition, WitnessRule, WitnessScope,
@@ -662,7 +675,6 @@ mod tests {
 		config::NeoConstants,
 		crypto::Secp256r1PublicKey,
 		neo_protocol::{Account, AccountTrait},
-		ScriptHash, ScriptHashExtension,
 	};
 	use neo3::builder::Signer;
 

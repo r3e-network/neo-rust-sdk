@@ -26,11 +26,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("\n2. Secure key management patterns...");
 
 	// Export WIF for backup (should be done securely)
-	if let Some(first_account) = accounts.first() {
-		if let Some(key_pair) = first_account.key_pair() {
-			let wif = key_pair.export_as_wif()?;
-			println!("   🔑 WIF backup (store securely): {}...", &wif[..10]);
-		}
+	if let Some(first_account) = accounts.first()
+		&& let Some(key_pair) = first_account.key_pair()
+	{
+		let wif = key_pair.export_as_wif()?;
+		println!("   🔑 WIF backup (store securely): {}...", &wif[..10]);
 	}
 
 	// 3. Demonstrate account verification

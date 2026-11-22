@@ -254,11 +254,11 @@ async fn query_account_balance(
 		)
 		.await?;
 
-	if let Some(first) = result.stack.first() {
-		if let Some(balance) = first.as_int() {
-			let formatted_balance = balance as f64 / 10f64.powi(decimals as i32);
-			return Ok(formatted_balance);
-		}
+	if let Some(first) = result.stack.first()
+		&& let Some(balance) = first.as_int()
+	{
+		let formatted_balance = balance as f64 / 10f64.powi(decimals as i32);
+		return Ok(formatted_balance);
 	}
 
 	Ok(0.0)

@@ -76,7 +76,9 @@ async fn demonstrate_web3_rpc(config: &NeoXConfig) -> Result<(), Box<dyn std::er
 
 	// eth_blockNumber
 	println!("\n   eth_blockNumber:");
-	println!("      Request: {{\"jsonrpc\":\"2.0\",\"method\":\"eth_blockNumber\",\"params\":[],\"id\":1}}");
+	println!(
+		"      Request: {{\"jsonrpc\":\"2.0\",\"method\":\"eth_blockNumber\",\"params\":[],\"id\":1}}"
+	);
 	println!("      Response: \"0x{:x}\" (Latest block)", 1234567);
 
 	// eth_getBalance
@@ -346,7 +348,7 @@ fn encode_transfer(recipient: &str, amount: U256) -> Vec<u8> {
 	let mut data = Vec::new();
 	// Function selector for transfer(address,uint256)
 	data.extend_from_slice(&[0xa9, 0x05, 0x9c, 0xbb]); // transfer(address,uint256) selector
-													// Recipient address (padded to 32 bytes)
+	// Recipient address (padded to 32 bytes)
 	let recipient_hex = &recipient[2..]; // Remove 0x prefix
 	let mut recipient_bytes = Vec::new();
 	for chunk in recipient_hex.as_bytes().chunks(2) {

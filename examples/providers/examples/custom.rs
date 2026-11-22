@@ -122,10 +122,10 @@ impl CachingProvider {
 			return None;
 		}
 
-		if let Some((value, timestamp)) = self.cache.get(key) {
-			if timestamp.elapsed() < self.cache_ttl {
-				return Some(value.clone());
-			}
+		if let Some((value, timestamp)) = self.cache.get(key)
+			&& timestamp.elapsed() < self.cache_ttl
+		{
+			return Some(value.clone());
 		}
 		None
 	}

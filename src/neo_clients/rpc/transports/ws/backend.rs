@@ -1,11 +1,11 @@
 use futures_channel::{mpsc, oneshot};
-use futures_util::{select, sink::SinkExt, stream::StreamExt, FutureExt};
+use futures_util::{FutureExt, select, sink::SinkExt, stream::StreamExt};
 use serde_json::value::RawValue;
 use tracing::{error, trace};
 
 use crate::config::NeoConstants;
 
-use super::{types::*, WsClientError};
+use super::{WsClientError, types::*};
 
 fn truncate_for_log(s: &str, max_bytes: usize) -> &str {
 	if s.len() <= max_bytes {

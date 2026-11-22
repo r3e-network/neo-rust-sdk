@@ -1,12 +1,12 @@
 use std::{collections::HashMap, fmt};
 
 use crate::{
+	Address, AddressOrScriptHash, Base64Encode, ContractParameterType, ScriptHashExtension,
+	StringExt,
 	builder::VerificationScript,
 	codec::NeoSerializable,
 	neo_protocol::Account,
 	neo_wallets::{NEP6Contract, NEP6Parameter, WalletError},
-	Address, AddressOrScriptHash, Base64Encode, ContractParameterType, ScriptHashExtension,
-	StringExt,
 };
 use getset::{Getters, Setters};
 use p256::elliptic_curve::zeroize::Zeroize;
@@ -202,30 +202,27 @@ impl NEP6Account {
 		let mut signing_threshold: Option<u8> = None;
 		let mut nr_of_participants: Option<u8> = None;
 
-		if let Some(contract) = &self.contract {
-			if contract.script.is_some() {
-				verification_script = Some(VerificationScript::from(
-					contract
-						.script
-						.clone()
-						.ok_or_else(|| {
-							WalletError::AccountState("Contract script is missing".to_string())
-						})?
-						.base64_decoded()
-						.map_err(|e| {
-							WalletError::AccountState(format!(
-								"Failed to decode base64 script: {}",
-								e
-							))
-						})?,
-				));
+		if let Some(contract) = &self.contract
+			&& contract.script.is_some()
+		{
+			verification_script = Some(VerificationScript::from(
+				contract
+					.script
+					.clone()
+					.ok_or_else(|| {
+						WalletError::AccountState("Contract script is missing".to_string())
+					})?
+					.base64_decoded()
+					.map_err(|e| {
+						WalletError::AccountState(format!("Failed to decode base64 script: {}", e))
+					})?,
+			));
 
-				if let Some(script) = verification_script.as_ref() {
-					if script.is_multi_sig() {
-						signing_threshold = Some(script.get_signing_threshold()? as u8);
-						nr_of_participants = Some(script.get_nr_of_accounts()? as u8);
-					}
-				}
+			if let Some(script) = verification_script.as_ref()
+				&& script.is_multi_sig()
+			{
+				signing_threshold = Some(script.get_signing_threshold()? as u8);
+				nr_of_participants = Some(script.get_nr_of_accounts()? as u8);
 			}
 		}
 
@@ -292,13 +289,13 @@ impl Drop for NEP6Account {
 #[cfg(test)]
 mod tests {
 	use crate::{
+		ContractParameterType,
 		config::TestConstants,
 		crypto::{PrivateKeyExtension, Secp256r1PrivateKey, Secp256r1PublicKey},
 		neo_clients::ProviderError,
 		neo_protocol::{Account, AccountTrait},
 		neo_types::Base64Encode,
 		neo_wallets::NEP6Account,
-		ContractParameterType,
 	};
 
 	#[test]

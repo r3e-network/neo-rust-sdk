@@ -290,11 +290,11 @@ impl ContractEventQuery {
 				let log = client.get_application_log(tx_hash).await?;
 				results.extend(self.collect_from_log(tx_hash, index, &log));
 
-				if let Some(limit) = self.limit {
-					if results.len() >= limit {
-						results.truncate(limit);
-						return Ok(results);
-					}
+				if let Some(limit) = self.limit
+					&& results.len() >= limit
+				{
+					results.truncate(limit);
+					return Ok(results);
 				}
 			}
 		}

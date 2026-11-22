@@ -1,15 +1,15 @@
 use std::{
 	collections::{BTreeMap, HashMap},
 	sync::{
-		atomic::{AtomicU64, Ordering},
 		Arc, Mutex,
+		atomic::{AtomicU64, Ordering},
 	},
 };
 
 use futures_channel::{mpsc, oneshot};
-use futures_util::{select_biased, FutureExt, StreamExt};
+use futures_util::{FutureExt, StreamExt, select_biased};
 use primitive_types::U256;
-use serde_json::value::{to_raw_value, RawValue};
+use serde_json::value::{RawValue, to_raw_value};
 
 #[cfg(not(target_arch = "wasm32"))]
 use futures_util::future::Either;
@@ -19,9 +19,9 @@ use super::super::JsonRpcError;
 #[cfg(not(target_arch = "wasm32"))]
 use super::WebSocketConfig;
 use super::{
-	backend::{BackendDriver, WsBackend},
 	ActiveSub, ConnectionDetails, InFlight, Instruction, Notification, PubSubItem, Response, SubId,
 	WsClient, WsClientError,
+	backend::{BackendDriver, WsBackend},
 };
 #[cfg(not(target_arch = "wasm32"))]
 use crate::config::NeoConstants;
@@ -70,10 +70,10 @@ impl SubscriptionManager {
 	}
 
 	fn remove_alias(&mut self, server_id: U256) {
-		if let Some(id) = self.aliases.get(&server_id) {
-			if let Some(sub) = self.subs.get_mut(id) {
-				sub.current_server_id = None;
-			}
+		if let Some(id) = self.aliases.get(&server_id)
+			&& let Some(sub) = self.subs.get_mut(id)
+		{
+			sub.current_server_id = None;
 		}
 		self.aliases.remove(&server_id);
 	}
@@ -253,12 +253,14 @@ mod tests {
 		let params = to_raw_value(&["newHeads"]).unwrap();
 		manager.subs.service_subscription_request(id, params.clone()).unwrap();
 
-		assert!(manager
-			.subs
-			.channel_map
-			.lock()
-			.unwrap_or_else(|e| e.into_inner())
-			.contains_key(&U256::from(id)));
+		assert!(
+			manager
+				.subs
+				.channel_map
+				.lock()
+				.unwrap_or_else(|e| e.into_inner())
+				.contains_key(&U256::from(id))
+		);
 
 		let (tx, rx) = oneshot::channel::<Response>();
 		manager.reqs.insert(
@@ -276,12 +278,14 @@ mod tests {
 		let response = rx.await.unwrap();
 		assert!(response.is_err());
 		assert!(!manager.subs.has(id));
-		assert!(!manager
-			.subs
-			.channel_map
-			.lock()
-			.unwrap_or_else(|e| e.into_inner())
-			.contains_key(&U256::from(id)));
+		assert!(
+			!manager
+				.subs
+				.channel_map
+				.lock()
+				.unwrap_or_else(|e| e.into_inner())
+				.contains_key(&U256::from(id))
+		);
 	}
 }
 

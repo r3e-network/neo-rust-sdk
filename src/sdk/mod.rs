@@ -96,9 +96,8 @@ pub mod unified;
 pub mod websocket;
 
 pub use self::fee::{FeeAdjustment, FeePriority};
-use self::retry::{retry_network, DEFAULT_RETRY_DELAY};
-use crate::sdk::fee::{resolve_fee_adjustment, FeePolicy};
-use crate::{
+use self::retry::{DEFAULT_RETRY_DELAY, retry_network};
+use crate::sdk::fee::{FeePolicy, resolve_fee_adjustment};use crate::{
 	neo_clients::{APITrait, HttpProvider, RpcCache, RpcClient},
 	neo_error::unified::{ErrorRecovery, NeoError},
 	neo_types::VMState,
@@ -886,10 +885,10 @@ impl Neo {
 
 		if let Some(cache) = &self.cache {
 			let cache_key = format!("balance:{}", address);
-			if let Some(cached) = cache.get(&cache_key).await {
-				if let Ok(balance) = serde_json::from_value::<Balance>(cached) {
-					return Ok(balance);
-				}
+			if let Some(cached) = cache.get(&cache_key).await
+				&& let Ok(balance) = serde_json::from_value::<Balance>(cached)
+			{
+				return Ok(balance);
 			}
 		}
 
@@ -974,10 +973,10 @@ impl Neo {
 		let balance = Balance { neo, gas, tokens };
 
 		// Cache for subsequent reads (short TTL; balances change frequently).
-		if let Some(cache) = &self.cache {
-			if let Ok(value) = serde_json::to_value(&balance) {
-				cache.cache_balance(address.to_string(), value).await;
-			}
+		if let Some(cache) = &self.cache
+			&& let Ok(value) = serde_json::to_value(&balance)
+		{
+			cache.cache_balance(address.to_string(), value).await;
 		}
 
 		Ok(balance)
@@ -1989,7 +1988,7 @@ mod tests {
 		// configuration grounds.
 		let prior = std::env::var_os("NEO_RPC_URL");
 		// SAFETY: tests in this crate are not parallelised with set_var elsewhere.
-		std::env::remove_var("NEO_RPC_URL");
+		unsafe { std::env::remove_var("NEO_RPC_URL") };
 
 		// The build() may succeed or fail depending on network availability;
 		// either way the URL choice should NOT be a config/validation error.
@@ -1997,7 +1996,8 @@ mod tests {
 
 		// Restore env to whatever it was.
 		if let Some(value) = prior {
-			std::env::set_var("NEO_RPC_URL", value);
+			// SAFETY: see above; single test mutates the environment at a time.
+			unsafe { std::env::set_var("NEO_RPC_URL", value) };
 		}
 
 		if let Err(err) = result {
@@ -2012,14 +2012,16 @@ mod tests {
 	#[tokio::test]
 	async fn from_env_with_malformed_url_yields_network_error() {
 		let prior = std::env::var_os("NEO_RPC_URL");
-		std::env::set_var("NEO_RPC_URL", "::::not a url::::");
+		// SAFETY: tests in this crate are not parallelised with set_var elsewhere.
+		unsafe { std::env::set_var("NEO_RPC_URL", "::::not a url::::") };
 
 		let result = Neo::from_env().await;
 
 		// Restore env first.
 		match prior {
-			Some(value) => std::env::set_var("NEO_RPC_URL", value),
-			None => std::env::remove_var("NEO_RPC_URL"),
+			// SAFETY: see above; single test mutates the environment at a time.
+			Some(value) => unsafe { std::env::set_var("NEO_RPC_URL", value) },
+			None => unsafe { std::env::remove_var("NEO_RPC_URL") },
 		}
 
 		let err = result.expect_err("malformed NEO_RPC_URL must error");

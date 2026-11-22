@@ -9,7 +9,7 @@ use neo3::{
 		ContractParameter, ContractParameterMap, ScriptHash, ScriptHashExtension, StackItem,
 	},
 };
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::{collections::HashMap, str::FromStr};
 
 /// Represents a Neo N3 contract ABI method definition
@@ -65,49 +65,35 @@ impl ContractABI {
 
 	/// Load methods from a contract manifest
 	fn load_from_manifest(&mut self, manifest: &Value) -> Result<(), Box<dyn std::error::Error>> {
-		if let Some(abi) = manifest.get("abi") {
-			if let Some(methods) = abi.get("methods").and_then(|m| m.as_array()) {
-				for method in methods {
-					let name = method
-						.get("name")
-						.and_then(|n| n.as_str())
-						.unwrap_or("unknown")
-						.to_string();
-					let return_type = method
-						.get("returntype")
-						.and_then(|r| r.as_str())
-						.unwrap_or("Void")
-						.to_string();
-					let offset = method.get("offset").and_then(|o| o.as_u64()).unwrap_or(0) as u32;
-					let safe = method.get("safe").and_then(|s| s.as_bool()).unwrap_or(false);
+		if let Some(abi) = manifest.get("abi")
+			&& let Some(methods) = abi.get("methods").and_then(|m| m.as_array())
+		{
+			for method in methods {
+				let name =
+					method.get("name").and_then(|n| n.as_str()).unwrap_or("unknown").to_string();
+				let return_type =
+					method.get("returntype").and_then(|r| r.as_str()).unwrap_or("Void").to_string();
+				let offset = method.get("offset").and_then(|o| o.as_u64()).unwrap_or(0) as u32;
+				let safe = method.get("safe").and_then(|s| s.as_bool()).unwrap_or(false);
 
-					let mut parameters = Vec::new();
-					if let Some(params) = method.get("parameters").and_then(|p| p.as_array()) {
-						for param in params {
-							let param_name = param
-								.get("name")
-								.and_then(|n| n.as_str())
-								.unwrap_or("param")
-								.to_string();
-							let param_type = param
-								.get("type")
-								.and_then(|t| t.as_str())
-								.unwrap_or("Any")
-								.to_string();
-							parameters.push(MethodParameter { name: param_name, param_type });
-						}
+				let mut parameters = Vec::new();
+				if let Some(params) = method.get("parameters").and_then(|p| p.as_array()) {
+					for param in params {
+						let param_name = param
+							.get("name")
+							.and_then(|n| n.as_str())
+							.unwrap_or("param")
+							.to_string();
+						let param_type =
+							param.get("type").and_then(|t| t.as_str()).unwrap_or("Any").to_string();
+						parameters.push(MethodParameter { name: param_name, param_type });
 					}
-
-					let contract_method = ContractMethod {
-						name: name.clone(),
-						parameters,
-						return_type,
-						offset,
-						safe,
-					};
-
-					self.methods.insert(name, contract_method);
 				}
+
+				let contract_method =
+					ContractMethod { name: name.clone(), parameters, return_type, offset, safe };
+
+				self.methods.insert(name, contract_method);
 			}
 		}
 		Ok(())

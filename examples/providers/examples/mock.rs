@@ -149,10 +149,10 @@ async fn main() -> eyre::Result<()> {
 				let version = useragent.as_str().unwrap_or("unknown");
 				println!("   🔧 Node version: {version}");
 			}
-			if let Some(protocol) = response.get("protocol") {
-				if let Some(network) = protocol.get("network") {
-					println!("   🌐 Network: {network}");
-				}
+			if let Some(protocol) = response.get("protocol")
+				&& let Some(network) = protocol.get("network")
+			{
+				println!("   🌐 Network: {network}");
 			}
 		},
 		Err(e) => println!("   ❌ Error: {e}"),
@@ -245,13 +245,13 @@ async fn main() -> eyre::Result<()> {
 
 	match mock.mock_call("sendrawtransaction_fail") {
 		Ok(response) => {
-			if let Some(error) = response.get("error") {
-				if let Some(message) = error.get("message") {
-					println!(
-						"   ⚠️  Transaction failed: {}",
-						message.as_str().unwrap_or("unknown error")
-					);
-				}
+			if let Some(error) = response.get("error")
+				&& let Some(message) = error.get("message")
+			{
+				println!(
+					"   ⚠️  Transaction failed: {}",
+					message.as_str().unwrap_or("unknown error")
+				);
 			}
 		},
 		Err(e) => println!("   ❌ Error: {e}"),

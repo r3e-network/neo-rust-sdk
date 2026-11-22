@@ -50,7 +50,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("\n   💰 Price Calculation:");
 	println!("   ```rust");
 	println!("   // Calculate token price based on reserves");
-	println!("   fn calculate_price(reserve0: u64, reserve1: u64, decimals0: u8, decimals1: u8) -> f64 {{");
+	println!(
+		"   fn calculate_price(reserve0: u64, reserve1: u64, decimals0: u8, decimals1: u8) -> f64 {{"
+	);
 	println!("       let adjusted_reserve0 = reserve0 as f64 / 10f64.powi(decimals0 as i32);");
 	println!("       let adjusted_reserve1 = reserve1 as f64 / 10f64.powi(decimals1 as i32);");
 	println!("       adjusted_reserve1 / adjusted_reserve0");

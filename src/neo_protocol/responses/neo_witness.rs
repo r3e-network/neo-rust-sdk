@@ -1,4 +1,4 @@
-use crate::{builder::Witness, Base64Encode};
+use crate::{Base64Encode, builder::Witness};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Hash, Clone, Debug)]

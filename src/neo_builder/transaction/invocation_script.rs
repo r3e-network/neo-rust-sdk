@@ -1,11 +1,12 @@
 use std::hash::Hash;
 
 use crate::{
+	OpCode,
 	builder::{BuilderError, ScriptBuilder},
 	codec::{Decoder, Encoder, NeoSerializable},
 	config::NeoConstants,
 	crypto::{KeyPair, Secp256r1Signature},
-	var_size, OpCode,
+	var_size,
 };
 use getset::{Getters, Setters};
 use serde::{Deserialize, Serialize};

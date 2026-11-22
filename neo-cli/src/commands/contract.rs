@@ -415,7 +415,9 @@ async fn deploy_contract(
 
 	print_success("Contract deployment transaction sent successfully");
 	println!("Transaction hash: {}", result.hash);
-	println!("Note: The contract hash can be obtained from the transaction when it is confirmed on the blockchain.");
+	println!(
+		"Note: The contract hash can be obtained from the transaction when it is confirmed on the blockchain."
+	);
 
 	Ok(())
 }

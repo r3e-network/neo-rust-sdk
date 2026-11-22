@@ -297,10 +297,10 @@ impl TransactionSimulator {
 		// Check cache first; the key must cover signers because fees and
 		// verification costs depend on their scopes and count.
 		let cache_key = Self::calculate_cache_key(script, &signers);
-		if let Some(cached) = self.cache.get(&cache_key) {
-			if cached.is_valid() {
-				return Ok(cached.result.clone());
-			}
+		if let Some(cached) = self.cache.get(&cache_key)
+			&& cached.is_valid()
+		{
+			return Ok(cached.result.clone());
 		}
 
 		// Perform simulation
@@ -308,15 +308,14 @@ impl TransactionSimulator {
 
 		// Drop expired entries before growing the cache further.
 		self.cache.retain(|_, cached| cached.is_valid());
-		if self.cache.len() >= SIMULATION_CACHE_MAX_ENTRIES {
-			if let Some(oldest) = self
+		if self.cache.len() >= SIMULATION_CACHE_MAX_ENTRIES
+			&& let Some(oldest) = self
 				.cache
 				.iter()
 				.min_by_key(|(_, cached)| cached.timestamp)
 				.map(|(key, _)| key.clone())
-			{
-				self.cache.remove(&oldest);
-			}
+		{
+			self.cache.remove(&oldest);
 		}
 		self.cache.insert(
 			cache_key,
@@ -523,10 +522,10 @@ impl TransactionSimulator {
 		// Parse notifications for transfers and balance changes
 		if let Some(notifications) = &result.notifications {
 			for notification in notifications {
-				if notification.event_name == "Transfer" {
-					if let Some(transfer) = self.parse_transfer_notification(notification).await {
-						transfers.push(transfer);
-					}
+				if notification.event_name == "Transfer"
+					&& let Some(transfer) = self.parse_transfer_notification(notification).await
+				{
+					transfers.push(transfer);
 				}
 			}
 		}

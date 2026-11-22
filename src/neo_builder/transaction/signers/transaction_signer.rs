@@ -190,20 +190,20 @@ impl NeoSerializable for TransactionSigner {
 	fn encode(&self, writer: &mut Encoder) {
 		writer.write_serializable_fixed(self.get_signer_hash());
 		writer.write_u8(WitnessScope::combine(self.scopes.as_slice()));
-		if self.scopes.contains(&WitnessScope::CustomContracts) {
-			if let Err(e) = writer.write_serializable_variable_list(self.get_allowed_contracts()) {
-				tracing::warn!(error = %e, "Failed to encode transaction signer allowed contracts");
-			}
+		if self.scopes.contains(&WitnessScope::CustomContracts)
+			&& let Err(e) = writer.write_serializable_variable_list(self.get_allowed_contracts())
+		{
+			tracing::warn!(error = %e, "Failed to encode transaction signer allowed contracts");
 		}
-		if self.scopes.contains(&WitnessScope::CustomGroups) {
-			if let Err(e) = writer.write_serializable_variable_list(self.get_allowed_groups()) {
-				tracing::warn!(error = %e, "Failed to encode transaction signer allowed groups");
-			}
+		if self.scopes.contains(&WitnessScope::CustomGroups)
+			&& let Err(e) = writer.write_serializable_variable_list(self.get_allowed_groups())
+		{
+			tracing::warn!(error = %e, "Failed to encode transaction signer allowed groups");
 		}
-		if self.scopes.contains(&WitnessScope::WitnessRules) {
-			if let Err(e) = writer.write_serializable_variable_list(self.get_rules()) {
-				tracing::warn!(error = %e, "Failed to encode transaction signer rules");
-			}
+		if self.scopes.contains(&WitnessScope::WitnessRules)
+			&& let Err(e) = writer.write_serializable_variable_list(self.get_rules())
+		{
+			tracing::warn!(error = %e, "Failed to encode transaction signer rules");
 		}
 	}
 

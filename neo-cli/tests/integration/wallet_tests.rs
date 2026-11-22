@@ -1,4 +1,4 @@
-use super::utils::{assert_output_contains, assert_success, CliTest};
+use super::utils::{CliTest, assert_output_contains, assert_success};
 
 const TEST_WALLET_PASSWORD: &str = "password123";
 

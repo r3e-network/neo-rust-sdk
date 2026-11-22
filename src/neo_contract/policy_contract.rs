@@ -11,6 +11,11 @@
 //! - Execution fee factor with decimals (HF_Faun)
 //! - Whitelist fee contracts (HF_Faun)
 //! - Fund recovery from blocked accounts (HF_Faun)
+//!
+//! Updated for Neo 3.11.2 (HF_Huyao groundwork) with support for:
+//! - On-chain hardfork activation query (`getHardforkActivationHeight`)
+//! - Committee hardfork activation via `activateHardfork` (HF_Huyao and later)
+//! - Temporary storage TTL policy (`getTemporaryStorageMaxTTL`)
 
 use async_trait::async_trait;
 use primitive_types::H160;
@@ -18,14 +23,14 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
 use crate::{
+	ScriptHashExtension,
 	neo_builder::TransactionBuilder,
 	neo_clients::{JsonRpcProvider, RpcClient},
-	neo_contract::{checked_vm_integer, traits::SmartContractTrait, ContractError, NeoIterator},
+	neo_contract::{ContractError, NeoIterator, checked_vm_integer, traits::SmartContractTrait},
 	neo_types::{
-		serde_with_utils::{deserialize_script_hash, serialize_script_hash},
 		ScriptHash, StackItem, WhitelistedContract,
+		serde_with_utils::{deserialize_script_hash, serialize_script_hash},
 	},
-	ScriptHashExtension,
 };
 
 /// The Policy native contract for managing system policies.
@@ -77,6 +82,10 @@ impl<'a, P: JsonRpcProvider + 'static> PolicyContract<'a, P> {
 
 	/// The maximum MaxTraceableBlocks value (1 year of 15-second blocks).
 	pub const MAX_MAX_TRACEABLE_BLOCKS: u32 = 2_102_400;
+
+	/// The maximum TemporaryStorageMaxTTL value the committee can set
+	/// (365 days in milliseconds). Introduced with HF_Huyao (Neo v3.11.x).
+	pub const MAX_TEMPORARY_STORAGE_MAX_TTL: u64 = 365 * 24 * 60 * 60 * 1_000;
 
 	/// Creates a new PolicyContract instance.
 	pub fn new(provider: Option<&'a RpcClient<P>>) -> Self {
@@ -512,6 +521,111 @@ impl<'a, P: JsonRpcProvider + 'static> PolicyContract<'a, P> {
 	) -> Result<TransactionBuilder<'_, P>, ContractError> {
 		self.invoke_function("recoverFund", vec![account.into(), token.into()]).await
 	}
+
+	// ========== Hardfork Activation (HF_Huyao, Neo v3.11.x) ==========
+
+	/// Gets the block height at which a hardfork was activated via a committee
+	/// transaction, or `None` if the hardfork is unknown or not scheduled on-chain.
+	///
+	/// The hardfork name must be the raw Policy name (case-sensitive), e.g.
+	/// `"Iara"`, `"Jackalope"` — not `"HF_Iara"`. Use
+	/// [`crate::neo_types::Hardfork::policy_name`] to convert an enum value.
+	///
+	/// Available after HF_Huyao (introduced in Neo v3.11.x).
+	///
+	/// # Arguments
+	///
+	/// * `hardfork` - The raw hardfork name (e.g. `"Iara"`).
+	pub async fn get_hardfork_activation_height(
+		&self,
+		hardfork: &str,
+	) -> Result<Option<u32>, ContractError> {
+		let output = self
+			.call_invoke_function("getHardforkActivationHeight", vec![hardfork.into()], vec![])
+			.await?;
+		self.throw_if_fault_state(&output)?;
+
+		let item = output
+			.get_first_stack_item()
+			.map_err(|e| ContractError::InvalidResponse(e.to_string()))?;
+		match item {
+			StackItem::Any => Ok(None),
+			_ => match item.as_int() {
+				Some(i) => Ok(Some(checked_vm_integer(i, "hardfork activation height")?)),
+				None => Err(ContractError::UnexpectedReturnType("Int".to_string())),
+			},
+		}
+	}
+
+	/// Builds a committee invocation that activates a hardfork on-chain.
+	///
+	/// Activation takes effect `activation_delay` blocks after the persisting
+	/// block that includes this call. Only hardforks after HF_Huyao (e.g.
+	/// `"Iara"`, `"Jackalope"`) may be activated this way; config-managed
+	/// hardforks are rejected by the contract.
+	///
+	/// This method requires committee approval.
+	/// Available after HF_Huyao (introduced in Neo v3.11.x).
+	///
+	/// # Arguments
+	///
+	/// * `hardfork` - The raw hardfork name to activate (e.g. `"Iara"`).
+	/// * `activation_delay` - The number of blocks to pass before activation (must be positive).
+	pub async fn activate_hardfork(
+		&self,
+		hardfork: &str,
+		activation_delay: u32,
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
+		if activation_delay == 0 {
+			return Err(ContractError::InvalidArgError(
+				"Hardfork activation delay should be positive".to_string(),
+			));
+		}
+		self.invoke_function("activateHardfork", vec![hardfork.into(), activation_delay.into()])
+			.await
+	}
+
+	// ========== Temporary Storage Policy (HF_Huyao, Neo v3.11.x) ==========
+
+	/// Gets the maximum allowed TTL value (in milliseconds) for key-value
+	/// records in the native TemporaryStorage contract.
+	///
+	/// Available after HF_Huyao (introduced in Neo v3.11.x).
+	pub async fn get_temporary_storage_max_ttl(&self) -> Result<u64, ContractError> {
+		let value = self.call_function_returning_int("getTemporaryStorageMaxTTL", vec![]).await?;
+		u64::try_from(value).map_err(|_| {
+			ContractError::UnexpectedReturnType(
+				"TemporaryStorageMaxTTL must be a non-negative integer".to_string(),
+			)
+		})
+	}
+
+	/// Builds a committee invocation that sets the maximum allowed TTL value
+	/// (in milliseconds) for key-value records in the native TemporaryStorage
+	/// contract. The value must not exceed `MAX_TEMPORARY_STORAGE_MAX_TTL`.
+	///
+	/// This method requires committee approval.
+	/// Available after HF_Huyao (introduced in Neo v3.11.x).
+	///
+	/// # Arguments
+	///
+	/// * `value` - The TemporaryStorageMaxTTL value in milliseconds.
+	pub async fn set_temporary_storage_max_ttl(
+		&self,
+		value: u64,
+	) -> Result<TransactionBuilder<'_, P>, ContractError> {
+		if value > Self::MAX_TEMPORARY_STORAGE_MAX_TTL {
+			return Err(ContractError::InvalidArgError(format!(
+				"TemporaryStorageMaxTTL must be between [0, {}], got {}",
+				Self::MAX_TEMPORARY_STORAGE_MAX_TTL,
+				value
+			)));
+		}
+		let value = i64::try_from(value).map_err(|_| {
+			ContractError::InvalidArgError("TemporaryStorageMaxTTL out of range".to_string())
+		})?;
+		self.invoke_function("setTemporaryStorageMaxTTL", vec![value.into()]).await
+	}
 }
 
 #[async_trait]
@@ -566,6 +680,97 @@ mod tests {
 		assert_eq!(PolicyContract::<MockProvider>::MAX_MILLISECONDS_PER_BLOCK, 30_000);
 		assert_eq!(PolicyContract::<MockProvider>::MAX_MAX_VALID_UNTIL_BLOCK_INCREMENT, 86400);
 		assert_eq!(PolicyContract::<MockProvider>::MAX_MAX_TRACEABLE_BLOCKS, 2_102_400);
+		// Neo v3.11.2 (HF_Huyao): 365 days in milliseconds.
+		assert_eq!(PolicyContract::<MockProvider>::MAX_TEMPORARY_STORAGE_MAX_TTL, 31_536_000_000);
+	}
+
+	fn simple_invocation_result(stack: Vec<StackItem>) -> InvocationResult {
+		InvocationResult::new(
+			String::new(),
+			NeoVMStateType::Halt,
+			"0".to_string(),
+			None,
+			None,
+			None,
+			stack,
+			None,
+			None,
+			None,
+		)
+	}
+
+	#[tokio::test]
+	async fn get_hardfork_activation_height_returns_none_for_unscheduled() {
+		let provider = MockProvider::new();
+		let client = RpcClient::new(provider.clone());
+		let contract = PolicyContract::new(Some(&client));
+
+		provider.push_result(
+			"invokefunction",
+			serde_json::to_value(simple_invocation_result(vec![StackItem::Any])).unwrap(),
+		);
+
+		let result = contract.get_hardfork_activation_height("Iara").await.unwrap();
+		assert_eq!(result, None);
+	}
+
+	#[tokio::test]
+	async fn get_hardfork_activation_height_returns_scheduled_height() {
+		let provider = MockProvider::new();
+		let client = RpcClient::new(provider.clone());
+		let contract = PolicyContract::new(Some(&client));
+
+		provider.push_result(
+			"invokefunction",
+			serde_json::to_value(simple_invocation_result(vec![StackItem::Integer {
+				value: 13_000_000,
+			}]))
+			.unwrap(),
+		);
+
+		let result = contract.get_hardfork_activation_height("Iara").await.unwrap();
+		assert_eq!(result, Some(13_000_000));
+	}
+
+	#[tokio::test]
+	async fn activate_hardfork_rejects_zero_delay_without_rpc() {
+		let provider = MockProvider::new();
+		let client = RpcClient::new(provider.clone());
+		let contract = PolicyContract::new(Some(&client));
+
+		let result = contract.activate_hardfork("Iara", 0).await;
+
+		assert!(matches!(result, Err(ContractError::InvalidArgError(_))));
+		assert!(provider.take_requests().is_empty());
+	}
+
+	#[tokio::test]
+	async fn activate_hardfork_builds_invocation_script() {
+		let provider = MockProvider::new();
+		let client = RpcClient::new(provider.clone());
+		let contract = PolicyContract::new(Some(&client));
+
+		let builder = contract.activate_hardfork("Iara", 1_000).await.unwrap();
+		// Sanity: a builder was produced for the caller to sign and relay.
+		let _ = builder;
+		// Local script construction only: no RPC round-trip should have happened.
+		assert!(provider.take_requests().is_empty());
+	}
+
+	#[tokio::test]
+	async fn set_temporary_storage_max_ttl_rejects_out_of_range_values() {
+		let provider = MockProvider::new();
+		let client = RpcClient::new(provider.clone());
+		let contract = PolicyContract::new(Some(&client));
+
+		let result = contract
+			.set_temporary_storage_max_ttl(
+				PolicyContract::<MockProvider>::MAX_TEMPORARY_STORAGE_MAX_TTL + 1,
+			)
+			.await;
+
+		assert!(matches!(result, Err(ContractError::InvalidArgError(_))));
+		assert!(provider.take_requests().is_empty());
 	}
 
 	#[test]

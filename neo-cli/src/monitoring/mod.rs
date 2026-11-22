@@ -6,7 +6,7 @@ pub mod logger;
 pub mod metrics;
 
 pub use logger::{
-	init_logger, AuditLogger, LogFormat, LoggerConfig, PerformanceLogger, StructuredLogger,
+	AuditLogger, LogFormat, LoggerConfig, PerformanceLogger, StructuredLogger, init_logger,
 };
 pub use metrics::{MetricsCollector, MetricsConfig, MetricsRegistry};
 

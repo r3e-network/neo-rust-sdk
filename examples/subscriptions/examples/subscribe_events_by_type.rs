@@ -53,8 +53,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	Ok(())
 }
 
-async fn connect_to_testnet(
-) -> Result<neo3::neo_clients::RpcClient<neo3::neo_clients::HttpProvider>, Box<dyn std::error::Error>>
+async fn connect_to_testnet()
+-> Result<neo3::neo_clients::RpcClient<neo3::neo_clients::HttpProvider>, Box<dyn std::error::Error>>
 {
 	let endpoints = vec![
 		"https://testnet1.neo.org:443/",
@@ -99,36 +99,35 @@ async fn subscribe_to_transfers(
 	let mut transfer_events = Vec::new();
 
 	for height in start_height..current_height {
-		if let Ok(block) = client.get_block_by_index(height, true).await {
-			if let Some(transactions) = &block.transactions {
-				for tx in transactions {
-					if let Ok(app_log) = client.get_application_log(tx.hash).await {
-						for execution in &app_log.executions {
-							for notification in &execution.notifications {
-								// Filter for Transfer events only
-								if notification.event_name == "Transfer" {
-									let contract_hex = format!("{:x}", notification.contract);
+		if let Ok(block) = client.get_block_by_index(height, true).await
+			&& let Some(transactions) = &block.transactions
+		{
+			for tx in transactions {
+				if let Ok(app_log) = client.get_application_log(tx.hash).await {
+					for execution in &app_log.executions {
+						for notification in &execution.notifications {
+							// Filter for Transfer events only
+							if notification.event_name == "Transfer" {
+								let contract_hex = format!("{:x}", notification.contract);
 
-									// Check if it's from a known NEP-17 contract
-									if let Some((name, _)) = nep17_contracts
-										.iter()
-										.find(|(_, hash)| *hash == contract_hex)
+								// Check if it's from a known NEP-17 contract
+								if let Some((name, _)) =
+									nep17_contracts.iter().find(|(_, hash)| *hash == contract_hex)
+								{
+									transfer_events.push(ContractEvent {
+										block_height: height,
+										transaction_hash: tx.hash.to_string(),
+										contract_hash: notification.contract,
+										event_name: notification.event_name.clone(),
+										state: Some(notification.state.clone()),
+									});
+
+									println!("      📢 {name} Transfer found:");
+									println!("         Block: {height}");
+									println!("         TX: {}", tx.hash);
 									{
-										transfer_events.push(ContractEvent {
-											block_height: height,
-											transaction_hash: tx.hash.to_string(),
-											contract_hash: notification.contract,
-											event_name: notification.event_name.clone(),
-											state: Some(notification.state.clone()),
-										});
-
-										println!("      📢 {name} Transfer found:");
-										println!("         Block: {height}");
-										println!("         TX: {}", tx.hash);
-										{
-											let state = &notification.state;
-											println!("         State: {state:?}");
-										}
+										let state = &notification.state;
+										println!("         State: {state:?}");
 									}
 								}
 							}
@@ -233,30 +232,30 @@ async fn demonstrate_custom_filtering(
 	let mut pattern_matches = 0;
 
 	for height in start_height..current_height {
-		if let Ok(block) = client.get_block_by_index(height, true).await {
-			if let Some(transactions) = &block.transactions {
-				for tx in transactions {
-					if let Ok(app_log) = client.get_application_log(tx.hash).await {
-						for execution in &app_log.executions {
-							for notification in &execution.notifications {
-								// Custom filter logic
-								match notification.event_name.as_str() {
-									"Transfer" => {
-										// Example: filter by amount (this is conceptual)
-										large_transfers += 1;
-									},
-									_ => {
-										// Count events from any contract
-										recent_contract_events += 1;
-									},
-								}
+		if let Ok(block) = client.get_block_by_index(height, true).await
+			&& let Some(transactions) = &block.transactions
+		{
+			for tx in transactions {
+				if let Ok(app_log) = client.get_application_log(tx.hash).await {
+					for execution in &app_log.executions {
+						for notification in &execution.notifications {
+							// Custom filter logic
+							match notification.event_name.as_str() {
+								"Transfer" => {
+									// Example: filter by amount (this is conceptual)
+									large_transfers += 1;
+								},
+								_ => {
+									// Count events from any contract
+									recent_contract_events += 1;
+								},
+							}
 
-								// Pattern matching example
-								if notification.event_name.contains("Transfer")
-									|| notification.event_name.contains("Mint")
-								{
-									pattern_matches += 1;
-								}
+							// Pattern matching example
+							if notification.event_name.contains("Transfer")
+								|| notification.event_name.contains("Mint")
+							{
+								pattern_matches += 1;
 							}
 						}
 					}
@@ -287,29 +286,29 @@ async fn get_events_with_filter(
 	let current_height = client.get_block_count().await?;
 
 	for height in filter.from_block..current_height {
-		if let Ok(block) = client.get_block_by_index(height, true).await {
-			if let Some(transactions) = &block.transactions {
-				for tx in transactions {
-					if let Ok(app_log) = client.get_application_log(tx.hash).await {
-						for execution in &app_log.executions {
-							for notification in &execution.notifications {
-								// Check contract filter
-								let contract_match = filter.contract_hashes.is_empty()
-									|| filter.contract_hashes.contains(&notification.contract);
+		if let Ok(block) = client.get_block_by_index(height, true).await
+			&& let Some(transactions) = &block.transactions
+		{
+			for tx in transactions {
+				if let Ok(app_log) = client.get_application_log(tx.hash).await {
+					for execution in &app_log.executions {
+						for notification in &execution.notifications {
+							// Check contract filter
+							let contract_match = filter.contract_hashes.is_empty()
+								|| filter.contract_hashes.contains(&notification.contract);
 
-								// Check event name filter
-								let event_match = filter.event_names.is_empty()
-									|| filter.event_names.contains(&notification.event_name);
+							// Check event name filter
+							let event_match = filter.event_names.is_empty()
+								|| filter.event_names.contains(&notification.event_name);
 
-								if contract_match && event_match {
-									events.push(ContractEvent {
-										block_height: height,
-										transaction_hash: tx.hash.to_string(),
-										contract_hash: notification.contract,
-										event_name: notification.event_name.clone(),
-										state: Some(notification.state.clone()),
-									});
-								}
+							if contract_match && event_match {
+								events.push(ContractEvent {
+									block_height: height,
+									transaction_hash: tx.hash.to_string(),
+									contract_hash: notification.contract,
+									event_name: notification.event_name.clone(),
+									state: Some(notification.state.clone()),
+								});
 							}
 						}
 					}

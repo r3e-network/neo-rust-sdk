@@ -110,10 +110,10 @@ pub fn create_h160_param(value: &str) -> Result<ContractParameter, CliError> {
 					// Try handling common token symbols
 					match value.to_uppercase().as_str() {
 						"NEO" => {
-							return create_h160_param("ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5")
+							return create_h160_param("ef4073a0f2b305a38ec4050e4d3d28bc40ea63f5");
 						},
 						"GAS" => {
-							return create_h160_param("d2a4cff31913016155e38e474a2c06d08be276cf")
+							return create_h160_param("d2a4cff31913016155e38e474a2c06d08be276cf");
 						},
 						_ => {
 							return Err(CliError::InvalidArgument(

@@ -5,13 +5,13 @@ use std::{
 
 use primitive_types::H160;
 use serde::{
-	de::{self, Unexpected},
 	Deserialize, Deserializer, Serialize,
+	de::{self, Unexpected},
 };
 use strum_macros::{AsRefStr, EnumString};
 
 use crate::TypeError;
-use neo3::prelude::{deserialize_script_hash, serialize_script_hash, ContractParameter, StackItem};
+use neo3::prelude::{ContractParameter, StackItem, deserialize_script_hash, serialize_script_hash};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Hash, Clone)]
 pub struct InvocationResult {
@@ -153,10 +153,10 @@ impl InvocationResult {
 
 		if index >= notifications.len() {
 			return Err(TypeError::IndexOutOfBounds(format!(
-                "Only {} notifications have been sent in this invocation. Tried to access index {} in the invocation result.",
-                notifications.len(),
-                index
-            )));
+				"Only {} notifications have been sent in this invocation. Tried to access index {} in the invocation result.",
+				notifications.len(),
+				index
+			)));
 		}
 		Ok(&notifications[index])
 	}

@@ -1,9 +1,9 @@
 use crate::{
+	Bytes, ContractParameter, ContractParameterType, OpCode, ParameterValue, ScriptHashExtension,
 	builder::{BuilderError, CallFlags, InteropService},
 	codec::Encoder,
 	crypto::Secp256r1PublicKey,
 	neo_crypto::utils::{FromBase64String, FromHexString, ToHexString},
-	Bytes, ContractParameter, ContractParameterType, OpCode, ParameterValue, ScriptHashExtension,
 };
 use getset::{Getters, Setters};
 use num_bigint::BigInt;
@@ -290,7 +290,9 @@ impl ScriptBuilder {
 				.push_map(&map.0)
 				.map_err(|e| BuilderError::IllegalArgument(format!("Failed to push map: {}", e)))?,
 			_ => {
-				return Err(BuilderError::IllegalArgument("Unsupported parameter type".to_string()))
+				return Err(BuilderError::IllegalArgument(
+					"Unsupported parameter type".to_string(),
+				));
 			},
 		};
 
@@ -766,7 +768,7 @@ impl ScriptBuilder {
 mod tests {
 	use super::*;
 	use crate::{
-		neo_types::{contract::ContractParameterMap, ContractParameter, ContractParameterType},
+		neo_types::{ContractParameter, ContractParameterType, contract::ContractParameterMap},
 		prelude::Bytes,
 	};
 	use num_bigint::BigInt;

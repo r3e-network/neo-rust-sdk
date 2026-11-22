@@ -25,17 +25,17 @@ use crate::{
 use async_trait::async_trait;
 use base64;
 use reqwest::{
-	header::{HeaderMap, HeaderValue, CONTENT_TYPE},
 	Client,
+	header::{CONTENT_TYPE, HeaderMap, HeaderValue},
 };
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::time::Duration;
 use tracing::warn;
 
 pub use super::{
-	NeoFSAuth, NeoFSConfig, DEFAULT_MAINNET_ENDPOINT, DEFAULT_MAINNET_HTTP_GATEWAY,
-	DEFAULT_MAINNET_REST_API, DEFAULT_TESTNET_ENDPOINT, DEFAULT_TESTNET_HTTP_GATEWAY,
-	DEFAULT_TESTNET_REST_API,
+	DEFAULT_MAINNET_ENDPOINT, DEFAULT_MAINNET_HTTP_GATEWAY, DEFAULT_MAINNET_REST_API,
+	DEFAULT_TESTNET_ENDPOINT, DEFAULT_TESTNET_HTTP_GATEWAY, DEFAULT_TESTNET_REST_API, NeoFSAuth,
+	NeoFSConfig,
 };
 
 /// Client for interacting with NeoFS
@@ -165,13 +165,13 @@ impl NeoFSClient {
 		let mut headers = HeaderMap::new();
 		headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
 
-		if let Some(auth) = &self.config.auth {
-			if auth.private_key.is_some() {
-				return Err(NeoFSError::UnsupportedOperation(
+		if let Some(auth) = &self.config.auth
+			&& auth.private_key.is_some()
+		{
+			return Err(NeoFSError::UnsupportedOperation(
 					"raw private-key request signing is not supported by the REST gateway client; use an Account-backed native NeoFS client for signed container, ACL, or token operations"
 						.to_string(),
 				));
-			}
 		}
 
 		Ok(headers)
@@ -196,7 +196,7 @@ impl NeoFSClient {
 				return Err(NeoFSError::InvalidArgument(format!(
 					"Unsupported HTTP method: {}",
 					method
-				)))
+				)));
 			},
 		};
 

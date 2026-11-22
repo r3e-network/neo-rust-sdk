@@ -2,14 +2,14 @@
 
 use std::{fmt, time::Duration};
 
-use base64::{engine::general_purpose, Engine};
-use jsonwebtoken::{encode, errors::Error, get_current_timestamp, Algorithm, EncodingKey, Header};
+use base64::{Engine, engine::general_purpose};
+use jsonwebtoken::{Algorithm, EncodingKey, Header, encode, errors::Error, get_current_timestamp};
 use primitive_types::U256;
 use serde::{
-	de::{self, MapAccess, Unexpected, Visitor},
 	Deserialize, Serialize,
+	de::{self, MapAccess, Unexpected, Visitor},
 };
-use serde_json::{value::RawValue, Value};
+use serde_json::{Value, value::RawValue};
 use thiserror::Error;
 
 use neo3::prelude::Bytes;
@@ -278,7 +278,7 @@ impl<'de: 'a, 'a> Deserialize<'de> for Response<'a> {
 							return Err(de::Error::unknown_field(
 								key,
 								&["id", "jsonrpc", "result", "error", "params", "method"],
-							))
+							));
 						},
 					}
 				}

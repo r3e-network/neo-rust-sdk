@@ -1,7 +1,7 @@
 use primitive_types::H160;
 use serde::{Deserialize, Serialize};
 
-use neo3::prelude::{deserialize_script_hash, serialize_script_hash, ScriptHash, StackItem};
+use neo3::prelude::{ScriptHash, StackItem, deserialize_script_hash, serialize_script_hash};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Hash, Clone)]
 pub struct LogNotification {

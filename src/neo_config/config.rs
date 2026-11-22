@@ -91,8 +91,11 @@ impl Default for NeoConfig {
 		hardforks.insert("HF_Cockatrice".to_string(), 5450000);
 		hardforks.insert("HF_Domovoi".to_string(), 5570000);
 		hardforks.insert("HF_Echidna".to_string(), 7300000);
-		// HF_Faun and HF_Gorgon are not yet activated on mainnet
-		// They will be enabled when block heights are announced
+		hardforks.insert("HF_Faun".to_string(), 8800000);
+		hardforks.insert("HF_Gorgon".to_string(), 12020000);
+		// HF_Huyao is not yet activated on mainnet. Alignment: Neo node v3.11.2
+		// Hardforks after HF_Huyao (Iara, Jackalope) are not config-managed; they are
+		// activated on-chain via committee calls to native Policy's `activateHardfork`.
 
 		NeoConfig {
 			// Default to auto-detecting the network magic from the connected node.
@@ -208,8 +211,11 @@ impl NeoConfig {
 		hardforks.insert("HF_Cockatrice".to_string(), 5450000);
 		hardforks.insert("HF_Domovoi".to_string(), 5570000);
 		hardforks.insert("HF_Echidna".to_string(), 7300000);
-		// HF_Faun and HF_Gorgon are not yet activated on mainnet
-		// They will be enabled when block heights are announced
+		hardforks.insert("HF_Faun".to_string(), 8800000);
+		hardforks.insert("HF_Gorgon".to_string(), 12020000);
+		// HF_Huyao is not yet activated on mainnet. Alignment: Neo node v3.11.2
+		// Hardforks after HF_Huyao (Iara, Jackalope) are not config-managed; they are
+		// activated on-chain via committee calls to native Policy's `activateHardfork`.
 
 		NeoConfig {
 			network: Some(860833102),
@@ -264,8 +270,11 @@ impl NeoConfig {
 		hardforks.insert("HF_Cockatrice".to_string(), 3967000);
 		hardforks.insert("HF_Domovoi".to_string(), 4144000);
 		hardforks.insert("HF_Echidna".to_string(), 5870000);
-		// HF_Faun and HF_Gorgon are not yet activated on testnet
-		// They will be enabled when block heights are announced
+		hardforks.insert("HF_Faun".to_string(), 12960000);
+		hardforks.insert("HF_Gorgon".to_string(), 17960000);
+		// HF_Huyao is not yet activated on testnet. Alignment: Neo node v3.11.2
+		// Hardforks after HF_Huyao (Iara, Jackalope) are not config-managed; they are
+		// activated on-chain via committee calls to native Policy's `activateHardfork`.
 
 		NeoConfig {
 			network: Some(894710606), // Testnet magic

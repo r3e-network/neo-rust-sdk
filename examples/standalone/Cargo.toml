@@ -1,7 +1,7 @@
 [package]
 name = "standalone-examples"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 publish = false
 description = "Topical end-to-end examples that previously lived as loose .rs files in examples/. Wired into the workspace so they are compile-checked against the live API."
 

@@ -1,19 +1,19 @@
 use crate::{
+	Base64Encode, ContractParameterType, NNSName, NefFile, ValueExtension,
 	codec::NeoSerializable,
 	crypto::Secp256r1PublicKey,
 	deserialize_map,
 	neo_contract::Role,
 	neo_crypto::utils::{FromBase64String, FromHexString, ToHexString},
 	neo_types::script_hash::ScriptHashExtension,
-	serialize_map, Base64Encode, ContractParameterType, NNSName, NefFile, ValueExtension,
+	serialize_map,
 };
 use getset::Getters;
 use hex;
 use primitive_types::{H160, H256};
 use serde::{
-	de,
+	Deserialize, Deserializer, Serialize, de,
 	de::{MapAccess, Visitor},
-	Deserialize, Deserializer, Serialize,
 };
 use serde_json::Value;
 // use sha3::Digest;
@@ -818,7 +818,7 @@ mod tests {
 	use primitive_types::{H160, H256};
 
 	use crate::{
-		crypto::Secp256r1PublicKey, neo_types::ContractParameterMap, NefFile, ValueExtension,
+		NefFile, ValueExtension, crypto::Secp256r1PublicKey, neo_types::ContractParameterMap,
 	};
 	use neo3::prelude::{ContractParameter, ContractParameterType};
 
@@ -1100,12 +1100,14 @@ mod tests {
 		let param = ContractParameter::bool(false);
 		// assert_param(&param, false, ContractParameterType::Boolean);
 		assert_eq!(param.typ, ContractParameterType::Boolean);
-		assert!(!param
-			.value
-			.as_ref()
-			.expect("Parameter value should not be None")
-			.to_bool()
-			.expect("Should be able to convert to bool"));
+		assert!(
+			!param
+				.value
+				.as_ref()
+				.expect("Parameter value should not be None")
+				.to_bool()
+				.expect("Should be able to convert to bool")
+		);
 	}
 
 	#[test]
@@ -1215,12 +1217,14 @@ mod tests {
 		let bool_param = ContractParameter::from(true);
 		// assert_param(&bool_param, true, ContractParameterType::Boolean);
 		assert_eq!(bool_param.typ, ContractParameterType::Boolean);
-		assert!(bool_param
-			.value
-			.as_ref()
-			.expect("Parameter value should not be None")
-			.to_bool()
-			.expect("Should be able to convert to bool"));
+		assert!(
+			bool_param
+				.value
+				.as_ref()
+				.expect("Parameter value should not be None")
+				.to_bool()
+				.expect("Should be able to convert to bool")
+		);
 
 		let int_param = ContractParameter::from(10);
 		// assert_param(&int_param, 10, ContractParameterType::Integer);

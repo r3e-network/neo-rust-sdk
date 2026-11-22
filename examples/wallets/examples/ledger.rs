@@ -209,13 +209,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 				.await
 			{
 				Ok(result) => {
-					if let Some(stack_item) = result.stack.first() {
-						if let Some(balance) = stack_item.as_int() {
-							println!(
-								"       💰 GAS Balance: {} GAS",
-								balance as f64 / 100_000_000.0
-							);
-						}
+					// Edition 2024 let-chains: collapse the nested if-lets.
+					if let Some(stack_item) = result.stack.first()
+						&& let Some(balance) = stack_item.as_int()
+					{
+						println!("       💰 GAS Balance: {} GAS", balance as f64 / 100_000_000.0);
 					}
 				},
 				Err(e) => {

@@ -6,7 +6,7 @@ use std::{collections::HashMap, fmt};
 /// `MapEntry` is a simple struct that represents a key-value pair in a `StackItem::Map`.
 /// The `StackItem` enum also provides several utility methods for converting between different types and formats.
 use primitive_types::{H160, H256};
-use serde::{de::Visitor, Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, de::Visitor};
 
 use crate::crypto::Secp256r1PublicKey;
 use neo3::prelude::{Address, ScriptHashExtension};
@@ -532,11 +532,7 @@ impl StackItem {
 	}
 
 	pub fn get_iterator_id(&self) -> Option<&String> {
-		if let StackItem::InteropInterface { id, .. } = self {
-			Some(id)
-		} else {
-			None
-		}
+		if let StackItem::InteropInterface { id, .. } = self { Some(id) } else { None }
 	}
 
 	pub fn get_interface_name(&self) -> Option<&String> {

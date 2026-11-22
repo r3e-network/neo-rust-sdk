@@ -4,15 +4,15 @@ use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
 use crate::{
+	ContractParameter,
 	neo_builder::{AccountSigner, TransactionBuilder},
 	neo_clients::{JsonRpcProvider, RpcClient},
-	neo_contract::{checked_vm_integer, ContractError, SmartContractTrait},
+	neo_contract::{ContractError, SmartContractTrait, checked_vm_integer},
 	neo_protocol::Account,
 	neo_types::{
-		serde_with_utils::{deserialize_script_hash, serialize_script_hash},
 		ScriptHash,
+		serde_with_utils::{deserialize_script_hash, serialize_script_hash},
 	},
-	ContractParameter,
 };
 
 /// Neo X Bridge contract interface for token transfers between Neo N3 and Neo X
@@ -113,11 +113,16 @@ impl<'a, P: JsonRpcProvider + 'static> NeoXBridgeContract<'a, P> {
 
 		let mut builder = self.invoke_function(Self::DEPOSIT, params).await?;
 		builder
-			.set_signers(vec![AccountSigner::called_by_entry(account)
-				.map_err(|e| {
-					ContractError::InvalidAccount(format!("Failed to create account signer: {}", e))
-				})?
-				.into()])
+			.set_signers(vec![
+				AccountSigner::called_by_entry(account)
+					.map_err(|e| {
+						ContractError::InvalidAccount(format!(
+							"Failed to create account signer: {}",
+							e
+						))
+					})?
+					.into(),
+			])
 			.map_err(|e| ContractError::RuntimeError(format!("Failed to set signers: {}", e)))?;
 
 		Ok(builder)
@@ -162,11 +167,16 @@ impl<'a, P: JsonRpcProvider + 'static> NeoXBridgeContract<'a, P> {
 
 		let mut builder = self.invoke_function(Self::WITHDRAW, params).await?;
 		builder
-			.set_signers(vec![AccountSigner::called_by_entry(account)
-				.map_err(|e| {
-					ContractError::InvalidAccount(format!("Failed to create account signer: {}", e))
-				})?
-				.into()])
+			.set_signers(vec![
+				AccountSigner::called_by_entry(account)
+					.map_err(|e| {
+						ContractError::InvalidAccount(format!(
+							"Failed to create account signer: {}",
+							e
+						))
+					})?
+					.into(),
+			])
 			.map_err(|e| ContractError::RuntimeError(format!("Failed to set signers: {}", e)))?;
 
 		Ok(builder)

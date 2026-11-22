@@ -50,8 +50,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 /// Connect to TestNet with failover
-async fn connect_to_testnet(
-) -> Result<neo3::providers::RpcClient<neo3::providers::HttpProvider>, Box<dyn std::error::Error>> {
+async fn connect_to_testnet()
+-> Result<neo3::providers::RpcClient<neo3::providers::HttpProvider>, Box<dyn std::error::Error>> {
 	let endpoints = vec![
 		"https://testnet1.neo.org:443/",
 		"https://testnet2.neo.org:443/",

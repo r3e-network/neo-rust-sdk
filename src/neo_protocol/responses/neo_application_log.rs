@@ -1,8 +1,8 @@
 use primitive_types::H256;
 use serde::{Deserialize, Serialize};
 
-use crate::{neo_protocol::LogNotification, TypeError};
-use neo3::prelude::{deserialize_h256, serialize_h256, StackItem, VMState};
+use crate::{TypeError, neo_protocol::LogNotification};
+use neo3::prelude::{StackItem, VMState, deserialize_h256, serialize_h256};
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Hash, Debug)]
 pub struct ApplicationLog {

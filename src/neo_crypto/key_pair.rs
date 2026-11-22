@@ -16,8 +16,8 @@ use p256::elliptic_curve::rand_core::OsRng;
 use crate::{
 	builder::VerificationScript,
 	crypto::{
-		private_key_from_wif, wif_from_private_key, CryptoError, PublicKeyExtension,
-		Secp256r1PrivateKey, Secp256r1PublicKey, Secp256r1Signature,
+		CryptoError, PublicKeyExtension, Secp256r1PrivateKey, Secp256r1PublicKey,
+		Secp256r1Signature, private_key_from_wif, wif_from_private_key,
 	},
 	neo_types::{ScriptHash, ScriptHashExtension},
 };
@@ -240,9 +240,9 @@ impl ZeroizeOnDrop for KeyPair {}
 #[cfg(test)]
 mod tests {
 	use crate::{
+		ScriptHash, ScriptHashExtension,
 		config::TestConstants,
 		crypto::{CryptoError, KeyPair},
-		ScriptHash, ScriptHashExtension,
 	};
 	use hex;
 

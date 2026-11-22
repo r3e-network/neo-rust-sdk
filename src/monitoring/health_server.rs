@@ -119,7 +119,7 @@ pub fn connection_opened() {
 /// Decrement the tracked active-connection count (saturating at zero).
 pub fn connection_closed() {
 	let _ = ACTIVE_CONNECTIONS
-		.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |c| Some(c.saturating_sub(1)));
+		.try_update(Ordering::Relaxed, Ordering::Relaxed, |c| Some(c.saturating_sub(1)));
 }
 
 /// Current number of tracked active connections.
@@ -319,9 +319,13 @@ mod tests {
 
 	#[test]
 	fn config_from_env_defaults() {
-		std::env::remove_var("NEO_HEALTH_CHECK_PORT");
-		std::env::remove_var("NEO_HEALTH_MEMORY_DEGRADED_PCT");
-		std::env::remove_var("NEO_HEALTH_MEMORY_UNHEALTHY_PCT");
+		// SAFETY: test-only; these tests run in a single thread before any
+		// server code spawns threads that might read the environment.
+		unsafe {
+			std::env::remove_var("NEO_HEALTH_CHECK_PORT");
+			std::env::remove_var("NEO_HEALTH_MEMORY_DEGRADED_PCT");
+			std::env::remove_var("NEO_HEALTH_MEMORY_UNHEALTHY_PCT");
+		}
 		let cfg = HealthServerConfig::from_env();
 		assert_eq!(cfg.port, 8080);
 		assert_eq!(cfg.memory_degraded_pct, 70);
@@ -368,8 +372,7 @@ mod tests {
 		assert_eq!(active_connections(), start);
 		// Saturates at zero rather than underflowing.
 		connection_closed();
-		assert_eq!(active_connections(), 0);
-	}
+		assert_eq!(active_connections(), 0);	}
 
 	#[test]
 	fn status_text_maps_all_variants() {

@@ -165,12 +165,12 @@ impl RelayerClient {
 		T: APITrait + Clone,
 		T::Error: Into<crate::neo_clients::ProviderError>,
 	{
-		if let Some(policy) = config.policy() {
-			if !policy.permits_contract(contract) {
-				return Err(BuilderError::SignerConfiguration(
-					"sponsor policy does not permit paying for this contract".to_string(),
-				));
-			}
+		if let Some(policy) = config.policy()
+			&& !policy.permits_contract(contract)
+		{
+			return Err(BuilderError::SignerConfiguration(
+				"sponsor policy does not permit paying for this contract".to_string(),
+			));
 		}
 
 		let mut sb = ScriptBuilder::new();
@@ -179,33 +179,32 @@ impl RelayerClient {
 
 		let signers = build_sponsored_signers(signer, config.sponsor_address)?;
 
-		if let Some(policy) = config.policy() {
-			if let Some(max_fee) = policy.max_fee_per_tx {
-				let estimated_gas =
-					GasEstimator::estimate_gas_realtime(client, &script, signers.clone())
-						.await
-						.map_err(|e| match e {
-							crate::neo_builder::TransactionError::TransactionConfiguration(msg) => {
-								BuilderError::TransactionConfiguration(format!(
-									"Gas estimation failed: {}",
-									msg
-								))
-							},
-							crate::neo_builder::TransactionError::ProviderError(e) => {
-								BuilderError::ProviderError(e)
-							},
-							other => BuilderError::TransactionConfiguration(format!(
-								"Gas estimation error: {:?}",
-								other
-							)),
-						})?;
-
-				if !policy.permits_fee(estimated_gas as u64) {
-					return Err(BuilderError::TransactionConfiguration(format!(
-						"Estimated fee ({} GAS) exceeds max_fee_per_tx cap ({:?})",
-						estimated_gas, max_fee
-					)));
-				}
+		if let Some(policy) = config.policy()
+			&& let Some(max_fee) = policy.max_fee_per_tx
+		{
+			let estimated_gas =
+				GasEstimator::estimate_gas_realtime(client, &script, signers.clone())
+					.await
+					.map_err(|e| match e {
+						crate::neo_builder::TransactionError::TransactionConfiguration(msg) => {
+							BuilderError::TransactionConfiguration(format!(
+								"Gas estimation failed: {}",
+								msg
+							))
+						},
+						crate::neo_builder::TransactionError::ProviderError(e) => {
+							BuilderError::ProviderError(e)
+						},
+						other => BuilderError::TransactionConfiguration(format!(
+							"Gas estimation error: {:?}",
+							other
+						)),
+					})?;
+			if !policy.permits_fee(estimated_gas as u64) {
+				return Err(BuilderError::TransactionConfiguration(format!(
+					"Estimated fee ({} GAS) exceeds max_fee_per_tx cap ({:?})",
+					estimated_gas, max_fee
+				)));
 			}
 		}
 

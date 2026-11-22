@@ -1,8 +1,8 @@
 use crate::{
+	Bytes, ContractParameter,
 	builder::{BuilderError, InvocationScript, ScriptBuilder, VerificationScript},
 	codec::{Decoder, Encoder, NeoSerializable},
 	crypto::{KeyPair, Secp256r1PublicKey, Secp256r1Signature},
-	Bytes, ContractParameter,
 };
 use serde::{Deserialize, Serialize};
 

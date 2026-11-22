@@ -3,14 +3,14 @@ use crate::{
 	commands::wallet::CliState,
 	errors::CliError,
 	utils::{
-		config::{load_config, save_config, NeoFSEndpoint},
+		config::{NeoFSEndpoint, load_config, save_config},
 		print_error, print_info, print_success,
 	},
 };
 use clap::{Args, Subcommand};
 use neo3::neo_fs::{
-	client::{NeoFSAuth, NeoFSConfig},
 	Container, ContainerId, NeoFSClient, NeoFSService, Object, ObjectId, OwnerId,
+	client::{NeoFSAuth, NeoFSConfig},
 };
 use serde_json::Value;
 use std::{fs, path::PathBuf};
@@ -27,7 +27,7 @@ use reqwest::Client as HttpClient;
 use serde::{Deserialize, Serialize};
 use sha2::Digest;
 use std::collections::HashMap;
-use tokio::time::{timeout, Duration};
+use tokio::time::{Duration, timeout};
 
 // Production-ready NeoFS client implementation
 struct NeoFSClientImpl {
@@ -526,12 +526,11 @@ pub async fn handle_fs_command(args: FSArgs, state: &mut CliState) -> Result<(),
 	// Get the default or specified endpoint
 	let endpoint = args.endpoint.unwrap_or_else(|| {
 		let config = load_config().unwrap_or_default();
-		if let Some(default_endpoint) = &config.neofs.default_endpoint {
-			if let Some(endpoint) =
+		if let Some(default_endpoint) = &config.neofs.default_endpoint
+			&& let Some(endpoint) =
 				config.neofs.endpoints.iter().find(|e| &e.name == default_endpoint)
-			{
-				return endpoint.url.clone();
-			}
+		{
+			return endpoint.url.clone();
 		}
 		DEFAULT_MAINNET_ENDPOINT.to_string()
 	});
@@ -566,11 +565,7 @@ pub async fn handle_endpoint_command(command: EndpointCommands) -> Result<(), Cl
 			print_info(&format!("NeoFS endpoints for {} network:", network));
 			for endpoint in endpoints {
 				let default = if let Some(default) = &config.neofs.default_endpoint {
-					if default == &endpoint.name {
-						" (default)"
-					} else {
-						""
-					}
+					if default == &endpoint.name { " (default)" } else { "" }
 				} else {
 					""
 				};
@@ -597,7 +592,7 @@ pub async fn handle_endpoint_command(command: EndpointCommands) -> Result<(), Cl
 						_ => {
 							return Err(CliError::InvalidInput(
 								"Invalid network. Use 'mainnet' or 'testnet'".to_string(),
-							))
+							));
 						},
 					}
 				},
@@ -670,11 +665,11 @@ pub async fn handle_endpoint_command(command: EndpointCommands) -> Result<(), Cl
 			config.neofs.endpoints.retain(|e| e.name != name);
 
 			// If we removed the default endpoint, update the default
-			if let Some(default) = &config.neofs.default_endpoint {
-				if default == &name {
-					config.neofs.default_endpoint =
-						config.neofs.endpoints.first().map(|e| e.name.clone());
-				}
+			if let Some(default) = &config.neofs.default_endpoint
+				&& default == &name
+			{
+				config.neofs.default_endpoint =
+					config.neofs.endpoints.first().map(|e| e.name.clone());
 			}
 
 			// Save the updated config

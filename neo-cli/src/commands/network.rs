@@ -515,21 +515,21 @@ async fn handle_show_block(height: Option<u32>, state: &CliState) -> Result<(), 
 	]);
 	println!("{table}");
 
-	if let Some(transactions) = block.transactions {
-		if !transactions.is_empty() {
-			let mut tx_table = create_table();
-			tx_table.set_header(vec![
-				Cell::new("#").fg(Color::Cyan),
-				Cell::new("Transaction Hash").fg(Color::Cyan),
+	if let Some(transactions) = block.transactions
+		&& !transactions.is_empty()
+	{
+		let mut tx_table = create_table();
+		tx_table.set_header(vec![
+			Cell::new("#").fg(Color::Cyan),
+			Cell::new("Transaction Hash").fg(Color::Cyan),
+		]);
+		for (index, tx) in transactions.iter().enumerate() {
+			tx_table.add_row(vec![
+				Cell::new((index + 1).to_string()).fg(Color::Yellow),
+				Cell::new(tx.hash.to_string()).fg(Color::White),
 			]);
-			for (index, tx) in transactions.iter().enumerate() {
-				tx_table.add_row(vec![
-					Cell::new((index + 1).to_string()).fg(Color::Yellow),
-					Cell::new(tx.hash.to_string()).fg(Color::White),
-				]);
-			}
-			println!("{tx_table}");
 		}
+		println!("{tx_table}");
 	}
 
 	print_success("Block information retrieved successfully");

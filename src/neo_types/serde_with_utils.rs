@@ -70,20 +70,20 @@ use hex;
 use primitive_types::{H160, H256, U256};
 use reqwest::Url;
 use serde::{
+	Deserialize, Deserializer, Serialize, Serializer,
 	de::{self, SeqAccess, Visitor},
 	ser::{SerializeMap, SerializeSeq},
-	Deserialize, Deserializer, Serialize, Serializer,
 };
 
 use crate::{
+	Address, AddressOrScriptHash, ContractParameter, ScriptHash, ScriptHashExtension,
 	builder::WitnessScope,
 	crypto::{Secp256r1PrivateKey, Secp256r1PublicKey},
 	neo_protocol::HardForks,
 	neo_types::{
 		encode_string_h160, encode_string_h256, encode_string_u256, parse_address,
-		parse_string_h160, parse_string_h256, parse_string_u256, parse_string_u64,
+		parse_string_h160, parse_string_h256, parse_string_u64, parse_string_u256,
 	},
-	Address, AddressOrScriptHash, ContractParameter, ScriptHash, ScriptHashExtension,
 };
 
 pub fn serialize_h160_without_0x<S>(h160: &H160, serializer: S) -> Result<S::Ok, S::Error>
@@ -1609,10 +1609,12 @@ mod test {
 		}
 
 		let v = TestStruct {
-			value: vec![parse_string_h256(
-				"0x95ff99bcdac06fad4a141f06c5f9f1c65e71b188ff5978116a110c4170fd7355",
-			)
-			.expect("Failed to parse H256 string")],
+			value: vec![
+				parse_string_h256(
+					"0x95ff99bcdac06fad4a141f06c5f9f1c65e71b188ff5978116a110c4170fd7355",
+				)
+				.expect("Failed to parse H256 string"),
+			],
 		};
 		let json_string = serde_json::to_string_pretty(&v).unwrap();
 		println!("{json_string}");

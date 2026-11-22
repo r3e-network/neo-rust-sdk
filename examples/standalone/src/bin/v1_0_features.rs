@@ -12,7 +12,7 @@ use neo3::neo_clients::{HttpProvider, RpcClient};
 use neo3::neo_error::unified::NeoError as UnifiedNeoError;
 #[cfg(feature = "ws")]
 use neo3::sdk::websocket::{SubscriptionType, WebSocketClient};
-use neo3::sdk::{hd_wallet::*, transaction_simulator::*, Neo};
+use neo3::sdk::{Neo, hd_wallet::*, transaction_simulator::*};
 use std::sync::Arc;
 
 #[tokio::main]

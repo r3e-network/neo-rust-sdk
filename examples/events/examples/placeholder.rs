@@ -36,8 +36,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	Ok(())
 }
 
-async fn connect_to_testnet(
-) -> Result<neo3::neo_clients::RpcClient<neo3::neo_clients::HttpProvider>, Box<dyn std::error::Error>>
+async fn connect_to_testnet()
+-> Result<neo3::neo_clients::RpcClient<neo3::neo_clients::HttpProvider>, Box<dyn std::error::Error>>
 {
 	let endpoints = vec![
 		"https://testnet1.neo.org:443/",
@@ -135,26 +135,23 @@ async fn monitor_contract_events(
 	let mut contract_events: HashMap<String, u32> = HashMap::new();
 
 	for height in start_height..current_height {
-		if let Ok(block) = client.get_block_by_index(height, true).await {
-			if let Some(transactions) = &block.transactions {
-				for tx in transactions {
-					if let Ok(app_log) = client.get_application_log(tx.hash).await {
-						for execution in &app_log.executions {
-							for notification in &execution.notifications {
-								let contract_hex = format!("{:x}", notification.contract);
+		if let Ok(block) = client.get_block_by_index(height, true).await
+			&& let Some(transactions) = &block.transactions
+		{
+			for tx in transactions {
+				if let Ok(app_log) = client.get_application_log(tx.hash).await {
+					for execution in &app_log.executions {
+						for notification in &execution.notifications {
+							let contract_hex = format!("{:x}", notification.contract);
 
-								// Check if this is a contract we're monitoring
-								for (name, hash) in &contracts_to_monitor {
-									if contract_hex == *hash {
-										let key = format!("{name}::{}", notification.event_name);
-										*contract_events.entry(key).or_insert(0) += 1;
+							// Check if this is a contract we're monitoring
+							for (name, hash) in &contracts_to_monitor {
+								if contract_hex == *hash {
+									let key = format!("{name}::{}", notification.event_name);
+									*contract_events.entry(key).or_insert(0) += 1;
 
-										println!(
-											"      📢 {name} event: {}",
-											notification.event_name
-										);
-										println!("         Block: {height}, TX: {}", tx.hash);
-									}
+									println!("      📢 {name} event: {}", notification.event_name);
+									println!("         Block: {height}, TX: {}", tx.hash);
 								}
 							}
 						}
@@ -181,46 +178,34 @@ async fn parse_event_types(
 	let start_height = current_height.saturating_sub(3);
 
 	for height in start_height..current_height {
-		if let Ok(block) = client.get_block_by_index(height, true).await {
-			if let Some(transactions) = &block.transactions {
-				for tx in transactions {
-					if let Ok(app_log) = client.get_application_log(tx.hash).await {
-						for execution in &app_log.executions {
-							for notification in &execution.notifications {
-								match notification.event_name.as_str() {
-									"Transfer" => {
-										println!("      💸 Transfer Event:");
-										println!(
-											"         Contract: 0x{:x}",
-											notification.contract
-										);
-										{
-											let state = &notification.state;
-											println!("         State: {state:?}");
-										}
-									},
-									"Mint" => {
-										println!("      🪙 Mint Event:");
-										println!(
-											"         Contract: 0x{:x}",
-											notification.contract
-										);
-									},
-									"Burn" => {
-										println!("      🔥 Burn Event:");
-										println!(
-											"         Contract: 0x{:x}",
-											notification.contract
-										);
-									},
-									other => {
-										println!("      🔔 {other} Event:");
-										println!(
-											"         Contract: 0x{:x}",
-											notification.contract
-										);
-									},
-								}
+		if let Ok(block) = client.get_block_by_index(height, true).await
+			&& let Some(transactions) = &block.transactions
+		{
+			for tx in transactions {
+				if let Ok(app_log) = client.get_application_log(tx.hash).await {
+					for execution in &app_log.executions {
+						for notification in &execution.notifications {
+							match notification.event_name.as_str() {
+								"Transfer" => {
+									println!("      💸 Transfer Event:");
+									println!("         Contract: 0x{:x}", notification.contract);
+									{
+										let state = &notification.state;
+										println!("         State: {state:?}");
+									}
+								},
+								"Mint" => {
+									println!("      🪙 Mint Event:");
+									println!("         Contract: 0x{:x}", notification.contract);
+								},
+								"Burn" => {
+									println!("      🔥 Burn Event:");
+									println!("         Contract: 0x{:x}", notification.contract);
+								},
+								other => {
+									println!("      🔔 {other} Event:");
+									println!("         Contract: 0x{:x}", notification.contract);
+								},
 							}
 						}
 					}
@@ -249,21 +234,18 @@ async fn demonstrate_continuous_monitoring(
 			println!("      📦 New block #{current_height} detected!");
 
 			// Check the new block for events
-			if let Ok(block) = client.get_block_by_index(current_height - 1, true).await {
-				if let Some(transactions) = &block.transactions {
-					println!("         Transactions in block: {}", transactions.len());
+			if let Ok(block) = client.get_block_by_index(current_height - 1, true).await
+				&& let Some(transactions) = &block.transactions
+			{
+				println!("         Transactions in block: {}", transactions.len());
 
-					for tx in transactions {
-						if let Ok(app_log) = client.get_application_log(tx.hash).await {
-							let total_events: usize = app_log
-								.executions
-								.iter()
-								.map(|exec| exec.notifications.len())
-								.sum();
+				for tx in transactions {
+					if let Ok(app_log) = client.get_application_log(tx.hash).await {
+						let total_events: usize =
+							app_log.executions.iter().map(|exec| exec.notifications.len()).sum();
 
-							if total_events > 0 {
-								println!("         TX {} has {} events", tx.hash, total_events);
-							}
+						if total_events > 0 {
+							println!("         TX {} has {} events", tx.hash, total_events);
 						}
 					}
 				}

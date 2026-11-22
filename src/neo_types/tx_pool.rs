@@ -2,8 +2,8 @@ use std::{collections::BTreeMap, fmt, str::FromStr};
 
 use primitive_types::U256;
 use serde::{
-	de::{self, Deserializer, Visitor},
 	Deserialize, Serialize,
+	de::{self, Deserializer, Visitor},
 };
 
 use neo3::prelude::Address;

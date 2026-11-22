@@ -107,14 +107,17 @@ mod tests {
 
 	fn with_env_var(key: &str, value: Option<&str>, f: impl FnOnce()) {
 		let prev = std::env::var(key).ok();
+		// SAFETY: test-only helper. Environment mutation happens exclusively
+		// under `#[serial]`-guarded tests, so no other thread reads the
+		// environment concurrently.
 		match value {
-			Some(v) => std::env::set_var(key, v),
-			None => std::env::remove_var(key),
+			Some(v) => unsafe { std::env::set_var(key, v) },
+			None => unsafe { std::env::remove_var(key) },
 		}
 		f();
 		match prev {
-			Some(v) => std::env::set_var(key, v),
-			None => std::env::remove_var(key),
+			Some(v) => unsafe { std::env::set_var(key, v) },
+			None => unsafe { std::env::remove_var(key) },
 		}
 	}
 

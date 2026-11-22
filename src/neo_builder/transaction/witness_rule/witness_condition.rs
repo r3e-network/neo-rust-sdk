@@ -9,7 +9,7 @@ use crate::{
 	neo_types::ScriptHashExtension,
 };
 use primitive_types::H160;
-use serde::{ser::SerializeStruct, Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer, ser::SerializeStruct};
 use serde_json::Value;
 
 /// Enum representing the different types of witness conditions that can be used in a smart contract.

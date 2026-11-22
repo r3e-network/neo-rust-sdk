@@ -3,15 +3,15 @@ use primitive_types::H160;
 use serde::{Deserialize, Serialize};
 
 use crate::{
+	ValueExtension,
 	neo_builder::TransactionBuilder,
 	neo_clients::{APITrait, JsonRpcProvider, RpcClient},
-	neo_contract::{traits::SmartContractTrait, ContractError},
+	neo_contract::{ContractError, traits::SmartContractTrait},
 	neo_crypto::Secp256r1PublicKey,
 	neo_types::{
-		serde_with_utils::{deserialize_script_hash, serialize_script_hash},
 		ContractParameter, ScriptHash, StackItem,
+		serde_with_utils::{deserialize_script_hash, serialize_script_hash},
 	},
-	ValueExtension,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

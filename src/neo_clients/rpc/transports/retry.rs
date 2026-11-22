@@ -13,7 +13,7 @@ use super::{
 };
 use crate::neo_clients::{JsonRpcProvider, ProviderError};
 use async_trait::async_trait;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use thiserror::Error;
 use tracing::trace;
 

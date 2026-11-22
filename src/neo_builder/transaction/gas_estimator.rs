@@ -1,5 +1,5 @@
 use crate::{
-	neo_builder::{transaction::TransactionBuilder, Signer, TransactionError},
+	neo_builder::{Signer, TransactionError, transaction::TransactionBuilder},
 	neo_clients::{APITrait, JsonRpcProvider, ProviderError},
 };
 

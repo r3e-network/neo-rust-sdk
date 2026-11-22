@@ -8,11 +8,11 @@ use crate::{
 	},
 	neo_protocol::Account,
 	neo_types::{
+		ContractParameter, ScriptHash, ScriptHashExtension,
 		serde_with_utils::{
 			deserialize_script_hash_option, deserialize_url_option, serialize_script_hash_option,
 			serialize_url_option,
 		},
-		ContractParameter, ScriptHash, ScriptHashExtension,
 	},
 };
 use getset::{Getters, Setters};

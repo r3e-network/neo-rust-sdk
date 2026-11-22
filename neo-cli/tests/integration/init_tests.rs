@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-	use crate::integration::utils::{assert_output_contains, assert_success, CliTest};
+	use crate::integration::utils::{CliTest, assert_output_contains, assert_success};
 	use std::fs;
 
 	#[test]

@@ -64,7 +64,7 @@ pub fn wif_from_private_key(private_key: &Secp256r1PrivateKey) -> String {
 #[cfg(test)]
 mod tests {
 	use crate::crypto::{
-		private_key_from_wif, wif_from_private_key, PrivateKeyExtension, Secp256r1PrivateKey,
+		PrivateKeyExtension, Secp256r1PrivateKey, private_key_from_wif, wif_from_private_key,
 	};
 
 	#[test]

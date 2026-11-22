@@ -516,23 +516,6 @@ pub use neo_x as x;
 
 // Re-export common types directly in lib.rs for easy access
 pub use crate::neo_types::{
-	deserialize_address_or_script_hash,
-	deserialize_h256,
-	deserialize_h256_option,
-	deserialize_hash_map_h160_account,
-	deserialize_script_hash,
-	deserialize_script_hash_option,
-	deserialize_url_option,
-	serialize_address_or_script_hash,
-	serialize_h256,
-	serialize_h256_option,
-	serialize_hash_map_h160_account,
-	// Serialization/deserialization helpers
-	serialize_script_hash,
-	serialize_script_hash_option,
-	serialize_url_option,
-	var_size,
-	vec_to_array32,
 	Address,
 	AddressOrScriptHash,
 	// Additional types
@@ -561,6 +544,23 @@ pub use crate::neo_types::{
 	TryStringExt,
 	TypeError,
 	VMState,
+	deserialize_address_or_script_hash,
+	deserialize_h256,
+	deserialize_h256_option,
+	deserialize_hash_map_h160_account,
+	deserialize_script_hash,
+	deserialize_script_hash_option,
+	deserialize_url_option,
+	serialize_address_or_script_hash,
+	serialize_h256,
+	serialize_h256_option,
+	serialize_hash_map_h160_account,
+	// Serialization/deserialization helpers
+	serialize_script_hash,
+	serialize_script_hash_option,
+	serialize_url_option,
+	var_size,
+	vec_to_array32,
 };
 
 // Add direct re-exports for commonly used serde utils
@@ -666,8 +666,8 @@ mod tests {
 		Ok(())
 	}
 
-	async fn setup_test_client(
-	) -> Result<(RpcClient<MockProvider>, Option<Arc<Mutex<MockClient>>>), Box<dyn std::error::Error>>
+	async fn setup_test_client()
+	-> Result<(RpcClient<MockProvider>, Option<Arc<Mutex<MockClient>>>), Box<dyn std::error::Error>>
 	{
 		let mock_server = Arc::new(Mutex::new(MockClient::new().await));
 		{

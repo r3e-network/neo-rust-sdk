@@ -1,8 +1,8 @@
 use neo3::neo_fs::{
-	client::{NeoFSAuth, NeoFSClient, NeoFSConfig, DEFAULT_TESTNET_REST_API},
+	NeoFSService,
+	client::{DEFAULT_TESTNET_REST_API, NeoFSAuth, NeoFSClient, NeoFSConfig},
 	object::{MultipartUpload, Object, Part},
 	types::{ContainerId, OwnerId},
-	NeoFSService,
 };
 use rand::RngCore;
 use std::env;

@@ -6,8 +6,8 @@ use std::{
 	io,
 	path::Path,
 	sync::{
-		atomic::{AtomicU64, Ordering},
 		Arc,
+		atomic::{AtomicU64, Ordering},
 	},
 	thread,
 };
@@ -17,8 +17,8 @@ use bytes::{Buf, BytesMut};
 use futures_channel::mpsc;
 use futures_util::stream::StreamExt;
 use primitive_types::U256;
-use serde::{de::DeserializeOwned, Serialize};
-use serde_json::{value::RawValue, Deserializer};
+use serde::{Serialize, de::DeserializeOwned};
+use serde_json::{Deserializer, value::RawValue};
 use thiserror::Error;
 use tokio::{
 	io::{AsyncReadExt, AsyncWriteExt, BufReader},
@@ -563,11 +563,7 @@ impl From<IpcError> for ProviderError {
 
 impl RpcError for IpcError {
 	fn as_error_response(&self) -> Option<&super::JsonRpcError> {
-		if let IpcError::JsonRpcError(err) = self {
-			Some(err)
-		} else {
-			None
-		}
+		if let IpcError::JsonRpcError(err) = self { Some(err) } else { None }
 	}
 
 	fn as_serde_error(&self) -> Option<&serde_json::Error> {

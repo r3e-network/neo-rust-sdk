@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use futures_util::lock::Mutex;
 use getset::Getters;
 use primitive_types::{H160, H256};
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 use serde_json::json;
 use std::{
 	collections::HashMap,
@@ -26,13 +26,13 @@ use crate::{
 };
 
 use crate::{
+	Address, ContractManifest, ContractParameter, ContractState, InvocationResult,
+	NativeContractState, NefFile, StackItem, ValueExtension,
 	builder::{Signer, Transaction, TransactionSendToken},
 	config::NEOCONFIG,
 	neo_protocol::*,
 	neo_types::ScriptHashExtension,
 	prelude::{Base64Encode, TryBase64Encode},
-	Address, ContractManifest, ContractParameter, ContractState, InvocationResult,
-	NativeContractState, NefFile, StackItem, ValueExtension,
 };
 
 fn encode_hex_parameter_as_base64(value: &str, field_name: &str) -> Result<String, ProviderError> {

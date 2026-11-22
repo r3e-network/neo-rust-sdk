@@ -180,5 +180,5 @@ pub mod prelude {
 	pub use super::crypto::{SgxCrypto, SgxKeyManager};
 	pub use super::enclave::{EnclaveConfig, SgxEnclave};
 	pub use super::networking::{SecureChannel, SgxNetworking};
-	pub use super::{init_sgx, SgxError};
+	pub use super::{SgxError, init_sgx};
 }

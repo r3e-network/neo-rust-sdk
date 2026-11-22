@@ -4,7 +4,7 @@
 
 use anyhow::{Context, Result};
 use colored::*;
-use dialoguer::{theme::ColorfulTheme, Confirm, Input, Select};
+use dialoguer::{Confirm, Input, Select, theme::ColorfulTheme};
 use neo3::sdk::{Neo, Network};
 use std::time::Duration;
 

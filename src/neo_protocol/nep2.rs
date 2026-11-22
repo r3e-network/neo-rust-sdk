@@ -59,14 +59,14 @@
 use crate::{
 	config::NeoConstants,
 	crypto::{
-		base58check_encode, try_base58check_decode, HashableForVec, KeyPair, Nep2Error,
-		Secp256r1PublicKey,
+		HashableForVec, KeyPair, Nep2Error, Secp256r1PublicKey, base58check_encode,
+		try_base58check_decode,
 	},
 	neo_clients::public_key_to_address,
 	vec_to_array32,
 };
-use aes::cipher::{block_padding::NoPadding, BlockDecryptMut, BlockEncryptMut, KeyInit};
-use scrypt::{scrypt, Params};
+use aes::cipher::{BlockDecryptMut, BlockEncryptMut, KeyInit, block_padding::NoPadding};
+use scrypt::{Params, scrypt};
 // Re-export from elliptic_curve crate which is already a dependency
 use p256::elliptic_curve::subtle::ConstantTimeEq;
 use p256::elliptic_curve::zeroize::Zeroize;

@@ -6,14 +6,14 @@ use crate::{
 	neo_builder::TransactionBuilder,
 	neo_clients::{JsonRpcProvider, RpcClient},
 	neo_contract::{
-		traits::{FungibleTokenTrait, SmartContractTrait, TokenTrait},
 		ContractError,
+		traits::{FungibleTokenTrait, SmartContractTrait, TokenTrait},
 	},
 	neo_crypto::Secp256r1PublicKey,
 	neo_protocol::Account,
 	neo_types::{
-		serde_with_utils::{deserialize_script_hash, serialize_script_hash},
 		ContractParameter, ContractParameterType, NNSName, ScriptHash, StackItem,
+		serde_with_utils::{deserialize_script_hash, serialize_script_hash},
 	},
 };
 
@@ -109,11 +109,7 @@ impl<'a, P: JsonRpcProvider + 'static> NeoToken<'a, P> {
 			.chunks(2)
 			.filter_map(
 				|chunk| {
-					if chunk.len() == 2 {
-						Some(Candidate::from(chunk.to_vec()))
-					} else {
-						None
-					}
+					if chunk.len() == 2 { Some(Candidate::from(chunk.to_vec())) } else { None }
 				},
 			)
 			.collect::<Result<Vec<Candidate>, ContractError>>()

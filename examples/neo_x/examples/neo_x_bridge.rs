@@ -1,6 +1,6 @@
 use neo3::{
-	neo_clients::{APITrait, HttpProvider, RpcClient},
 	ScriptHashExtension,
+	neo_clients::{APITrait, HttpProvider, RpcClient},
 };
 use std::str::FromStr;
 
@@ -84,8 +84,8 @@ struct BridgeConfig {
 }
 
 /// Connect to Neo N3 MainNet
-async fn connect_to_neo_mainnet(
-) -> Result<neo3::providers::RpcClient<neo3::providers::HttpProvider>, Box<dyn std::error::Error>> {
+async fn connect_to_neo_mainnet()
+-> Result<neo3::providers::RpcClient<neo3::providers::HttpProvider>, Box<dyn std::error::Error>> {
 	let endpoints = vec![
 		"https://mainnet1.neo.org:443/",
 		"https://mainnet2.neo.org:443/",

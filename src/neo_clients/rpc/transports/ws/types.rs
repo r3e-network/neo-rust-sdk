@@ -2,8 +2,8 @@ use std::fmt;
 
 use futures_channel::{mpsc, oneshot};
 use primitive_types::U256;
-use serde::{de, Deserialize};
-use serde_json::value::{to_raw_value, RawValue};
+use serde::{Deserialize, de};
+use serde_json::value::{RawValue, to_raw_value};
 
 pub(crate) use aliases::*;
 
@@ -128,7 +128,7 @@ impl<'de> Deserialize<'de> for PubSubItem {
 							return Err(de::Error::unknown_field(
 								key,
 								&["id", "jsonrpc", "result", "error", "params", "method"],
-							))
+							));
 						},
 					}
 				}

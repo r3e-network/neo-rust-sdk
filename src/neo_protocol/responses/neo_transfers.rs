@@ -3,7 +3,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::str::FromStr;
 
 use neo3::prelude::{
-	deserialize_h256, deserialize_script_hash, serialize_h256, serialize_script_hash, ScriptHash,
+	ScriptHash, deserialize_h256, deserialize_script_hash, serialize_h256, serialize_script_hash,
 };
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Hash, Debug)]

@@ -61,18 +61,18 @@ use crate::neo_types::{Bytes, ContractParameter, InvocationResult, ScriptHash};
 
 // Import transaction types from neo_builder
 use crate::neo_builder::{
+	BuilderError,
 	transaction::{
 		Signer, SignerType, Transaction, TransactionAttribute, TransactionError,
 		VerificationScript, Witness, WitnessScope,
 	},
-	BuilderError,
 };
 
 // Import other modules
 use crate::{
 	neo_clients::{APITrait, JsonRpcProvider, RpcClient},
-	neo_config::{NeoConstants, NEOCONFIG},
-	neo_crypto::{utils::ToHexString, Secp256r1PublicKey, Secp256r1Signature},
+	neo_config::{NEOCONFIG, NeoConstants},
+	neo_crypto::{Secp256r1PublicKey, Secp256r1Signature, utils::ToHexString},
 	neo_protocol::AccountTrait,
 };
 
@@ -443,7 +443,10 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 			self.signers.insert(0, s);
 			Ok(self)
 		} else {
-			Err(TransactionError::ScriptFormat(format!("Could not find a signer with script hash {}. Make sure to add the signer before calling this method.", sender)))
+			Err(TransactionError::ScriptFormat(format!(
+				"Could not find a signer with script hash {}. Make sure to add the signer before calling this method.",
+				sender
+			)))
 		}
 	}
 
@@ -1059,10 +1062,11 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 					continue;
 				}
 				let key_pair = acc.key_pair().as_ref().ok_or_else(|| {
-                    BuilderError::InvalidConfiguration(
-                        format!("Cannot create transaction signature because account {} does not hold a private key.", acc.get_address()),
-                    )
-                })?;
+					BuilderError::InvalidConfiguration(format!(
+						"Cannot create transaction signature because account {} does not hold a private key.",
+						acc.get_address()
+					))
+				})?;
 				witnesses_to_add.push(Witness::create(tx_bytes.clone(), key_pair)?);
 			} else {
 				let contract_signer = signer.as_contract_signer().ok_or_else(|| {
@@ -1084,17 +1088,16 @@ impl<'a, P: JsonRpcProvider + 'static> TransactionBuilder<'a, P> {
 
 	fn signers_contain_multi_sig_with_committee_member(&self, committee: &HashSet<H160>) -> bool {
 		for signer in &self.signers {
-			if let Some(account_signer) = signer.as_account_signer() {
-				if account_signer.is_multi_sig() {
-					if let Some(script) = &account_signer.account().verification_script() {
-						// Get public keys, returning false if there's an error instead of unwrapping
-						if let Ok(public_keys) = script.get_public_keys() {
-							for pubkey in public_keys {
-								let hash = public_key_to_script_hash(&pubkey);
-								if committee.contains(&hash) {
-									return true;
-								}
-							}
+			if let Some(account_signer) = signer.as_account_signer()
+				&& account_signer.is_multi_sig()
+				&& let Some(script) = &account_signer.account().verification_script()
+			{
+				// Get public keys, returning false if there's an error instead of unwrapping
+				if let Ok(public_keys) = script.get_public_keys() {
+					for pubkey in public_keys {
+						let hash = public_key_to_script_hash(&pubkey);
+						if committee.contains(&hash) {
+							return true;
 						}
 					}
 				}

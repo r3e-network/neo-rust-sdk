@@ -1,7 +1,7 @@
 use neo3::{
+	ScryptParamsDef,
 	neo_protocol::{Account, AccountTrait},
 	neo_wallets::{Wallet, WalletBackup, WalletTrait},
-	ScryptParamsDef,
 };
 use serial_test::serial;
 use tempfile::TempDir;

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::neo_types::{
-	deserialize_h256, deserialize_h256_option, serialize_h256, serialize_h256_option, H256,
+	H256, deserialize_h256, deserialize_h256_option, serialize_h256, serialize_h256_option,
 };
 
 /// Lightweight transaction hash provider used for block equality checks.

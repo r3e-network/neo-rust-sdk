@@ -1,8 +1,8 @@
 use crate::{
+	Bytes, OpCode, OperandSize,
 	builder::{BuilderError, InteropService},
 	codec::Decoder,
 	neo_crypto::utils::ToHexString,
-	Bytes, OpCode, OperandSize,
 };
 
 /// A utility struct for reading and interpreting Neo smart contract scripts.

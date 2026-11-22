@@ -12,12 +12,12 @@ use clap::{Args, Subcommand};
 use comfy_table::{Cell, Color};
 use hex;
 use neo3::{
+	NeoVMStateType,
 	neo_clients::{APITrait, HttpProvider, RpcClient},
 	neo_crypto::Secp256r1PublicKey,
 	neo_protocol::{Account, AccountTrait},
 	neo_types::AddressExtension,
 	neo_wallets::{Wallet, WalletBackup, WalletTrait},
-	NeoVMStateType,
 };
 use std::path::PathBuf;
 
@@ -654,10 +654,10 @@ async fn handle_create_address(
 			(account.get_script_hash(), account.get_address())
 		};
 
-		if let Some(label) = label.as_ref() {
-			if let Some(acc) = wallet.accounts.get_mut(&script_hash) {
-				acc.label = Some(label.clone());
-			}
+		if let Some(label) = label.as_ref()
+			&& let Some(acc) = wallet.accounts.get_mut(&script_hash)
+		{
+			acc.label = Some(label.clone());
 		}
 
 		created_addresses.push(address);
@@ -1234,10 +1234,10 @@ async fn handle_transfer(
 	)
 	.await;
 
-	if let Some(hash) = original_default {
-		if let Some(wallet) = state.wallet.as_mut() {
-			wallet.set_default_account(hash);
-		}
+	if let Some(hash) = original_default
+		&& let Some(wallet) = state.wallet.as_mut()
+	{
+		wallet.set_default_account(hash);
 	}
 
 	result
@@ -1610,7 +1610,7 @@ async fn handle_transaction_simulation(
 		hex::decode(&script[2..])
 			.map_err(|e| CliError::InvalidInput(format!("Invalid hex script: {}", e)))?
 	} else {
-		use base64::{engine::general_purpose::STANDARD, Engine as _};
+		use base64::{Engine as _, engine::general_purpose::STANDARD};
 		STANDARD
 			.decode(script.as_bytes())
 			.map_err(|e| CliError::InvalidInput(format!("Invalid base64 script: {}", e)))?

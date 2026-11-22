@@ -113,20 +113,20 @@ impl NeoSerializable for AccountSigner {
 	fn encode(&self, writer: &mut Encoder) {
 		writer.write_serializable_fixed(&self.signer_hash);
 		writer.write_u8(WitnessScope::combine(&self.scopes));
-		if self.scopes.contains(&WitnessScope::CustomContracts) {
-			if let Err(e) = writer.write_serializable_variable_list(&self.allowed_contracts) {
-				tracing::warn!(error = %e, "Failed to encode account signer allowed contracts");
-			}
+		if self.scopes.contains(&WitnessScope::CustomContracts)
+			&& let Err(e) = writer.write_serializable_variable_list(&self.allowed_contracts)
+		{
+			tracing::warn!(error = %e, "Failed to encode account signer allowed contracts");
 		}
-		if self.scopes.contains(&WitnessScope::CustomGroups) {
-			if let Err(e) = writer.write_serializable_variable_list(&self.allowed_groups) {
-				tracing::warn!(error = %e, "Failed to encode account signer allowed groups");
-			}
+		if self.scopes.contains(&WitnessScope::CustomGroups)
+			&& let Err(e) = writer.write_serializable_variable_list(&self.allowed_groups)
+		{
+			tracing::warn!(error = %e, "Failed to encode account signer allowed groups");
 		}
-		if self.scopes.contains(&WitnessScope::WitnessRules) {
-			if let Err(e) = writer.write_serializable_variable_list(&self.rules) {
-				tracing::warn!(error = %e, "Failed to encode account signer rules");
-			}
+		if self.scopes.contains(&WitnessScope::WitnessRules)
+			&& let Err(e) = writer.write_serializable_variable_list(&self.rules)
+		{
+			tracing::warn!(error = %e, "Failed to encode account signer rules");
 		}
 	}
 

@@ -96,15 +96,15 @@ async fn get_detailed_info(client: &RpcClient<HttpProvider>, network: &str) {
 	}
 
 	// Get latest block information
-	if let Ok(block_count) = client.get_block_count().await {
-		if let Ok(block) = client.get_block_by_index(block_count - 1, true).await {
-			println!("  ⏰ Latest Block Time: {}", format_timestamp(block.time));
-			println!("  🔗 Block Hash: {}", block.hash.to_string().dimmed());
-			if let Some(transactions) = &block.transactions {
-				println!("  📋 Transactions: {}", transactions.len().to_string().cyan());
-			} else {
-				println!("  📋 Transactions: {}", "0".dimmed());
-			}
+	if let Ok(block_count) = client.get_block_count().await
+		&& let Ok(block) = client.get_block_by_index(block_count - 1, true).await
+	{
+		println!("  ⏰ Latest Block Time: {}", format_timestamp(block.time));
+		println!("  🔗 Block Hash: {}", block.hash.to_string().dimmed());
+		if let Some(transactions) = &block.transactions {
+			println!("  📋 Transactions: {}", transactions.len().to_string().cyan());
+		} else {
+			println!("  📋 Transactions: {}", "0".dimmed());
 		}
 	}
 

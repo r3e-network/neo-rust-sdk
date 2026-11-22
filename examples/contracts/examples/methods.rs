@@ -39,8 +39,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	Ok(())
 }
 
-async fn connect_to_testnet(
-) -> Result<neo3::neo_clients::RpcClient<neo3::neo_clients::HttpProvider>, Box<dyn std::error::Error>>
+async fn connect_to_testnet()
+-> Result<neo3::neo_clients::RpcClient<neo3::neo_clients::HttpProvider>, Box<dyn std::error::Error>>
 {
 	let endpoints = vec![
 		"https://testnet1.neo.org:443/",
@@ -109,10 +109,10 @@ async fn test_readonly_methods(
 	match client.invoke_function(&gas_hash, "symbol".to_string(), vec![], None).await {
 		Ok(result) => {
 			println!("      symbol() → State: {:?}", result.state);
-			if let Some(stack_item) = result.stack.first() {
-				if let Some(symbol) = stack_item.as_string() {
-					println!("      symbol() → Value: \"{symbol}\"");
-				}
+			if let Some(stack_item) = result.stack.first()
+				&& let Some(symbol) = stack_item.as_string()
+			{
+				println!("      symbol() → Value: \"{symbol}\"");
 			}
 			println!(
 				"      symbol() → Gas: {} GAS",
@@ -125,10 +125,10 @@ async fn test_readonly_methods(
 	// Test decimals() method
 	match client.invoke_function(&gas_hash, "decimals".to_string(), vec![], None).await {
 		Ok(result) => {
-			if let Some(stack_item) = result.stack.first() {
-				if let Some(decimals) = stack_item.as_int() {
-					println!("      decimals() → Value: {decimals}");
-				}
+			if let Some(stack_item) = result.stack.first()
+				&& let Some(decimals) = stack_item.as_int()
+			{
+				println!("      decimals() → Value: {decimals}");
 			}
 		},
 		Err(e) => println!("      ❌ decimals() failed: {e}"),
@@ -137,10 +137,10 @@ async fn test_readonly_methods(
 	// Test totalSupply() method
 	match client.invoke_function(&gas_hash, "totalSupply".to_string(), vec![], None).await {
 		Ok(result) => {
-			if let Some(stack_item) = result.stack.first() {
-				if let Some(supply) = stack_item.as_int() {
-					println!("      totalSupply() → Value: {} GAS", supply as f64 / 100_000_000.0);
-				}
+			if let Some(stack_item) = result.stack.first()
+				&& let Some(supply) = stack_item.as_int()
+			{
+				println!("      totalSupply() → Value: {} GAS", supply as f64 / 100_000_000.0);
 			}
 		},
 		Err(e) => println!("      ❌ totalSupply() failed: {e}"),
@@ -169,13 +169,13 @@ async fn demonstrate_parameter_types(
 		.await
 	{
 		Ok(result) => {
-			if let Some(stack_item) = result.stack.first() {
-				if let Some(balance) = stack_item.as_int() {
-					println!(
-						"      balanceOf({example_address}) → {} GAS",
-						balance as f64 / 100_000_000.0
-					);
-				}
+			if let Some(stack_item) = result.stack.first()
+				&& let Some(balance) = stack_item.as_int()
+			{
+				println!(
+					"      balanceOf({example_address}) → {} GAS",
+					balance as f64 / 100_000_000.0
+				);
 			}
 		},
 		Err(e) => println!("      ❌ balanceOf failed: {e}"),
@@ -244,7 +244,9 @@ async fn query_contract_state(
 
 	// Find storage items (if accessible)
 	// Note: find_states requires a root hash - we'll demonstrate the API structure
-	println!("      💡 Storage query would use find_states(root_hash, contract_hash, key_prefix, start_key, count)");
+	println!(
+		"      💡 Storage query would use find_states(root_hash, contract_hash, key_prefix, start_key, count)"
+	);
 	println!("      • root_hash: Block state root hash");
 	println!("      • contract_hash: Target contract script hash");
 	println!("      • key_prefix: Storage key prefix to filter");

@@ -1,4 +1,4 @@
-use crate::{neo_protocol::AccountTrait, ScryptParamsDef};
+use crate::{ScryptParamsDef, neo_protocol::AccountTrait};
 use primitive_types::H160;
 
 /// Represents the core functionalities of a cryptocurrency wallet.

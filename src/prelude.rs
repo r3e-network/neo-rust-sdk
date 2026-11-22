@@ -92,18 +92,18 @@ pub use crate::neo_types::{
 	deserialize_h256,
 	// Other serialization helpers
 	deserialize_script_hash,
+	deserialize_u64,
 	// U256 serialization
 	deserialize_u256,
-	deserialize_u64,
 	deserialize_vec_h256,
 	deserialize_vec_u256,
 	deserialize_wildcard,
 	serialize_h160,
 	serialize_h256,
 	serialize_script_hash,
-	serialize_u256,
 	serialize_u64,
 
+	serialize_u256,
 	serialize_vec_h256,
 
 	serialize_vec_u256,

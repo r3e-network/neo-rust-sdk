@@ -416,12 +416,12 @@ async fn show_block_by_index(
 	println!("Next Consensus: {}", block.next_consensus);
 
 	// Show transactions if there are any
-	if let Some(transactions) = &block.transactions {
-		if !transactions.is_empty() {
-			println!("\nTransactions:");
-			for (i, tx) in transactions.iter().enumerate() {
-				println!("  {}. Hash: {}", i + 1, tx.hash);
-			}
+	if let Some(transactions) = &block.transactions
+		&& !transactions.is_empty()
+	{
+		println!("\nTransactions:");
+		for (i, tx) in transactions.iter().enumerate() {
+			println!("  {}. Hash: {}", i + 1, tx.hash);
 		}
 	}
 
@@ -442,12 +442,12 @@ fn show_block_by_hash(block: NeoBlock) -> Result<(), CliError> {
 	println!("Next Consensus: {}", block.next_consensus);
 
 	// Show transactions if there are any
-	if let Some(transactions) = &block.transactions {
-		if !transactions.is_empty() {
-			println!("\nTransactions:");
-			for (i, tx) in transactions.iter().enumerate() {
-				println!("  {}. Hash: {}", i + 1, tx.hash);
-			}
+	if let Some(transactions) = &block.transactions
+		&& !transactions.is_empty()
+	{
+		println!("\nTransactions:");
+		for (i, tx) in transactions.iter().enumerate() {
+			println!("  {}. Hash: {}", i + 1, tx.hash);
 		}
 	}
 

@@ -429,8 +429,10 @@ mod tests {
 		// Test too short hex string
 		assert!(H160::from_hex("23ba2703c53263e8d6e522dc32203339dcd8ee").is_err());
 		// Test too long hex string
-		assert!(H160::from_hex("c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b")
-			.is_err());
+		assert!(
+			H160::from_hex("c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b")
+				.is_err()
+		);
 	}
 
 	#[test]

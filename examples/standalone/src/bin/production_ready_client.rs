@@ -202,13 +202,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		}
 	);
 
-	if let Some(pool_stats) = final_health.get("stats").and_then(|s| s.get("pool")) {
-		if let (Some(active), Some(idle)) = (
+	if let Some(pool_stats) = final_health.get("stats").and_then(|s| s.get("pool"))
+		&& let (Some(active), Some(idle)) = (
 			pool_stats.get("active_connections").and_then(serde_json::Value::as_u64),
 			pool_stats.get("idle_connections").and_then(serde_json::Value::as_u64),
 		) {
-			println!("   Connection pool: {active} active, {idle} idle");
-		}
+		println!("   Connection pool: {active} active, {idle} idle");
 	}
 
 	println!("\n🎉 Production client demonstration completed!");

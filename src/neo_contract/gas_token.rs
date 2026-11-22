@@ -5,12 +5,12 @@ use serde::{Deserialize, Serialize};
 use crate::{
 	neo_clients::{JsonRpcProvider, RpcClient},
 	neo_contract::{
-		traits::{FungibleTokenTrait, SmartContractTrait, TokenTrait},
 		ContractError,
+		traits::{FungibleTokenTrait, SmartContractTrait, TokenTrait},
 	},
 	neo_types::{
-		serde_with_utils::{deserialize_script_hash, serialize_script_hash},
 		NNSName, ScriptHash,
+		serde_with_utils::{deserialize_script_hash, serialize_script_hash},
 	},
 };
 

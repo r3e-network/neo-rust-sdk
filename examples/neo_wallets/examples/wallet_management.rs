@@ -1,8 +1,8 @@
 use neo3::{
+	ScriptHashExtension,
 	neo_clients::{APITrait, HttpProvider, RpcClient},
 	neo_protocol::{Account, AccountTrait},
 	neo_types::ScriptHash,
-	ScriptHashExtension,
 };
 use std::str::FromStr;
 
@@ -112,24 +112,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	// 6. Backup and recovery
 	println!("\n6. Backup and recovery...");
 
-	if let Some(first_account) = accounts.first() {
-		if let Some(key_pair) = first_account.key_pair() {
-			let wif = key_pair.export_as_wif()?;
-			println!("   💾 Backup methods:");
-			println!("     • WIF export: {}...", &wif[..15]);
-			println!("     • Private key: [HIDDEN FOR SECURITY]");
-			println!("     • Mnemonic: use the HD wallet example for seed phrase backup");
+	if let Some(first_account) = accounts.first()
+		&& let Some(key_pair) = first_account.key_pair()
+	{
+		let wif = key_pair.export_as_wif()?;
+		println!("   💾 Backup methods:");
+		println!("     • WIF export: {}...", &wif[..15]);
+		println!("     • Private key: [HIDDEN FOR SECURITY]");
+		println!("     • Mnemonic: use the HD wallet example for seed phrase backup");
 
-			// Demonstrate recovery
-			println!("\n   🔄 Recovery demonstration:");
-			let recovered_account = Account::from_wif(&wif)?;
-			println!("     ✅ Account recovered from WIF");
-			println!("     📍 Recovered address: {}", recovered_account.get_address());
+		// Demonstrate recovery
+		println!("\n   🔄 Recovery demonstration:");
+		let recovered_account = Account::from_wif(&wif)?;
+		println!("     ✅ Account recovered from WIF");
+		println!("     📍 Recovered address: {}", recovered_account.get_address());
 
-			// Verify it's the same account
-			if recovered_account.get_address() == first_account.get_address() {
-				println!("     ✅ Recovery successful - addresses match!");
-			}
+		// Verify it's the same account
+		if recovered_account.get_address() == first_account.get_address() {
+			println!("     ✅ Recovery successful - addresses match!");
 		}
 	}
 

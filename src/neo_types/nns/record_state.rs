@@ -21,14 +21,12 @@ impl RecordState {
 	pub fn from_stack_item(item: &StackItem) -> Result<Self, &'static str> {
 		match item {
 			StackItem::Array { value: vec } if vec.len() == 3 => {
-				if let Some(name) = vec[0].as_string() {
-					if let Some(byte) = vec[1].as_int() {
-						if let Ok(record_type) = RecordType::try_from(byte as u8) {
-							if let Some(data) = vec[2].as_string() {
-								return Ok(Self::new(name, record_type, data));
-							}
-						}
-					}
+				if let Some(name) = vec[0].as_string()
+					&& let Some(byte) = vec[1].as_int()
+					&& let Ok(record_type) = RecordType::try_from(byte as u8)
+					&& let Some(data) = vec[2].as_string()
+				{
+					return Ok(Self::new(name, record_type, data));
 				}
 				Err("Could not deserialize RecordState")
 			},

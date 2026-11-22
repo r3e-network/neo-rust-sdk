@@ -4,8 +4,8 @@ use primitive_types::H160;
 use crate::{
 	neo_clients::{JsonRpcProvider, RpcClient},
 	neo_contract::{
-		traits::{FungibleTokenTrait, SmartContractTrait, TokenTrait},
 		ContractError,
+		traits::{FungibleTokenTrait, SmartContractTrait, TokenTrait},
 	},
 	neo_types::NNSName,
 };

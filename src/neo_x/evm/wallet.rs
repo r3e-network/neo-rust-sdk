@@ -5,8 +5,8 @@ use alloy::primitives::Address as AlloyAddress;
 use alloy::primitives::U256 as AlloyU256;
 use alloy::providers::{Provider, ProviderBuilder};
 use alloy::rpc::types::eth::{TransactionReceipt, TransactionRequest};
-use alloy::signers::local::{LocalSignerError, PrivateKeySigner};
 use alloy::signers::Signer;
+use alloy::signers::local::{LocalSignerError, PrivateKeySigner};
 use std::str::FromStr;
 
 /// Neo X EVM Wallet for managing accounts and signing transactions on Neo X.

@@ -71,30 +71,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 			match client.invoke_function(&gas_hash, "totalSupply".to_string(), vec![], None).await {
 				Ok(result) => {
-					if let Some(stack_item) = result.stack.first() {
-						if let Some(total_supply) = stack_item.as_int() {
-							let supply_u256 = U256::from(total_supply as u64);
-							println!(
-								"   ⛽ Actual GAS Total Supply: {}",
-								format_token_amount(supply_u256)
-							);
+					if let Some(stack_item) = result.stack.first()
+						&& let Some(total_supply) = stack_item.as_int()
+					{
+						let supply_u256 = U256::from(total_supply as u64);
+						println!(
+							"   ⛽ Actual GAS Total Supply: {}",
+							format_token_amount(supply_u256)
+						);
 
-							// Compare with our calculated amounts
-							if supply_u256 > gas_amount {
-								println!("   📊 Actual supply is larger than our test amount");
-							}
+						// Compare with our calculated amounts
+						if supply_u256 > gas_amount {
+							println!("   📊 Actual supply is larger than our test amount");
+						}
 
-							// Check if supply exceeds certain thresholds
-							let billion_tokens =
-								U256::from(1_000_000_000u64) * U256::from(100_000_000u64);
-							let million_tokens =
-								U256::from(1_000_000u64) * U256::from(100_000_000u64);
+						// Check if supply exceeds certain thresholds
+						let billion_tokens =
+							U256::from(1_000_000_000u64) * U256::from(100_000_000u64);
+						let million_tokens = U256::from(1_000_000u64) * U256::from(100_000_000u64);
 
-							if supply_u256 >= billion_tokens {
-								println!("   🔥 Supply exceeds 1 billion tokens");
-							} else if supply_u256 >= million_tokens {
-								println!("   💰 Supply exceeds 1 million tokens");
-							}
+						if supply_u256 >= billion_tokens {
+							println!("   🔥 Supply exceeds 1 billion tokens");
+						} else if supply_u256 >= million_tokens {
+							println!("   💰 Supply exceeds 1 million tokens");
 						}
 					}
 				},

@@ -3,14 +3,14 @@ use crate::{
 	errors::CliError,
 	utils_core::{create_table, print_section_header, print_success, status_indicator},
 };
-use base64::{engine::general_purpose, Engine as _};
+use base64::{Engine as _, engine::general_purpose};
 use clap::{Args, Subcommand};
 use colored::*;
 use comfy_table::{Cell, Color};
 use neo3::{
 	neo_clients::{public_key_to_address, public_key_to_script_hash},
 	neo_crypto::{
-		base58check_encode, try_base58check_decode, Secp256r1PublicKey, Secp256r1Signature,
+		Secp256r1PublicKey, Secp256r1Signature, base58check_encode, try_base58check_decode,
 	},
 	neo_types::{AddressExtension, ScriptHash, ScriptHashExtension},
 };

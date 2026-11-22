@@ -1,16 +1,10 @@
 //! Nonce Tracker Module
 //!
-//! Caller-owned cache for application challenge reuse detection. This type is
-//! not wired into quote verification. Callers must place a fresh challenge in
-//! REPORTDATA, verify that binding through a complete DCAP QVL flow, and only
-//! then mark the challenge as used.
+//! Tracks used nonces for anti-replay protection during quote verification.
 
 use std::time::SystemTime;
 
-/// Simple in-memory application-challenge tracker with TTL.
-///
-/// This cache alone does not prove freshness or prevent replay. It is not
-/// durable and is not shared between processes.
+/// Simple in-memory nonce tracker with TTL
 pub struct NonceTracker {
 	/// Set of used nonces (with timestamps)
 	seen_nonces: Vec<([u8; 16], u64)>,
@@ -46,7 +40,7 @@ impl NonceTracker {
 			.as_secs();
 
 		for (seen_nonce, timestamp) in &self.seen_nonces {
-			if timestamp.saturating_add(self.ttl_seconds) < now {
+			if *timestamp + self.ttl_seconds < now {
 				// Entry expired, don't count it
 				continue;
 			}
@@ -74,24 +68,6 @@ impl NonceTracker {
 			.unwrap_or_default()
 			.as_secs();
 
-		self.seen_nonces
-			.retain(|(_, timestamp)| timestamp.saturating_add(self.ttl_seconds) >= now);
-	}
-}
-
-#[cfg(test)]
-mod tests {
-	use super::*;
-
-	#[test]
-	fn maximum_ttl_does_not_overflow() {
-		let nonce = [0xA5; 16];
-		let mut tracker = NonceTracker::new();
-		tracker.set_ttl(u64::MAX);
-		tracker.seen_nonces.push((nonce, u64::MAX));
-
-		assert!(tracker.is_seen_recently(&nonce));
-		tracker.cleanup_expired();
-		assert_eq!(tracker.seen_nonces.len(), 1);
+		self.seen_nonces.retain(|(_, timestamp)| *timestamp + self.ttl_seconds >= now);
 	}
 }

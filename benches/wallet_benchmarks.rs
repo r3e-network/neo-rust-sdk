@@ -28,7 +28,7 @@
 
 use std::time::Duration;
 
-use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
+use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
 use neo3::{
 	neo_protocol::{Account, AccountTrait},
 	neo_wallets::{Wallet, WalletBackup, WalletTrait},

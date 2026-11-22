@@ -88,10 +88,12 @@ mod tests {
 		let rule: WitnessRule = serde_json::from_str(json)
 			.expect("Failed to decode WitnessRule JSON with Boolean condition");
 		assert!(matches!(rule.condition, WitnessCondition::Boolean(_)));
-		assert!(!rule
-			.condition
-			.boolean_expression()
-			.expect("boolean_expression should return Some for Boolean condition"));
+		assert!(
+			!rule
+				.condition
+				.boolean_expression()
+				.expect("boolean_expression should return Some for Boolean condition")
+		);
 	}
 
 	#[test]
@@ -418,9 +420,11 @@ mod tests {
     }"#;
 
 		let condition = parse_condition(json);
-		assert!(!condition
-			.boolean_expression()
-			.expect("boolean_expression should return Some for Boolean condition"));
+		assert!(
+			!condition
+				.boolean_expression()
+				.expect("boolean_expression should return Some for Boolean condition")
+		);
 	}
 
 	fn parse_condition(_: &str) -> WitnessCondition {

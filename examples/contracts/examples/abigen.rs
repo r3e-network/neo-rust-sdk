@@ -72,8 +72,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("   impl NEP17Contract {{");
 	println!("       pub async fn symbol(&self) -> Result<String, ContractError> {{ ... }}");
 	println!("       pub async fn decimals(&self) -> Result<u8, ContractError> {{ ... }}");
-	println!("       pub async fn balance_of(&self, account: &Address) -> Result<u64, ContractError> {{ ... }}");
-	println!("       pub async fn transfer(&self, from: &Address, to: &Address, amount: u64) -> Result<bool, ContractError> {{ ... }}");
+	println!(
+		"       pub async fn balance_of(&self, account: &Address) -> Result<u64, ContractError> {{ ... }}"
+	);
+	println!(
+		"       pub async fn transfer(&self, from: &Address, to: &Address, amount: u64) -> Result<bool, ContractError> {{ ... }}"
+	);
 	println!("   }}");
 	println!("   ```");
 

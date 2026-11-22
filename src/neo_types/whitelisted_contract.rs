@@ -51,11 +51,7 @@ impl WhitelistedContract {
 					value[0]
 						.as_bytes()
 						.and_then(|bytes| {
-							if bytes.len() == 20 {
-								Some(H160::from_slice(&bytes))
-							} else {
-								None
-							}
+							if bytes.len() == 20 { Some(H160::from_slice(&bytes)) } else { None }
 						})
 						.ok_or_else(|| "Invalid contract hash".to_string())?;
 

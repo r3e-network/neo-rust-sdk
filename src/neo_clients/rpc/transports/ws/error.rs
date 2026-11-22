@@ -41,11 +41,7 @@ pub enum WsClientError {
 
 impl RpcError for WsClientError {
 	fn as_error_response(&self) -> Option<&JsonRpcError> {
-		if let WsClientError::JsonRpcError(err) = self {
-			Some(err)
-		} else {
-			None
-		}
+		if let WsClientError::JsonRpcError(err) = self { Some(err) } else { None }
 	}
 
 	fn as_serde_error(&self) -> Option<&serde_json::Error> {

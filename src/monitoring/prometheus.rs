@@ -46,7 +46,7 @@
 //! # }
 //! ```
 
-use crate::monitoring::metrics::{snapshot, MetricsSnapshot};
+use crate::monitoring::metrics::{MetricsSnapshot, snapshot};
 use once_cell::sync::OnceCell;
 use p256::elliptic_curve::subtle::ConstantTimeEq;
 use serde::{Deserialize, Serialize};
@@ -160,15 +160,17 @@ fn passes_filter(
 	// Compare in the sanitized namespace so filters match the names actually
 	// emitted, and so untrusted query-param values are sanitized before use.
 	let sanitized = sanitize(metric_name);
-	if let Some(ns) = namespace_filter {
-		if !ns.is_empty() && !sanitized.starts_with(&sanitize(ns)) {
-			return false;
-		}
+	if let Some(ns) = namespace_filter
+		&& !ns.is_empty()
+		&& !sanitized.starts_with(&sanitize(ns))
+	{
+		return false;
 	}
-	if let Some(component) = component_filter {
-		if !component.is_empty() && !sanitized.contains(&sanitize(component)) {
-			return false;
-		}
+	if let Some(component) = component_filter
+		&& !component.is_empty()
+		&& !sanitized.contains(&sanitize(component))
+	{
+		return false;
 	}
 	true
 }
@@ -176,11 +178,7 @@ fn passes_filter(
 /// Apply the configured namespace prefix to a sanitized metric name.
 fn with_namespace(name: &str) -> String {
 	let ns = config().namespace;
-	if ns.is_empty() {
-		name.to_string()
-	} else {
-		format!("{}_{}", sanitize(&ns), name)
-	}
+	if ns.is_empty() { name.to_string() } else { format!("{}_{}", sanitize(&ns), name) }
 }
 
 /// Render a metrics snapshot into the Prometheus text exposition format.
@@ -252,8 +250,7 @@ pub fn is_authorized(auth_header: Option<&str>) -> bool {
 			// avoids leaking the token through response-timing side channels.
 			Some(header) => {
 				let expected = format!("Bearer {token}");
-				bool::from(header.as_bytes().ct_eq(expected.as_bytes()))
-			},
+				bool::from(header.as_bytes().ct_eq(expected.as_bytes()))			},
 			None => false,
 		},
 	}
@@ -262,8 +259,7 @@ pub fn is_authorized(auth_header: Option<&str>) -> bool {
 /// Parse the `key=value&...` query string of a `/metrics` request.
 ///
 /// Returns `(namespace, component)` filter values when present.
-#[cfg(any(feature = "metrics-prometheus", test))]
-fn parse_query(query: &str) -> (Option<String>, Option<String>) {
+#[cfg(any(feature = "metrics-prometheus", test))]fn parse_query(query: &str) -> (Option<String>, Option<String>) {
 	let mut namespace = None;
 	let mut component = None;
 	for pair in query.split('&') {
@@ -464,9 +460,12 @@ mod tests {
 
 	#[test]
 	fn config_from_env_defaults_when_unset() {
-		// Ensure a clean environment for the fields we read.
-		std::env::remove_var("NEO_PROMETHEUS_PORT");
-		std::env::remove_var("NEO_PROMETHEUS_AUTH_TOKEN");
+		// SAFETY: test-only; no other thread reads the environment during
+		// this single-threaded test.
+		unsafe {
+			std::env::remove_var("NEO_PROMETHEUS_PORT");
+			std::env::remove_var("NEO_PROMETHEUS_AUTH_TOKEN");
+		}
 		let cfg = PrometheusConfig::from_env();
 		assert_eq!(cfg.port, 9090);
 		assert!(cfg.auth_token.is_none());

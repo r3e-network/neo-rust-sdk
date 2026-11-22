@@ -17,15 +17,15 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use colored::*;
 use commands::{
-	blockchain::{handle_blockchain_command, BlockchainArgs},
-	contract::{handle_contract_command, ContractArgs},
-	defi::{handle_defi_command, DefiArgs},
+	blockchain::{BlockchainArgs, handle_blockchain_command},
+	contract::{ContractArgs, handle_contract_command},
+	defi::{DefiArgs, handle_defi_command},
 	fs::handle_fs_command,
-	neofs::{handle_neofs_command, NeoFSArgs},
-	network::{handle_network_command, NetworkArgs, NetworkConfig},
-	nft::{handle_nft_command, NftArgs},
-	tools::{handle_tools_command, ToolsArgs},
-	wallet::{handle_wallet_command, CliState, WalletArgs},
+	neofs::{NeoFSArgs, handle_neofs_command},
+	network::{NetworkArgs, NetworkConfig, handle_network_command},
+	nft::{NftArgs, handle_nft_command},
+	tools::{ToolsArgs, handle_tools_command},
+	wallet::{CliState, WalletArgs, handle_wallet_command},
 };
 use errors::CliError;
 use neo3::neo_clients::{HttpProvider, RpcClient};
@@ -41,7 +41,7 @@ pub use utils_core::{
 };
 
 // Import config functions
-use utils::config::{get_config_path, save_config, Config};
+use utils::config::{Config, get_config_path, save_config};
 
 mod commands;
 mod errors;

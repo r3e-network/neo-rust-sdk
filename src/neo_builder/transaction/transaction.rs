@@ -9,6 +9,7 @@ use serde_with::__private__::DeError;
 use tracing::info;
 
 use crate::{
+	Bytes,
 	builder::{BuilderError, Signer, TransactionAttribute, TransactionError, Witness},
 	codec::{Decoder, Encoder, NeoSerializable, VarSizeTrait},
 	config::NeoConstants,
@@ -16,7 +17,6 @@ use crate::{
 	neo_clients::{APITrait, HttpProvider, JsonRpcProvider, RpcClient},
 	neo_protocol::{ApplicationLog, RawTransaction},
 	neo_types::NameOrAddress,
-	Bytes,
 };
 
 /// A Neo N3 blockchain transaction.
@@ -565,10 +565,10 @@ impl<'a, T: JsonRpcProvider + 'static> Transaction<'a, T> {
 				let block_hash = network.get_block_hash(next_block).await?;
 				let block = network.get_block(block_hash, true).await?;
 
-				if let Some(transactions) = &block.transactions {
-					if transactions.iter().any(|tx| tx.hash == tx_id) {
-						return Ok(());
-					}
+				if let Some(transactions) = &block.transactions
+					&& transactions.iter().any(|tx| tx.hash == tx_id)
+				{
+					return Ok(());
 				}
 
 				next_block += 1;

@@ -74,27 +74,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 			match client.invoke_function(&gas_hash, "totalSupply".to_string(), vec![], None).await {
 				Ok(result) => {
-					if let Some(stack_item) = result.stack.first() {
-						if let Some(total_supply) = stack_item.as_int() {
-							let supply_u256 = U256::from(total_supply as u64);
+					if let Some(stack_item) = result.stack.first()
+						&& let Some(total_supply) = stack_item.as_int()
+					{
+						let supply_u256 = U256::from(total_supply as u64);
 
-							println!("   ⛽ GAS Total Supply Conversions:");
-							println!("       Raw value: {supply_u256}");
-							println!("       As u64: {}", supply_u256.as_u64());
-							println!("       As string: {supply_u256}");
-							println!(
-								"       Human readable: {} GAS",
-								convert_to_token_amount(supply_u256, 8)
-							);
+						println!("   ⛽ GAS Total Supply Conversions:");
+						println!("       Raw value: {supply_u256}");
+						println!("       As u64: {}", supply_u256.as_u64());
+						println!("       As string: {supply_u256}");
+						println!(
+							"       Human readable: {} GAS",
+							convert_to_token_amount(supply_u256, 8)
+						);
 
-							// Convert to different bases
-							println!("       Hex: 0x{supply_u256:x}");
-							println!("       Scientific: {:.2e}", supply_u256.as_u64() as f64);
+						// Convert to different bases
+						println!("       Hex: 0x{supply_u256:x}");
+						println!("       Scientific: {:.2e}", supply_u256.as_u64() as f64);
 
-							// Convert to bytes for storage/transmission
-							let bytes = supply_u256.to_big_endian();
-							println!("       As bytes (first 8): {:?}...", &bytes[0..8]);
-						}
+						// Convert to bytes for storage/transmission
+						let bytes = supply_u256.to_big_endian();
+						println!("       As bytes (first 8): {:?}...", &bytes[0..8]);
 					}
 				},
 				Err(e) => println!("   ❌ Failed to get total supply: {e}"),
@@ -192,11 +192,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 /// Safely convert U256 to u64, returning None if overflow would occur
 fn safe_convert_to_u64(value: U256) -> Option<u64> {
-	if value <= U256::from(u64::MAX) {
-		Some(value.as_u64())
-	} else {
-		None
-	}
+	if value <= U256::from(u64::MAX) { Some(value.as_u64()) } else { None }
 }
 
 /// Convert U256 to f64 for display (may lose precision)

@@ -4,7 +4,7 @@ use primitive_types::H160;
 use serde::{Deserialize, Serialize};
 
 use crate::neo_types::{
-	deserialize_script_hash, serialize_script_hash, ContractParameter, NNSName, ScriptHash,
+	ContractParameter, NNSName, ScriptHash, deserialize_script_hash, serialize_script_hash,
 };
 use crate::{
 	builder::{AccountSigner, TransactionBuilder},

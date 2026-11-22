@@ -1,15 +1,15 @@
 use std::{string::ToString, sync::Arc};
 
 use crate::{
+	ContractParameter, NNSName, ScriptHash, ScriptHashExtension, StackItem,
 	builder::TransactionBuilder,
 	deserialize_script_hash, deserialize_script_hash_option,
 	neo_clients::{APITrait, JsonRpcProvider, RpcClient},
 	neo_contract::{
-		checked_vm_integer, ContractError, NeoIterator, NonFungibleTokenTrait, SmartContractTrait,
-		TokenTrait,
+		ContractError, NeoIterator, NonFungibleTokenTrait, SmartContractTrait, TokenTrait,
+		checked_vm_integer,
 	},
-	serialize_script_hash, serialize_script_hash_option, ContractParameter, NNSName, ScriptHash,
-	ScriptHashExtension, StackItem,
+	serialize_script_hash, serialize_script_hash_option,
 };
 use async_trait::async_trait;
 use primitive_types::H160;

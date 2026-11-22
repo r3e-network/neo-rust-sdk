@@ -132,11 +132,11 @@ impl BlockStatistics {
 	}
 
 	fn average_block_time_seconds(&self) -> f64 {
-		if let (Some(first), Some(last)) = (self.first_block_time, self.last_block_time) {
-			if self.blocks_processed > 1 {
-				let total_time = last - first;
-				return (total_time as f64 / 1000.0) / (self.blocks_processed - 1) as f64;
-			}
+		if let (Some(first), Some(last)) = (self.first_block_time, self.last_block_time)
+			&& self.blocks_processed > 1
+		{
+			let total_time = last - first;
+			return (total_time as f64 / 1000.0) / (self.blocks_processed - 1) as f64;
 		}
 		15.0 // Default Neo N3 block time
 	}
@@ -175,13 +175,12 @@ impl<'a> BlockMonitor<'a> {
 			for block_index in (self.last_known_block + 1) as u32..=current_block_count {
 				// Create a proper block hash for the get_block call
 				let block_hash = neo3::prelude::H256::default(); // Placeholder hash
-				if let Ok(block_data) = self.client.get_block(block_hash, true).await {
-					if let Some(block_info) =
+				if let Ok(block_data) = self.client.get_block(block_hash, true).await
+					&& let Some(block_info) =
 						self.parse_block_data_from_neo_block(&block_data, block_index as u64)
-					{
-						new_blocks.push(block_info);
-						self.update_statistics_from_neo_block(&block_data);
-					}
+				{
+					new_blocks.push(block_info);
+					self.update_statistics_from_neo_block(&block_data);
 				}
 			}
 

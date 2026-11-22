@@ -23,8 +23,7 @@
 
 use std::time::Duration;
 
-use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use neo3::neo_builder::{GasEstimator, ScriptBuilder};
+use criterion::{BenchmarkId, Criterion, Throughput, criterion_group, criterion_main};use neo3::neo_builder::{GasEstimator, ScriptBuilder};
 use neo3::neo_types::OpCode;
 use num_bigint::BigInt;
 

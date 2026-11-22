@@ -3,7 +3,7 @@ use primitive_types::H160;
 
 use crate::{
 	neo_clients::JsonRpcProvider,
-	neo_contract::{checked_vm_integer, ContractError, SmartContractTrait},
+	neo_contract::{ContractError, SmartContractTrait, checked_vm_integer},
 	neo_types::NNSName,
 };
 

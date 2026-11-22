@@ -70,15 +70,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	});
 
 	println!("   🧱 Processing mock block event:");
-	if let Some(params) = mock_block_event.get("params") {
-		if let Some(block) = params.get(0) {
-			let index = block.get("index").and_then(|i| i.as_u64()).unwrap_or(0);
-			let hash = block.get("hash").and_then(|h| h.as_str()).unwrap_or("unknown");
-			let tx_count = block.get("tx").and_then(|t| t.as_array()).map(|a| a.len()).unwrap_or(0);
+	if let Some(params) = mock_block_event.get("params")
+		&& let Some(block) = params.get(0)
+	{
+		let index = block.get("index").and_then(|i| i.as_u64()).unwrap_or(0);
+		let hash = block.get("hash").and_then(|h| h.as_str()).unwrap_or("unknown");
+		let tx_count = block.get("tx").and_then(|t| t.as_array()).map(|a| a.len()).unwrap_or(0);
 
-			println!("     Block #{index}: {hash}");
-			println!("     Transactions: {tx_count}");
-		}
+		println!("     Block #{index}: {hash}");
+		println!("     Transactions: {tx_count}");
 	}
 
 	// Mock transaction notification
@@ -97,16 +97,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	});
 
 	println!("\n   📝 Processing mock transaction event:");
-	if let Some(params) = mock_tx_event.get("params") {
-		if let Some(tx) = params.get(0) {
-			let hash = tx.get("hash").and_then(|h| h.as_str()).unwrap_or("unknown");
-			let sender = tx.get("sender").and_then(|s| s.as_str()).unwrap_or("unknown");
-			let sysfee = tx.get("sysfee").and_then(|f| f.as_str()).unwrap_or("0");
+	if let Some(params) = mock_tx_event.get("params")
+		&& let Some(tx) = params.get(0)
+	{
+		let hash = tx.get("hash").and_then(|h| h.as_str()).unwrap_or("unknown");
+		let sender = tx.get("sender").and_then(|s| s.as_str()).unwrap_or("unknown");
+		let sysfee = tx.get("sysfee").and_then(|f| f.as_str()).unwrap_or("0");
 
-			println!("     Transaction: {hash}");
-			println!("     Sender: {sender}");
-			println!("     System Fee: {sysfee} GAS");
-		}
+		println!("     Transaction: {hash}");
+		println!("     Sender: {sender}");
+		println!("     System Fee: {sysfee} GAS");
 	}
 
 	// Mock contract notification
@@ -137,31 +137,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	});
 
 	println!("\n   💰 Processing mock NEO transfer event:");
-	if let Some(params) = mock_contract_event.get("params") {
-		if let Some(notification) = params.get(0) {
-			let contract =
-				notification.get("contract").and_then(|c| c.as_str()).unwrap_or("unknown");
-			let event_name =
-				notification.get("eventname").and_then(|e| e.as_str()).unwrap_or("unknown");
+	if let Some(params) = mock_contract_event.get("params")
+		&& let Some(notification) = params.get(0)
+	{
+		let contract = notification.get("contract").and_then(|c| c.as_str()).unwrap_or("unknown");
+		let event_name =
+			notification.get("eventname").and_then(|e| e.as_str()).unwrap_or("unknown");
 
-			println!("     Contract: {contract}");
-			println!("     Event: {event_name}");
+		println!("     Contract: {contract}");
+		println!("     Event: {event_name}");
 
-			if let Some(state) = notification.get("state") {
-				if let Some(value) = state.get("value").and_then(|v| v.as_array()) {
-					if value.len() >= 3 {
-						let from =
-							value[0].get("value").and_then(|v| v.as_str()).unwrap_or("unknown");
-						let to =
-							value[1].get("value").and_then(|v| v.as_str()).unwrap_or("unknown");
-						let amount = value[2].get("value").and_then(|v| v.as_str()).unwrap_or("0");
+		if let Some(state) = notification.get("state")
+			&& let Some(value) = state.get("value").and_then(|v| v.as_array())
+			&& value.len() >= 3
+		{
+			let from = value[0].get("value").and_then(|v| v.as_str()).unwrap_or("unknown");
+			let to = value[1].get("value").and_then(|v| v.as_str()).unwrap_or("unknown");
+			let amount = value[2].get("value").and_then(|v| v.as_str()).unwrap_or("0");
 
-						println!("     From: {from}");
-						println!("     To: {to}");
-						println!("     Amount: {amount} NEO");
-					}
-				}
-			}
+			println!("     From: {from}");
+			println!("     To: {to}");
+			println!("     Amount: {amount} NEO");
 		}
 	}
 

@@ -3,14 +3,14 @@ use primitive_types::H160;
 use serde::{Deserialize, Serialize};
 
 use crate::{
+	ContractIdentifiers,
 	neo_builder::TransactionBuilder,
 	neo_clients::{APITrait, JsonRpcProvider, RpcClient},
-	neo_contract::{ContractError, SmartContractTrait},
+	neo_contract::{ContractError, SmartContractTrait, checked_vm_integer},
 	neo_types::{
+		ContractParameter, ContractState, NefFile, ScriptHash, StackItem,
 		serde_with_utils::{deserialize_script_hash, serialize_script_hash},
-		ContractParameter, ContractState, NefFile, ScriptHash,
 	},
-	ContractIdentifiers,
 };
 
 /// A struct representing contract management functionalities
@@ -96,6 +96,31 @@ impl<'a, P: JsonRpcProvider + 'static> ContractManagement<'a, P> {
 
 		ContractIdentifiers::from_invocation_result(result)
 			.map_err(|e| ContractError::InvalidResponse(e.to_string()))
+	}
+
+	/// Gets the ID of the contract with the specified hash.
+	///
+	/// Returns `None` if the contract does not exist. This is an optimized
+	/// alternative to [`Self::get_contract`] when only the ID is needed, since
+	/// the node skips the full contract state deserialization.
+	///
+	/// Available since Neo v3.11.2 (`getContractId`).
+	pub async fn get_contract_id(&self, hash: H160) -> Result<Option<i32>, ContractError> {
+		let result = self.call_invoke_function("getContractId", vec![hash.into()], vec![]).await?;
+		self.throw_if_fault_state(&result)?;
+
+		let item = result
+			.get_first_stack_item()
+			.map_err(|e| ContractError::InvalidResponse(e.to_string()))?;
+		match item {
+			StackItem::Any => Ok(None),
+			_ => {
+				let id = item
+					.as_int()
+					.ok_or_else(|| ContractError::UnexpectedReturnType("Int".to_string()))?;
+				Ok(Some(checked_vm_integer::<i32>(id, "contract id")?))
+			},
+		}
 	}
 
 	pub async fn has_method(

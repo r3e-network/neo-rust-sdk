@@ -274,7 +274,9 @@ mod tests {
 			Err(_) => {
 				// This test might fail if the address validation is strict
 				// That's acceptable for production code - just verify the API exists
-				println!("Address validation rejected test address - this is acceptable for production code");
+				println!(
+					"Address validation rejected test address - this is acceptable for production code"
+				);
 			},
 		}
 	}
@@ -487,14 +489,15 @@ mod tests {
 		provider.push_result_with_params(
 			"traverseiterator",
 			json!([session_id, iterator_id, 3]),
-			json!(token_ids_base64
-				.iter()
-				.map(|s| json!({
-					"type": "ByteString",
-					"value": s
-				}))
-				.collect::<Vec<_>>()),
-		);
+			json!(
+				token_ids_base64
+					.iter()
+					.map(|s| json!({
+						"type": "ByteString",
+						"value": s
+					}))
+					.collect::<Vec<_>>()
+			),		);
 
 		let client = providers::RpcClient::new(provider);
 		let mut nft_contract = NftContract::new(&contract_hash, Some(&client));

@@ -1,9 +1,9 @@
 use std::{
-	collections::{btree_map::Entry, BTreeMap},
+	collections::{BTreeMap, btree_map::Entry},
 	fmt::{self, Debug},
 	sync::{
-		atomic::{AtomicU64, Ordering},
 		Arc,
+		atomic::{AtomicU64, Ordering},
 	},
 };
 
@@ -14,14 +14,14 @@ use futures_util::{
 	stream::{Fuse, Stream, StreamExt},
 };
 use primitive_types::U256;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 use serde_json::value::RawValue;
 use thiserror::Error;
 use tracing::trace;
 
 use crate::neo_clients::{
-	rpc::transports::common::{JsonRpcError, Params, Request, Response},
 	JsonRpcProvider, ProviderError, PubsubClient, RpcClient, RpcError,
+	rpc::transports::common::{JsonRpcError, Params, Request, Response},
 };
 
 macro_rules! if_not_wasm {
@@ -627,11 +627,7 @@ pub enum ClientError {
 
 impl RpcError for ClientError {
 	fn as_error_response(&self) -> Option<&super::JsonRpcError> {
-		if let ClientError::JsonRpcError(err) = self {
-			Some(err)
-		} else {
-			None
-		}
+		if let ClientError::JsonRpcError(err) = self { Some(err) } else { None }
 	}
 
 	fn as_serde_error(&self) -> Option<&serde_json::Error> {

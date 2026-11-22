@@ -1,8 +1,8 @@
 use crate::neo_error::{Neo3Error, Neo3Result};
 use std::{
 	sync::{
-		atomic::{AtomicU32, Ordering},
 		Arc,
+		atomic::{AtomicU32, Ordering},
 	},
 	time::{Duration, Instant},
 };
@@ -367,7 +367,7 @@ impl CircuitBreaker {
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use tokio::time::{sleep, Duration};
+	use tokio::time::{Duration, sleep};
 
 	#[tokio::test]
 	async fn test_circuit_breaker_closed_state() {

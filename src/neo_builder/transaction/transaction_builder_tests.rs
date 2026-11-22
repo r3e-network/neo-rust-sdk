@@ -15,25 +15,25 @@ mod tests {
 	)]
 
 	use crate::{
+		ContractParameter, InvocationResult,
 		builder::{
-			init_logger, AccountSigner, BuilderError, ContractSigner, ScriptBuilder, Signer,
-			TransactionAttribute, TransactionBuilder, TransactionError, Witness,
+			AccountSigner, BuilderError, ContractSigner, ScriptBuilder, Signer,
+			TransactionAttribute, TransactionBuilder, TransactionError, Witness, init_logger,
 		},
 		config::{NeoConstants, TestConstants},
 		crypto::{KeyPair, Secp256r1PrivateKey},
-		neo_builder::{OracleResponse, OracleResponseCode, GAS_TOKEN_HASH},
+		neo_builder::{GAS_TOKEN_HASH, OracleResponse, OracleResponseCode},
 		neo_clients::{APITrait, MockClient, MockProvider, RpcClient},
 		neo_crypto::utils::ToHexString,
 		neo_protocol::{
 			Account, AccountTrait, ApplicationLog, NeoProtocol, NeoVersion, RawTransaction,
 		},
 		neo_types::ScriptHashExtension,
-		ContractParameter, InvocationResult,
 	};
 	use lazy_static::lazy_static;
 	use neo3::{
 		builder::VerificationScript,
-		config::{NeoConfig, NEOCONFIG},
+		config::{NEOCONFIG, NeoConfig},
 	};
 	use num_bigint::BigInt;
 	use primitive_types::{H160, H256};
@@ -495,11 +495,8 @@ mod tests {
 	async fn test_override_signer() {
 		let client = CLIENT.get_or_init(|| async { MockClient::new().await.into_client() }).await;
 		let mut tb = TransactionBuilder::with_client(&client);
-		tb.set_script(Some(vec![1, 2, 3])).set_signers(vec![AccountSigner::global(
-			ACCOUNT1.deref(),
-		)
-		.unwrap()
-		.into()]);
+		tb.set_script(Some(vec![1, 2, 3]))
+			.set_signers(vec![AccountSigner::global(ACCOUNT1.deref()).unwrap().into()]);
 		assert_eq!(
 			tb.signers()[0],
 			Signer::AccountSigner(AccountSigner::global(ACCOUNT1.deref()).unwrap())
@@ -1101,9 +1098,13 @@ mod tests {
 
 		let result = tb.sign().await;
 		assert!(result.is_err());
-		assert_eq!(result, Err(BuilderError::InvalidConfiguration(
-			format!("Cannot create transaction signature because account {} does not hold a private key.", ACCOUNT1.get_address()),
-		)))
+		assert_eq!(
+			result,
+			Err(BuilderError::InvalidConfiguration(format!(
+				"Cannot create transaction signature because account {} does not hold a private key.",
+				ACCOUNT1.get_address()
+			),))
+		)
 	}
 
 	#[tokio::test]
@@ -1140,11 +1141,8 @@ mod tests {
 		)
 		.unwrap();
 		let mut tb = TransactionBuilder::with_client(&client);
-		tb.set_script(Some(vec![1, 2, 3])).set_signers(vec![AccountSigner::none(
-			&multi_sig_account,
-		)
-		.unwrap()
-		.into()]);
+		tb.set_script(Some(vec![1, 2, 3]))
+			.set_signers(vec![AccountSigner::none(&multi_sig_account).unwrap().into()]);
 
 		let result = tb.sign().await;
 		assert!(result.is_err());
@@ -1176,16 +1174,24 @@ mod tests {
 			Arc::new(mock_provider.into_client())
 		};
 		let mut tb = TransactionBuilder::with_client(&client);
-		tb.set_script(Some(vec![1, 2, 3]))
-			.set_signers(vec![ContractSigner::called_by_entry(
+		tb.set_script(Some(vec![1, 2, 3])).set_signers(vec![
+			ContractSigner::called_by_entry(
 				ACCOUNT1.address_or_scripthash().script_hash(),
 				&*vec![],
 			)
-			.into()]);
+			.into(),
+		]);
 
 		let result = tb.sign().await;
 		assert!(result.is_err());
-		assert_eq!(result, Err(BuilderError::TransactionError(Box::new(TransactionError::TransactionConfiguration(format!("A transaction requires at least one signing account (i.e. an AccountSigner). None was provided."))))));
+		assert_eq!(
+			result,
+			Err(BuilderError::TransactionError(Box::new(
+				TransactionError::TransactionConfiguration(format!(
+					"A transaction requires at least one signing account (i.e. an AccountSigner). None was provided."
+				))
+			)))
+		);
 	}
 
 	#[tokio::test]
@@ -1221,11 +1227,8 @@ mod tests {
 		)
 		.unwrap();
 		let mut tb = TransactionBuilder::with_client(&client);
-		tb.set_script(Some(vec![1, 2, 3])).set_signers(vec![AccountSigner::none(
-			&account_without_keypair,
-		)
-		.unwrap()
-		.into()]);
+		tb.set_script(Some(vec![1, 2, 3]))
+			.set_signers(vec![AccountSigner::none(&account_without_keypair).unwrap().into()]);
 
 		let result = tb.sign().await;
 		assert!(result.is_err());
@@ -1260,19 +1263,20 @@ mod tests {
 		};
 		let mut tb = TransactionBuilder::with_client(&client);
 		tb.set_script(Some(vec![1, 2, 3]))
-			.set_signers(vec![AccountSigner::called_by_entry(&Account::create().unwrap())
-				.unwrap()
-				.into()])
+			.set_signers(vec![
+				AccountSigner::called_by_entry(&Account::create().unwrap()).unwrap().into(),
+			])
 			.unwrap()
 			.valid_until_block(1000)
 			.unwrap();
 		let mut tx = tb.get_unsigned_tx().await.unwrap();
 		let mut result = tx.send_tx().await;
 		assert!(result.is_err());
-		assert!(result
-			.unwrap_err()
-			.to_string()
-			.contains("The transaction does not have the same number of signers and witnesses."));
+		assert!(
+			result.unwrap_err().to_string().contains(
+				"The transaction does not have the same number of signers and witnesses."
+			)
+		);
 	}
 
 	#[tokio::test]
@@ -1580,10 +1584,12 @@ mod tests {
 		let result = tx_builder.do_if_sender_cannot_cover_fees(Box::new(|_, _| {}));
 
 		assert!(result.is_err());
-		assert!(result
-			.unwrap_err()
-			.to_string()
-			.contains("Cannot handle a consumer for this case, since an exception "));
+		assert!(
+			result
+				.unwrap_err()
+				.to_string()
+				.contains("Cannot handle a consumer for this case, since an exception ")
+		);
 	}
 
 	#[tokio::test]
@@ -1660,10 +1666,12 @@ mod tests {
 		let result =
 			tx_builder.throw_if_sender_cannot_cover_fees(TransactionError::InsufficientFunds);
 		assert!(result.is_err());
-		assert!(result
-			.unwrap_err()
-			.to_string()
-			.contains("Cannot handle a supplier for this case, since a consumer "));
+		assert!(
+			result
+				.unwrap_err()
+				.to_string()
+				.contains("Cannot handle a supplier for this case, since a consumer ")
+		);
 	}
 
 	#[tokio::test]
@@ -1998,10 +2006,12 @@ mod tests {
 
 		let result = tx_builder.first_signer(&account2);
 		assert!(result.is_err());
-		assert!(result
-			.unwrap_err()
-			.to_string()
-			.contains("contains a signer with fee-only witness scope"));
+		assert!(
+			result
+				.unwrap_err()
+				.to_string()
+				.contains("contains a signer with fee-only witness scope")
+		);
 	}
 
 	#[tokio::test]
@@ -2020,10 +2030,12 @@ mod tests {
 
 		let result = tx_builder.first_signer(&account2);
 		assert!(result.is_err());
-		assert!(result
-			.unwrap_err()
-			.to_string()
-			.contains("Could not find a signer with script hash "));
+		assert!(
+			result
+				.unwrap_err()
+				.to_string()
+				.contains("Could not find a signer with script hash ")
+		);
 	}
 
 	#[tokio::test]
@@ -2528,14 +2540,16 @@ mod tests {
 		let tx = tx_builder.sign().await.unwrap();
 
 		assert_eq!(tx.witnesses.len(), 2);
-		assert!(tx
-			.witnesses
-			.iter()
-			.any(|w| w.verification == account1.verification_script().clone().unwrap()));
-		assert!(tx
-			.witnesses
-			.iter()
-			.any(|w| w.verification == account2.verification_script().clone().unwrap()));
+		assert!(
+			tx.witnesses
+				.iter()
+				.any(|w| w.verification == account1.verification_script().clone().unwrap())
+		);
+		assert!(
+			tx.witnesses
+				.iter()
+				.any(|w| w.verification == account2.verification_script().clone().unwrap())
+		);
 	}
 
 	// #[tokio::test]

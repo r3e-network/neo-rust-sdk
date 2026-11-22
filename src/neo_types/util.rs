@@ -8,7 +8,7 @@
 use base64::Engine;
 use primitive_types::{H160, H256, U256};
 
-use crate::{prelude::ScriptHash, TypeError};
+use crate::{TypeError, prelude::ScriptHash};
 
 /// Parses a string into a `u64`, supporting both decimal and hexadecimal (prefixed with "0x") formats.
 ///
@@ -325,11 +325,7 @@ pub fn u256_sqrt(input: &U256) -> U256 {
 /// assert_eq!(u256_min(a, b), U256::from(1));
 /// ```
 pub fn u256_min(x: U256, y: U256) -> U256 {
-	if x > y {
-		y
-	} else {
-		x
-	}
+	if x > y { y } else { x }
 }
 
 /// Converts a vector of bytes into an array of 32 bytes. Returns an error if the vector is not exactly 32 bytes long.
@@ -371,11 +367,7 @@ pub fn var_size(value: usize) -> usize {
 		v >>= 8;
 		bytes += 1;
 	}
-	if bytes == 0 {
-		1
-	} else {
-		bytes
-	}
+	if bytes == 0 { 1 } else { bytes }
 }
 
 pub trait ToBase58 {

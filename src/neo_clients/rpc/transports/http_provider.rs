@@ -2,8 +2,8 @@
 
 use std::{
 	sync::{
-		atomic::{AtomicU64, Ordering},
 		Arc,
+		atomic::{AtomicU64, Ordering},
 	},
 	time::Duration,
 };
@@ -11,13 +11,13 @@ use std::{
 use async_trait::async_trait;
 use futures_util::StreamExt;
 use http::HeaderValue;
-use reqwest::{header, Client, Error as ReqwestError};
-use serde::{de::DeserializeOwned, Serialize};
+use reqwest::{Client, Error as ReqwestError, header};
+use serde::{Serialize, de::DeserializeOwned};
 use thiserror::Error;
 use tracing::debug;
 use url::Url;
 
-use super::common::{JsonRpcError, Request, Response, MAX_PROVIDER_RETRY_AFTER};
+use super::common::{JsonRpcError, MAX_PROVIDER_RETRY_AFTER, Request, Response};
 use crate::neo_clients::{Authorization, JsonRpcProvider, ProviderError};
 use neo3::config::NeoConstants;
 
@@ -164,7 +164,7 @@ impl JsonRpcProvider for HttpProvider {
 			_ if status_error.is_some() => {
 				return Err(ClientError::ReqwestError(
 					status_error.expect("status error checked above"),
-				))
+				));
 			},
 			Ok(Response::Success { result, .. }) => result.to_owned(),
 			Ok(_) => {
@@ -180,7 +180,7 @@ impl JsonRpcProvider for HttpProvider {
 					err,
 					text: String::from_utf8_lossy(&body[..body.len().min(MAX_ERROR_TEXT_BYTES)])
 						.to_string(),
-				})
+				});
 			},
 		};
 

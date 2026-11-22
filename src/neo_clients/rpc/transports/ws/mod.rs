@@ -5,8 +5,8 @@ use std::fmt::{self, Debug};
 use async_trait::async_trait;
 use futures_channel::{mpsc, oneshot};
 use primitive_types::U256;
-use serde::{de::DeserializeOwned, Serialize};
-use serde_json::value::{to_raw_value, RawValue};
+use serde::{Serialize, de::DeserializeOwned};
+use serde_json::value::{RawValue, to_raw_value};
 
 pub use error::*;
 use manager::{RequestManager, SharedChannelMap};

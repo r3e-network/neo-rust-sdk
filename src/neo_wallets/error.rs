@@ -1,4 +1,4 @@
-use crate::{builder::BuilderError, crypto::CryptoError, neo_wallets::WalletError, TypeError};
+use crate::{TypeError, builder::BuilderError, crypto::CryptoError, neo_wallets::WalletError};
 use thiserror::Error;
 
 /// Represents errors that can occur within the signing process.

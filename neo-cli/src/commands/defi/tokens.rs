@@ -5,8 +5,8 @@
 // It supports token information retrieval, balance checking, and token transfers.
 
 use super::utils::{
-	format_token_amount, get_token_decimals, parse_amount,
-	resolve_token_to_scripthash_with_network, NetworkTypeCli,
+	NetworkTypeCli, format_token_amount, get_token_decimals, parse_amount,
+	resolve_token_to_scripthash_with_network,
 };
 use crate::{commands::wallet::CliState, errors::CliError};
 use colored::*;

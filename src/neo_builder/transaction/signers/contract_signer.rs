@@ -1,12 +1,13 @@
 use super::signer::validate_signer_serialization;
 use crate::{
+	ContractParameter,
 	builder::{BuilderError, SignerTrait, SignerType, TransactionError, WitnessRule, WitnessScope},
 	codec::{Decoder, Encoder, NeoSerializable, VarSizeTrait},
 	config::NeoConstants,
 	crypto::Secp256r1PublicKey,
 	deserialize_script_hash, deserialize_vec_script_hash,
 	neo_types::{deserialize_vec_public_key, serialize_vec_public_key},
-	serialize_script_hash, serialize_vec_script_hash, ContractParameter,
+	serialize_script_hash, serialize_vec_script_hash,
 };
 use getset::{Getters, Setters};
 use primitive_types::H160;
@@ -181,20 +182,20 @@ impl NeoSerializable for ContractSigner {
 	fn encode(&self, writer: &mut Encoder) {
 		writer.write_serializable_fixed(&self.signer_hash);
 		writer.write_u8(WitnessScope::combine(&self.scopes));
-		if self.scopes.contains(&WitnessScope::CustomContracts) {
-			if let Err(e) = writer.write_serializable_variable_list(&self.allowed_contracts) {
-				tracing::warn!(error = %e, "Failed to encode contract signer allowed contracts");
-			}
+		if self.scopes.contains(&WitnessScope::CustomContracts)
+			&& let Err(e) = writer.write_serializable_variable_list(&self.allowed_contracts)
+		{
+			tracing::warn!(error = %e, "Failed to encode contract signer allowed contracts");
 		}
-		if self.scopes.contains(&WitnessScope::CustomGroups) {
-			if let Err(e) = writer.write_serializable_variable_list(&self.allowed_groups) {
-				tracing::warn!(error = %e, "Failed to encode contract signer allowed groups");
-			}
+		if self.scopes.contains(&WitnessScope::CustomGroups)
+			&& let Err(e) = writer.write_serializable_variable_list(&self.allowed_groups)
+		{
+			tracing::warn!(error = %e, "Failed to encode contract signer allowed groups");
 		}
-		if self.scopes.contains(&WitnessScope::WitnessRules) {
-			if let Err(e) = writer.write_serializable_variable_list(&self.rules) {
-				tracing::warn!(error = %e, "Failed to encode contract signer rules");
-			}
+		if self.scopes.contains(&WitnessScope::WitnessRules)
+			&& let Err(e) = writer.write_serializable_variable_list(&self.rules)
+		{
+			tracing::warn!(error = %e, "Failed to encode contract signer rules");
 		}
 	}
 

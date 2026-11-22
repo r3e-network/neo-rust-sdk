@@ -4,7 +4,7 @@
 use std::hash::{Hash, Hasher};
 
 use primitive_types::H160;
-use serde::{de, Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, de};
 
 use crate::neo_types::TypeError;
 use neo3::prelude::{Address, Bytes, ScriptHashExtension};

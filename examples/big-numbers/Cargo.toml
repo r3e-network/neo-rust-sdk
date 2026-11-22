@@ -6,7 +6,7 @@ ledger = ["neo3/ledger"]
 name = "examples-big-numbers"
 version = "0.0.0"
 publish = false
-edition = "2021"
+edition = "2024"
 authors = ["R3E Network <jimmy@r3e.network>"]
 
 

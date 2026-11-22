@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Security
 
+## [3.3.2] - 2026-11-22
+
+### Security
 - Correct SGX quote parsing to follow the DCAP v3 binary layout and reject malformed lengths
   without panicking.
 - Reject malformed, truncated, or untrusted certificate chains instead of accepting arbitrary
@@ -16,14 +18,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   production callers must use Intel DCAP QVL with current PCK CRLs, TCB Info, QE Identity, and
   the applicable collateral.
 - Validate caller-supplied signed CRLs and require fresh revocation coverage by default.
-
 ### Fixed
-
 - Apply account-event offsets once across the complete scan and enforce `page_size` in both query
   entry points. `execute_fast` now delegates to the canonical scan because the indexed RPC's
   server-side history and result limits cannot guarantee complete, consistently ordered pages.
 - Repair formatting, MSRV, fuzz, release, and benchmark CI gates so failures are exercised instead
   of skipped or ignored.
+
+
+### 🔧 Toolchain & Edition Modernization
+
+- **Rust 1.99.1 + edition 2024** across the whole workspace (root crate,
+  `neo-cli`, and all 29 example crates). `rust-toolchain.toml` pins `1.99.1`;
+  `rust-version` raised to `1.99`; migration performed with
+  `cargo fix --edition` plus manual handling of the edition-2024 unsafe
+  `std::env::{set_var, remove_var}` calls (all call sites are test-only and
+  now carry explicit `unsafe` blocks with SAFETY comments).
+- **Clippy clean at Rust 1.99**: workspace warning count reduced from 156 to 0
+  across all targets (`collapsible_if` → edition-2024 let-chains,
+  `single_match`/`match_single_binding` cleanups, `ptr_arg` slice fix,
+  `non_minimal_cfg`, `doc_lazy_continuation`, `result_large_err` boxing).
+- **Fixed a latent compile error**: `examples/monitoring_exporters.rs` called
+  feature-gated functions from an ungated `main()`, breaking
+  `cargo check --all-targets` without the `metrics-prometheus` feature.
+- **Newer std APIs**: replaced deprecated `AtomicU64::fetch_update` with
+  `try_update` (Rust 1.99 rename).
+
+### ✨ Protocol Alignment: Neo node v3.11.2 (neo-vm v3.11.2)
+
+Aligned the SDK with the Neo v3.11.2 release series, which lays the groundwork
+for the Huyao hard fork (dynamic opcode pricing) and introduces two new
+hardforks activated on-chain via native Policy.
+
+- **New hardforks** (`Hardfork` enum, `src/neo_types/hardfork.rs`):
+  `HF_Huyao` (=7), `HF_Iara` (=8), `HF_Jackalope` (=9), matching the C#
+  `Hardfork : byte` enum ordinal values. Added `LAST_CONFIG_MANAGED_HARDFORK`
+  (Huyao, mirroring `ProtocolSettings.LastConfigManagedHardfork`),
+  `Hardfork::is_config_managed()` and `Hardfork::policy_name()` helpers.
+- **MainNet/TestNet hardfork heights updated** (`src/neo_config/config.rs`):
+  HF_Faun → 8,800,000 (MainNet) / 12,960,000 (TestNet); HF_Gorgon →
+  12,020,000 (MainNet) / 17,960,000 (TestNet). Huyao remains unactivated;
+  hardforks after Huyao (Iara, Jackalope) are Policy-activated and must not
+  be configured in protocol settings.
+- **Policy contract additions** (`src/neo_contract/policy_contract.rs`):
+  - `get_hardfork_activation_height(name)` — query the on-chain activation
+    height scheduled by committee transactions (`getHardforkActivationHeight`,
+    available after HF_Huyao); returns `None` for unknown/unscheduled forks.
+  - `activate_hardfork(name, activation_delay)` — committee invocation builder
+    for `activateHardfork` (Policy-activated forks only, positive delay).
+  - `get_temporary_storage_max_ttl()` / `set_temporary_storage_max_ttl(value)` —
+    TemporaryStorage TTL policy (`get/setTemporaryStorageMaxTTL`), bounded by
+    the new `MAX_TEMPORARY_STORAGE_MAX_TTL` constant (365 days in ms).
+- **ContractManagement** (`src/neo_contract/contract_management.rs`):
+  `get_contract_id(hash)` — optimized contract-ID lookup that skips full
+  contract-state deserialization (`getContractId`, new in v3.11.2).
 
 ## [3.3.1] - 2026-09-10
 

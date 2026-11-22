@@ -1,5 +1,5 @@
 use super::ScriptHashExtension;
-use crate::{crypto::Secp256r1PublicKey, Bytes};
+use crate::{Bytes, crypto::Secp256r1PublicKey};
 use primitive_types::{H160, H256};
 use serde_json::Value;
 

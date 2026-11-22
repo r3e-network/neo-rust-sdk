@@ -122,10 +122,10 @@ pub fn init_logger(config: LoggerConfig) -> Result<(), Box<dyn std::error::Error
 				);
 
 				// Write to file if configured
-				if let Some(ref file) = file_writer {
-					if let Ok(mut f) = file.lock() {
-						let _ = f.write_all(log_line.as_bytes());
-					}
+				if let Some(ref file) = file_writer
+					&& let Ok(mut f) = file.lock()
+				{
+					let _ = f.write_all(log_line.as_bytes());
 				}
 
 				write!(buf, "{}", log_line)
@@ -147,10 +147,10 @@ pub fn init_logger(config: LoggerConfig) -> Result<(), Box<dyn std::error::Error
 					.unwrap_or_else(|_| format!("{{\"error\":\"Failed to serialize log entry\"}}"));
 
 				// Write to file if configured
-				if let Some(ref file) = file_writer {
-					if let Ok(mut f) = file.lock() {
-						let _ = writeln!(f, "{}", json);
-					}
+				if let Some(ref file) = file_writer
+					&& let Ok(mut f) = file.lock()
+				{
+					let _ = writeln!(f, "{}", json);
 				}
 
 				writeln!(buf, "{}", json)
@@ -166,10 +166,10 @@ pub fn init_logger(config: LoggerConfig) -> Result<(), Box<dyn std::error::Error
 				);
 
 				// Write to file if configured
-				if let Some(ref file) = file_writer {
-					if let Ok(mut f) = file.lock() {
-						let _ = f.write_all(log_line.as_bytes());
-					}
+				if let Some(ref file) = file_writer
+					&& let Ok(mut f) = file.lock()
+				{
+					let _ = f.write_all(log_line.as_bytes());
 				}
 
 				write!(buf, "{}", log_line)

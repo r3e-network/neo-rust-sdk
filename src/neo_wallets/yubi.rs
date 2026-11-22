@@ -1,8 +1,8 @@
 //! Helpers for creating wallets for YubiHSM2
 #[cfg(feature = "yubi")]
 use crate::{
-	neo_clients::public_key_to_address, neo_crypto::Secp256r1PublicKey, neo_error::WalletError,
-	neo_wallets::WalletSigner, Address,
+	Address, neo_clients::public_key_to_address, neo_crypto::Secp256r1PublicKey,
+	neo_error::WalletError, neo_wallets::WalletSigner,
 };
 #[cfg(feature = "yubi")]
 use elliptic_curve::sec1::{FromEncodedPoint, ToEncodedPoint};
@@ -10,8 +10,8 @@ use elliptic_curve::sec1::{FromEncodedPoint, ToEncodedPoint};
 use p256::{NistP256, PublicKey};
 #[cfg(feature = "yubi")]
 use yubihsm::{
-	asymmetric::Algorithm::EcP256, ecdsa::Signer as YubiSigner, object, object::Label, Capability,
-	Client, Connector, Credentials, Domain,
+	Capability, Client, Connector, Credentials, Domain, asymmetric::Algorithm::EcP256,
+	ecdsa::Signer as YubiSigner, object, object::Label,
 };
 
 #[cfg(feature = "yubi")]

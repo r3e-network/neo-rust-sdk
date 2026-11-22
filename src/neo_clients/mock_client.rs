@@ -7,7 +7,7 @@ use crate::{
 };
 use lazy_static::lazy_static;
 use primitive_types::H160;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::{path::PathBuf, str::FromStr};
 
 lazy_static! {

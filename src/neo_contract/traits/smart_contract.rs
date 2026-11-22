@@ -7,13 +7,13 @@ use primitive_types::H160;
 
 // Replace prelude imports with specific types
 use crate::{
+	ScriptHashExtension,
 	neo_builder::{CallFlags, ScriptBuilder},
 	neo_clients::{APITrait, JsonRpcProvider, RpcClient},
 	neo_contract::{ContractError, NeoIterator},
 	neo_types::{
 		Bytes, ContractManifest, ContractParameter, InvocationResult, OpCode, ScriptHash, StackItem,
 	},
-	ScriptHashExtension,
 };
 
 // Import transaction types from the correct modules

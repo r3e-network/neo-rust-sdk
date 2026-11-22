@@ -13,10 +13,10 @@ use serde::{Deserialize, Serialize};
 use crate::{
 	neo_builder::TransactionBuilder,
 	neo_clients::{JsonRpcProvider, RpcClient},
-	neo_contract::{checked_vm_integer, traits::SmartContractTrait, ContractError},
+	neo_contract::{ContractError, checked_vm_integer, traits::SmartContractTrait},
 	neo_types::{
-		serde_with_utils::{deserialize_script_hash, serialize_script_hash},
 		ScriptHash, StackItem,
+		serde_with_utils::{deserialize_script_hash, serialize_script_hash},
 	},
 };
 

@@ -84,8 +84,8 @@ where
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use std::sync::atomic::{AtomicUsize, Ordering};
 	use std::sync::Arc;
+	use std::sync::atomic::{AtomicUsize, Ordering};
 
 	#[test]
 	fn backoff_grows_exponentially_and_stays_bounded() {

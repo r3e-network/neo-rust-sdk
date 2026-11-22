@@ -48,11 +48,10 @@ use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::net::TcpStream;
-use tokio::sync::{mpsc, oneshot, RwLock};
+use tokio::sync::{RwLock, mpsc, oneshot};
 use tokio_tungstenite::{
-	connect_async_with_config,
+	MaybeTlsStream, WebSocketStream, connect_async_with_config,
 	tungstenite::protocol::{Message, WebSocketConfig},
-	MaybeTlsStream, WebSocketStream,
 };
 
 #[derive(Debug)]
@@ -425,9 +424,9 @@ impl WebSocketClient {
 								let mut subscribe_id = None;
 								let mut unsubscribe_id = None;
 
-								if let Message::Text(text) = &msg {
-									if let Ok(json) = serde_json::from_str::<serde_json::Value>(text) {
-										if let Some(method) = json.get("method").and_then(|m| m.as_str()) {
+								if let Message::Text(text) = &msg
+									&& let Ok(json) = serde_json::from_str::<serde_json::Value>(text)
+										&& let Some(method) = json.get("method").and_then(|m| m.as_str()) {
 											if method.starts_with("subscribe_") {
 												subscribe_id = json.get("id").and_then(|id| id.as_str()).map(ToString::to_string);
 											} else if method == "unsubscribe" {
@@ -439,14 +438,11 @@ impl WebSocketClient {
 													.map(ToString::to_string);
 											}
 										}
-									}
-								}
 
-								if let Some(id) = &subscribe_id {
-									if sent_subscriptions.contains(id) {
+								if let Some(id) = &subscribe_id
+									&& sent_subscriptions.contains(id) {
 										continue;
 									}
-								}
 
 								if let Err(e) = ws_write.send(msg).await {
 									tracing::warn!(error = %e, "WebSocket send error");
@@ -632,12 +628,12 @@ impl WebSocketClient {
 			})?;
 
 		// Parse event and subscription ID
-		if let Some(event_data) = Self::parse_event(&json).await? {
-			if let Some(sub_id) = json.get("subscription").and_then(|s| s.as_str()) {
-				let subs = subscriptions.read().await;
-				if let Some(sub_type) = subs.get(sub_id) {
-					let _ = event_tx.send((sub_type.clone(), event_data));
-				}
+		if let Some(event_data) = Self::parse_event(&json).await?
+			&& let Some(sub_id) = json.get("subscription").and_then(|s| s.as_str())
+		{
+			let subs = subscriptions.read().await;
+			if let Some(sub_type) = subs.get(sub_id) {
+				let _ = event_tx.send((sub_type.clone(), event_data));
 			}
 		}
 

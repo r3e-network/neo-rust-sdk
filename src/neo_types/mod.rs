@@ -71,7 +71,7 @@
 //! assert_eq!(bytes_item.as_string(), Some("Neo".to_string()));
 //! ```
 
-use base64::{engine::general_purpose, Engine};
+use base64::{Engine, engine::general_purpose};
 // Note: tracing macros should be imported directly where needed, not re-exported.
 use primitive_types::H256;
 use serde::{Deserialize, Serialize};
@@ -336,9 +336,9 @@ mod tests {
 
 // Re-export serialization functions from serde_with_utils
 pub use serde_with_utils::{
-	deserialize_h160, deserialize_h256, deserialize_script_hash, deserialize_u256, deserialize_u64,
+	deserialize_h160, deserialize_h256, deserialize_script_hash, deserialize_u64, deserialize_u256,
 	deserialize_vec_h256, deserialize_vec_u256, deserialize_wildcard, serialize_h160,
-	serialize_h256, serialize_script_hash, serialize_u256, serialize_u64, serialize_vec_h256,
+	serialize_h256, serialize_script_hash, serialize_u64, serialize_u256, serialize_vec_h256,
 	serialize_vec_u256, serialize_wildcard,
 };
 

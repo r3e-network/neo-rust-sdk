@@ -1,4 +1,4 @@
-use crate::integration::utils::{assert_output_contains, assert_success, CliTest};
+use crate::integration::utils::{CliTest, assert_output_contains, assert_success};
 use tempfile::NamedTempFile;
 
 /// Test the NeoFS endpoints list command

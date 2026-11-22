@@ -70,6 +70,8 @@ fn test_public_key_validation_edge_cases() {
 		let result = Secp256r1PublicKey::try_from(key_bytes);
 
 		// Should either succeed or fail gracefully (no panic)
+		// Valid keys produce Ok; invalid keys produce Err — both are acceptable
+		// outcomes for arbitrary input, as long as nothing panics.
 		let _ = result;
 	});
 }

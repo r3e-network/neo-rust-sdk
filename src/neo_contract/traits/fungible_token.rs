@@ -1,10 +1,10 @@
 use crate::{
+	Bytes, ContractParameter, NNSName, ScriptHash,
 	builder::{AccountSigner, TransactionBuilder},
 	neo_clients::JsonRpcProvider,
 	neo_contract::{ContractError, FungibleTokenContract, TokenTrait},
 	neo_protocol::{Account, AccountTrait},
 	neo_wallets::Wallet,
-	Bytes, ContractParameter, NNSName, ScriptHash,
 };
 use async_trait::async_trait;
 use primitive_types::H160;

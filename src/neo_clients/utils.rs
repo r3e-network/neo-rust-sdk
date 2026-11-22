@@ -1,14 +1,14 @@
 use std::{future::Future, pin::Pin, str::FromStr, time::Duration};
 
 use crate::{
+	ScriptHash, ScriptHashExtension,
 	builder::VerificationScript,
 	config::DEFAULT_ADDRESS_VERSION,
-	crypto::{private_key_to_public_key, HashableForVec, Secp256r1PrivateKey, Secp256r1PublicKey},
+	crypto::{HashableForVec, Secp256r1PrivateKey, Secp256r1PublicKey, private_key_to_public_key},
 	neo_clients::ProviderError,
-	ScriptHash, ScriptHashExtension,
 };
 use futures_timer::Delay;
-use futures_util::{stream, FutureExt, StreamExt};
+use futures_util::{FutureExt, StreamExt, stream};
 use primitive_types::{H160, U256};
 
 /// A simple gas escalation policy
@@ -73,11 +73,7 @@ pub async fn maybe<F, T, E>(item: Option<T>, f: F) -> Result<T, E>
 where
 	F: Future<Output = Result<T, E>>,
 {
-	if let Some(item) = item {
-		futures_util::future::ok(item).await
-	} else {
-		f.await
-	}
+	if let Some(item) = item { futures_util::future::ok(item).await } else { f.await }
 }
 
 /// Create a stream that emits items at a fixed interval. Used for rate control
@@ -193,7 +189,7 @@ pub fn hex_to_address(hex: &str) -> Result<String, ProviderError> {
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use serde::{ser::Error as _, Serialize, Serializer};
+	use serde::{Serialize, Serializer, ser::Error as _};
 
 	struct AlwaysFails;
 

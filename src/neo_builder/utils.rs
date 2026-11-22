@@ -135,7 +135,7 @@ mod tests {
 	use super::*;
 	use crate::{builder::WitnessScope, neo_crypto::KeyPair};
 	use primitive_types::{H160, H256};
-	use serde::{ser::Error as _, Serializer};
+	use serde::{Serializer, ser::Error as _};
 
 	struct AlwaysFails;
 

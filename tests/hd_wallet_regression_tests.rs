@@ -16,19 +16,17 @@ fn test_sequential_derivation_paths() {
 	for i in 0..1000u32 {
 		let path_str = format!("m/44'/888'/0'/0/{}", i);
 
-		// Should not panic on any valid path
+		// Should not panic on any valid path. The error variant of
+		// `derive_account` is large, so box it to keep the closure's
+		// `Result` small (clippy::result_large_err).
 		let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-			wallet
-				.derive_account(&path_str)
-				.map(|account| account.get_address())
-				.map_err(|error| error.to_string())
-		}));
+			wallet.derive_account(&path_str).map_err(Box::new)		}));
 
 		assert!(result.is_ok(), "Derivation should not panic for path {}", path_str);
 
 		match result.unwrap() {
-			Ok(address) => {
-				assert!(!address.is_empty(), "Address should not be empty");
+			Ok(account) => {
+				let address = account.get_address();				assert!(!address.is_empty(), "Address should not be empty");
 				derived_addresses.push(address);
 			},
 			Err(e) => {
@@ -105,8 +103,10 @@ fn test_negative_index_handling() {
 	let result = wallet.derive_account(negative_path);
 
 	// Should either succeed (if implemented) or return explicit error
-	let _ = result;
-}
+	if let Err(e) = result {
+		// Otherwise, an explicit error is acceptable — never a panic.
+		let _ = e;
+	}}
 
 /// Test batch derivation performance and safety
 #[test]
@@ -172,8 +172,10 @@ fn test_derivation_path_parsing_edge_cases() {
 	for (path_str, should_succeed) in test_cases {
 		let result = DerivationPath::from_string(path_str);
 
-		assert_eq!(result.is_ok(), should_succeed, "Unexpected result for path '{path_str}'");
-	}
+		match result {
+			Ok(_) => assert!(should_succeed, "Path '{}' should succeed", path_str),
+			Err(_) => assert!(!should_succeed, "Path '{}' should fail", path_str),
+		}	}
 }
 
 /// Branch coverage verification helper
@@ -194,9 +196,8 @@ fn verify_branch_coverage() {
 /// Generate a test wallet with fixed mnemonic for reproducibility
 fn generate_test_wallet() -> HDWallet {
 	HDWallet::from_phrase(
-        "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-        None,
-        Language::English,
-    )
-    .expect("Failed to create test wallet")
-}
+		"abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+		None,
+		Language::English,
+	)
+	.expect("Failed to create test wallet")}

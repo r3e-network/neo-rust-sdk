@@ -87,10 +87,10 @@ async fn query_gas_info(
 	// Get token symbol
 	match client.invoke_function(gas_hash, "symbol".to_string(), vec![], None).await {
 		Ok(result) => {
-			if let Some(stack_item) = result.stack.first() {
-				if let Some(symbol) = stack_item.as_string() {
-					println!("   🏷️ Symbol: {symbol}");
-				}
+			if let Some(stack_item) = result.stack.first()
+				&& let Some(symbol) = stack_item.as_string()
+			{
+				println!("   🏷️ Symbol: {symbol}");
 			}
 		},
 		Err(e) => println!("   ⚠️ Failed to get symbol: {e}"),
@@ -99,10 +99,10 @@ async fn query_gas_info(
 	// Get token decimals
 	match client.invoke_function(gas_hash, "decimals".to_string(), vec![], None).await {
 		Ok(result) => {
-			if let Some(stack_item) = result.stack.first() {
-				if let Some(decimals) = stack_item.as_int() {
-					println!("   🔢 Decimals: {decimals}");
-				}
+			if let Some(stack_item) = result.stack.first()
+				&& let Some(decimals) = stack_item.as_int()
+			{
+				println!("   🔢 Decimals: {decimals}");
 			}
 		},
 		Err(e) => println!("   ⚠️ Failed to get decimals: {e}"),
@@ -111,12 +111,12 @@ async fn query_gas_info(
 	// Get total supply
 	match client.invoke_function(gas_hash, "totalSupply".to_string(), vec![], None).await {
 		Ok(result) => {
-			if let Some(stack_item) = result.stack.first() {
-				if let Some(supply) = stack_item.as_int() {
-					let gas_decimal = supply as f64 / 100_000_000.0; // GAS has 8 decimals
-					println!("   📊 Total Supply: {gas_decimal:.8} GAS");
-					println!("   🔍 Raw Value: {supply} (in smallest unit)");
-				}
+			if let Some(stack_item) = result.stack.first()
+				&& let Some(supply) = stack_item.as_int()
+			{
+				let gas_decimal = supply as f64 / 100_000_000.0; // GAS has 8 decimals
+				println!("   📊 Total Supply: {gas_decimal:.8} GAS");
+				println!("   🔍 Raw Value: {supply} (in smallest unit)");
 			}
 		},
 		Err(e) => println!("   ⚠️ Failed to get total supply: {e}"),

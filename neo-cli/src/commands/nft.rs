@@ -9,12 +9,12 @@ use crate::{
 use clap::{Args, Subcommand};
 use comfy_table::{Cell, Color};
 use neo3::{
+	NeoVMStateType,
 	builder::{AccountSigner, ScriptBuilder, Signer, TransactionBuilder},
 	codec::NeoSerializable,
 	neo_clients::{APITrait, HttpProvider},
 	neo_protocol::{Account, AccountTrait},
 	neo_types::{AddressExtension, ContractParameter, ScriptHashExtension},
-	NeoVMStateType,
 };
 use primitive_types::H160;
 

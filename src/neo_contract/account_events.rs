@@ -306,15 +306,15 @@ impl AccountEventQuery {
 	/// can filter notifications they obtained through other means (for example a
 	/// WebSocket subscription) using the exact same rules.
 	pub fn matches_account(&self, notification: &LogNotification) -> bool {
-		if let Some(contract) = self.contract_filter {
-			if notification.contract != contract {
-				return false;
-			}
+		if let Some(contract) = self.contract_filter
+			&& notification.contract != contract
+		{
+			return false;
 		}
-		if let Some(name) = &self.event_name {
-			if notification.event_name != *name {
-				return false;
-			}
+		if let Some(name) = &self.event_name
+			&& notification.event_name != *name
+		{
+			return false;
 		}
 		Self::stack_item_contains_account(&notification.state, &self.account)
 	}
@@ -424,8 +424,7 @@ impl AccountEventQuery {
 					if results.len() >= cap {
 						results.truncate(cap);
 						return Ok(results);
-					}
-				}
+					}				}
 			}
 		}
 
@@ -482,8 +481,7 @@ impl AccountEventQuery {
 	where
 		P: JsonRpcProvider,
 	{
-		self.execute(client).await
-	}
+		self.execute(client).await	}
 }
 
 #[cfg(test)]
@@ -1035,7 +1033,6 @@ mod tests {
 			H256::repeat_byte(0x44),
 		];
 		let block = block(301, tx_hashes.iter().copied().map(transaction).collect());
-
 		let provider = MockProvider::new();
 		provider.push_result_with_params(
 			"getblock",

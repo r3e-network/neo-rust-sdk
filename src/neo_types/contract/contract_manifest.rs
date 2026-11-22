@@ -49,9 +49,9 @@ use std::{
 use serde::{Deserialize, Serialize};
 
 use crate::{
+	TypeError,
 	neo_types::ContractParameter2,
 	prelude::{deserialize_wildcard, serialize_wildcard},
-	TypeError,
 };
 use neo3::prelude::{ContractParameter, ContractParameterType};
 

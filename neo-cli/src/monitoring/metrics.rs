@@ -371,10 +371,10 @@ mod tests {
 		let metric = registry.get("test_counter");
 		assert!(metric.is_some());
 
-		if let Some(m) = metric {
-			if let MetricValue::Counter(v) = m.value {
-				assert_eq!(v, 42);
-			}
+		if let Some(m) = metric
+			&& let MetricValue::Counter(v) = m.value
+		{
+			assert_eq!(v, 42);
 		}
 	}
 

@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::ContractNef;
 use neo3::prelude::{
-	deserialize_script_hash, serialize_script_hash, ContractManifest, InvocationResult, StackItem,
+	ContractManifest, InvocationResult, StackItem, deserialize_script_hash, serialize_script_hash,
 	*,
 };
 

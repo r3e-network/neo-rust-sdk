@@ -208,8 +208,8 @@ impl KeychainManager {
 	#[cfg(target_os = "linux")]
 	fn store_encrypted_file(&self, key: &str, data: &[u8]) -> Result<(), CliError> {
 		use aes_gcm::{
-			aead::{Aead, KeyInit},
 			Aes256Gcm, Nonce,
+			aead::{Aead, KeyInit},
 		};
 		use rand::RngCore;
 
@@ -245,8 +245,8 @@ impl KeychainManager {
 	#[cfg(target_os = "linux")]
 	fn get_encrypted_file(&self, key: &str) -> Result<SecureCredential, CliError> {
 		use aes_gcm::{
-			aead::{Aead, KeyInit},
 			Aes256Gcm, Nonce,
+			aead::{Aead, KeyInit},
 		};
 
 		const MAGIC: &[u8; 8] = b"NEOCLI01";

@@ -1,7 +1,7 @@
 // Core utilities for CLI operations
 use colored::*;
-use comfy_table::{presets::UTF8_FULL, Attribute, Cell, Color, ContentArrangement, Table};
-use dialoguer::{theme::ColorfulTheme, Confirm, Input, Password, Select};
+use comfy_table::{Attribute, Cell, Color, ContentArrangement, Table, presets::UTF8_FULL};
+use dialoguer::{Confirm, Input, Password, Select, theme::ColorfulTheme};
 use std::{
 	io::{self, Write},
 	sync::atomic::{AtomicBool, Ordering},

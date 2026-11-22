@@ -1,8 +1,8 @@
 use std::{fmt, str::FromStr, sync::Arc};
 
 use crate::{
-	builder::Transaction, neo_clients::JsonRpcProvider, neo_wallets::WalletError, Address,
-	ScriptHashExtension,
+	Address, ScriptHashExtension, builder::Transaction, neo_clients::JsonRpcProvider,
+	neo_wallets::WalletError,
 };
 use coins_ledger::transports::LedgerAsync;
 use primitive_types::{H160, H256};

@@ -376,10 +376,10 @@ impl SessionGuard {
 impl Drop for SessionGuard {
 	fn drop(&mut self) {
 		// Touch session on guard drop to update activity
-		if let Ok(mut sessions) = self.manager.sessions.write() {
-			if let Some(session) = sessions.get_mut(&self.session_id) {
-				session.touch();
-			}
+		if let Ok(mut sessions) = self.manager.sessions.write()
+			&& let Some(session) = sessions.get_mut(&self.session_id)
+		{
+			session.touch();
 		}
 	}
 }

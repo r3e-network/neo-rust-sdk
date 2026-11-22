@@ -2,7 +2,7 @@
 use crate::{
 	commands::wallet::CliState,
 	errors::CliError,
-	utils::config::{load_config, save_config, NeoFSEndpoint},
+	utils::config::{NeoFSEndpoint, load_config, save_config},
 	utils::{print_info, print_success},
 };
 use clap::{Args, Subcommand};
@@ -262,7 +262,7 @@ impl NeoFSClient {
 							return Err(CliError::Network(format!(
 								"Failed to read response: {}",
 								e
-							)))
+							)));
 						},
 					};
 
@@ -713,11 +713,7 @@ async fn handle_config_command(command: ConfigCommands) -> Result<(), CliError> 
 			}
 
 			let network = env.unwrap_or_else(|| {
-				if url.contains("testnet") {
-					"testnet".to_string()
-				} else {
-					"mainnet".to_string()
-				}
+				if url.contains("testnet") { "testnet".to_string() } else { "mainnet".to_string() }
 			});
 			let endpoint_type = if url.contains("rest.") {
 				"rest"

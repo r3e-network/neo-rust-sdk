@@ -47,8 +47,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	Ok(())
 }
 
-async fn connect_to_testnet(
-) -> Result<neo3::neo_clients::RpcClient<neo3::neo_clients::HttpProvider>, Box<dyn std::error::Error>>
+async fn connect_to_testnet()
+-> Result<neo3::neo_clients::RpcClient<neo3::neo_clients::HttpProvider>, Box<dyn std::error::Error>>
 {
 	let endpoints = vec![
 		"https://testnet1.neo.org:443/",
@@ -103,10 +103,10 @@ async fn check_account_balances(
 	// Get GAS token info
 	match client.invoke_function(&gas_hash, "symbol".to_string(), vec![], None).await {
 		Ok(result) => {
-			if let Some(stack_item) = result.stack.first() {
-				if let Some(symbol) = stack_item.as_string() {
-					println!("      🪙 {symbol} Token (GAS): 0x{gas_hash:x}");
-				}
+			if let Some(stack_item) = result.stack.first()
+				&& let Some(symbol) = stack_item.as_string()
+			{
+				println!("      🪙 {symbol} Token (GAS): 0x{gas_hash:x}");
 			}
 		},
 		Err(e) => println!("      ❌ Failed to get GAS symbol: {e}"),
@@ -115,10 +115,10 @@ async fn check_account_balances(
 	// Check decimals
 	match client.invoke_function(&gas_hash, "decimals".to_string(), vec![], None).await {
 		Ok(result) => {
-			if let Some(stack_item) = result.stack.first() {
-				if let Some(decimals) = stack_item.as_int() {
-					println!("      📊 GAS Decimals: {decimals}");
-				}
+			if let Some(stack_item) = result.stack.first()
+				&& let Some(decimals) = stack_item.as_int()
+			{
+				println!("      📊 GAS Decimals: {decimals}");
 			}
 		},
 		Err(e) => println!("      ❌ Failed to get GAS decimals: {e}"),
@@ -139,11 +139,11 @@ async fn check_account_balances(
 		.await
 	{
 		Ok(result) => {
-			if let Some(stack_item) = result.stack.first() {
-				if let Some(balance) = stack_item.as_int() {
-					println!("      📍 {example_address}");
-					println!("      💰 GAS Balance: {} GAS", balance as f64 / 100_000_000.0);
-				}
+			if let Some(stack_item) = result.stack.first()
+				&& let Some(balance) = stack_item.as_int()
+			{
+				println!("      📍 {example_address}");
+				println!("      💰 GAS Balance: {} GAS", balance as f64 / 100_000_000.0);
 			}
 		},
 		Err(e) => println!("      ❌ Balance query failed: {e}"),

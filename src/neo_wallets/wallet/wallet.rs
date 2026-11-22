@@ -22,12 +22,12 @@ use crate::{
 	neo_crypto::{CryptoError, HashableForVec, KeyPair, Secp256r1Signature},
 	neo_protocol::{Account, AccountTrait, UnclaimedGas},
 	neo_types::{
+		ScryptParamsDef,
 		script_hash::ScriptHashExtension,
 		serde_with_utils::{
 			deserialize_hash_map_h160_account, deserialize_script_hash,
 			serialize_hash_map_h160_account, serialize_script_hash,
 		},
-		ScryptParamsDef,
 	},
 	neo_wallets::{NEP6Account, Nep6Wallet, WalletError, WalletTrait},
 };
@@ -355,15 +355,15 @@ impl Wallet {
 
 		for account in self.accounts.values_mut() {
 			// Only encrypt accounts that have a key pair
-			if account.key_pair().is_some() {
-				if let Err(e) = account.encrypt_private_key_with_params(password, &params) {
-					tracing::warn!(
-						address = %account.get_address(),
-						error = %e,
-						"Failed to encrypt private key for account"
-					);
-					errors.push(format!("{}: {e}", account.get_address()));
-				}
+			if account.key_pair().is_some()
+				&& let Err(e) = account.encrypt_private_key_with_params(password, &params)
+			{
+				tracing::warn!(
+					address = %account.get_address(),
+					error = %e,
+					"Failed to encrypt private key for account"
+				);
+				errors.push(format!("{}: {e}", account.get_address()));
 			}
 		}
 
@@ -690,24 +690,25 @@ impl Wallet {
 
 		// First decrypt all accounts with the current password
 		for account in updated_accounts.values_mut() {
-			if account.encrypted_private_key().is_some() && account.key_pair().is_none() {
-				if let Err(e) = account.decrypt_private_key_with_params(current_password, &params) {
-					return Err(WalletError::DecryptionError(format!(
-						"Failed to decrypt account {}: {}",
-						account.get_address(),
-						e
-					)));
-				}
+			if account.encrypted_private_key().is_some()
+				&& account.key_pair().is_none()
+				&& let Err(e) = account.decrypt_private_key_with_params(current_password, &params)
+			{
+				return Err(WalletError::DecryptionError(format!(
+					"Failed to decrypt account {}: {}",
+					account.get_address(),
+					e
+				)));
 			}
 		}
 
 		// Re-encrypt all accounts with the new password
 		let mut errors = Vec::new();
 		for account in updated_accounts.values_mut() {
-			if account.key_pair().is_some() {
-				if let Err(e) = account.encrypt_private_key_with_params(new_password, &params) {
-					errors.push(format!("{}: {e}", account.get_address()));
-				}
+			if account.key_pair().is_some()
+				&& let Err(e) = account.encrypt_private_key_with_params(new_password, &params)
+			{
+				errors.push(format!("{}: {e}", account.get_address()));
 			}
 		}
 
@@ -1216,11 +1217,11 @@ impl Wallet {
 #[cfg(test)]
 mod tests {
 	use crate::{
+		ScryptParamsDef,
 		neo_clients::ProviderError,
 		neo_config::TestConstants,
 		neo_protocol::{Account, AccountTrait},
 		neo_wallets::{NEP6Account, Nep6Wallet, Wallet, WalletError, WalletTrait},
-		ScryptParamsDef,
 	};
 	use primitive_types::H160;
 	use tempfile::tempdir;
@@ -1266,13 +1267,14 @@ mod tests {
 		expected = "failed to create default wallet; use Wallet::try_new for fallible handling"
 	)]
 	fn test_new_panics_when_account_creation_fails() {
-		let _ =
-			Wallet::try_new_with_account_factory(|| {
-				Err(ProviderError::CustomError("boom".to_string()))
-			})
-			.unwrap_or_else(|e| {
-				panic!("failed to create default wallet; use Wallet::try_new for fallible handling: {e}")
-			});
+		let _ = Wallet::try_new_with_account_factory(|| {
+			Err(ProviderError::CustomError("boom".to_string()))
+		})
+		.unwrap_or_else(|e| {
+			panic!(
+				"failed to create default wallet; use Wallet::try_new for fallible handling: {e}"
+			)
+		});
 	}
 
 	#[test]
@@ -1285,14 +1287,18 @@ mod tests {
 
 		assert_eq!(wallet.default_account(), Some(&account1));
 		assert_eq!(wallet.accounts.len(), 2);
-		assert!(wallet
-			.accounts
-			.values()
-			.any(|a| a.get_script_hash() == account1.address_or_scripthash.script_hash()));
-		assert!(wallet
-			.accounts
-			.values()
-			.any(|a| a.get_script_hash() == account2.address_or_scripthash.script_hash()));
+		assert!(
+			wallet
+				.accounts
+				.values()
+				.any(|a| a.get_script_hash() == account1.address_or_scripthash.script_hash())
+		);
+		assert!(
+			wallet
+				.accounts
+				.values()
+				.any(|a| a.get_script_hash() == account2.address_or_scripthash.script_hash())
+		);
 	}
 
 	#[test]

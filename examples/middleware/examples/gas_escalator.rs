@@ -100,11 +100,7 @@ impl LinearGasStrategy {
 	fn calculate_gas_limit(&self, attempt: u32) -> u64 {
 		let gas_limit = self.base_gas_limit + (self.increase_amount * attempt as u64);
 
-		if let Some(max_limit) = self.max_gas_limit {
-			gas_limit.min(max_limit)
-		} else {
-			gas_limit
-		}
+		if let Some(max_limit) = self.max_gas_limit { gas_limit.min(max_limit) } else { gas_limit }
 	}
 }
 
@@ -130,11 +126,7 @@ impl ExponentialGasStrategy {
 	fn calculate_gas_limit(&self, attempt: u32) -> u64 {
 		let gas_limit = (self.base_gas_limit as f64 * self.multiplier.powi(attempt as i32)) as u64;
 
-		if let Some(max_limit) = self.max_gas_limit {
-			gas_limit.min(max_limit)
-		} else {
-			gas_limit
-		}
+		if let Some(max_limit) = self.max_gas_limit { gas_limit.min(max_limit) } else { gas_limit }
 	}
 }
 
@@ -154,13 +146,12 @@ impl AdaptiveGasStrategy {
 
 		// Sample recent blocks to understand gas usage patterns
 		for i in 0..5 {
-			if let Some(block_index) = block_count.checked_sub(i + 1) {
-				if let Ok(block) = client.get_block_by_index(block_index, true).await {
-					if let Some(transactions) = &block.transactions {
-						total_gas_used += transactions.len() as u64 * 1_000_000; // Estimate
-						block_samples += 1;
-					}
-				}
+			if let Some(block_index) = block_count.checked_sub(i + 1)
+				&& let Ok(block) = client.get_block_by_index(block_index, true).await
+				&& let Some(transactions) = &block.transactions
+			{
+				total_gas_used += transactions.len() as u64 * 1_000_000; // Estimate
+				block_samples += 1;
 			}
 		}
 

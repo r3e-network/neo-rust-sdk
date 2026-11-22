@@ -1,5 +1,5 @@
 use super::{RTransactionSigner, TransactionAttributeEnum};
-use crate::{neo_protocol::NeoWitness, TypeError};
+use crate::{TypeError, neo_protocol::NeoWitness};
 use getset::{CopyGetters, Getters, MutGetters, Setters};
 use neo3::VMState;
 use primitive_types::H256;

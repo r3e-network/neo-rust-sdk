@@ -3,7 +3,7 @@
 
 use crate::neo_clients::{JsonRpcProvider, ProviderError};
 use async_trait::async_trait;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 use std::fmt::Display;
 use thiserror::Error;
 

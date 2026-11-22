@@ -1,7 +1,7 @@
 [package]
 name = "neo_nep17_tokens_examples"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 authors = ["R3E Network <jimmy@r3e.network>"]
 publish = false
 
