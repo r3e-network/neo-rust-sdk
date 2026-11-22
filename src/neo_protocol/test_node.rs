@@ -1129,22 +1129,25 @@ impl TestNode {
 	///
 	/// # Example
 	/// ```rust,no_run
+	/// use std::sync::Arc;
 	/// use neo3::neo_protocol::TestNode;
 	///
 	/// #[tokio::main]
 	/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-	///     let node = TestNode::builder()
+	///     let node = Arc::new(TestNode::builder()
 	///         .with_initial_height(100)
-	///         .build_with_node();
-	///     
-	///     // Start mining blocks in background
-	///     let handle = tokio::spawn(async move {
+	///         .build_with_node());
+	///
+	///     // Start mining blocks in background (TestNode methods take &self,
+	///     // so the mining task and the waiter can share one node via Arc).
+	///     let miner = node.clone();
+	///     let _handle = tokio::spawn(async move {
 	///         for _ in 0..10 {
-	///             node.mine_block().await.unwrap();
+	///             miner.mine_block().await.unwrap();
 	///             tokio::time::sleep(std::time::Duration::from_millis(50)).await;
 	///         }
 	///     });
-	///     
+	///
 	///     // Wait for block 105
 	///     let block = node.wait_for_block(105, 1000).await?;
 	///     println!("Reached block {}", block.index);
