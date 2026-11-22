@@ -1133,7 +1133,7 @@ impl TestNode {
 	///
 	/// #[tokio::main]
 	/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-	///     let mut node = TestNode::builder()
+	///     let node = TestNode::builder()
 	///         .with_initial_height(100)
 	///         .build_with_node();
 	///     
