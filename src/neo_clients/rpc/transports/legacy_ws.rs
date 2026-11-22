@@ -420,10 +420,10 @@ where
 			Response::Notification { params, .. } => return self.handle_notification(params),
 		};
 
-		if let Some(request) = self.pending.remove(&id) {
-			if !request.is_canceled() {
-				request.send(result).map_err(to_client_error)?;
-			}
+		if let Some(request) = self.pending.remove(&id)
+			&& !request.is_canceled()
+		{
+			request.send(result).map_err(to_client_error)?;
 		}
 
 		Ok(())
@@ -467,14 +467,14 @@ where
 
 	fn handle_notification(&mut self, params: Params<'_>) -> Result<(), ClientError> {
 		let id = params.subscription;
-		if let Entry::Occupied(stream) = self.subscriptions.entry(id) {
-			if let Err(err) = stream.get().unbounded_send(params.result.to_owned()) {
-				if err.is_disconnected() {
-					// subscription channel was closed on the receiver end
-					stream.remove();
-				}
-				return Err(to_client_error(err));
+		if let Entry::Occupied(stream) = self.subscriptions.entry(id)
+			&& let Err(err) = stream.get().unbounded_send(params.result.to_owned())
+		{
+			if err.is_disconnected() {
+				// subscription channel was closed on the receiver end
+				stream.remove();
 			}
+			return Err(to_client_error(err));
 		}
 
 		Ok(())

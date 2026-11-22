@@ -194,10 +194,10 @@ pub fn record_error(error: &dyn std::error::Error) {
 pub fn shutdown() {
 	#[cfg(feature = "otlp")]
 	{
-		if let Some(provider) = OTLP_PROVIDER.get() {
-			if let Err(e) = provider.shutdown() {
-				eprintln!("OTLP tracer provider shutdown error: {e}");
-			}
+		if let Some(provider) = OTLP_PROVIDER.get()
+			&& let Err(e) = provider.shutdown()
+		{
+			eprintln!("OTLP tracer provider shutdown error: {e}");
 		}
 	}
 	tracing::debug!("Tracing shutdown requested");

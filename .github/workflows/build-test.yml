@@ -20,9 +20,9 @@ jobs:
     timeout-minutes: 15
     steps:
     - uses: actions/checkout@v4
-    - name: Setup Rust 1.95.0
+    - name: Setup Rust 1.99.1
       id: msrv
-      uses: dtolnay/rust-toolchain@1.95.0
+      uses: dtolnay/rust-toolchain@1.99.1
     - name: Check library with MSRV
       run: cargo +${{ steps.msrv.outputs.name }} check -p neo3 --lib --locked --all-features
 
@@ -33,7 +33,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Setup Rust
-      uses: dtolnay/rust-toolchain@stable
+      uses: dtolnay/rust-toolchain@1.99.1
       with:
         components: rustfmt, clippy
     - name: Cache cargo
@@ -65,7 +65,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Setup Rust
-      uses: dtolnay/rust-toolchain@stable
+      uses: dtolnay/rust-toolchain@1.99.1
     - name: Cache cargo
       uses: actions/cache@v4
       with:
@@ -89,7 +89,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Setup Rust
-      uses: dtolnay/rust-toolchain@stable
+      uses: dtolnay/rust-toolchain@1.99.1
     - name: Cache cargo
       uses: actions/cache@v4
       with:
@@ -131,7 +131,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Setup Rust
-      uses: dtolnay/rust-toolchain@stable
+      uses: dtolnay/rust-toolchain@1.99.1
       with:
         components: llvm-tools-preview
     - name: Cache cargo
@@ -164,7 +164,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Setup Rust
-      uses: dtolnay/rust-toolchain@stable
+      uses: dtolnay/rust-toolchain@1.99.1
       with:
         components: llvm-tools-preview
     - name: Cache cargo

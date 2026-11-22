@@ -227,8 +227,8 @@ impl CertChainValidator {
 		self.validate_leaf_certificate(&certs[0])?;
 
 		// 3) Validate CA certificates in the middle (all except last/root)
-		for i in 1..certs.len().saturating_sub(1) {
-			self.validate_ca_certificate(&certs[i])?;
+		for cert in certs.iter().skip(1).take(certs.len().saturating_sub(2)) {
+			self.validate_ca_certificate(cert)?;
 		}
 
 		// 4) Check validity period of the entire chain (use leaf timestamp as reference)
@@ -249,10 +249,9 @@ impl CertChainValidator {
 			chain_length: certs.len(),
 			leaf_serial: certs.first().map(|c| c.tbs_certificate.serial_number.to_string()),
 			issued_by: certs.first().map(|c| c.tbs_certificate.issuer.to_string()),
-			valid_until: certs.first().and_then(|c| {
-				let end_seconds = c.tbs_certificate.validity.not_after.to_unix_duration().as_secs();
-				Some(end_seconds)
-			}),
+			valid_until: certs
+				.first()
+				.map(|c| c.tbs_certificate.validity.not_after.to_unix_duration().as_secs()),
 		})
 	}
 
@@ -341,7 +340,7 @@ impl CertChainValidator {
 		}
 
 		// Last cert must be self-signed AND trusted
-		if certs.len() >= 1 {
+		if !certs.is_empty() {
 			let last = &certs[certs.len() - 1];
 			let issuer_str = last.tbs_certificate.issuer.to_string();
 			let subject_str = last.tbs_certificate.subject.to_string();
@@ -385,7 +384,7 @@ impl CertChainValidator {
 			pubkey_info.subject_public_key.raw_bytes(),
 		);
 		verifier
-			.verify(&tbs_bytes, &sig_value)
+			.verify(&tbs_bytes, sig_value)
 			.map_err(|_| CertChainValidationError::SignatureVerificationFailed)
 	}
 
@@ -473,19 +472,19 @@ impl CertChainValidator {
 		&self,
 		enclave_tcb: &MinimumTcbLevel,
 	) -> Result<(), CertChainValidationError> {
-		if let Some(required) = &self.tcb_requirements {
-			if !required.satisfies(enclave_tcb) {
-				return Err(CertChainValidationError::TcbLevelTooLow {
-					current: format!(
-						"cpu:{},pce:{},qe:{}",
-						enclave_tcb.cpu_svn, enclave_tcb.pce_svn, enclave_tcb.qe_svn
-					),
-					required: format!(
-						"cpu:{},pce:{},qe:{}",
-						required.cpu_svn, required.pce_svn, required.qe_svn
-					),
-				});
-			}
+		if let Some(required) = &self.tcb_requirements
+			&& !required.satisfies(enclave_tcb)
+		{
+			return Err(CertChainValidationError::TcbLevelTooLow {
+				current: format!(
+					"cpu:{},pce:{},qe:{}",
+					enclave_tcb.cpu_svn, enclave_tcb.pce_svn, enclave_tcb.qe_svn
+				),
+				required: format!(
+					"cpu:{},pce:{},qe:{}",
+					required.cpu_svn, required.pce_svn, required.qe_svn
+				),
+			});
 		}
 		Ok(())
 	}
@@ -500,17 +499,14 @@ impl Default for CertChainValidator {
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use ring::{
-		rand::SystemRandom,
-		signature::{EcdsaKeyPair, KeyPair},
-	};
+	use ring::{rand::SystemRandom, signature::EcdsaKeyPair};
 
 	#[test]
 	fn test_validator_creation() {
 		let validator = CertChainValidator::new();
 		// Trusted roots are populated with the placeholder Intel SGX root key
 		assert_eq!(validator.trusted_roots.len(), 1);
-		assert_eq!(validator.strict_crl_checking, false);
+		assert!(!validator.strict_crl_checking);
 	}
 
 	#[test]
@@ -635,7 +631,7 @@ mod tests {
 
 		// Add our test key as an additional trusted root temporarily
 		// We're testing the API works; full validation would require real certs
-		validator.add_trusted_root("test_ca", &pkcs8_doc.as_ref());
+		validator.add_trusted_root("test_ca", pkcs8_doc.as_ref());
 		assert_eq!(validator.trusted_roots.len(), 2);
 
 		// Now it would pass (if we had a real cert signed by this key)
@@ -657,7 +653,7 @@ mod tests {
 		let pubkey_bytes = pkcs8_doc.as_ref();
 
 		let mut validator = CertChainValidator::new();
-		validator.add_trusted_root("inject_test_ca", &pubkey_bytes);
+		validator.add_trusted_root("inject_test_ca", pubkey_bytes);
 
 		// At minimum, this verifies the API works for injecting trusted roots.
 		// Full chain validation requires proper certificate construction.
