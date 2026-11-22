@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [3.3.3] - 2026-11-22
+
 ### Security
 
 - Resolved all Dependabot alerts for the Rust crate: `rustls` bumped to

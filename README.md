@@ -15,7 +15,7 @@ A comprehensive Rust SDK for the Neo N3 blockchain platform. NeoRust provides a 
 
 ## 📊 Project Status
 
-- **Version**: 3.3.2 (Neo node v3.11.2 aligned)
+- **Version**: 3.3.3 (Neo node v3.11.2 aligned)
 - **Rust Version**: 1.99.1+ (edition 2024)
 - **Neo Version**: Neo N3 v3.11.2 compatible (hardforks through HF_Jackalope, Policy-activated forks supported)- **Platform Support**: Linux verified locally; Windows and macOS are intended targets and should be validated in your CI before release
 - **Security**: Dependency auditing via `cargo deny`; wallet exports use authenticated encryption; property-based fuzz regression tests; experimental SGX quote parsing and certificate-chain validation primitives
