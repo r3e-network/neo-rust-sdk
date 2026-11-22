@@ -61,8 +61,8 @@
 //!
 //! References
 //!
-//! - Intel DCAP: https://github.com/intel/SGXDataCenterAttestationPrimitives
-//! - Quote Verifier: https://github.com/intel/quote-verifier
+//! - Intel DCAP: <https://github.com/intel/SGXDataCenterAttestationPrimitives>
+//! - Quote Verifier: <https://github.com/intel/quote-verifier>
 //! - Intel ECDSA Based Attestation Spec
 
 // External crates used in this module
