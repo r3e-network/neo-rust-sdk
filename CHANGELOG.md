@@ -8,6 +8,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [4.0.0] - 2026-11-22
+
+### Changed (Breaking)
+
+- **`neo_fs`**: public fields and parameters `chrono::DateTime<Utc>` →
+  `time::OffsetDateTime` (`acl.rs` `expiration`, `container.rs` `creation`,
+  `object.rs` `created_at`, block `timestamp`).
+- **`YubiWallet`**: type alias reworked around a thin `YubiHsmSigner` wrapping
+  `yubihsm::Client` (`sign_ecdsa_prehash_raw` + `get_public_key`), decoupled
+  from yubihsm's own elliptic-curve 0.13 dependency.
+- **`Secp256r1PrivateKey::random`** parameter type changed with the
+  elliptic-curve 0.14 trait rework; use `Secp256r1PrivateKey::new_random()`
+  for system-entropy generation.
+
+### Security
+
+- Upgraded elliptic-curve / k256 / p256 **0.13 → 0.14** (RustCrypto trait
+  rework): `EncodedPoint` → `Sec1Point`, `From/ToEncodedPoint` →
+  `From/ToSec1Point`, `rand_core` 0.10, `signature` 3, `ed25519-dalek` 3,
+  `scrypt` 0.12. Our own crypto stack is now on crypto-bigint 0.7.
+- jsonwebtoken **10.4 → 12.0** (rsa 0.10 patched; RUSTSEC-2023-0071 ignore
+  removed).
+- rustix 1.1.4 → 1.1.6 (RUSTSEC-2026-0486).
+
+### Removed
+
+- **chrono** is no longer a direct dependency anywhere in the workspace —
+  fully migrated to `time` 0.3 across SDK, neo-cli and examples.
+
+### Notes
+
+- RUSTSEC-2026-0387 (crypto-bigint 0.5.5 timing) ignore narrowed: only
+  third-party paths remain (alloy 2.x / k256 0.13, yubihsm 0.42 — upstream
+  migration pending release).
+- Validation: clippy `--workspace --all-features --all-targets` 0 warnings;
+  734 lib tests + 240 doctests green; `cargo audit` exit 0; cargo-deny
+  advisories ok.
+
+
 ## [3.3.3] - 2026-11-22
 
 ### Security
