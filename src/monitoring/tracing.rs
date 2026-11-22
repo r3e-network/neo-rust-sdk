@@ -136,7 +136,7 @@ pub fn init_with_config(
 
 /// Holds the OTLP tracer provider so it can be flushed/shutdown cleanly.
 #[cfg(feature = "otlp")]
-static OTLP_PROVIDER: once_cell::sync::OnceCell<opentelemetry_sdk::trace::TracerProvider> =
+static OTLP_PROVIDER: once_cell::sync::OnceCell<opentelemetry_sdk::trace::SdkTracerProvider> =
 	once_cell::sync::OnceCell::new();
 
 /// Build an OTLP export layer pointing at `endpoint`.
@@ -156,8 +156,8 @@ fn build_otlp_layer(
 		.with_endpoint(endpoint)
 		.build()?;
 
-	let provider = opentelemetry_sdk::trace::TracerProvider::builder()
-		.with_batch_exporter(exporter, opentelemetry_sdk::runtime::Tokio)
+	let provider = opentelemetry_sdk::trace::SdkTracerProvider::builder()
+		.with_batch_exporter(exporter)
 		.build();
 
 	let tracer = provider.tracer("neo3-sdk");

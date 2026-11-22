@@ -111,7 +111,8 @@ fn bench_transaction_assembly(c: &mut Criterion) {
 				builder.set_additional_system_fee(1_000_000);
 				builder.set_additional_network_fee(500_000);
 				builder.valid_until_block(1_000_000).unwrap();
-				std::hint::black_box(builder);			},
+				std::hint::black_box(builder);
+			},
 			criterion::BatchSize::SmallInput,
 		)
 	});

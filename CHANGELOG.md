@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- Resolved all Dependabot alerts for the Rust crate: `rustls` bumped to
+  `0.23.46` (TLS 1.3 cross-level handshake, ECH, Debug-secrets and Brotli
+  decompression advisories) and the OpenTelemetry stack upgraded
+  `0.27` → `0.33` (`opentelemetry`, `opentelemetry_sdk`, `opentelemetry-otlp`)
+  with `tracing-opentelemetry` `0.34`, fixing unbounded memory allocation in
+  W3C Baggage propagation. OTLP exporter code adapted to the new
+  `SdkTracerProvider` / `grpc-tonic` APIs.
+- Resolved all Dependabot alerts for the `website/` Docusaurus toolchain:
+  pinned `@docusaurus/*` to `3.7.0` (the tinypool prototype-pollution RCE
+  chain affects every 3.8-canary…3.10.2 release) and removed the stale
+  direct `image-size` dependency, forcing the transitive one to the patched
+  `^2.1.0` via npm overrides. `markdown.hooks` config migrated to the
+  top-level `onBrokenMarkdownLinks` option for 3.7 compatibility.
+
 
 ## [3.3.2] - 2026-11-22
 

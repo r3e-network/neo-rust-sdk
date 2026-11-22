@@ -127,10 +127,10 @@ tracing-futures = "0.2.5"
 
 # OpenTelemetry / OTLP export (optional, gated behind the `otlp` feature to keep
 # the default build lean and avoid pulling heavy gRPC/tower dependencies).
-opentelemetry = { version = "0.27", optional = true }
-opentelemetry_sdk = { version = "0.27", features = ["trace", "rt-tokio"], optional = true }
-opentelemetry-otlp = { version = "0.27", features = ["trace", "tonic"], optional = true }
-tracing-opentelemetry = { version = "0.28", optional = true }
+opentelemetry = { version = "0.33", optional = true }
+opentelemetry_sdk = { version = "0.33", features = ["trace", "rt-tokio"], optional = true }
+opentelemetry-otlp = { version = "0.33", features = ["trace", "grpc-tonic"], optional = true }
+tracing-opentelemetry = { version = "0.34", optional = true }
 
 # wasm
 # instant = "0.1.12"  # REMOVED: Unmaintained (RUSTSEC-2024-0384)
