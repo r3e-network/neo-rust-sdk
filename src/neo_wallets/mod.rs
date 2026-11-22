@@ -71,8 +71,6 @@
 
 #[cfg(feature = "ledger")]
 pub use ledger::{HDPath, LedgerWallet};
-#[cfg(feature = "yubi")]
-use p256::NistP256;
 #[cfg(all(feature = "yubihsm", not(target_arch = "wasm32")))]
 pub use yubihsm;
 
@@ -98,7 +96,7 @@ pub type LocalWallet = WalletSigner<Account>;
 
 /// A wallet instantiated with a YubiHSM
 #[cfg(feature = "yubi")]
-pub type YubiWallet = WalletSigner<yubihsm::ecdsa::Signer<NistP256>>;
+pub type YubiWallet = WalletSigner<yubi::YubiHsmSigner>;
 
 // #[cfg(all(feature = "yubihsm", not(target_arch = "wasm32")))]
 mod yubi;

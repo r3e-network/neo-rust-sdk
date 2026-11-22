@@ -93,12 +93,12 @@ reqwest = { version = "0.12.5", default-features = false, features = ["json", "b
 url = { version = "2.5", default-features = false }
 
 # crypto
-elliptic-curve = { version = "0.13.5", default-features = false }
-k256 = { version = "0.13.1", default-features = false, features = ["ecdsa", "std", "ecdsa-core"] }
+elliptic-curve = { version = "0.14.3", default-features = false, features = ["getrandom"] }
+k256 = { version = "0.14.0", default-features = false, features = ["ecdsa", "std", "ecdsa-core"] }
 sha2 = { version = "0.11", default-features = false }
 sha3 = { version = "0.10.8", default-features = false, features = ["std"] }
 blake2 = { version = "0.10.6", default-features = false, features = ["std"] }
-ed25519-dalek = { version = "2.1.1", default-features = false, features = ["std", "rand_core"] }
+ed25519-dalek = { version = "3.0.0", default-features = false, features = ["alloc", "rand_core"] }
 hmac = "0.13.0"
 base64 = "0.22.1"
 
@@ -145,7 +145,7 @@ aes = "0.8.3"
 ripemd = "0.2.0"
 
 # Data structures
-p256 = "0.13.2"
+p256 = "0.14.0"
 # Big integer math
 num-bigint = { version = "0.4", features = ["serde"] }
 # Byte array utils
@@ -156,7 +156,7 @@ primitive-types = { version = "0.14.0", features = ["serde"] }
 # rust-crypto = "0.2"  # REMOVED: Vulnerable (RUSTSEC-2022-0011) - replaced with ring and other secure alternatives
 lazy_static = "1.4.0"
 num-traits = "0.2.16"
-chrono = { version = "0.4.44", features = ["serde"] }
+time = { version = "0.3.55", features = ["serde", "formatting", "parsing", "macros"] }
 strum = "0.28.0"
 strum_macros = "0.28.0"
 num_enum =   "0.7.6"
@@ -173,9 +173,9 @@ x509-cert = { version = "0.2", optional = true }
 der = { version = "0.7", features = ["alloc"], optional = true }
 const-oid = { version = "0.9", optional = true }
 
-scrypt = "0.11.0"
-signature   = "2.1.0"
-rand_core = "0.9.3"
+scrypt = "0.12.0"
+signature   = "3.0.0"
+rand_core = "0.10.1"
 # NEP-2 requires NFC-normalized (UTF-8) passphrases
 unicode-normalization = "0.1.25"
 #openssl = "0.10"
@@ -183,7 +183,7 @@ unicode-normalization = "0.1.25"
 # log removed: use `tracing` exclusively for structured logging
 ecb = "0.1.2"
 http = "1.4.0"
-jsonwebtoken = { version = "10.3.0", default-features = false, features = ["rust_crypto"] }
+jsonwebtoken = { version = "12.0.0", default-features = false, features = ["rust_crypto"] }
 
 # ledger
 coins-ledger = { version = "0.13.0", default-features = false, optional = true }

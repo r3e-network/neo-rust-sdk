@@ -487,7 +487,7 @@ impl HDWallet {
 		// Derive key using standard Neo scrypt parameters and random salt
 		let scrypt_def = crate::neo_types::ScryptParamsDef::default();
 		let params =
-			Params::new(scrypt_def.log_n, scrypt_def.r, scrypt_def.p, 32).map_err(|e| {
+			Params::new(scrypt_def.log_n, scrypt_def.r, scrypt_def.p).map_err(|e| {
 				NeoError::Wallet {
 					message: format!("Invalid scrypt parameters: {e}"),
 					source: None,
@@ -579,7 +579,6 @@ impl HDWallet {
 				encrypted_payload.scrypt.log_n,
 				encrypted_payload.scrypt.r,
 				encrypted_payload.scrypt.p,
-				32,
 			)
 			.map_err(|e| NeoError::Wallet {
 				message: format!("Invalid scrypt parameters: {e}"),

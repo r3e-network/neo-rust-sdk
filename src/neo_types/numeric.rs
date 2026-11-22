@@ -93,8 +93,8 @@ impl ToBytes for f64 {
 /// # Arguments
 ///
 /// * `datetime` - The DateTime object to convert.
-fn to_milliseconds(datetime: chrono::DateTime<chrono::Utc>) -> i64 {
-	datetime.timestamp_millis()
+fn to_milliseconds(datetime: time::OffsetDateTime) -> i64 {
+	(datetime - time::OffsetDateTime::UNIX_EPOCH).whole_milliseconds() as i64
 }
 
 #[cfg(test)]
@@ -149,7 +149,7 @@ mod tests {
 
 	#[test]
 	fn test_datetime_to_ms() {
-		let dt = chrono::Utc::now();
+		let dt = time::OffsetDateTime::now_utc();
 		let ms = to_milliseconds(dt);
 
 		assert!(ms > 0);

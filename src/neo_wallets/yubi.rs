@@ -1,22 +1,96 @@
-//! Helpers for creating wallets for YubiHSM2
+//! Helpers for creating wallets backed by a YubiHSM2 device.
+//!
+//! The [`yubihsm`] crate's typed `ecdsa::Signer<C>` wrapper is coupled to the
+//! crate's own elliptic-curve dependency version. To keep the SDK's `p256`
+//! integration independent of that coupling, this module wraps the raw
+//! YubiHSM2 client APIs (`sign_ecdsa_prehash_raw` / `get_public_key`) in a
+//! thin [`YubiHsmSigner`] that plugs directly into [`WalletSigner`].
+//!
+//! [`WalletSigner`]: crate::neo_wallets::WalletSigner
 #[cfg(feature = "yubi")]
 use crate::{
 	Address, neo_clients::public_key_to_address, neo_crypto::Secp256r1PublicKey,
 	neo_error::WalletError, neo_wallets::WalletSigner,
 };
 #[cfg(feature = "yubi")]
-use elliptic_curve::sec1::{FromEncodedPoint, ToEncodedPoint};
+use p256::{ecdsa::Signature, elliptic_curve::sec1::ToSec1Point as _};
 #[cfg(feature = "yubi")]
-use p256::{NistP256, PublicKey};
+use signature::hazmat::PrehashSigner;
 #[cfg(feature = "yubi")]
-use yubihsm::{
-	Capability, Client, Connector, Credentials, Domain, asymmetric::Algorithm::EcP256,
-	ecdsa::Signer as YubiSigner, object, object::Label,
-};
+use yubihsm::{Capability, Client, Connector, Credentials, Domain, object, object::Label};
+
+/// A signer backed by an ECDSA (NIST P-256) asymmetric key stored on a
+/// YubiHSM2 device.
+///
+/// Signing is performed on the device; the private key never leaves the HSM.
+#[cfg(feature = "yubi")]
+#[derive(Clone)]
+pub struct YubiHsmSigner {
+	client: yubihsm::Client,
+	key_id: object::Id,
+	public_key: p256::PublicKey,
+}
 
 #[cfg(feature = "yubi")]
-impl WalletSigner<YubiSigner<NistP256>> {
-	/// Connects to a yubi key's ECDSA account at the provided id
+impl YubiHsmSigner {
+	/// Builds a signer from an open YubiHSM client and an existing EcP256 key.
+	fn from_client(client: Client, key_id: object::Id) -> Result<Self, WalletError> {
+		let hsm_key =
+			client.get_public_key(key_id).map_err(|e| {
+				WalletError::YubiHsmError(format!("Failed to get public key from YubiHSM: {e}"))
+			})?;
+
+		if hsm_key.algorithm != yubihsm::asymmetric::Algorithm::EcP256 {
+			return Err(WalletError::YubiHsmError(format!(
+				"YubiHSM key {key_id} is not an EcP256 (secp256r1) key"
+			)));
+		}
+
+		// The HSM returns X || Y (64 bytes) without the SEC1 point tag, so the
+		// uncompressed 0x04 prefix must be prepended for `from_sec1_bytes`.
+		let mut encoded = Vec::with_capacity(65);
+		encoded.push(0x04);
+		encoded.extend_from_slice(&hsm_key.bytes);
+
+		let public_key = p256::elliptic_curve::PublicKey::<p256::NistP256>::from_sec1_bytes(&encoded)
+			.map_err(|e| {
+				WalletError::YubiHsmError(format!("YubiHSM returned an invalid public key: {e}"))
+			})?;
+
+		Ok(Self { client, key_id, public_key })
+	}
+
+	/// The [`p256::PublicKey`] corresponding to the key stored on the device.
+	pub fn public_key(&self) -> &p256::PublicKey {
+		&self.public_key
+	}
+
+	/// The object ID of the signing key on the device.
+	pub fn key_id(&self) -> object::Id {
+		self.key_id
+	}
+
+	/// The underlying YubiHSM client.
+	pub fn client(&self) -> &Client {
+		&self.client
+	}
+}
+
+#[cfg(feature = "yubi")]
+impl PrehashSigner<Signature> for YubiHsmSigner {
+	fn sign_prehash(&self, prehash: &[u8]) -> Result<Signature, signature::Error> {
+		let der = self
+			.client
+			.sign_ecdsa_prehash_raw(self.key_id, prehash.to_vec())
+			.map_err(|_| signature::Error::new())?;
+
+		Signature::from_der(&der).map_err(|_| signature::Error::new())
+	}
+}
+
+#[cfg(feature = "yubi")]
+impl WalletSigner<YubiHsmSigner> {
+	/// Connects to a YubiHSM2 ECDSA (secp256r1) account at the provided object ID.
 	pub fn connect(
 		connector: Connector,
 		credentials: Credentials,
@@ -26,14 +100,12 @@ impl WalletSigner<YubiSigner<NistP256>> {
 			WalletError::YubiHsmError(format!("Failed to open YubiHSM client: {e}"))
 		})?;
 
-		let signer = YubiSigner::create(client, id).map_err(|e| {
-			WalletError::YubiHsmError(format!("Failed to create YubiHSM signer: {e}"))
-		})?;
+		let signer = YubiHsmSigner::from_client(client, id)?;
 
 		Ok(signer.into())
 	}
 
-	/// Creates a new random ECDSA keypair on the yubi at the provided id
+	/// Creates a new random ECDSA keypair on the YubiHSM at the provided ID.
 	pub fn new(
 		connector: Connector,
 		credentials: Credentials,
@@ -46,19 +118,17 @@ impl WalletSigner<YubiSigner<NistP256>> {
 		})?;
 
 		let id = client
-			.generate_asymmetric_key(id, label, domain, Capability::SIGN_ECDSA, EcP256)
+			.generate_asymmetric_key(id, label, domain, Capability::SIGN_ECDSA, yubihsm::asymmetric::Algorithm::EcP256)
 			.map_err(|e| {
 				WalletError::YubiHsmError(format!("Failed to generate asymmetric key: {e}"))
 			})?;
 
-		let signer = YubiSigner::create(client, id).map_err(|e| {
-			WalletError::YubiHsmError(format!("Failed to create YubiHSM signer: {e}"))
-		})?;
+		let signer = YubiHsmSigner::from_client(client, id)?;
 
 		Ok(signer.into())
 	}
 
-	/// Uploads the provided keypair on the yubi at the provided id
+	/// Uploads the provided keypair on the YubiHSM at the provided ID.
 	pub fn from_key(
 		connector: Connector,
 		credentials: Credentials,
@@ -72,70 +142,33 @@ impl WalletSigner<YubiSigner<NistP256>> {
 		})?;
 
 		let id = client
-			.put_asymmetric_key(id, label, domain, Capability::SIGN_ECDSA, EcP256, key)
+			.put_asymmetric_key(id, label, domain, Capability::SIGN_ECDSA, yubihsm::asymmetric::Algorithm::EcP256, key)
 			.map_err(|e| WalletError::YubiHsmError(format!("Failed to put asymmetric key: {e}")))?;
 
-		let signer = YubiSigner::create(client, id).map_err(|e| {
-			WalletError::YubiHsmError(format!("Failed to create YubiHSM signer: {e}"))
-		})?;
+		let signer = YubiHsmSigner::from_client(client, id)?;
 
 		Ok(signer.into())
 	}
-
-	// /// Verifies a given message and signature.
-	// /// The message will be hashed using the `Sha256` algorithm before being verified.
-	// /// If the signature is valid, the method will return `Ok(())`, otherwise it will return a `WalletError`.
-	// /// # Arguments
-	// /// * `message` - The message to be verified.
-	// /// * `signature` - The signature to be verified.
-	// /// # Returns
-	// /// A `Result` containing `Ok(())` if the signature is valid, or a `WalletError` on failure.
-	// pub async fn verify_message(
-	// 	&self,
-	// 	message: &[u8],
-	// 	signature: &Signature<NistP256>,
-	// ) -> Result<(), WalletError> {
-	// 	let hash = message.hash256();
-	// 	// let hash = H256::from_slice(hash.as_slice());
-	// 	let verify_key = p256::ecdsa::VerifyingKey::from_encoded_point(self.signer.public_key()).unwrap();
-	// 	match verify_key.verify(hash, &signature) {
-	// 		Ok(_) => Ok(()),
-	// 		Err(_) => Err(WalletError::VerifyError),
-	// 	}
-	// 	// let signature: ecdsa::Signature<NistP256> = signer.sign(TEST_MESSAGE);
-	// }
 }
 
 #[cfg(feature = "yubi")]
-impl From<YubiSigner<NistP256>> for WalletSigner<YubiSigner<NistP256>> {
-	fn from(signer: YubiSigner<NistP256>) -> Self {
-		// this should never fail for a valid YubiSigner
-		let public_key = PublicKey::from_encoded_point(signer.public_key());
-		let public_key: Option<PublicKey> = public_key.into();
-		let Some(public_key) = public_key else {
-			// Log the error and create a fallback address instead of panicking
-			tracing::warn!(
-				"YubiSigner provided invalid public key, using zero address as fallback"
-			);
-			return Self { signer, address: Address::default(), network: None };
-		};
-		let public_key = public_key.to_encoded_point(true);
-		let public_key = public_key.as_bytes();
+impl From<YubiHsmSigner> for WalletSigner<YubiHsmSigner> {
+	fn from(signer: YubiHsmSigner) -> Self {
+		let compressed = signer.public_key().to_sec1_point(true);
+		let public_key_bytes = compressed.as_bytes();
 
 		// The first byte can be either 0x02 or 0x03 for compressed public keys
-		debug_assert!(public_key[0] == 0x02 || public_key[0] == 0x03);
+		debug_assert!(public_key_bytes[0] == 0x02 || public_key_bytes[0] == 0x03);
 
-		let secp_public_key = match Secp256r1PublicKey::from_bytes(public_key) {
-			Ok(key) => key,
+		let address = match Secp256r1PublicKey::from_bytes(public_key_bytes) {
+			Ok(secp_public_key) => public_key_to_address(&secp_public_key),
 			Err(_) => {
 				tracing::warn!(
-					"Failed to convert YubiSigner public key to Secp256r1PublicKey, using zero address as fallback"
+					"Failed to convert YubiHSM public key to Secp256r1PublicKey, using zero address as fallback"
 				);
-				return Self { signer, address: Address::default(), network: None };
+				Address::default()
 			},
 		};
-
-		let address = public_key_to_address(&secp_public_key);
 
 		Self { signer, address, network: None }
 	}
@@ -174,7 +207,8 @@ mod tests {
 			.await
 			.expect("Should be able to sign message");
 
-		let verify_key = p256::ecdsa::VerifyingKey::from_encoded_point(wallet.signer.public_key())
+		let compressed = wallet.signer().public_key().to_sec1_point(true);
+		let verify_key = p256::ecdsa::VerifyingKey::from_sec1_bytes(compressed.as_bytes())
 			.expect("Should be able to create verifying key from public key");
 
 		assert!(verify_key.verify(msg.as_bytes(), &sig).is_ok());
@@ -190,7 +224,7 @@ mod tests {
 	#[tokio::test]
 	async fn new_key() {
 		let connector = yubihsm::Connector::mockhsm();
-		let wallet = WalletSigner::<YubiSigner<NistP256>>::new(
+		let wallet = WalletSigner::<YubiHsmSigner>::new(
 			connector,
 			Credentials::default(),
 			0,
@@ -205,7 +239,8 @@ mod tests {
 			.await
 			.expect("Should be able to sign message");
 
-		let verify_key = p256::ecdsa::VerifyingKey::from_encoded_point(wallet.signer.public_key())
+		let compressed = wallet.signer().public_key().to_sec1_point(true);
+		let verify_key = p256::ecdsa::VerifyingKey::from_sec1_bytes(compressed.as_bytes())
 			.expect("Should be able to create verifying key from public key");
 
 		assert!(verify_key.verify(msg.as_bytes(), &sig).is_ok());
@@ -221,11 +256,9 @@ mod tests {
 		#[cfg(feature = "yubi")]
 		{
 			use crate::neo_wallets::WalletSigner;
-			use p256::NistP256;
 			use std::marker::PhantomData;
-			use yubihsm::ecdsa::Signer as YubiSigner;
 
-			let _phantom: PhantomData<WalletSigner<YubiSigner<NistP256>>> = PhantomData;
+			let _phantom: PhantomData<WalletSigner<YubiHsmSigner>> = PhantomData;
 		}
 
 		// Test that required error types exist

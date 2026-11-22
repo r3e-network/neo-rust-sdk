@@ -32,11 +32,10 @@
 //! converted to and from various formats for storage or transmission.
 //!
 //! ```
-//! use p256::elliptic_curve::rand_core::OsRng;
 //! use neo3::neo_crypto::Secp256r1PrivateKey;
 //!
 //! // Generate a new private key
-//! let private_key = Secp256r1PrivateKey::random(&mut OsRng);
+//! let private_key = Secp256r1PrivateKey::new_random();
 //!
 //! // Sign a message
 //! let message = b"Example message";
@@ -68,18 +67,21 @@ use crate::{
 };
 use p256::elliptic_curve::zeroize::Zeroize;
 use p256::{
-	EncodedPoint, FieldBytes, PublicKey, SecretKey,
+	NistP256,
 	ecdsa::{Signature, SigningKey, VerifyingKey, signature::Signer},
-	elliptic_curve::rand_core::OsRng,
-	elliptic_curve::sec1::{FromEncodedPoint, ToEncodedPoint},
+	elliptic_curve::{
+		FieldBytes, PublicKey, SecretKey,
+		sec1::{FromSec1Point, Sec1Point, ToSec1Point},
+	},
 };
 use primitive_types::U256;
+use rand_core::CryptoRng;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use signature::{Verifier, hazmat::PrehashSigner};
 
 #[derive(Debug, Clone)]
 pub struct Secp256r1PublicKey {
-	inner: PublicKey,
+	inner: PublicKey<NistP256>,
 }
 
 /// Private key for secp256r1 curve with automatic memory zeroization.
@@ -88,7 +90,7 @@ pub struct Secp256r1PublicKey {
 /// material is securely erased from memory when the key goes out of scope.
 #[derive(Clone)]
 pub struct Secp256r1PrivateKey {
-	inner: SecretKey,
+	inner: SecretKey<NistP256>,
 }
 
 impl fmt::Debug for Secp256r1PrivateKey {
@@ -156,9 +158,9 @@ impl Secp256r1PublicKey {
 		uncompressed_point.extend_from_slice(&gx);
 		uncompressed_point.extend_from_slice(&gy);
 
-		let encoded_point = EncodedPoint::from_bytes(&uncompressed_point).ok()?;
-		let public_key_option: Option<PublicKey> =
-			PublicKey::from_encoded_point(&encoded_point).into();
+		let encoded_point = Sec1Point::<NistP256>::from_bytes(&uncompressed_point).ok()?;
+		let public_key_option: Option<PublicKey<NistP256>> =
+			PublicKey::from_sec1_point(&encoded_point).into();
 		public_key_option.map(|inner| Secp256r1PublicKey { inner })
 	}
 
@@ -169,7 +171,7 @@ impl Secp256r1PublicKey {
 	/// - Parameter public_key: A `PublicKey` instance.
 	///
 	/// - Returns: A `Secp256r1PublicKey` instance.
-	pub fn from_public_key(public_key: PublicKey) -> Self {
+	pub fn from_public_key(public_key: PublicKey<NistP256>) -> Self {
 		Secp256r1PublicKey { inner: public_key }
 	}
 
@@ -186,9 +188,9 @@ impl Secp256r1PublicKey {
 			return Err(CryptoError::InvalidPublicKey);
 		}
 
-		let point = EncodedPoint::from_bytes(bytes).map_err(|_| CryptoError::InvalidPublicKey)?;
+		let point = Sec1Point::<NistP256>::from_bytes(bytes).map_err(|_| CryptoError::InvalidPublicKey)?;
 
-		let public_key_option: Option<PublicKey> = PublicKey::from_encoded_point(&point).into();
+		let public_key_option: Option<PublicKey<NistP256>> = PublicKey::from_sec1_point(&point).into();
 		public_key_option
 			.map(|inner| Self { inner })
 			.ok_or(CryptoError::InvalidPublicKey)
@@ -222,11 +224,11 @@ impl Secp256r1PublicKey {
 	///
 	/// - Returns: The encoded public key
 	pub fn get_encoded(&self, compressed: bool) -> Vec<u8> {
-		self.inner.to_encoded_point(compressed).as_bytes().to_vec()
+		self.inner.to_sec1_point(compressed).as_bytes().to_vec()
 	}
 
-	pub fn get_encoded_point(&self, compressed: bool) -> EncodedPoint {
-		self.inner.to_encoded_point(compressed)
+	pub fn get_encoded_point(&self, compressed: bool) -> Sec1Point<NistP256> {
+		self.inner.to_sec1_point(compressed)
 	}
 
 	/// Gets this public key's elliptic curve point encoded as defined in section 2.3.3 of [SEC1](http://www.secg.org/sec1-v2.pdf)
@@ -255,7 +257,7 @@ impl Secp256r1PublicKey {
 
 	#[allow(dead_code)]
 	fn get_size(&self) -> usize {
-		if self.inner.to_encoded_point(false).is_identity() {
+		if self.inner.to_sec1_point(false).is_identity() {
 			1
 		} else {
 			NeoConstants::PUBLIC_KEY_SIZE_COMPRESSED as usize
@@ -264,23 +266,23 @@ impl Secp256r1PublicKey {
 }
 
 impl Secp256r1PrivateKey {
-	/// Generates a new private key using the provided random number generator (RNG).
-	///
-	/// - Parameter rng: A mutable reference to an `OsRng` instance.
+	/// Generates a new private key using the system's ambient cryptographically
+	/// secure random number generator.
 	///
 	/// - Returns: A new instance of the private key.
 	pub fn new_random() -> Self {
-		let mut rng = OsRng;
-		Self::random(&mut rng)
+		use elliptic_curve::Generate as _;
+		Self { inner: SecretKey::generate() }
 	}
 
 	/// Generates a new private key using the provided random number generator (RNG).
 	///
-	/// - Parameter rng: A mutable reference to an `OsRng` instance.
+	/// - Parameter rng: A mutable reference to a cryptographically secure RNG.
 	///
 	/// - Returns: A new instance of the private key.
-	pub fn random(rng: &mut OsRng) -> Self {
-		Self { inner: SecretKey::random(rng) }
+	pub fn random(rng: &mut impl CryptoRng) -> Self {
+		use elliptic_curve::Generate as _;
+		Self { inner: SecretKey::generate_from_rng(rng) }
 	}
 
 	/// Creates a private key from a byte slice.
@@ -370,8 +372,8 @@ impl Secp256r1Signature {
 	/// - Returns: A `Result<Secp256r1Signature, CryptoError>`. Returns error if the values
 	///   do not form a valid signature.
 	pub fn from_scalars(r: &[u8; 32], s: &[u8; 32]) -> Result<Self, CryptoError> {
-		let r_field: FieldBytes = (*r).into();
-		let s_field: FieldBytes = (*s).into();
+		let r_field: FieldBytes<NistP256> = (*r).into();
+		let s_field: FieldBytes<NistP256> = (*s).into();
 
 		let signature = Signature::from_scalars(r_field, s_field)
 			.map_err(|_| CryptoError::SignatureVerificationError)?;
@@ -422,8 +424,8 @@ impl Secp256r1Signature {
 	///
 	/// - Returns: A 64-byte array representing the signature.
 	pub fn to_bytes(&self) -> [u8; 64] {
-		let r_bytes: FieldBytes = self.inner.r().into();
-		let s_bytes: FieldBytes = self.inner.s().into();
+		let r_bytes: FieldBytes<NistP256> = self.inner.r().into();
+		let s_bytes: FieldBytes<NistP256> = self.inner.s().into();
 
 		let mut bytes = [0u8; 64];
 		bytes[..32].copy_from_slice(r_bytes.as_ref());
@@ -444,7 +446,7 @@ impl fmt::Display for Secp256r1PublicKey {
 		writeln!(
 			f,
 			"Secp256r1PublicKey: {}",
-			hex::encode(self.inner.to_encoded_point(false).as_bytes())
+			hex::encode(self.inner.to_sec1_point(false).as_bytes())
 		)
 	}
 }
@@ -668,7 +670,7 @@ impl NeoSerializable for Secp256r1PublicKey {
 #[cfg(test)]
 mod tests {
 	use hex_literal::hex;
-	use p256::EncodedPoint;
+	use p256::{NistP256, elliptic_curve::sec1::Sec1Point};
 
 	use crate::{
 		codec::{Decoder, NeoSerializable},
@@ -688,7 +690,7 @@ mod tests {
 		let expected_y = hex!("5f4f7fb1c5862465543c06dd5a2aa414f6583f92a5cc3e1d4259df79bf6839c9");
 
 		let expected_ec_point =
-			EncodedPoint::from_affine_coordinates(&expected_x.into(), &expected_y.into(), false);
+			Sec1Point::<NistP256>::from_affine_coordinates(&expected_x.into(), &expected_y.into(), false);
 
 		let enc_ec_point = "03b4af8d061b6b320cce6c63bc4ec7894dce107bfc5f5ef5c68a93b4ad1e136816";
 		let enc_ec_point_bytes = hex::decode(enc_ec_point).unwrap();

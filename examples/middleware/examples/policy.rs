@@ -1,4 +1,3 @@
-use chrono::Timelike;
 use neo3::{
 	neo_clients::{HttpProvider, RpcClient},
 	neo_types::ScriptHash,
@@ -243,19 +242,19 @@ impl TransactionPolicy for WhitelistPolicy {
 
 /// Time-based policy (business hours only)
 struct TimeBasedPolicy {
-	start_hour: u32,
-	end_hour: u32,
+	start_hour: u8,
+	end_hour: u8,
 }
 
 impl TimeBasedPolicy {
-	fn new(start_hour: u32, end_hour: u32) -> Self {
+	fn new(start_hour: u8, end_hour: u8) -> Self {
 		Self { start_hour, end_hour }
 	}
 }
 
 impl TransactionPolicy for TimeBasedPolicy {
 	fn validate(&self, _transaction: &TransactionRequest) -> PolicyResult {
-		let current_hour = chrono::Utc::now().hour();
+		let current_hour = time::OffsetDateTime::now_utc().hour();
 
 		if current_hour < self.start_hour || current_hour >= self.end_hour {
 			Err(format!(

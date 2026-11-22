@@ -65,7 +65,6 @@ use std::{
 	fmt,
 };
 
-use elliptic_curve::sec1::ToEncodedPoint;
 use hex;
 use primitive_types::{H160, H256, U256};
 use reqwest::Url;

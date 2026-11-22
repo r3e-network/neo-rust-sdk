@@ -16,7 +16,7 @@
 //! This module provides functionality for managing NeoFS objects.
 //! Objects in NeoFS are the actual data files stored in containers.
 
-use chrono::{DateTime, Utc};
+use time::OffsetDateTime;
 use serde::{Deserialize, Serialize};
 
 use crate::neo_fs::types::{Attributes, ContainerId, ObjectId, ObjectType, OwnerId};
@@ -39,8 +39,8 @@ pub struct Object {
 	pub attributes: Attributes,
 	/// Creation timestamp
 	#[serde(skip_serializing_if = "Option::is_none")]
-	#[serde(with = "chrono::serde::ts_seconds_option")]
-	pub created_at: Option<DateTime<Utc>>,
+	#[serde(with = "time::serde::timestamp::option")]
+	pub created_at: Option<OffsetDateTime>,
 }
 
 impl Object {

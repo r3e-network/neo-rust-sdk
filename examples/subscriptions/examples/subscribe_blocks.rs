@@ -225,13 +225,18 @@ impl<'a> BlockMonitor<'a> {
 
 /// Print detailed block information
 fn print_block_info(block: &BlockInfo) {
-	let datetime = chrono::DateTime::from_timestamp(block.timestamp as i64 / 1000, 0)
-		.unwrap_or_else(chrono::Utc::now);
+	let datetime = time::OffsetDateTime::from_unix_timestamp(block.timestamp as i64 / 1000)
+		.unwrap_or_else(|_| time::OffsetDateTime::now_utc());
 
 	println!("\n   📦 New Block Received:");
 	let index = block.index;
 	let hash = &block.hash;
-	let formatted_time = datetime.format("%Y-%m-%d %H:%M:%S UTC");
+	let format_description =
+		time::format_description::parse_borrowed::<2>("[year]-[month]-[day] [hour]:[minute]:[second] UTC")
+			.unwrap_or_else(|_| Vec::new());
+	let formatted_time = datetime
+		.format(format_description.as_slice())
+		.unwrap_or_default();
 	let timestamp = block.timestamp;
 	let tx_count = block.transaction_count;
 	let size = block.size;

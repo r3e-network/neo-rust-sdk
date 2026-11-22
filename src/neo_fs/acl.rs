@@ -15,7 +15,7 @@
 //!
 //! This module provides types and functions for working with NeoFS access control.
 
-use chrono::{DateTime, Utc};
+use time::OffsetDateTime;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -165,7 +165,7 @@ pub struct BearerToken {
 	/// Token ID
 	pub token_id: String,
 	/// When the token expires
-	pub expiration: DateTime<Utc>,
+	pub expiration: OffsetDateTime,
 	/// Allowed operations
 	pub operations: Vec<AccessPermission>,
 	/// Container this token grants access to
@@ -195,7 +195,7 @@ pub struct SessionToken {
 	/// Identity of the user
 	pub owner_id: OwnerId,
 	/// When the session expires
-	pub expiration: DateTime<Utc>,
+	pub expiration: OffsetDateTime,
 	/// Session key
 	pub session_key: String,
 	/// Signature to validate the session

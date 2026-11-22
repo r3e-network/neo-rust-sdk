@@ -11,8 +11,6 @@
 //! This type implements `ZeroizeOnDrop` to ensure that the private key is securely
 //! erased from memory when the key pair is dropped.
 
-use p256::elliptic_curve::rand_core::OsRng;
-
 use crate::{
 	builder::VerificationScript,
 	crypto::{
@@ -158,8 +156,7 @@ impl KeyPair {
 impl KeyPair {
 	/// Generates a new random `KeyPair`.
 	pub fn new_random() -> Self {
-		let mut rng = OsRng; // A cryptographically secure random number generator
-		let secret_key = Secp256r1PrivateKey::random(&mut rng);
+		let secret_key = Secp256r1PrivateKey::new_random();
 		Self::from_secret_key(&secret_key)
 	}
 

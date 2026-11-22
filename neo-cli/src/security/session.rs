@@ -1,7 +1,8 @@
 #![allow(dead_code)]
 
 use crate::errors::CliError;
-use chrono::{DateTime, Duration, Utc};
+use time::OffsetDateTime;
+use time::Duration;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
@@ -39,9 +40,9 @@ impl Default for SessionConfig {
 pub struct Session {
 	pub id: String,
 	pub user_id: String,
-	pub created_at: DateTime<Utc>,
-	pub last_activity: DateTime<Utc>,
-	pub expires_at: DateTime<Utc>,
+	pub created_at: OffsetDateTime,
+	pub last_activity: OffsetDateTime,
+	pub expires_at: OffsetDateTime,
 	pub metadata: HashMap<String, String>,
 	pub permissions: Vec<String>,
 	pub is_active: bool,
@@ -49,7 +50,7 @@ pub struct Session {
 
 impl Session {
 	pub fn new(user_id: &str, config: &SessionConfig) -> Self {
-		let now = Utc::now();
+		let now = OffsetDateTime::now_utc();
 		Self {
 			id: Uuid::new_v4().to_string(),
 			user_id: user_id.to_string(),
@@ -64,17 +65,17 @@ impl Session {
 
 	/// Check if session is expired
 	pub fn is_expired(&self) -> bool {
-		Utc::now() > self.expires_at || !self.is_active
+		OffsetDateTime::now_utc() > self.expires_at || !self.is_active
 	}
 
 	/// Check if session is idle
 	pub fn is_idle(&self, timeout: Duration) -> bool {
-		Utc::now() - self.last_activity > timeout
+		OffsetDateTime::now_utc() - self.last_activity > timeout
 	}
 
 	/// Update last activity timestamp
 	pub fn touch(&mut self) {
-		self.last_activity = Utc::now();
+		self.last_activity = OffsetDateTime::now_utc();
 	}
 
 	/// Invalidate the session
@@ -186,7 +187,7 @@ impl SessionManager {
 		}
 
 		// Extend expiration
-		session.expires_at = Utc::now() + self.config.max_duration;
+		session.expires_at = OffsetDateTime::now_utc() + self.config.max_duration;
 		session.touch();
 
 		if self.config.persistent {

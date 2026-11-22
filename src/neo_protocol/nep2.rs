@@ -20,10 +20,8 @@
 //! use neo3::prelude::*;
 //! use neo3::neo_crypto::{KeyPair, Secp256r1PrivateKey};
 //! use neo3::neo_protocol::NEP2;
-//! use p256::elliptic_curve::rand_core::OsRng;
-//!
 //! // Generate a key pair
-//! let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::random(&mut OsRng));
+//! let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::new_random());
 //!
 //! // Encrypt the key pair
 //! let encrypted = NEP2::encrypt("my-secure-password", &key_pair).expect("Encryption failed");
@@ -38,14 +36,13 @@
 //! use neo3::prelude::*;
 //! use neo3::neo_crypto::{KeyPair, Secp256r1PrivateKey};
 //! use neo3::neo_protocol::NEP2;
-//! use p256::elliptic_curve::rand_core::OsRng;
 //! use scrypt::Params;
 //!
 //! // Generate a key pair
-//! let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::random(&mut OsRng));
+//! let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::new_random());
 //!
 //! // Custom scrypt parameters (more secure but slower)
-//! let params = Params::new(15, 8, 8, 32).unwrap();
+//! let params = Params::new(15, 8, 8).unwrap();
 //!
 //! // Encrypt the key pair with custom parameters
 //! let encrypted = NEP2::encrypt_with_params("my-secure-password", &key_pair, params.clone())
@@ -106,10 +103,8 @@ impl NEP2 {
 	/// use neo3::prelude::*;
 	/// use neo3::neo_crypto::{KeyPair, Secp256r1PrivateKey};
 	/// use neo3::neo_protocol::NEP2;
-	/// use p256::elliptic_curve::rand_core::OsRng;
-	///
 	/// // Generate a key pair
-	/// let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::random(&mut OsRng));
+	/// let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::new_random());
 	///
 	/// // Encrypt the key pair
 	/// let encrypted = NEP2::encrypt("my-secure-password", &key_pair).expect("Encryption failed");
@@ -138,14 +133,13 @@ impl NEP2 {
 	/// use neo3::prelude::*;
 	/// use neo3::neo_crypto::{KeyPair, Secp256r1PrivateKey};
 	/// use neo3::neo_protocol::NEP2;
-	/// use p256::elliptic_curve::rand_core::OsRng;
 	/// use scrypt::Params;
 	///
 	/// // Generate a key pair
-	/// let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::random(&mut OsRng));
+	/// let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::new_random());
 	///
 	/// // Custom scrypt parameters
-	/// let params = Params::new(15, 8, 8, 32).unwrap();
+	/// let params = Params::new(15, 8, 8).unwrap();
 	///
 	/// // Encrypt with custom parameters
 	/// let encrypted = NEP2::encrypt_with_params("my-secure-password", &key_pair, params)
@@ -223,10 +217,9 @@ impl NEP2 {
 	/// use neo3::prelude::*;
 	/// use neo3::neo_crypto::{KeyPair, Secp256r1PrivateKey};
 	/// use neo3::neo_protocol::NEP2;
-	/// use p256::elliptic_curve::rand_core::OsRng;
 	///
 	/// // First encrypt a key pair
-	/// let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::random(&mut OsRng));
+	/// let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::new_random());
 	/// let encrypted = NEP2::encrypt("my-password", &key_pair).expect("Encryption failed");
 	///
 	/// // Then decrypt it back
@@ -256,12 +249,11 @@ impl NEP2 {
 	/// use neo3::prelude::*;
 	/// use neo3::neo_crypto::{KeyPair, Secp256r1PrivateKey};
 	/// use neo3::neo_protocol::NEP2;
-	/// use p256::elliptic_curve::rand_core::OsRng;
 	/// use scrypt::Params;
 	///
 	/// // First encrypt a key pair with custom parameters
-	/// let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::random(&mut OsRng));
-	/// let params = Params::new(15, 8, 8, 32).unwrap();
+	/// let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::new_random());
+	/// let params = Params::new(15, 8, 8).unwrap();
 	/// let encrypted = NEP2::encrypt_with_params("my-password", &key_pair, params.clone())
 	///     .expect("Encryption failed");
 	///
@@ -374,7 +366,7 @@ impl NEP2 {
 	fn get_default_scrypt_params() -> Result<Params, Nep2Error> {
 		// SECURITY: Always use production parameters to prevent accidental
 		// weakening of security through environment variable manipulation
-		Params::new(NeoConstants::SCRYPT_LOG_N, NeoConstants::SCRYPT_R, NeoConstants::SCRYPT_P, 32)
+		Params::new(NeoConstants::SCRYPT_LOG_N, NeoConstants::SCRYPT_R, NeoConstants::SCRYPT_P)
 			.map_err(|e| Nep2Error::ScryptError(e.to_string()))
 	}
 
@@ -390,7 +382,7 @@ impl NEP2 {
 	#[allow(dead_code)] // Reserved for future test cases requiring fast scrypt params
 	pub(crate) fn get_test_scrypt_params() -> Result<Params, Nep2Error> {
 		// N=1024 (2^10), r=8, p=1 - fast for testing but NOT secure for production
-		Params::new(10, 8, 1, 32).map_err(|e| Nep2Error::ScryptError(e.to_string()))
+		Params::new(10, 8, 1).map_err(|e| Nep2Error::ScryptError(e.to_string()))
 	}
 
 	/// Gets the scrypt parameters used in the NEP2 test vectors.
@@ -401,7 +393,7 @@ impl NEP2 {
 	///
 	/// The scrypt parameters for test vectors (N=16384, r=8, p=1, dklen=32)
 	fn get_test_vector_scrypt_params() -> Result<Params, Nep2Error> {
-		Params::new(14, 8, 1, 32).map_err(|e| Nep2Error::ScryptError(e.to_string()))
+		Params::new(14, 8, 1).map_err(|e| Nep2Error::ScryptError(e.to_string()))
 	}
 
 	/// Encrypts a KeyPair for test vector compatibility.
@@ -728,9 +720,8 @@ mod tests {
 	#[tokio::test]
 	async fn test_async_encrypt_decrypt_roundtrip_matches_sync() {
 		use crate::crypto::Secp256r1PrivateKey;
-		use p256::elliptic_curve::rand_core::OsRng;
 
-		let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::random(&mut OsRng));
+		let key_pair = KeyPair::from_secret_key(&Secp256r1PrivateKey::new_random());
 
 		let encrypted = NEP2::encrypt_async("roundtrip-passphrase", &key_pair)
 			.await
@@ -785,7 +776,7 @@ mod tests {
 		let key_pair = KeyPair::from_private_key(&key_array).unwrap();
 
 		// Use different parameters (log_n=13 for faster testing)
-		let params = Params::new(13, 8, 8, 32).unwrap();
+		let params = Params::new(13, 8, 8).unwrap();
 
 		let encrypted =
 			NEP2::encrypt_with_params(TestConstants::DEFAULT_ACCOUNT_PASSWORD, &key_pair, params)

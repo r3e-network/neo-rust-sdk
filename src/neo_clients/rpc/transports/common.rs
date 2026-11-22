@@ -417,7 +417,9 @@ pub struct JwtAuth {
 impl JwtAuth {
 	/// Create a new [JwtAuth] from a secret key, and optional `id` and `clv` claims.
 	pub fn new(secret: JwtKey, id: Option<String>, clv: Option<String>) -> Self {
-		Self { key: EncodingKey::from_secret(secret.as_bytes()), id, clv }
+		let key = EncodingKey::from_secret(secret.as_bytes())
+			.expect("JWT key encoding is infallible for fixed-length secrets");
+		Self { key, id, clv }
 	}
 
 	/// Generate a JWT token with `claims.iat` set to current time.
@@ -446,11 +448,10 @@ impl JwtAuth {
 		validation.validate_exp = false;
 		validation.required_spec_claims.remove("exp");
 
-		jsonwebtoken::decode::<Claims>(
-			token,
-			&jsonwebtoken::DecodingKey::from_secret(secret.as_bytes()),
-			&validation,
-		)
+		let decoding_key = jsonwebtoken::DecodingKey::from_secret(secret.as_bytes())
+			.expect("JWT key decoding is infallible for fixed-length secrets");
+
+		jsonwebtoken::decode::<Claims>(token, &decoding_key, &validation)
 	}
 }
 

@@ -359,7 +359,7 @@ impl ProductionRpcClient {
 
 		serde_json::json!({
 			"status": if cb_stats.current_state == crate::neo_clients::CircuitState::Open { "unhealthy" } else { "healthy" },
-			"timestamp": chrono::Utc::now().to_rfc3339(),
+			"timestamp": time::OffsetDateTime::now_utc().format(&time::format_description::well_known::Rfc3339).unwrap_or_default(),
 			"stats": {
 				"total_requests": stats.total_requests,
 				"success_rate": if stats.total_requests > 0 {

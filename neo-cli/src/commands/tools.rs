@@ -360,7 +360,7 @@ async fn handle_decode(
 
 	// Format output
 	let output = if output_format.eq_ignore_ascii_case("file") {
-		let filename = format!("decoded_output_{}.bin", chrono::Utc::now().timestamp());
+		let filename = format!("decoded_output_{}.bin", time::OffsetDateTime::now_utc().unix_timestamp());
 		std::fs::write(&filename, &decoded).map_err(|e| CliError::Io(e))?;
 		format!("Saved to file: {}", filename)
 	} else {

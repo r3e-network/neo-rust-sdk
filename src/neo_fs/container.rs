@@ -15,7 +15,7 @@
 //!
 //! This module provides types and functions for working with NeoFS containers.
 
-use chrono::{DateTime, Utc};
+use time::OffsetDateTime;
 use serde::{Deserialize, Serialize};
 
 use crate::neo_fs::types::{Attributes, ContainerId, OwnerId, PlacementPolicy};
@@ -52,8 +52,8 @@ pub struct Container {
 
 	/// Container creation timestamp
 	#[serde(skip_serializing_if = "Option::is_none")]
-	#[serde(with = "chrono::serde::ts_seconds_option")]
-	pub creation: Option<DateTime<Utc>>,
+	#[serde(with = "time::serde::timestamp::option")]
+	pub creation: Option<OffsetDateTime>,
 
 	/// Container version
 	pub version: Option<Version>,
@@ -96,7 +96,7 @@ impl Container {
 
 	/// Sets the container creation timestamp
 	#[must_use]
-	pub fn with_creation(mut self, creation: DateTime<Utc>) -> Self {
+	pub fn with_creation(mut self, creation: OffsetDateTime) -> Self {
 		self.creation = Some(creation);
 		self
 	}

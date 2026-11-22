@@ -1,6 +1,23 @@
 #![allow(dead_code, unused_imports)]
 
-use chrono::Local;
+use time::{OffsetDateTime, format_description};
+
+/// Formats a timestamp as `YYYY-MM-DD HH:MM:SS.mmm` (local time when available).
+fn format_local_timestamp(datetime: OffsetDateTime, subseconds: bool) -> String {
+	let pattern = if subseconds {
+		"[year]-[month]-[day] [hour]:[minute]:[second].[subsecond digits:3]"
+	} else {
+		"[hour]:[minute]:[second]"
+	};
+	let description =
+		format_description::parse_borrowed::<2>(pattern).expect("static format description is valid");
+	datetime.format(&description).unwrap_or_default()
+}
+
+/// Current local time, falling back to UTC if the local offset is unavailable.
+fn now_local_or_utc() -> OffsetDateTime {
+	OffsetDateTime::now_local().unwrap_or_else(|_| OffsetDateTime::now_utc())
+}
 use env_logger::Builder;
 use log::{Level, LevelFilter, Record};
 use serde::{Deserialize, Serialize};
@@ -99,7 +116,7 @@ pub fn init_logger(config: LoggerConfig) -> Result<(), Box<dyn std::error::Error
 				}
 
 				let timestamp = if config.enable_timestamps {
-					format!("[{}] ", Local::now().format("%Y-%m-%d %H:%M:%S%.3f"))
+					format!("[{}] ", format_local_timestamp(now_local_or_utc(), true))
 				} else {
 					String::new()
 				};
@@ -134,7 +151,7 @@ pub fn init_logger(config: LoggerConfig) -> Result<(), Box<dyn std::error::Error
 		LogFormat::Json => {
 			builder.format(move |buf, record| {
 				let entry = JsonLogEntry {
-					timestamp: Local::now().to_rfc3339(),
+					timestamp: now_local_or_utc().format(&time::format_description::well_known::Rfc3339).unwrap_or_default(),
 					level: record.level().to_string(),
 					target: record.target().to_string(),
 					message: format!("{}", record.args()),
@@ -160,7 +177,7 @@ pub fn init_logger(config: LoggerConfig) -> Result<(), Box<dyn std::error::Error
 			builder.format(move |buf, record| {
 				let log_line = format!(
 					"{} {} {}\n",
-					Local::now().format("%H:%M:%S"),
+					format_local_timestamp(now_local_or_utc(), false),
 					record.level().to_string().chars().next().unwrap(),
 					record.args()
 				);
@@ -322,7 +339,7 @@ impl AuditLogger {
 		metadata: std::collections::HashMap<String, String>,
 	) -> Result<(), std::io::Error> {
 		let entry = AuditEntry {
-			timestamp: Local::now().to_rfc3339(),
+			timestamp: now_local_or_utc().format(&time::format_description::well_known::Rfc3339).unwrap_or_default(),
 			user: user.map(|s| s.to_string()),
 			operation: operation.to_string(),
 			resource: resource.map(|s| s.to_string()),

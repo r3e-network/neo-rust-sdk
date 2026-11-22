@@ -151,7 +151,7 @@ impl Wallet {
 	}
 
 	fn effective_scrypt_params(&self) -> Params {
-		Params::new(self.scrypt_params.log_n, self.scrypt_params.r, self.scrypt_params.p, 32)
+		Params::new(self.scrypt_params.log_n, self.scrypt_params.r, self.scrypt_params.p)
 			.unwrap_or_else(|e| {
 				tracing::warn!(
 					error = %e,
@@ -160,18 +160,13 @@ impl Wallet {
 					p = self.scrypt_params.p,
 					"Invalid scrypt params; falling back to Neo defaults"
 				);
-				Params::new(
-					NeoConstants::SCRYPT_LOG_N,
-					NeoConstants::SCRYPT_R,
-					NeoConstants::SCRYPT_P,
-					32,
-				)
-				.unwrap_or_else(|e| {
+				Params::new(NeoConstants::SCRYPT_LOG_N, NeoConstants::SCRYPT_R, NeoConstants::SCRYPT_P)
+					.unwrap_or_else(|e| {
 					tracing::error!(
 						error = %e,
 						"Neo default scrypt parameters are invalid; falling back to scrypt recommended params"
 					);
-					Params::recommended()
+					Params::RECOMMENDED
 				})
 			})
 	}

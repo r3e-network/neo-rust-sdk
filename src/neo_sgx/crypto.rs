@@ -15,7 +15,7 @@ use super::SgxError;
 #[cfg(not(feature = "sgx"))]
 use k256::ecdsa::{Signature, SigningKey, VerifyingKey};
 #[cfg(not(feature = "sgx"))]
-use k256::{EncodedPoint, PublicKey};
+use k256::{PublicKey, elliptic_curve::sec1::Sec1Point};
 #[cfg(not(feature = "sgx"))]
 use sha2::{Digest, Sha256};
 
@@ -53,15 +53,16 @@ impl SgxCrypto {
 
 		#[cfg(not(feature = "sgx"))]
 		{
-			use k256::elliptic_curve::sec1::FromEncodedPoint;
+			use k256::elliptic_curve::sec1::FromSec1Point as _;
 
 			// Build encoded point
 			let mut encoded_pub = vec![0x04];
 			encoded_pub.extend_from_slice(public_key);
 
-			let point = EncodedPoint::from_bytes(&encoded_pub)
+			let point = Sec1Point::from_bytes(&encoded_pub)
 				.map_err(|_| SgxError::CryptoError("Invalid public key".to_string()))?;
-			let verifying_key = PublicKey::from_encoded_point(&point)
+			let verifying_key = PublicKey::from_sec1_point(&point)
+				.into_option()
 				.ok_or_else(|| SgxError::CryptoError("Invalid public key point".to_string()))?;
 
 			let signing_key = SigningKey::from_slice(private_key)
@@ -296,10 +297,10 @@ impl SgxCrypto {
 
 		#[cfg(not(feature = "sgx"))]
 		{
-			use rand_core::OsRng;
-			let signing_key = SigningKey::random(&mut OsRng);
+			use k256::elliptic_curve::{Generate as _, sec1::ToSec1Point as _};
+			let signing_key = SigningKey::generate();
 			let verify_key: VerifyingKey = signing_key.verifying_key();
-			let encoded: EncodedPoint = PublicKey::from(&verify_key).to_encoded_point(false);
+			let encoded = PublicKey::from(verify_key).to_sec1_point(false);
 			let bytes = encoded.as_bytes();
 			if bytes.len() != 65 || bytes[0] != 0x04 {
 				return Err(SgxError::CryptoError("Unexpected public key encoding".into()));

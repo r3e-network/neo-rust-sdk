@@ -12,24 +12,16 @@ yanked = "deny"
 
 # Temporarily ignored advisories (no upstream fix available)
 ignore = [
-    # RUSTSEC-2023-0071: rsa crate Marvin Attack timing sidechannel.
-    # jsonwebtoken's RustCrypto provider enables rsa 0.9.x, but the SDK only exposes HS256.
-    # No patched rsa 0.9.x version exists yet.
-    # Tracked: https://rustsec.org/advisories/RUSTSEC-2023-0071
-    "RUSTSEC-2023-0071",
-
-    # RUSTSEC-2026-0543 — `chrono` unmaintained
-    # (chronotope/chrono#1768). Direct dependency used for RFC 3339 timestamps in
-    # the filesystem/ACL/numeric modules. No known vulnerability; upstream
-    # recommends migrating to `time` or `jiff`. Tracked as a follow-up task;
-    # remove once chrono usage is migrated.
-    "RUSTSEC-2026-0543",
-
     # RUSTSEC-2026-0387 — timing variability in `crypto-bigint` ops. The patched
-    # line is 0.7.x, but the SDK reaches crypto-bigint 0.5.5 via
-    # elliptic-curve 0.13 / p256 0.13 / p384 0.13; the fix requires migrating to
-    # elliptic-curve 0.14 + p256/p384 0.14 (RustCrypto trait rework). Tracked as
-    # a follow-up; remove after that migration lands.
+    # line is 0.7.x. The SDK's own crypto stack now uses elliptic-curve 0.14 /
+    # p256 0.14 / k256 0.14 (crypto-bigint 0.7), but crypto-bigint 0.5.5 is
+    # still reached through third-party dependencies that have not migrated to
+    # the RustCrypto 0.14 line yet:
+    #   - alloy 2.x (EVM layer) via k256 0.13 / elliptic-curve 0.13
+    #   - yubihsm 0.42 (HSM feature) via p256 0.13 / elliptic-curve 0.13
+    # Both fixes are upstream-blocked: yubihsm's main branch already migrated
+    # (awaiting a 0.43 release), alloy has no 0.14-based release yet.
+    # Remove once both upstream dependencies ship their migrations.
     "RUSTSEC-2026-0387",
 ]
 

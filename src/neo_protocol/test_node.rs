@@ -128,7 +128,7 @@
 //! Experimental items are functional but their signatures or semantics may be
 //! refined as the emulator matures toward the v3.3.0 developer-experience goals.
 
-use chrono::{DateTime, Utc};
+use time::OffsetDateTime;
 use primitive_types::{H160, H256, U256};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -345,7 +345,7 @@ impl From<&str> for TestNodeError {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NodeSnapshot {
 	/// Snapshot timestamp
-	pub timestamp: DateTime<Utc>,
+	pub timestamp: OffsetDateTime,
 	/// Block height at snapshot time
 	pub block_height: u32,
 	/// Ledger state hash
@@ -524,7 +524,11 @@ impl TestNode {
 			contracts: Arc::new(RwLock::new(HashMap::new())),
 			faults: Arc::new(RwLock::new(HashMap::new())),
 			response_delay_ms: 0,
-			timestamp_base: Utc::now().timestamp_millis() as u64 / 1000 * 1000,
+			timestamp_base:
+				((OffsetDateTime::now_utc() - OffsetDateTime::UNIX_EPOCH).whole_milliseconds()
+					as u64)
+					/ 1000
+					* 1000,
 		}
 	}
 
@@ -818,7 +822,7 @@ impl TestNode {
 		}
 
 		let snapshot = NodeSnapshot {
-			timestamp: Utc::now(),
+			timestamp: OffsetDateTime::now_utc(),
 			block_height: ledger.block_height,
 			state_root_hash: ledger.state_root,
 			account_balances,

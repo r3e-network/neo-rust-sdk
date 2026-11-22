@@ -306,7 +306,7 @@ impl CircuitBreaker {
 #[derive(Debug, Clone)]
 pub struct ErrorContext {
 	pub operation: String,
-	pub timestamp: chrono::DateTime<chrono::Utc>,
+	pub timestamp: time::OffsetDateTime,
 	pub context: std::collections::HashMap<String, String>,
 	pub stack_trace: Option<String>,
 }
@@ -315,7 +315,7 @@ impl ErrorContext {
 	pub fn new(operation: &str) -> Self {
 		Self {
 			operation: operation.to_string(),
-			timestamp: chrono::Utc::now(),
+			timestamp: time::OffsetDateTime::now_utc(),
 			context: std::collections::HashMap::new(),
 			stack_trace: None,
 		}
