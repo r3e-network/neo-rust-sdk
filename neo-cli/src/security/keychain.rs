@@ -376,7 +376,12 @@ impl SecureWalletStorage {
 			data: private_key.to_vec(),
 			metadata: HashMap::from([
 				("type".to_string(), "private_key".to_string()),
-				("created".to_string(), time::OffsetDateTime::now_utc().format(&time::format_description::well_known::Rfc3339).unwrap_or_default()),
+				(
+					"created".to_string(),
+					time::OffsetDateTime::now_utc()
+						.format(&time::format_description::well_known::Rfc3339)
+						.unwrap_or_default(),
+				),
 			]),
 		};
 
@@ -396,7 +401,12 @@ impl SecureWalletStorage {
 			data: mnemonic.as_bytes().to_vec(),
 			metadata: HashMap::from([
 				("type".to_string(), "mnemonic".to_string()),
-				("created".to_string(), time::OffsetDateTime::now_utc().format(&time::format_description::well_known::Rfc3339).unwrap_or_default()),
+				(
+					"created".to_string(),
+					time::OffsetDateTime::now_utc()
+						.format(&time::format_description::well_known::Rfc3339)
+						.unwrap_or_default(),
+				),
 			]),
 		};
 

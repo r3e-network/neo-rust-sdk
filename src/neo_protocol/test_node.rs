@@ -128,13 +128,13 @@
 //! Experimental items are functional but their signatures or semantics may be
 //! refined as the emulator matures toward the v3.3.0 developer-experience goals.
 
-use time::OffsetDateTime;
 use primitive_types::{H160, H256, U256};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::RwLock;
+use time::OffsetDateTime;
 
 // =============================================================================
 // Configuration Types
@@ -524,11 +524,9 @@ impl TestNode {
 			contracts: Arc::new(RwLock::new(HashMap::new())),
 			faults: Arc::new(RwLock::new(HashMap::new())),
 			response_delay_ms: 0,
-			timestamp_base:
-				((OffsetDateTime::now_utc() - OffsetDateTime::UNIX_EPOCH).whole_milliseconds()
-					as u64)
-					/ 1000
-					* 1000,
+			timestamp_base: ((OffsetDateTime::now_utc() - OffsetDateTime::UNIX_EPOCH)
+				.whole_milliseconds() as u64)
+				/ 1000 * 1000,
 		}
 	}
 

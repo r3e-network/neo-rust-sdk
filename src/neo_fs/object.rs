@@ -16,8 +16,8 @@
 //! This module provides functionality for managing NeoFS objects.
 //! Objects in NeoFS are the actual data files stored in containers.
 
-use time::OffsetDateTime;
 use serde::{Deserialize, Serialize};
+use time::OffsetDateTime;
 
 use crate::neo_fs::types::{Attributes, ContainerId, ObjectId, ObjectType, OwnerId};
 

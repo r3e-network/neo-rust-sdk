@@ -15,8 +15,8 @@
 //!
 //! This module provides types and functions for working with NeoFS containers.
 
-use time::OffsetDateTime;
 use serde::{Deserialize, Serialize};
+use time::OffsetDateTime;
 
 use crate::neo_fs::types::{Attributes, ContainerId, OwnerId, PlacementPolicy};
 

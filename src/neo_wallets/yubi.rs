@@ -35,10 +35,9 @@ pub struct YubiHsmSigner {
 impl YubiHsmSigner {
 	/// Builds a signer from an open YubiHSM client and an existing EcP256 key.
 	fn from_client(client: Client, key_id: object::Id) -> Result<Self, WalletError> {
-		let hsm_key =
-			client.get_public_key(key_id).map_err(|e| {
-				WalletError::YubiHsmError(format!("Failed to get public key from YubiHSM: {e}"))
-			})?;
+		let hsm_key = client.get_public_key(key_id).map_err(|e| {
+			WalletError::YubiHsmError(format!("Failed to get public key from YubiHSM: {e}"))
+		})?;
 
 		if hsm_key.algorithm != yubihsm::asymmetric::Algorithm::EcP256 {
 			return Err(WalletError::YubiHsmError(format!(
@@ -52,10 +51,12 @@ impl YubiHsmSigner {
 		encoded.push(0x04);
 		encoded.extend_from_slice(&hsm_key.bytes);
 
-		let public_key = p256::elliptic_curve::PublicKey::<p256::NistP256>::from_sec1_bytes(&encoded)
-			.map_err(|e| {
-				WalletError::YubiHsmError(format!("YubiHSM returned an invalid public key: {e}"))
-			})?;
+		let public_key = p256::elliptic_curve::PublicKey::<p256::NistP256>::from_sec1_bytes(
+			&encoded,
+		)
+		.map_err(|e| {
+			WalletError::YubiHsmError(format!("YubiHSM returned an invalid public key: {e}"))
+		})?;
 
 		Ok(Self { client, key_id, public_key })
 	}
@@ -118,7 +119,13 @@ impl WalletSigner<YubiHsmSigner> {
 		})?;
 
 		let id = client
-			.generate_asymmetric_key(id, label, domain, Capability::SIGN_ECDSA, yubihsm::asymmetric::Algorithm::EcP256)
+			.generate_asymmetric_key(
+				id,
+				label,
+				domain,
+				Capability::SIGN_ECDSA,
+				yubihsm::asymmetric::Algorithm::EcP256,
+			)
 			.map_err(|e| {
 				WalletError::YubiHsmError(format!("Failed to generate asymmetric key: {e}"))
 			})?;
@@ -142,7 +149,14 @@ impl WalletSigner<YubiHsmSigner> {
 		})?;
 
 		let id = client
-			.put_asymmetric_key(id, label, domain, Capability::SIGN_ECDSA, yubihsm::asymmetric::Algorithm::EcP256, key)
+			.put_asymmetric_key(
+				id,
+				label,
+				domain,
+				Capability::SIGN_ECDSA,
+				yubihsm::asymmetric::Algorithm::EcP256,
+				key,
+			)
 			.map_err(|e| WalletError::YubiHsmError(format!("Failed to put asymmetric key: {e}")))?;
 
 		let signer = YubiHsmSigner::from_client(client, id)?;

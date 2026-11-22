@@ -218,7 +218,9 @@ impl NeoFSClientImpl {
 						owner: "Unknown".to_string(),
 						basic_acl: 0x1fbf8fff,
 						placement_policy: "REP 3".to_string(),
-						created_at: time::OffsetDateTime::now_utc().format(&time::format_description::well_known::Rfc3339).unwrap_or_default(),
+						created_at: time::OffsetDateTime::now_utc()
+							.format(&time::format_description::well_known::Rfc3339)
+							.unwrap_or_default(),
 						attributes: HashMap::new(),
 					})
 				},
@@ -280,13 +282,19 @@ impl NeoFSClientImpl {
 
 		if response.status().is_success() {
 			Ok(ObjectInfo {
-				id: format!("obj-{}-{}", file_name, time::OffsetDateTime::now_utc().unix_timestamp()),
+				id: format!(
+					"obj-{}-{}",
+					file_name,
+					time::OffsetDateTime::now_utc().unix_timestamp()
+				),
 				container_id: container_id.to_string(),
 				owner: "current_user".to_string(),
 				size: file_content.len() as u64,
 				checksum: format!("sha256:{}", hex::encode(sha2::Sha256::digest(&file_content))),
 				content_type: mime_guess::from_path(file_path).first_or_octet_stream().to_string(),
-				created_at: time::OffsetDateTime::now_utc().format(&time::format_description::well_known::Rfc3339).unwrap_or_default(),
+				created_at: time::OffsetDateTime::now_utc()
+					.format(&time::format_description::well_known::Rfc3339)
+					.unwrap_or_default(),
 				attributes: HashMap::new(),
 			})
 		} else {
@@ -742,8 +750,11 @@ async fn handle_container_command(
 			let neofs_client = NeoFSClient::new(config).with_account(account.clone());
 
 			// Create container
-			let container_id =
-				ContainerId(format!("container-{}-{}", name, time::OffsetDateTime::now_utc().unix_timestamp()));
+			let container_id = ContainerId(format!(
+				"container-{}-{}",
+				name,
+				time::OffsetDateTime::now_utc().unix_timestamp()
+			));
 			let owner_id = OwnerId(account.get_address());
 			let mut container = Container::new(container_id.clone(), owner_id);
 			container.name = name.clone();
@@ -752,7 +763,12 @@ async fn handle_container_command(
 			// Add metadata attributes
 			container.attributes.add("Name", &name);
 			container.attributes.add("CreatedBy", "NeoRust CLI");
-			container.attributes.add("CreatedAt", &time::OffsetDateTime::now_utc().format(&time::format_description::well_known::Rfc3339).unwrap_or_default());
+			container.attributes.add(
+				"CreatedAt",
+				&time::OffsetDateTime::now_utc()
+					.format(&time::format_description::well_known::Rfc3339)
+					.unwrap_or_default(),
+			);
 
 			// Attempt to create the container
 			match neofs_client.create_container(&container).await {
@@ -926,7 +942,12 @@ async fn handle_object_command(
 				object.attributes.add("FileName", filename);
 			}
 			object.attributes.add("ContentType", "application/octet-stream");
-			object.attributes.add("UploadedAt", &time::OffsetDateTime::now_utc().format(&time::format_description::well_known::Rfc3339).unwrap_or_default());
+			object.attributes.add(
+				"UploadedAt",
+				&time::OffsetDateTime::now_utc()
+					.format(&time::format_description::well_known::Rfc3339)
+					.unwrap_or_default(),
+			);
 
 			match neofs_client.put_object(&container_id, &object).await {
 				Ok(object_id) => {

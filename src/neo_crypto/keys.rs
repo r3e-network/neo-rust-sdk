@@ -188,9 +188,11 @@ impl Secp256r1PublicKey {
 			return Err(CryptoError::InvalidPublicKey);
 		}
 
-		let point = Sec1Point::<NistP256>::from_bytes(bytes).map_err(|_| CryptoError::InvalidPublicKey)?;
+		let point =
+			Sec1Point::<NistP256>::from_bytes(bytes).map_err(|_| CryptoError::InvalidPublicKey)?;
 
-		let public_key_option: Option<PublicKey<NistP256>> = PublicKey::from_sec1_point(&point).into();
+		let public_key_option: Option<PublicKey<NistP256>> =
+			PublicKey::from_sec1_point(&point).into();
 		public_key_option
 			.map(|inner| Self { inner })
 			.ok_or(CryptoError::InvalidPublicKey)
@@ -689,8 +691,11 @@ mod tests {
 		let expected_x = hex!("b4af8d061b6b320cce6c63bc4ec7894dce107bfc5f5ef5c68a93b4ad1e136816");
 		let expected_y = hex!("5f4f7fb1c5862465543c06dd5a2aa414f6583f92a5cc3e1d4259df79bf6839c9");
 
-		let expected_ec_point =
-			Sec1Point::<NistP256>::from_affine_coordinates(&expected_x.into(), &expected_y.into(), false);
+		let expected_ec_point = Sec1Point::<NistP256>::from_affine_coordinates(
+			&expected_x.into(),
+			&expected_y.into(),
+			false,
+		);
 
 		let enc_ec_point = "03b4af8d061b6b320cce6c63bc4ec7894dce107bfc5f5ef5c68a93b4ad1e136816";
 		let enc_ec_point_bytes = hex::decode(enc_ec_point).unwrap();

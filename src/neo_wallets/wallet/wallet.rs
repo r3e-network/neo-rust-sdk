@@ -160,8 +160,12 @@ impl Wallet {
 					p = self.scrypt_params.p,
 					"Invalid scrypt params; falling back to Neo defaults"
 				);
-				Params::new(NeoConstants::SCRYPT_LOG_N, NeoConstants::SCRYPT_R, NeoConstants::SCRYPT_P)
-					.unwrap_or_else(|e| {
+				Params::new(
+					NeoConstants::SCRYPT_LOG_N,
+					NeoConstants::SCRYPT_R,
+					NeoConstants::SCRYPT_P,
+				)
+				.unwrap_or_else(|e| {
 					tracing::error!(
 						error = %e,
 						"Neo default scrypt parameters are invalid; falling back to scrypt recommended params"

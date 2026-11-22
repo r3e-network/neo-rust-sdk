@@ -9,8 +9,8 @@ fn format_local_timestamp(datetime: OffsetDateTime, subseconds: bool) -> String 
 	} else {
 		"[hour]:[minute]:[second]"
 	};
-	let description =
-		format_description::parse_borrowed::<2>(pattern).expect("static format description is valid");
+	let description = format_description::parse_borrowed::<2>(pattern)
+		.expect("static format description is valid");
 	datetime.format(&description).unwrap_or_default()
 }
 
@@ -151,7 +151,9 @@ pub fn init_logger(config: LoggerConfig) -> Result<(), Box<dyn std::error::Error
 		LogFormat::Json => {
 			builder.format(move |buf, record| {
 				let entry = JsonLogEntry {
-					timestamp: now_local_or_utc().format(&time::format_description::well_known::Rfc3339).unwrap_or_default(),
+					timestamp: now_local_or_utc()
+						.format(&time::format_description::well_known::Rfc3339)
+						.unwrap_or_default(),
 					level: record.level().to_string(),
 					target: record.target().to_string(),
 					message: format!("{}", record.args()),
@@ -339,7 +341,9 @@ impl AuditLogger {
 		metadata: std::collections::HashMap<String, String>,
 	) -> Result<(), std::io::Error> {
 		let entry = AuditEntry {
-			timestamp: now_local_or_utc().format(&time::format_description::well_known::Rfc3339).unwrap_or_default(),
+			timestamp: now_local_or_utc()
+				.format(&time::format_description::well_known::Rfc3339)
+				.unwrap_or_default(),
 			user: user.map(|s| s.to_string()),
 			operation: operation.to_string(),
 			resource: resource.map(|s| s.to_string()),

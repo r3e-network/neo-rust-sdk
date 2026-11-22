@@ -231,12 +231,11 @@ fn print_block_info(block: &BlockInfo) {
 	println!("\n   📦 New Block Received:");
 	let index = block.index;
 	let hash = &block.hash;
-	let format_description =
-		time::format_description::parse_borrowed::<2>("[year]-[month]-[day] [hour]:[minute]:[second] UTC")
-			.unwrap_or_else(|_| Vec::new());
-	let formatted_time = datetime
-		.format(format_description.as_slice())
-		.unwrap_or_default();
+	let format_description = time::format_description::parse_borrowed::<2>(
+		"[year]-[month]-[day] [hour]:[minute]:[second] UTC",
+	)
+	.unwrap_or_else(|_| Vec::new());
+	let formatted_time = datetime.format(format_description.as_slice()).unwrap_or_default();
 	let timestamp = block.timestamp;
 	let tx_count = block.transaction_count;
 	let size = block.size;

@@ -15,9 +15,9 @@
 //!
 //! This module provides types and functions for working with NeoFS access control.
 
-use time::OffsetDateTime;
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use time::OffsetDateTime;
 
 use crate::neo_fs::types::{AccessPermission, ContainerId, OwnerId};
 

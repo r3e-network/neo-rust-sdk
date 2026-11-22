@@ -1,11 +1,11 @@
 #![allow(dead_code)]
 
 use crate::errors::CliError;
-use time::OffsetDateTime;
-use time::Duration;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
+use time::Duration;
+use time::OffsetDateTime;
 use uuid::Uuid;
 
 /// Session configuration
