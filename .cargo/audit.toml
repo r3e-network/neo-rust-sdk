@@ -5,4 +5,11 @@ ignore = [
     # jsonwebtoken's RustCrypto provider enables rsa 0.9, but the SDK's JWT implementation only
     # exposes HS256. No patched rsa 0.9 release is currently available.
     "RUSTSEC-2023-0071",
+
+    # RUSTSEC-2026-0387 - timing variability in `crypto-bigint` ops. The patched
+    # line is 0.7.x, but the SDK reaches crypto-bigint 0.5.5 via
+    # elliptic-curve 0.13 / p256 0.13 / p384 0.13; the fix requires migrating to
+    # elliptic-curve 0.14 + p256/p384 0.14 (RustCrypto trait rework). Tracked as
+    # a follow-up; remove after that migration lands.
+    "RUSTSEC-2026-0387",
 ]
