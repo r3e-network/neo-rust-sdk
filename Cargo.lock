@@ -4049,7 +4049,7 @@ dependencies = [
 
 [[package]]
 name = "neo-cli"
-version = "3.3.3"
+version = "4.0.0"
 dependencies = [
  "aes-gcm",
  "anyhow",
@@ -4087,7 +4087,7 @@ dependencies = [
 
 [[package]]
 name = "neo3"
-version = "3.3.3"
+version = "4.0.0"
 dependencies = [
  "aes",
  "alloy",
