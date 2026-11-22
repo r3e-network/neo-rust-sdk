@@ -420,11 +420,12 @@ impl AccountEventQuery {
 				remaining_offset -= skip_count;
 				results.extend(matched.into_iter().skip(skip_count));
 
-				if let Some(cap) = result_cap {
-					if results.len() >= cap {
-						results.truncate(cap);
-						return Ok(results);
-					}				}
+				if let Some(cap) = result_cap
+					&& results.len() >= cap
+				{
+					results.truncate(cap);
+					return Ok(results);
+				}
 			}
 		}
 
@@ -481,7 +482,8 @@ impl AccountEventQuery {
 	where
 		P: JsonRpcProvider,
 	{
-		self.execute(client).await	}
+		self.execute(client).await
+	}
 }
 
 #[cfg(test)]

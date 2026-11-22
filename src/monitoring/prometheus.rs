@@ -250,7 +250,8 @@ pub fn is_authorized(auth_header: Option<&str>) -> bool {
 			// avoids leaking the token through response-timing side channels.
 			Some(header) => {
 				let expected = format!("Bearer {token}");
-				bool::from(header.as_bytes().ct_eq(expected.as_bytes()))			},
+				bool::from(header.as_bytes().ct_eq(expected.as_bytes()))
+			},
 			None => false,
 		},
 	}
@@ -259,7 +260,8 @@ pub fn is_authorized(auth_header: Option<&str>) -> bool {
 /// Parse the `key=value&...` query string of a `/metrics` request.
 ///
 /// Returns `(namespace, component)` filter values when present.
-#[cfg(any(feature = "metrics-prometheus", test))]fn parse_query(query: &str) -> (Option<String>, Option<String>) {
+#[cfg(any(feature = "metrics-prometheus", test))]
+fn parse_query(query: &str) -> (Option<String>, Option<String>) {
 	let mut namespace = None;
 	let mut component = None;
 	for pair in query.split('&') {

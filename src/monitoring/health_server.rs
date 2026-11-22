@@ -372,7 +372,8 @@ mod tests {
 		assert_eq!(active_connections(), start);
 		// Saturates at zero rather than underflowing.
 		connection_closed();
-		assert_eq!(active_connections(), 0);	}
+		assert_eq!(active_connections(), 0);
+	}
 
 	#[test]
 	fn status_text_maps_all_variants() {

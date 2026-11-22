@@ -54,7 +54,8 @@ const HIGH_MARGIN_PERCENT: u8 = 25;
 /// // 1_000 base fee + 10% margin => 1_100 total.
 /// assert_eq!(FeePriority::Medium.apply(1_000), 1_100);
 /// ```
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]pub enum FeePriority {
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub enum FeePriority {
 	/// No margin: pay exactly the base estimated fee.
 	Low,
 	/// A moderate 10% margin — the SDK default.

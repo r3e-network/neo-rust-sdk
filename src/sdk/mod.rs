@@ -97,7 +97,8 @@ pub mod websocket;
 
 pub use self::fee::{FeeAdjustment, FeePriority};
 use self::retry::{DEFAULT_RETRY_DELAY, retry_network};
-use crate::sdk::fee::{FeePolicy, resolve_fee_adjustment};use crate::{
+use crate::sdk::fee::{FeePolicy, resolve_fee_adjustment};
+use crate::{
 	neo_clients::{APITrait, HttpProvider, RpcCache, RpcClient},
 	neo_error::unified::{ErrorRecovery, NeoError},
 	neo_types::VMState,

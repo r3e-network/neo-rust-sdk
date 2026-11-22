@@ -91,6 +91,19 @@ fn test_opcode_and_vm_state_random_data() {
 		if !bytes.is_empty() {
 			let first_byte = bytes[0];
 			let opcode_result = OpCode::try_from_primitive(first_byte);
+			let _ = opcode_result;
+		}
+
+		// Also try converting random integers to VM states
+		let vm_states = vec![VMState::None, VMState::Halt, VMState::Fault, VMState::Break];
+		for state in vm_states {
+			let _ = format!("{:?}", state); // Just verify formatting works
+		}
+	});
+}
+
+// Add more block header primitive tests
+mod block_primitives {
 	#[test]
 	fn test_h256_hash_construction() {
 		use primitive_types::H256;

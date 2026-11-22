@@ -497,7 +497,8 @@ mod tests {
 						"value": s
 					}))
 					.collect::<Vec<_>>()
-			),		);
+			),
+		);
 
 		let client = providers::RpcClient::new(provider);
 		let mut nft_contract = NftContract::new(&contract_hash, Some(&client));

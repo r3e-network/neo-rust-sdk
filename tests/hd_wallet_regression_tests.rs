@@ -20,13 +20,15 @@ fn test_sequential_derivation_paths() {
 		// `derive_account` is large, so box it to keep the closure's
 		// `Result` small (clippy::result_large_err).
 		let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-			wallet.derive_account(&path_str).map_err(Box::new)		}));
+			wallet.derive_account(&path_str).map_err(Box::new)
+		}));
 
 		assert!(result.is_ok(), "Derivation should not panic for path {}", path_str);
 
 		match result.unwrap() {
 			Ok(account) => {
-				let address = account.get_address();				assert!(!address.is_empty(), "Address should not be empty");
+				let address = account.get_address();
+				assert!(!address.is_empty(), "Address should not be empty");
 				derived_addresses.push(address);
 			},
 			Err(e) => {
@@ -106,7 +108,8 @@ fn test_negative_index_handling() {
 	if let Err(e) = result {
 		// Otherwise, an explicit error is acceptable — never a panic.
 		let _ = e;
-	}}
+	}
+}
 
 /// Test batch derivation performance and safety
 #[test]
@@ -175,7 +178,8 @@ fn test_derivation_path_parsing_edge_cases() {
 		match result {
 			Ok(_) => assert!(should_succeed, "Path '{}' should succeed", path_str),
 			Err(_) => assert!(!should_succeed, "Path '{}' should fail", path_str),
-		}	}
+		}
+	}
 }
 
 /// Branch coverage verification helper
@@ -200,4 +204,5 @@ fn generate_test_wallet() -> HDWallet {
 		None,
 		Language::English,
 	)
-	.expect("Failed to create test wallet")}
+	.expect("Failed to create test wallet")
+}

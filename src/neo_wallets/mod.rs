@@ -80,7 +80,8 @@ use crate::neo_protocol::Account;
 pub use bip39_account::*;
 pub use error::*;
 pub use session_key::{
-	CallFlagsWrapper, SessionKeyConfig, SessionSigner, derive_session_key, verify_session_proof,};
+	CallFlagsWrapper, SessionKeyConfig, SessionSigner, derive_session_key, verify_session_proof,
+};
 pub use wallet::*;
 pub use wallet_signer::WalletSigner;
 pub use wallet_trait::WalletTrait;
